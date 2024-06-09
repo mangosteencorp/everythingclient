@@ -1,7 +1,7 @@
 import XCTest
-@testable import EverythingClient
+@testable import DimillianMovieSwiftUIFilmoMatic
 
-final class EverythingClientTests: XCTestCase {
+final class DimillianMovieSwiftUIFilmoMaticTests: XCTestCase {
     func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest
