@@ -1,83 +1,99 @@
 import SwiftUI
-struct Movie: Identifiable {
-    let id: Int
-    let posterPath: String?
-    let userTitle: String
-    let voteAverage: Double
-    let releaseDate: Date?
-    let overview: String
+
+fileprivate let formatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    return formatter
+}()
+
+@available(iOS 15, *)
+struct MoviePosterImage: View {
+    var posterPath: String?
+    var posterSize: PosterSize
+
+    var body: some View {
+        if let posterPath = posterPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                        .frame(width: posterSize.width, height: posterSize.height)
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: posterSize.width, height: posterSize.height)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                case .failure:
+                    Image(systemName: "photo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: posterSize.width, height: posterSize.height)
+                        .foregroundColor(.gray)
+                @unknown default:
+                    EmptyView()
+                        .frame(width: posterSize.width, height: posterSize.height)
+                }
+            }
+        } else {
+            Image(systemName: "photo")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: posterSize.width, height: posterSize.height)
+                .foregroundColor(.gray)
+        }
+    }
+
 }
 
-@available(iOS 15.0, *)
-struct MovieRow: View {
-    @State private var isLoading = true
-    @State private var movie: Movie?
+struct PosterSize {
+    var width: CGFloat
+    var height: CGFloat
+    
+    static let medium = PosterSize(width: 100, height: 150)
+}
 
-    let movieId: Int
+import SwiftUI
+
+struct TitleStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.headline) // Set the font to headline
+            .foregroundColor(.primary) // Set the text color to primary
+            .padding(.vertical, 4) // Add vertical padding
+    }
+}
+
+extension View {
+    func titleStyle() -> some View {
+        self.modifier(TitleStyle())
+    }
+}
+extension Color {
+    static let steamGold = Color(red: 199 / 255, green: 165 / 255, blue: 67 / 255)
+}
+
+
+@available(iOS 15, *)
+struct MovieRow: View {
+    let movie: Movie
+    var displayListImage = true
 
     var body: some View {
         HStack {
-            if isLoading {
-                loadingView
-            } else if let movie = movie {
-                movieDetailView(movie)
-            } else {
-                Text("Failed to load movie")
+            ZStack(alignment: .topLeading) {
+                MoviePosterImage(posterPath: movie.poster_path, posterSize: .medium)
             }
-        }
-        .onAppear {
-            fetchMovieDetails()
-        }
-        .padding(.vertical, 8)
-    }
-
-    private var loadingView: some View {
-        HStack {
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 100, height: 150)
-                .cornerRadius(8)
-            VStack(alignment: .leading, spacing: 8) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 20)
-                    .cornerRadius(4)
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 20)
-                    .cornerRadius(4)
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 60)
-                    .cornerRadius(4)
-            }
-            .padding(.leading, 8)
-        }
-        .redacted(reason: .placeholder)
-    }
-
-    private func movieDetailView(_ movie: Movie) -> some View {
-        HStack {
-            AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w500\(movie.posterPath ?? "")")) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 100, height: 150)
-                    .cornerRadius(8)
-            } placeholder: {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 100, height: 150)
-                    .cornerRadius(8)
-            }
+            .fixedSize()
+            .animation(.spring())
             VStack(alignment: .leading, spacing: 8) {
                 Text(movie.userTitle)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
+                    .titleStyle()
+                    .foregroundColor(Color.steamGold)
                     .lineLimit(2)
                 HStack {
-                    PopularityBadge(score: Int(movie.voteAverage * 10))
+                    PopularityBadge(score: Int(movie.vote_average * 10))
                     Text(formatter.string(from: movie.releaseDate ?? Date()))
                         .font(.subheadline)
                         .foregroundColor(.primary)
@@ -87,37 +103,16 @@ struct MovieRow: View {
                     .foregroundColor(.secondary)
                     .lineLimit(3)
                     .truncationMode(.tail)
-            }
-            .padding(.leading, 8)
+            }.padding(.leading, 8)
         }
-    }
-
-    private func fetchMovieDetails() {
-        // Simulate network request by delaying for a couple of seconds.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            // Update this block with actual network request logic to fetch movie details.
-            let exampleMovie = Movie(
-                id: movieId,
-                posterPath: "/path_to_poster.jpg",
-                userTitle: "Example Movie Title",
-                voteAverage: 6.8,
-                releaseDate: Date(),
-                overview: "Example movie overview."
-            )
-            self.movie = exampleMovie
-            self.isLoading = false
-        }
+        .padding(.top, 8)
+        .padding(.bottom, 8)
+        .contextMenu { Text(self.movie.id.description) }
+        .redacted(reason: movie.id == 0 ? .placeholder : [])
     }
 }
 
-fileprivate let formatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .medium
-    return formatter
-}()
-
-
-@available(iOS 15.0,*)
+@available(iOS 15, *)
 #Preview {
-    MovieRow(movieId: 0)
+    MovieRow(movie: sampleMovie)
 }
