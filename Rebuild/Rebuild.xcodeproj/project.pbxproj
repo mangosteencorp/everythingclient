@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B8B5E402C162CBD009213EB /* everythingclient in Frameworks */ = {isa = PBXBuildFile; productRef = 8B8B5E3F2C162CBD009213EB /* everythingclient */; };
+		8BCECE3F2C163F0400700550 /* EverythingClient in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCECE3E2C163F0400700550 /* EverythingClient */; };
 		8BEDAF982BD1442D000A62D2 /* RebuildApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */; };
 		8BEDAF9A2BD1442D000A62D2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEDAF992BD1442D000A62D2 /* ContentView.swift */; };
 		8BEDAF9C2BD1442F000A62D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */; };
@@ -31,7 +31,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B8B5E402C162CBD009213EB /* everythingclient in Frameworks */,
+				8BCECE3F2C163F0400700550 /* EverythingClient in Frameworks */,
 				8BEDAFAA2BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,7 +111,7 @@
 			name = Rebuild;
 			packageProductDependencies = (
 				8BEDAFA92BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic */,
-				8B8B5E3F2C162CBD009213EB /* everythingclient */,
+				8BCECE3E2C163F0400700550 /* EverythingClient */,
 			);
 			productName = Rebuild;
 			productReference = 8BEDAF942BD1442D000A62D2 /* Rebuild.app */;
@@ -385,9 +385,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8B8B5E3F2C162CBD009213EB /* everythingclient */ = {
+		8BCECE3E2C163F0400700550 /* EverythingClient */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = everythingclient;
+			productName = EverythingClient;
 		};
 		8BEDAFA92BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic */ = {
 			isa = XCSwiftPackageProductDependency;

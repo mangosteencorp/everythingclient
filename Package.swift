@@ -5,11 +5,15 @@ import PackageDescription
 
 let package = Package(
     name: "everythingclient",
+    platforms: [
+        .iOS(.v14)
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "everythingclient",
+            name: "EverythingClient",
             targets: ["everythingclient"]),
+        
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -19,5 +23,6 @@ let package = Package(
         .testTarget(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
+        
     ]
 )
