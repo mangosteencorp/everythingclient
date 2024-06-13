@@ -78,7 +78,7 @@ struct Movie: Codable, Identifiable {
     }
 }
 
-let sampleMovie = Movie(id: 0,
+let sampleEmptyMovie = Movie(id: 0,
                         original_title: "Test movie Test movie Test movie Test movie Test movie Test movie Test movie ",
                         title: "Test movie Test movie Test movie Test movie Test movie Test movie Test movie  Test movie Test movie Test movie",
                         overview: "Test desc",
@@ -92,3 +92,25 @@ let sampleMovie = Movie(id: 0,
                         runtime: 80,
                         status: "released",
                         video: false)
+
+let sampleApeMovie = Movie(
+    id: 653346,
+    original_title: "Kingdom of the Planet of the Apes",
+    title: "Kingdom of the Planet of the Apes",
+    overview: "Several generations in the future following Caesar's reign, apes are now the dominant species and live harmoniously while humans have been reduced to living in the shadows. As a new tyrannical ape leader builds his empire, one young ape undertakes a harrowing journey that will cause him to question all that he has known about the past and to make choices that will define a future for apes and humans alike.",
+    poster_path: "/gKkl37BQuKTanygYQG1pyYgLVgf.jpg",
+    backdrop_path: "/fqv8v6AycXKsivp1T5yKtLbGXce.jpg",
+    popularity: 4050.674,
+    vote_average: 6.861,
+    vote_count: 955,
+    release_date: "2024-05-10",
+    genres: nil,
+    runtime: nil,
+    status: nil,
+    video: false,
+    keywords: nil,
+    images: nil,
+    production_countries: nil,
+    character: nil,
+    department: nil
+)

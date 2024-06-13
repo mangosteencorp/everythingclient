@@ -114,5 +114,9 @@ struct MovieRow: View {
 
 @available(iOS 15, *)
 #Preview {
-    MovieRow(movie: sampleMovie)
+    Group{
+        MovieRow(movie: sampleEmptyMovie)
+        MovieRow(movie: sampleApeMovie)
+    }
+    
 }
