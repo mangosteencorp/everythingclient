@@ -6,12 +6,12 @@
 //
 
 import SwiftUI
-
+import everythingclient
 @main
 struct RebuildApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootContentView()
         }
     }
 }

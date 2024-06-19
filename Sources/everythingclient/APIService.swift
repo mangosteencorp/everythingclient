@@ -144,7 +144,9 @@ public struct APIService {
             return .failure(.networkError(error: error))
         }
     }
-    
+    func fetchNowPlayingMovies() async -> Result<[Movie], APIError> {
+            return await fetch(endpoint: .nowPlaying, params: nil)
+        }
 }
 
 extension URLRequest {

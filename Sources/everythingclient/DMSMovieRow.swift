@@ -6,7 +6,7 @@ fileprivate let formatter: DateFormatter = {
     return formatter
 }()
 
-@available(iOS 15, *)
+@available(iOS 15, macOS 12, *)
 struct MoviePosterImage: View {
     var posterPath: String?
     var posterSize: PosterSize
@@ -54,8 +54,7 @@ struct PosterSize {
     static let medium = PosterSize(width: 100, height: 150)
 }
 
-import SwiftUI
-
+@available(iOS 15, macOS 12, *)
 struct TitleStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -64,18 +63,20 @@ struct TitleStyle: ViewModifier {
             .padding(.vertical, 4) // Add vertical padding
     }
 }
-
+@available(iOS 15, macOS 12, *)
 extension View {
     func titleStyle() -> some View {
         self.modifier(TitleStyle())
     }
 }
+
+@available(iOS 13, macOS 10.15, *)
 extension Color {
     static let steamGold = Color(red: 199 / 255, green: 165 / 255, blue: 67 / 255)
 }
 
 
-@available(iOS 15, *)
+@available(iOS 15, macOS 12, *)
 struct MovieRow: View {
     let movie: Movie
     var displayListImage = true
@@ -108,15 +109,23 @@ struct MovieRow: View {
         .padding(.top, 8)
         .padding(.bottom, 8)
         .contextMenu { Text(self.movie.id.description) }
-        .redacted(reason: movie.id == 0 ? .placeholder : [])
+        .redacted(if: movie.id == 0)
     }
 }
 
-@available(iOS 15, *)
+@available(iOS 15, macOS 12, *)
 #Preview {
     Group{
         MovieRow(movie: sampleEmptyMovie)
         MovieRow(movie: sampleApeMovie)
     }
     
+}
+
+@available(iOS 13, macOS 11, *)
+extension View {
+    @ViewBuilder
+    func redacted(if condition: @autoclosure () -> Bool) -> some View {
+        redacted(reason: condition() ? .placeholder : [])
+    }
 }

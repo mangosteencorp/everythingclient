@@ -7,6 +7,7 @@
 
 import SwiftUI
 import DimillianMovieSwiftUIFilmoMatic
+import everythingclient
 struct ContentView: View {
     var body: some View {
         NowPlayingView()
