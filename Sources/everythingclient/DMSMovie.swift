@@ -21,8 +21,8 @@ struct Genre: Codable, Identifiable {
     let name: String
 }
 
-struct Movie: Codable, Identifiable {
-    let id: Int
+public struct Movie: Codable, Identifiable {
+    public let id: Int
     
     let original_title: String
     let title: String

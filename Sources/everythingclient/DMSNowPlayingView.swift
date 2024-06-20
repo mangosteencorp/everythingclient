@@ -17,12 +17,12 @@ class NowPlayingViewModel: ObservableObject {
         errorMessage = nil
         
         Task {
-            let result = await apiService.fetchNowPlayingMovies()
+            let result = await self.apiService.fetchNowPlayingMovies()
             DispatchQueue.main.async {
                 self.isLoading = false
                 switch result {
-                case .success(let movies):
-                    self.movies = movies
+                case .success(let response):
+                    self.movies = response.results
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }

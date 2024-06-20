@@ -133,7 +133,7 @@ public struct APIService {
         request.httpMethod = "GET"
         debugPrint(request.curlString)
         do {
-            let (data,response) = try await URLSession.shared.data(for: request)
+            let (data,_) = try await URLSession.shared.data(for: request)
             do {
                 let object = try self.decoder.decode(T.self, from: data)
                 return .success(object)
@@ -144,9 +144,9 @@ public struct APIService {
             return .failure(.networkError(error: error))
         }
     }
-    func fetchNowPlayingMovies() async -> Result<[Movie], APIError> {
-            return await fetch(endpoint: .nowPlaying, params: nil)
-        }
+    public func fetchNowPlayingMovies() async -> Result<NowPlayingResponse, APIError> {
+        return await fetch(endpoint: .nowPlaying, params: nil)
+    }
 }
 
 extension URLRequest {
