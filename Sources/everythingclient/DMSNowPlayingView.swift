@@ -39,9 +39,7 @@ struct DMSNowPlayingView: View {
         NavigationView {
             Group {
                 if viewModel.isLoading {
-                    List(Array(repeating: sampleEmptyMovie, count: 20)){
-                        MovieRow(movie: $0)
-                    }
+                    ProgressView("Loading...")
                 } else if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                 } else {
@@ -52,43 +50,13 @@ struct DMSNowPlayingView: View {
             }
             .navigationTitle("Now Playing")
             .onAppear {
-                fetch()
+                viewModel.fetchNowPlayingMovies()
             }
         }
-    }
-    func fetch() {
-        viewModel.fetchNowPlayingMovies()
-    }
-}
-
-// Create a UIViewController that hosts a SwiftUI view
-@available(iOS 15, macOS 10.15, *)
-class NowPlayingHostingController: UIHostingController<DMSNowPlayingView> {
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder, rootView: DMSNowPlayingView())
-    }
-
-    override init(rootView: DMSNowPlayingView) {
-        super.init(rootView: rootView)
-    }
-    
-}
-@available(iOS 15, macOS 10.15, *)
-struct NowPlayingViewControllerRepresentable: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> NowPlayingHostingController {
-        return NowPlayingHostingController(rootView: DMSNowPlayingView())
-    }
-
-    func updateUIViewController(_ uiViewController: NowPlayingHostingController, context: Context) {
-        // Update the view controller if needed
     }
 }
 
 @available(iOS 15, macOS 10.15, *)
 #Preview {
     DMSNowPlayingView()
-}
-@available(iOS 17, *)
-#Preview {
-    NowPlayingHostingController(rootView: DMSNowPlayingView())
 }

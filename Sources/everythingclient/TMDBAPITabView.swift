@@ -1,15 +1,22 @@
+//
+//  SwiftUIView.swift
+//  
+//
+//  Created by Quang on 2024-06-09.
+//
+
 import SwiftUI
 
-@available(iOS 15, *)
 struct TMDBAPITabView: View {
-    // @State private var selectionTab: Int = 0
-    let nowplayingView: DMSNowPlayingView = DMSNowPlayingView()
+    @State private var selectionTab: Int = 0
     var body: some View {
-        TabView  {
-            NowPlayingViewControllerRepresentable()
-            nowplayingView.tag(1)
-            Text("Tab Content 2").tag(2)
-        }
+        TabView(selection: $selectionTab,
+                content:  {
+            if #available(iOS 15, *) {
+                DMSNowPlayingView().tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 1")/*@END_MENU_TOKEN@*/ }.tag(1)
+            } 
+            Text("Tab Content 2").tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 2")/*@END_MENU_TOKEN@*/ }.tag(2)
+        })
         .tabViewStyle(PageTabViewStyle())
         .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
     }
