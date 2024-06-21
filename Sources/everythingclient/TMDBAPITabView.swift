@@ -13,8 +13,8 @@ struct TMDBAPITabView: View {
         TabView(selection: $selectionTab,
                 content:  {
             if #available(iOS 15, *) {
-                DMSNowPlayingView().tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 1")/*@END_MENU_TOKEN@*/ }.tag(1)
-            } 
+                DMSNowPlayingView(loading: true).tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 1")/*@END_MENU_TOKEN@*/ }.tag(1)
+            }
             Text("Tab Content 2").tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 2")/*@END_MENU_TOKEN@*/ }.tag(2)
         })
         .tabViewStyle(PageTabViewStyle())
