@@ -1,5 +1,5 @@
 import SwiftUI
-
+import TMDB
 public struct RootContentView: View {
     @State private var selectedTab = 0
     public init() {}

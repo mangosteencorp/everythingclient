@@ -13,6 +13,13 @@ let package = Package(
         .library(
             name: "EverythingClient",
             targets: ["everythingclient"]),
+        // Targets need to be exposed as libraries so Preview works
+        .library(
+            name: "TMDB",
+            targets: ["TMDB"]),
+        .library(
+            name: "TMDB_Dimilian_MVVM",
+            targets: ["TMDB_Dimilian_MVVM"]),
         
     ],
     targets: [
@@ -24,7 +31,10 @@ let package = Package(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
         
-        .target(name: "TMDB", dependencies: ["TMDB.Dimilian.MVVM"]),
-        .target(name: "TMDB.Dimilian.MVVM"),
+        .target(
+            name: "TMDB",
+            dependencies: ["TMDB_Dimilian_MVVM"]),
+        .target(
+            name: "TMDB_Dimilian_MVVM"),
     ]
 )

@@ -1,13 +1,7 @@
-//
-//  SwiftUIView.swift
-//  
-//
-//  Created by Quang on 2024-06-09.
-//
-
+import TMDB_Dimilian_MVVM
 import SwiftUI
 @available(iOS 15,*)
-struct TMDBAPITabView: View {
+public struct TMDBAPITabView: View {
     
     @State private var currentIndex = 0
         private let views: [AnyView] = [
@@ -15,7 +9,8 @@ struct TMDBAPITabView: View {
             AnyView(SecondView()),
             AnyView(ThirdView())
         ]
-    var body: some View {
+    public init() {}
+    public var body: some View {
         NavigationView {
             VStack {
                 Spacer()

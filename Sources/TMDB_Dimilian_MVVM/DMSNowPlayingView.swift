@@ -32,10 +32,10 @@ class NowPlayingViewModel: ObservableObject {
 }
 
 @available(iOS 15, macOS 10.15, *)
-struct DMSNowPlayingView: View {
+public struct DMSNowPlayingView: View {
     @StateObject private var viewModel = NowPlayingViewModel()
-
-    var body: some View {
+    public init(){}
+    public var body: some View {
         NavigationView {
             Group {
                 if viewModel.isLoading {
