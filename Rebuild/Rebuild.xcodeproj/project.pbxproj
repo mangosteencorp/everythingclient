@@ -9,21 +9,16 @@
 /* Begin PBXBuildFile section */
 		8BCECE3F2C163F0400700550 /* EverythingClient in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCECE3E2C163F0400700550 /* EverythingClient */; };
 		8BEDAF982BD1442D000A62D2 /* RebuildApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */; };
-		8BEDAF9A2BD1442D000A62D2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEDAF992BD1442D000A62D2 /* ContentView.swift */; };
 		8BEDAF9C2BD1442F000A62D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */; };
 		8BEDAFA02BD1442F000A62D2 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEDAF9F2BD1442F000A62D2 /* Preview Assets.xcassets */; };
-		8BEDAFAA2BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic in Frameworks */ = {isa = PBXBuildFile; productRef = 8BEDAFA92BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		8BEDAF942BD1442D000A62D2 /* Rebuild.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rebuild.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RebuildApp.swift; sourceTree = "<group>"; };
-		8BEDAF992BD1442D000A62D2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8BEDAF9D2BD1442F000A62D2 /* Rebuild.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rebuild.entitlements; sourceTree = "<group>"; };
 		8BEDAF9F2BD1442F000A62D2 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		8BEDAFA72BD144A5000A62D2 /* DimillianMovieSwiftUIFilmoMatic */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = DimillianMovieSwiftUIFilmoMatic; sourceTree = "<group>"; };
-		8BEDAFAB2BD1CA84000A62D2 /* TheMovieDBAPI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = TheMovieDBAPI; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,7 +27,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BCECE3F2C163F0400700550 /* EverythingClient in Frameworks */,
-				8BEDAFAA2BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,7 +36,6 @@
 		8BEDAF8B2BD1442D000A62D2 = {
 			isa = PBXGroup;
 			children = (
-				8BEDAFA62BD1444F000A62D2 /* Packages */,
 				8BEDAF962BD1442D000A62D2 /* Rebuild */,
 				8BEDAF952BD1442D000A62D2 /* Products */,
 				8BEDAFA82BD147A8000A62D2 /* Frameworks */,
@@ -61,7 +54,6 @@
 			isa = PBXGroup;
 			children = (
 				8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */,
-				8BEDAF992BD1442D000A62D2 /* ContentView.swift */,
 				8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */,
 				8BEDAF9D2BD1442F000A62D2 /* Rebuild.entitlements */,
 				8BEDAF9E2BD1442F000A62D2 /* Preview Content */,
@@ -75,15 +67,6 @@
 				8BEDAF9F2BD1442F000A62D2 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		8BEDAFA62BD1444F000A62D2 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				8BEDAFAB2BD1CA84000A62D2 /* TheMovieDBAPI */,
-				8BEDAFA72BD144A5000A62D2 /* DimillianMovieSwiftUIFilmoMatic */,
-			);
-			path = Packages;
 			sourceTree = "<group>";
 		};
 		8BEDAFA82BD147A8000A62D2 /* Frameworks */ = {
@@ -110,7 +93,6 @@
 			);
 			name = Rebuild;
 			packageProductDependencies = (
-				8BEDAFA92BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic */,
 				8BCECE3E2C163F0400700550 /* EverythingClient */,
 			);
 			productName = Rebuild;
@@ -167,7 +149,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BEDAF9A2BD1442D000A62D2 /* ContentView.swift in Sources */,
 				8BEDAF982BD1442D000A62D2 /* RebuildApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -388,10 +369,6 @@
 		8BCECE3E2C163F0400700550 /* EverythingClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = EverythingClient;
-		};
-		8BEDAFA92BD147A8000A62D2 /* DimillianMovieSwiftUIFilmoMatic */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = DimillianMovieSwiftUIFilmoMatic;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
