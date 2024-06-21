@@ -12,10 +12,6 @@ class NowPlayingViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let apiService = APIService.shared
     
-    public init(initialMovies: [Movie] = []) {
-        movies = initialMovies
-    }
-    
     func fetchNowPlayingMovies() {
         isLoading = true
         errorMessage = nil
@@ -37,26 +33,23 @@ class NowPlayingViewModel: ObservableObject {
 
 @available(iOS 15, macOS 10.15, *)
 struct DMSNowPlayingView: View {
-    @StateObject private var viewModel = NowPlayingViewModel(initialMovies: Array(repeating: sampleEmptyMovie, count: 10))
-    let loading: Bool
-    init(loading: Bool = false) {
-        self.loading = loading
-        if loading{
-            viewModel.fetchNowPlayingMovies()
-        }
-    }
-    
+    @StateObject private var viewModel = NowPlayingViewModel()
+
     var body: some View {
         NavigationView {
-            VStack{
-                List(viewModel.movies) { movie in
-                    MovieRow(movie: movie)
+            Group {
+                if viewModel.isLoading {
+                    ProgressView("Loading...")
+                } else if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                } else {
+                    List(viewModel.movies) { movie in
+                        MovieRow(movie: movie)
+                    }
                 }
             }
             .navigationTitle("Now Playing")
-            
-        }.onAppear {
-            if !self.loading{
+            .onAppear {
                 viewModel.fetchNowPlayingMovies()
             }
         }
