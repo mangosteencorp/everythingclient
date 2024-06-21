@@ -49,6 +49,7 @@ struct DMSNowPlayingView: View {
                 }
             }
             .navigationTitle("Now Playing")
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 viewModel.fetchNowPlayingMovies()
             }
