@@ -1,4 +1,5 @@
 import TMDB_Dimilian_MVVM
+import TMDB_Dimilian_clean
 import SwiftUI
 @available(iOS 15,*)
 public struct TMDBAPITabView: View {
@@ -6,7 +7,7 @@ public struct TMDBAPITabView: View {
     @State private var currentIndex = 0
         private let views: [AnyView] = [
             AnyView(DMSNowPlayingView()),
-            AnyView(SecondView()),
+            AnyView(TMDB_Dimilian_clean.MovieListView(type: .upcoming)),
             AnyView(ThirdView())
         ]
     public init() {}
@@ -54,12 +55,6 @@ public struct TMDBAPITabView: View {
     }
 }
 
-struct SecondView: View {
-    var body: some View {
-        Text("Second View")
-            .font(.largeTitle)
-    }
-}
 
 struct ThirdView: View {
     var body: some View {

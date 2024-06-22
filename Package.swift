@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "everythingclient",
     platforms: [
-        .iOS(.v14)
+        .iOS(.v14),
+        .macOS(.v11)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -20,7 +21,12 @@ let package = Package(
         .library(
             name: "TMDB_Dimilian_MVVM",
             targets: ["TMDB_Dimilian_MVVM"]),
-        
+        .library(
+            name: "TMDB_Dimilian_clean",
+            targets: ["TMDB_Dimilian_clean"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -33,8 +39,12 @@ let package = Package(
         
         .target(
             name: "TMDB",
-            dependencies: ["TMDB_Dimilian_MVVM"]),
+            dependencies: ["TMDB_Dimilian_MVVM",
+                           "TMDB_Dimilian_clean"]),
         .target(
             name: "TMDB_Dimilian_MVVM"),
+        .target(
+            name: "TMDB_Dimilian_clean",
+            dependencies: ["Swinject"]),
     ]
 )
