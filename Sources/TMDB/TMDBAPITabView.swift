@@ -1,5 +1,6 @@
 import TMDB_Dimilian_MVVM
 import TMDB_Dimilian_clean
+import TMDB_AlonsoUpcomingMovies_og
 import SwiftUI
 @available(iOS 15,*)
 public struct TMDBAPITabView: View {
@@ -8,7 +9,7 @@ public struct TMDBAPITabView: View {
         private let views: [AnyView] = [
             AnyView(DMSNowPlayingView()),
             AnyView(TMDB_Dimilian_clean.MovieListView(type: .upcoming)),
-            AnyView(ThirdView())
+            AnyView(SignInView())
         ]
     public init() {}
     public var body: some View {
