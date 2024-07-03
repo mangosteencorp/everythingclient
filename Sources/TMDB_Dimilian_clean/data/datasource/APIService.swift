@@ -69,6 +69,10 @@ public struct APIService {
             }
         }
     }
+    let session: URLSession
+    init(_ session: URLSession = .shared) {
+        self.session = session
+    }
     
     public func GET<T: Codable>(endpoint: Endpoint,
                                 params: [String: String]?,
@@ -87,7 +91,7 @@ public struct APIService {
         var request = URLRequest(url: components.url!)
         request.httpMethod = "GET"
         debugPrint(request.curlString)
-        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+        let task = self.session.dataTask(with: request) { (data, response, error) in
             guard let data = data else {
                 DispatchQueue.main.async {
                     completionHandler(.failure(.noResponse))

@@ -15,3 +15,4 @@ struct Movie {
         return formatter
     }()
 }
+extension Movie: Equatable {}

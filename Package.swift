@@ -49,7 +49,9 @@ let package = Package(
             // https://claude.ai/chat/a8980734-bb2b-497b-afcd-ff34306e1392
             name: "TMDB_Dimilian_clean",
             dependencies: ["Swinject"]),
-        
+        .testTarget(
+            name: "TMDB_Dimilian_clean_tests",
+            dependencies: ["TMDB_Dimilian_clean"]),
         .target(
             name: "TMDB_AlonsoUpcomingMovies_og"
             // https://claude.ai/chat/7b9a2446-c213-4685-b290-1d6e92bca1bc
