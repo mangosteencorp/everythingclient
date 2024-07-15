@@ -2,10 +2,10 @@
 // MARK: - Mock Classes
 
 class MockFetchMoviesUseCase: FetchMoviesUseCase {
-    var result: Result<[Movie], Error>!
+    var mockResult: Result<[Movie], Error>?
     
     func execute() async -> Result<[Movie], Error> {
-        return result
+        return mockResult ?? .failure(APIService.APIError.noResponse)
     }
 }
 
