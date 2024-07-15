@@ -12,7 +12,7 @@ public struct PopularityBadge : View {
     public let score: Int
     public let textColor: Color
     
-    @State private var isDisplayed = false
+    @State var isDisplayed = false
     
     public init(score: Int, textColor: Color = .primary) {
         self.score = score

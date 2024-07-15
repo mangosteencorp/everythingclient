@@ -34,21 +34,22 @@ class PopularityBadgeTests: XCTestCase {
     }
     @available(iOS 15,*)
     func testViewContent() {
-            let score = 85
-            let badge = PopularityBadge(score: score)
-            
-            
-            // Search for Text
-            let text = findViewOfType(Text.self, in: badge.body)
-            XCTAssertNotNil(text, "View should contain a Text")
-            
-            if let textView = text {
-                
-                XCTAssertEqual(textView.string, "85%", "Text should display the correct score percentage")
-            }
-        }
+        let score = 85
+        let badge = PopularityBadge(score: score)
         
+        
+        // Search for Text
+        let text = findViewOfType(Text.self, in: badge.body)
+        XCTAssertNotNil(text, "View should contain a Text")
+        
+        if let textView = text {
+            
+            XCTAssertEqual(textView.string, "85%", "Text should display the correct score percentage")
+        }
+    }
+    
 }
+
 
 // Helper extension to search for Text views within a SwiftUI hierarchy
 extension View {
