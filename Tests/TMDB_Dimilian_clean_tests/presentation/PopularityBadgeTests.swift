@@ -32,14 +32,22 @@ class PopularityBadgeTests: XCTestCase {
         
         XCTAssertEqual(badge.textColor, customColor, "Custom text color should be applied")
     }
-    
-    func testScorePercentageString() {
-        let score = 85
-        let badge = PopularityBadge(score: score)
+    @available(iOS 15,*)
+    func testViewContent() {
+            let score = 85
+            let badge = PopularityBadge(score: score)
+            
+            
+            // Search for Text
+            let text = findViewOfType(Text.self, in: badge.body)
+            XCTAssertNotNil(text, "View should contain a Text")
+            
+            if let textView = text {
+                
+                XCTAssertEqual(textView.string, "85%", "Text should display the correct score percentage")
+            }
+        }
         
-        let scoreText = badge.body.searchForText(containing: "85%")
-        XCTAssertNotNil(scoreText, "Badge should contain text with the score percentage")
-    }
 }
 
 // Helper extension to search for Text views within a SwiftUI hierarchy
@@ -60,7 +68,22 @@ extension View {
         return nil
     }
 }
-
+fileprivate func findViewOfType<T>(_ type: T.Type, in view: Any) -> T? {
+    if let view = view as? T {
+        return view
+    }
+    
+    let mirror = Mirror(reflecting: view)
+    for child in mirror.children {
+        if let childView = child.value as? Any {
+            if let result = findViewOfType(type, in: childView) {
+                return result
+            }
+        }
+    }
+    
+    return nil
+}
 extension Text {
     func compareTextTo(_ string: String) -> Bool {
         let mirror = Mirror(reflecting: self)
