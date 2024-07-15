@@ -1,0 +1,74 @@
+import XCTest
+import SwiftUI
+@testable import TMDB_Dimilian_clean
+
+class PopularityBadgeTests: XCTestCase {
+    func testScoreColor() {
+        let testCases = [
+            (score: 30, expectedColor: Color.red),
+            (score: 50, expectedColor: Color.orange),
+            (score: 70, expectedColor: Color.yellow),
+            (score: 80, expectedColor: Color.green)
+        ]
+        
+        for testCase in testCases {
+            let badge = PopularityBadge(score: testCase.score)
+            XCTAssertEqual(badge.scoreColor, testCase.expectedColor, "Score \(testCase.score) should result in \(testCase.expectedColor)")
+        }
+    }
+    
+    func testInitialization() {
+        let score = 75
+        let badge = PopularityBadge(score: score)
+        
+        XCTAssertEqual(badge.score, score, "Initialized score should match")
+        XCTAssertEqual(badge.textColor, .primary, "Default text color should be .primary")
+    }
+    
+    func testCustomTextColor() {
+        let score = 60
+        let customColor = Color.blue
+        let badge = PopularityBadge(score: score, textColor: customColor)
+        
+        XCTAssertEqual(badge.textColor, customColor, "Custom text color should be applied")
+    }
+    
+    func testScorePercentageString() {
+        let score = 85
+        let badge = PopularityBadge(score: score)
+        
+        let scoreText = badge.body.searchForText(containing: "85%")
+        XCTAssertNotNil(scoreText, "Badge should contain text with the score percentage")
+    }
+}
+
+// Helper extension to search for Text views within a SwiftUI hierarchy
+extension View {
+    func searchForText(containing string: String) -> Text? {
+        let mirror = Mirror(reflecting: self)
+        
+        for child in mirror.children {
+            if let text = child.value as? Text, text.compareTextTo(string) {
+                return text
+            }
+            
+            if let view = child.value as? (any View), let found = view.searchForText(containing: string) {
+                return found
+            }
+        }
+        
+        return nil
+    }
+}
+
+extension Text {
+    func compareTextTo(_ string: String) -> Bool {
+        let mirror = Mirror(reflecting: self)
+        for child in mirror.children {
+            if let value = child.value as? String, value.contains(string) {
+                return true
+            }
+        }
+        return false
+    }
+}

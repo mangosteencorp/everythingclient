@@ -1,7 +1,13 @@
+protocol APIServiceProtocol {
+    func fetchMovies(endpoint: APIService.Endpoint) async -> Result<MovieListResultModel, APIService.APIError>
+}
+extension APIService: APIServiceProtocol {
+    // Ensure that all required methods are implemented here
+}
 class MovieRepositoryImpl: MovieRepository {
-    private let apiService: APIService
+    private let apiService: APIServiceProtocol
     
-    init(apiService: APIService) {
+    init(apiService: APIServiceProtocol) {
         self.apiService = apiService
     }
     
