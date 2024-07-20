@@ -69,7 +69,7 @@ extension View {
         return nil
     }
 }
-fileprivate func findViewOfType<T>(_ type: T.Type, in view: Any) -> T? {
+func findViewOfType<T>(_ type: T.Type, in view: Any) -> T? {
     if let view = view as? T {
         return view
     }
