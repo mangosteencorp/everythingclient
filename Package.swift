@@ -18,16 +18,24 @@ let package = Package(
         .library(
             name: "TMDB",
             targets: ["TMDB"]),
+        // Now Playign
         .library(
             name: "TMDB_Dimilian_MVVM",
             targets: ["TMDB_Dimilian_MVVM"]),
+        // Upcoming
         .library(
             name: "TMDB_Dimilian_clean",
             targets: ["TMDB_Dimilian_clean"]),
+        // Trending page
+        .library(
+            name: "TMDB_Dimilian_OG",
+            targets: ["TMDB_Dimilian_OG"]),
+        // Sign in
         .library(name: "TMDB_AlonsoUpcomingMovies_og", type: .dynamic, targets: ["TMDB_AlonsoUpcomingMovies_og"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0")
+        .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
+        
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -46,12 +54,14 @@ let package = Package(
         .target(
             name: "TMDB_Dimilian_MVVM"),
         .target(
-            // https://claude.ai/chat/a8980734-bb2b-497b-afcd-ff34306e1392
             name: "TMDB_Dimilian_clean",
             dependencies: ["Swinject"]),
         .testTarget(
             name: "TMDB_Dimilian_clean_tests",
             dependencies: ["TMDB_Dimilian_clean"]),
+        .target(name: "TMDB_Dimilian_OG", dependencies: ["TMDB_Dimilian_OG_UI", "TMDB_Dimilian_OG_Backend"]),
+        .target(name: "TMDB_Dimilian_OG_UI"),
+        .target(name: "TMDB_Dimilian_OG_Backend"),
         .target(
             name: "TMDB_AlonsoUpcomingMovies_og"
             // https://claude.ai/chat/7b9a2446-c213-4685-b290-1d6e92bca1bc
