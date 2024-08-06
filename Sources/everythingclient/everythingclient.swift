@@ -24,5 +24,5 @@ public struct RootContentView: View {
 }
 
 #Preview {
-    RootContentView(TMDBApiKey: <#T##String#>)
+    RootContentView(TMDBApiKey: "")
 }

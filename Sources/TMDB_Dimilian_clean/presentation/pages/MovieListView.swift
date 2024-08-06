@@ -61,5 +61,6 @@ public enum MovieListType {
 }
 
 #Preview {
-    MovieListView(apiKey: <#T##String#>, type: .upcoming)
+    MovieListView(apiKey: "", type: .upcoming)
 }
+

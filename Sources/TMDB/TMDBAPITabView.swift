@@ -67,5 +67,5 @@ struct ThirdView: View {
 }
 @available(iOS 15,*)
 #Preview {
-    TMDBAPITabView(tmdbKey: <#T##String#>)
+    TMDBAPITabView(tmdbKey: "")
 }

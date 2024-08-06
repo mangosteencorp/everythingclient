@@ -61,5 +61,6 @@ public struct DMSNowPlayingView: View {
 
 @available(iOS 15, macOS 10.15, *)
 #Preview {
-    DMSNowPlayingView(apiKey: <#T##String#>)
+    DMSNowPlayingView(apiKey: "")
 }
+
