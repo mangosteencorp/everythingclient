@@ -4,10 +4,10 @@ import SwiftUI
 
 class MovieListViewTests: XCTestCase {
     func testInitialization() {
-        let nowPlayingView = MovieListView(type: .nowPlaying)
+        let nowPlayingView = MovieListView(apiKey: "", type: .nowPlaying)
         XCTAssertNotNil(nowPlayingView, "Should be able to initialize MovieListView with .nowPlaying type")
         
-        let upcomingView = MovieListView(type: .upcoming)
+        let upcomingView = MovieListView(apiKey: "", type: .upcoming)
         XCTAssertNotNil(upcomingView, "Should be able to initialize MovieListView with .upcoming type")
     }
     
