@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B180F152C62C997008CD10B /* Build.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8B180F142C62C997008CD10B /* Build.xcconfig */; };
 		8BCECE3F2C163F0400700550 /* EverythingClient in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCECE3E2C163F0400700550 /* EverythingClient */; };
 		8BEDAF982BD1442D000A62D2 /* RebuildApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */; };
 		8BEDAF9C2BD1442F000A62D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */; };
@@ -14,6 +15,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8B180F142C62C997008CD10B /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
+		8B180F162C62CD91008CD10B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8BEDAF942BD1442D000A62D2 /* Rebuild.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rebuild.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RebuildApp.swift; sourceTree = "<group>"; };
 		8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -53,10 +56,12 @@
 		8BEDAF962BD1442D000A62D2 /* Rebuild */ = {
 			isa = PBXGroup;
 			children = (
+				8B180F162C62CD91008CD10B /* Info.plist */,
 				8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */,
 				8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */,
 				8BEDAF9D2BD1442F000A62D2 /* Rebuild.entitlements */,
 				8BEDAF9E2BD1442F000A62D2 /* Preview Content */,
+				8B180F142C62C997008CD10B /* Build.xcconfig */,
 			);
 			path = Rebuild;
 			sourceTree = "<group>";
@@ -138,6 +143,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BEDAFA02BD1442F000A62D2 /* Preview Assets.xcassets in Resources */,
+				8B180F152C62C997008CD10B /* Build.xcconfig in Resources */,
 				8BEDAF9C2BD1442F000A62D2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -158,6 +164,7 @@
 /* Begin XCBuildConfiguration section */
 		8BEDAFA12BD1442F000A62D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -219,6 +226,7 @@
 		};
 		8BEDAFA22BD1442F000A62D2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -272,6 +280,7 @@
 		};
 		8BEDAFA42BD1442F000A62D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -281,6 +290,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Rebuild/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rebuild/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -296,7 +306,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ha.quang.Rebuild;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -308,6 +318,7 @@
 		};
 		8BEDAFA52BD1442F000A62D2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -317,6 +328,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Rebuild/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rebuild/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -332,7 +344,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ha.quang.Rebuild;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";

@@ -2,11 +2,14 @@ import SwiftUI
 import TMDB
 public struct RootContentView: View {
     @State private var selectedTab = 0
-    public init() {}
+    let tmdbAPIKey: String
+    public init(TMDBApiKey: String) {
+        tmdbAPIKey = TMDBApiKey
+    }
     public var body: some View {
         TabView(selection: $selectedTab){
             if #available(iOS 15, *) {
-                TMDBAPITabView()
+                TMDBAPITabView(tmdbKey: tmdbAPIKey)
                     .tabItem {
                         Label(
                             title: { Text("TMDB") },
@@ -21,5 +24,5 @@ public struct RootContentView: View {
 }
 
 #Preview {
-    RootContentView()
+    RootContentView(TMDBApiKey: <#T##String#>)
 }
