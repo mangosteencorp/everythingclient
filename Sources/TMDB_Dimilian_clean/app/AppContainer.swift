@@ -33,3 +33,7 @@ class AppContainer {
         }
     }
 }
+
+struct APIKeys {
+    static var tmdbKey = ""
+}

@@ -2,7 +2,7 @@ import Foundation
 
 public struct APIService {
     let baseURL = URL(string: "https://api.themoviedb.org/3")!
-    let apiKey = "1d9b898a212ea52e283351e521e17871"
+    let apiKey = APIKeys.tmdbKey
     public static let shared = APIService()
     let decoder = JSONDecoder()
     

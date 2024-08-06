@@ -6,12 +6,14 @@ import SwiftUI
 public struct TMDBAPITabView: View {
     
     @State private var currentIndex = 0
-        private let views: [AnyView] = [
-            AnyView(DMSNowPlayingView()),
-            AnyView(TMDB_Dimilian_clean.MovieListView(type: .upcoming)),
+    private let views: [AnyView]
+    public init(tmdbKey: String) {
+        views =  [
+            AnyView(DMSNowPlayingView(apiKey: tmdbKey)),
+            AnyView(TMDB_Dimilian_clean.MovieListView(apiKey: tmdbKey, type: .upcoming)),
             AnyView(SignInView())
         ]
-    public init() {}
+    }
     public var body: some View {
         NavigationView {
             VStack {
@@ -28,27 +30,27 @@ public struct TMDBAPITabView: View {
             })
         }
     }
-
+    
     private var previousButton: some View {
         Button(action: previousView) {
             Text("<")
         }
         .disabled(currentIndex == 0)
     }
-
+    
     private var nextButton: some View {
         Button(action: nextView) {
             Text(">")
         }
         .disabled(currentIndex == views.count - 1)
     }
-
+    
     private func nextView() {
         if currentIndex < views.count - 1 {
             currentIndex += 1
         }
     }
-
+    
     private func previousView() {
         if currentIndex > 0 {
             currentIndex -= 1
@@ -65,5 +67,5 @@ struct ThirdView: View {
 }
 @available(iOS 15,*)
 #Preview {
-    TMDBAPITabView()
+    TMDBAPITabView(tmdbKey: <#T##String#>)
 }

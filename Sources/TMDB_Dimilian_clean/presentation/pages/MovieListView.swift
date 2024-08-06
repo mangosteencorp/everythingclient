@@ -3,8 +3,9 @@ public struct MovieListView: View {
     @StateObject private var viewModel: MoviesViewModel
     let type: MovieListType
     
-    public init(type: MovieListType) {
+    public init(apiKey: String, type: MovieListType) {
         let container = AppContainer.shared.container
+        APIKeys.tmdbKey = apiKey
         let viewModel: MoviesViewModel
         switch type {
         case .nowPlaying:
@@ -60,5 +61,5 @@ public enum MovieListType {
 }
 
 #Preview {
-    MovieListView(type: .upcoming)
+    MovieListView(apiKey: <#T##String#>, type: .upcoming)
 }
