@@ -35,7 +35,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
-        
+        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -65,6 +65,10 @@ let package = Package(
         .target(
             name: "TMDB_AlonsoUpcomingMovies_og"
             // https://claude.ai/chat/7b9a2446-c213-4685-b290-1d6e92bca1bc
+        ),
+        .target(
+            name: "TMDB_dancarvajc_Login",
+            dependencies: ["KeychainAccess"]
         ),
     ]
 )

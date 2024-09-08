@@ -1,6 +1,15 @@
 {
-  "originHash" : "30b407c46ce99046e4ff4267952ff13df99da340aab04bca67c012de5ee7b76e",
+  "originHash" : "108ed3bb268f6c8bfc5b08364209c075b4eba9020a0f5a048b0a2799f2a0d696",
   "pins" : [
+    {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess.git",
+      "state" : {
+        "revision" : "84e546727d66f1adc5439debad16270d0fdd04e7",
+        "version" : "4.2.2"
+      }
+    },
     {
       "identity" : "swinject",
       "kind" : "remoteSourceControl",
