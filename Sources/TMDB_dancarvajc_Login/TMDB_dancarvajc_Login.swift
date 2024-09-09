@@ -220,14 +220,13 @@ enum MovieServiceError: Error {
     case invalidServerResponse, failedDecode, badInternet
 }
 
-struct LoginView: View {
+public struct LoginView: View {
     @StateObject private var userVM = UserViewModel(service: NetworkManager(), keychainM: KeychainManager())
-    
-    var body: some View {
+    public init(){}
+    public var body: some View {
         VStack {
             Text("Log in to your TMDB account")
                 .padding()
-            
             Button("Log in") {
                 Task {
                     try await userVM.LogIn()

@@ -31,7 +31,8 @@ let package = Package(
             name: "TMDB_Dimilian_OG",
             targets: ["TMDB_Dimilian_OG"]),
         // Sign in
-        .library(name: "TMDB_AlonsoUpcomingMovies_og", type: .dynamic, targets: ["TMDB_AlonsoUpcomingMovies_og"]),
+        .library(name: "TMDB_AlonsoUpcomingMovies_og",  targets: ["TMDB_AlonsoUpcomingMovies_og"]),
+        .library(name: "TMDB_dancarvajc_Login",  targets: ["TMDB_dancarvajc_Login"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -50,7 +51,9 @@ let package = Package(
                 name: "TMDB",
                 dependencies: ["TMDB_Dimilian_MVVM",
                                "TMDB_Dimilian_clean",
-                               "TMDB_AlonsoUpcomingMovies_og"]),
+                               "TMDB_AlonsoUpcomingMovies_og",
+                               "TMDB_dancarvajc_Login"
+                              ]),
         .target(
             name: "TMDB_Dimilian_MVVM"),
         .target(
