@@ -23,14 +23,34 @@ final class NetworkManager: NSObject, ObservableObject {
         detectWIFIandData()
     }
     
-    func makeHTTPRequest<T: Decodable>(url: URLRequest) async throws -> T {
-        let (data, response) = try await session.data(for: url)
+    func makeHTTPRequest<T:Decodable>(url: URLRequest) async throws-> T {
+        
+        var data: Data
+        var response: URLResponse
+        
+        // Se consume la API. Se hace un DO-Catch para personalizar el error a uno de MovieServiceError
+        do {
+            (data, response) = try await session.data(for: url)
+            
+        } catch {
+            throw MovieServiceError.badInternet
+        }
+        
         
         guard (response as? HTTPURLResponse)?.statusCode == 200 || (response as? HTTPURLResponse)?.statusCode == 201 else {
+            
             throw MovieServiceError.invalidServerResponse
         }
         
-        return try JSONDecoder().decode(T.self, from: data)
+        
+        do {
+            let dataDecoded = try JSONDecoder().decode(T.self, from: data)
+            
+            return dataDecoded
+        } catch  {
+            throw MovieServiceError.failedDecode
+        }
+        
     }
     
     func signInAsync(requestToken: String) async throws -> String {
@@ -201,13 +221,25 @@ struct Gravatar: Codable {
 }
 
 struct AuthModel: Codable {
-    let requestToken: String
+    let success: Bool
+    let expiresAt, requestToken: String
+
+    enum CodingKeys: String, CodingKey {
+        case success
+        case expiresAt = "expires_at"
+        case requestToken = "request_token"
+    }
 }
 
 struct AuthSessionModel: Codable {
+    let success: Bool
     let sessionID: String
-}
 
+    enum CodingKeys: String, CodingKey {
+        case success
+        case sessionID = "session_id"
+    }
+}
 enum OthersErrors: Error {
     case userCanceledAuth, userDeniedAuth, cantGetToken
 }
