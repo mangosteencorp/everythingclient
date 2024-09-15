@@ -183,17 +183,6 @@ enum HTTPMethod: String {
     case GET, POST, DELETE
 }
 
-enum Route: Equatable {
-    case authStep1, authStep3, accountInfo
-    
-    var rawValue: String {
-        switch self {
-        case .authStep1: return "authentication/token/new"
-        case .authStep3: return "authentication/session/new"
-        case .accountInfo: return "account"
-        }
-    }
-}
 
 struct UserModel: Codable {
     let avatar: Avatar
@@ -313,7 +302,7 @@ class UserViewModel: ObservableObject {
             print("Login cancelled")
             isLoading = false
         } catch {
-            await loadError(error)
+             loadError(error)
         }
     }
     
@@ -327,16 +316,56 @@ class UserViewModel: ObservableObject {
             isLoading = false
             self.user = user
         } catch {
-            await loadError(error)
+             loadError(error)
         }
     }
     
-    @MainActor private func loadError(_ error: Error) async {
+    
+    @MainActor func logOut() async {
+       
+        isLoading = true
+        
+   
+
+        do {
+            let sessionID = try keychainM.getSessionID()
+            let urlRequest = try EndPoint.createURLRequest(url: .logOut,
+                method: .DELETE,
+                query: ["api_key" : EndPoint.apiKey], parameters: ["session_id":sessionID])
+            
+            let resp: logOut = try await service.makeHTTPRequest(url: urlRequest)
+            print(resp)
+            if resp.success{
+            
+                    //userSessionID = ""
+                try keychainM.deleteSessionID()
+                    self.user = nil
+                    isLoading = false
+                   
+                
+  
+            }else{
+                //MEJOR MANEJO PARA DESAUTORIZACON
+                isLoading = false
+            }
+            
+        } catch  {
+            loadError(error)
+        }
+        
+    }
+    
+    @MainActor private func loadError(_ error: Error)  {
         isLoading = false
         alertMessage = error.localizedDescription
         showAlert = true
     }
 }
+
+struct logOut: Codable{
+    let success: Bool
+}
+
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
