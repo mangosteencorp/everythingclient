@@ -55,7 +55,7 @@ public struct DMSNowPlayingView: View {
             .onAppear {
                 viewModel.fetchNowPlayingMovies()
             }
-        }
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

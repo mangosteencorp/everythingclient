@@ -34,7 +34,7 @@ public struct MovieListView: View {
             .onAppear {
                 viewModel.fetchMovies()
             }
-        }
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 public enum MovieListType {
