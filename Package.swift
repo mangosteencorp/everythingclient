@@ -49,7 +49,6 @@ let package = Package(
                 name: "TMDB",
                 dependencies: ["TMDB_Dimilian_MVVM",
                                "TMDB_Dimilian_clean",
-                               "TMDB_AlonsoUpcomingMovies_og",
                                "TMDB_dancarvajc_Login"
                               ]),
         .target(
@@ -63,10 +62,6 @@ let package = Package(
             name: "TMDB_Dimilian_clean_tests",
             dependencies: ["TMDB_Dimilian_clean"]),
         
-        .target(
-            name: "TMDB_AlonsoUpcomingMovies_og"
-            // https://claude.ai/chat/7b9a2446-c213-4685-b290-1d6e92bca1bc
-        ),
         .target(
             name: "TMDB_dancarvajc_Login",
             dependencies: [
