@@ -1,5 +1,5 @@
 import SwiftUI
-public struct MovieListView: View {
+public struct MovieListPage: View {
     @StateObject private var viewModel: MoviesViewModel
     let type: MovieListType
     
@@ -25,9 +25,7 @@ public struct MovieListView: View {
                 } else if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                 } else {
-                    List(viewModel.movies, id: \.id) { movie in
-                        MovieRow(movie: movie)
-                    }
+                    MovieListContent(movies: viewModel.movies)
                 }
             }
             .navigationTitle(type.title)
@@ -59,8 +57,3 @@ public enum MovieListType {
         }
     }
 }
-
-#Preview {
-    MovieListView(apiKey: "", type: .upcoming)
-}
-

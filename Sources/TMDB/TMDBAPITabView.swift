@@ -11,7 +11,7 @@ public struct TMDBAPITabView: View {
     public init(tmdbKey: String) {
         views =  [
             AnyView(DMSNowPlayingView(apiKey: tmdbKey)),
-            AnyView(TMDB_Dimilian_clean.MovieListView(apiKey: tmdbKey, type: .upcoming)),
+            AnyView(TMDB_Dimilian_clean.MovieListPage(apiKey: tmdbKey, type: .upcoming)),
             
             AnyView(ProfileTabView()) // {{ edit_1 }} Added LoginView
         ]

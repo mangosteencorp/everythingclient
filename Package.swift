@@ -26,12 +26,9 @@ let package = Package(
         .library(
             name: "TMDB_Dimilian_clean",
             targets: ["TMDB_Dimilian_clean"]),
-        // Trending page
-        .library(
-            name: "TMDB_Dimilian_OG",
-            targets: ["TMDB_Dimilian_OG"]),
+        
         // Sign in
-        .library(name: "TMDB_AlonsoUpcomingMovies_og",  targets: ["TMDB_AlonsoUpcomingMovies_og"]),
+        
         .library(name: "TMDB_dancarvajc_Login",  targets: ["TMDB_dancarvajc_Login"]),
     ],
     dependencies: [
@@ -59,13 +56,13 @@ let package = Package(
             name: "TMDB_Dimilian_MVVM"),
         .target(
             name: "TMDB_Dimilian_clean",
-            dependencies: ["Swinject"]),
+            dependencies: ["Swinject"],
+            swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
+        ),
         .testTarget(
             name: "TMDB_Dimilian_clean_tests",
             dependencies: ["TMDB_Dimilian_clean"]),
-        .target(name: "TMDB_Dimilian_OG", dependencies: ["TMDB_Dimilian_OG_UI", "TMDB_Dimilian_OG_Backend"]),
-        .target(name: "TMDB_Dimilian_OG_UI"),
-        .target(name: "TMDB_Dimilian_OG_Backend"),
+        
         .target(
             name: "TMDB_AlonsoUpcomingMovies_og"
             // https://claude.ai/chat/7b9a2446-c213-4685-b290-1d6e92bca1bc
