@@ -25,7 +25,7 @@ final class NetworkManager: NSObject, ObservableObject {
         var data: Data
         var response: URLResponse
         
-        // Se consume la API. Se hace un DO-Catch para personalizar el error a uno de MovieServiceError
+        
         do {
             (data, response) = try await session.data(for: url)
             
