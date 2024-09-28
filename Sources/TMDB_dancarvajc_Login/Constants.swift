@@ -1,11 +1,8 @@
 
 import Foundation
 import Nuke
-
-
-
 struct Constants{
-    
+    static let bundle = Bundle.module
     static let gravatarURL = "https://www.gravatar.com/avatar/"
     
     struct ImageFetch {

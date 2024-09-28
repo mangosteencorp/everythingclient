@@ -1,0 +1,68 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Could not load your user" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not load your user"
+          }
+        }
+      }
+    },
+    "Error" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
+          }
+        }
+      }
+    },
+    "Favorite Movies" : {
+
+    },
+    "Loading user..." : {
+
+    },
+    "Loading..." : {
+
+    },
+    "Log in" : {
+
+    },
+    "Log out" : {
+
+    },
+    "login_error" : {
+
+    },
+    "login_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log in to your TMDB account"
+          }
+        }
+      }
+    },
+    "OK" : {
+
+    },
+    "Reload" : {
+
+    },
+    "Reload list" : {
+
+    },
+    "Welcome, %@" : {
+
+    }
+  },
+  "version" : "1.0"
+}

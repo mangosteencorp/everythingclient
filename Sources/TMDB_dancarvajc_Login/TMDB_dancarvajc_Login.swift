@@ -11,7 +11,7 @@ public struct LoginView: View {
     public init(){}
     public var body: some View {
         VStack {
-            Text("Log in to your TMDB account")
+            Text("login_title", bundle: Constants.bundle)
                 .padding()
             Button("Log in") {
                 Task {
@@ -24,8 +24,11 @@ public struct LoginView: View {
                 ProgressView()
             }
         }
+        .onAppear {
+            debugPrint("\(Constants.bundle.bundleIdentifier) having \(Constants.bundle.localizations)")
+        }
         .alert(isPresented: $userVM.showAlert) {
-            Alert(title: Text("Error"), message: Text(userVM.alertMessage), dismissButton: .default(Text("OK")))
+            Alert(title: Text("login_error"), message: Text(userVM.alertMessage), dismissButton: .default(Text("OK")))
         }
     }
 }

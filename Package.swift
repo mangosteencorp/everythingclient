@@ -69,6 +69,9 @@ let package = Package(
                 "KeychainAccess",
                 .product(name: "Nuke", package: "Nuke"),
                 .product(name: "NukeUI", package: "Nuke")
+            ],
+            resources: [
+                .process("Resources")
             ]
         ),
     ]
