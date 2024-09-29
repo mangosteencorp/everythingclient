@@ -156,16 +156,6 @@
         }
       }
     },
-    "Reload" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reload"
-          }
-        }
-      }
-    },
     "Reload list" : {
       "extractionState" : "manual",
       "localizations" : {
