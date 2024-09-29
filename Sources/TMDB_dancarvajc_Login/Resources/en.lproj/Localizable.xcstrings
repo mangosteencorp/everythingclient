@@ -43,6 +43,17 @@
         }
       }
     },
+    "login_cta_reload" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reload"
+          }
+        }
+      }
+    },
     "login_cta_reload_list" : {
       "localizations" : {
         "en" : {

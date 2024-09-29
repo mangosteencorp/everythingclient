@@ -18,16 +18,19 @@ public struct ProfileView: View {
             case true:
                 if userVM.isLoading{
                     ProgressView(
-                        label: { Text("login_profile_loading", bundle: Bundle.module) })
-                        .progressViewStyle(CustomProgressViewStyle())
+                        label: {
+                            Text("login_profile_loading",
+                                 bundle: Bundle.module) })
+                    .progressViewStyle(CustomProgressViewStyle())
                 }else {
                     LoginView()
                 }
                 
             case false:
                 if userVM.isLoading{
-                    ProgressView("login_profile_loading_user")
-                        .progressViewStyle(CustomProgressViewStyle())
+                    ProgressView(
+                        label: { Text("login_profile_loading_user", bundle: Bundle.module) })
+                    .progressViewStyle(CustomProgressViewStyle())
                     
                 } else if userVM.user != nil {
                     UserView(user: userVM.user!)
@@ -36,19 +39,22 @@ public struct ProfileView: View {
                                 await movieVM.fetchFavoritesMovies(accID: "\(userVM.user!.id)")
                             }
                         }
-
+                    
                 }else{
                     VStack{
-                        Text("login_load_user_failed")
+                        Text("login_load_user_failed", bundle: Bundle.module)
                             .padding()
-                        Button("Reload"){
+                        Button(action: {
                             Task{
                                 await userVM.getUserInfo()
                                 guard userVM.user != nil else {return}
                                 await movieVM.fetchFavoritesMovies(accID: "\(userVM.user!.id)")
                                 
                             }
-                        }.disabled(userVM.isLoading)
+                        }, label: {
+                            Text("login_cta_reload",
+                                 bundle: Bundle.module)})
+                        .disabled(userVM.isLoading)
                     }
                 }
             }
@@ -61,15 +67,15 @@ public struct ProfileView: View {
             if newValue != nil{
                 noUserLogged = newValue!
             }
-
+            
         })
         .onChange(of: try? userVM.keychainM.getSessionID() == "", perform: { newValue in
-
+            
             if newValue != nil{
                 withAnimation {
                     noUserLogged = newValue!
                 }
-             
+                
             }
         })
         

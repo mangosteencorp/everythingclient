@@ -27,7 +27,10 @@ public struct LoginView: View {
             }
         }
         .alert(isPresented: $userVM.showAlert) {
-            Alert(title: Text("login_error", bundle: Bundle.module), message: Text(userVM.alertMessage), dismissButton: .default(Text("login_error_cta_dismiss", bundle: Bundle.module)))
+            Alert(
+                title: Text("login_error", bundle: Bundle.module),
+                message: Text(userVM.alertMessage),
+                dismissButton: .default(Text("login_error_cta_dismiss", bundle: Bundle.module)))
         }
     }
 }

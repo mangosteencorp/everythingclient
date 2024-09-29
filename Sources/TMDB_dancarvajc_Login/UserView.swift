@@ -59,12 +59,14 @@ struct UserView: View {
                         ProgressView()
                             .padding()
                     }
-                    Button("login_cta_reload_list"){
+                    Button(action: {
                         Task{
                             await movieVM.fetchFavoritesMovies(accID: "\(userVM.user!.id)")
                         }
                         
-                    }.padding()
+                    }, label: {
+                        Text("login_cta_reload_list", bundle: Bundle.module)
+                    }).padding()
                         .disabled(movieVM.isLoading)
                 }
                 
