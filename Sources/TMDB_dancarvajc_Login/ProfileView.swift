@@ -17,7 +17,8 @@ public struct ProfileView: View {
                 
             case true:
                 if userVM.isLoading{
-                    ProgressView("Loading...")
+                    ProgressView(
+                        label: { Text("login_profile_loading", bundle: Bundle.module) })
                         .progressViewStyle(CustomProgressViewStyle())
                 }else {
                     LoginView()
@@ -25,7 +26,7 @@ public struct ProfileView: View {
                 
             case false:
                 if userVM.isLoading{
-                    ProgressView("Loading user...")
+                    ProgressView("login_profile_loading_user")
                         .progressViewStyle(CustomProgressViewStyle())
                     
                 } else if userVM.user != nil {
@@ -38,7 +39,7 @@ public struct ProfileView: View {
 
                 }else{
                     VStack{
-                        Text("Could not load your user")
+                        Text("login_load_user_failed")
                             .padding()
                         Button("Reload"){
                             Task{

@@ -13,22 +13,21 @@ public struct LoginView: View {
         VStack {
             Text("login_title", bundle: Constants.bundle)
                 .padding()
-            Button("Log in") {
+            Button(action: {
                 Task {
                     try await userVM.LogIn()
                 }
-            }
+            }, label: {
+                Text("login_btn_login", bundle: Bundle.module)
+            })
             .disabled(userVM.isLoading)
             
             if userVM.isLoading {
                 ProgressView()
             }
         }
-        .onAppear {
-            debugPrint("\(Constants.bundle.bundleIdentifier) having \(Constants.bundle.localizations)")
-        }
         .alert(isPresented: $userVM.showAlert) {
-            Alert(title: Text("login_error"), message: Text(userVM.alertMessage), dismissButton: .default(Text("OK")))
+            Alert(title: Text("login_error", bundle: Bundle.module), message: Text(userVM.alertMessage), dismissButton: .default(Text("login_error_cta_dismiss", bundle: Bundle.module)))
         }
     }
 }

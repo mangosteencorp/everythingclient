@@ -22,16 +22,19 @@ struct UserView: View {
                         .shadow(radius: 5)
                         .frame(width: 100, height: 100)
                     //MARK: Welcome message
-                    Text("Welcome, \(user.username)")
+                    Text("login_user_welcome \(user.username)",
+                         bundle: Bundle.module)
                         .padding(.top,5)
                     //MARK: Log out button
-                    Button("Log out"){
+                    Button(action: {
                         Task{
                             await userVM.logOut()
                         }
-                    }.padding(5)
+                    }, label: {
+                        Text("login_btn_logout", bundle: Bundle.module)
+                    }).padding(5)
                     Divider()
-                    Text("Favorite Movies")
+                    Text("login_section_favourites", bundle: Bundle.module)
                         .font(.title)
                         .bold()
                     
@@ -56,7 +59,7 @@ struct UserView: View {
                         ProgressView()
                             .padding()
                     }
-                    Button("Reload list"){
+                    Button("login_cta_reload_list"){
                         Task{
                             await movieVM.fetchFavoritesMovies(accID: "\(userVM.user!.id)")
                         }

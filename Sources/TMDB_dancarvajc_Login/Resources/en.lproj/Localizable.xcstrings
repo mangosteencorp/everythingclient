@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "Could not load your user" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11,8 +12,48 @@
         }
       }
     },
-    "Error" : {
-      "extractionState" : "stale",
+    "Loading..." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading..."
+          }
+        }
+      }
+    },
+    "login_btn_login" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log in"
+          }
+        }
+      }
+    },
+    "login_btn_logout" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log out"
+          }
+        }
+      }
+    },
+    "login_cta_reload_list" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reload list"
+          }
+        }
+      }
+    },
+    "login_error" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22,23 +63,55 @@
         }
       }
     },
-    "Favorite Movies" : {
-
+    "login_error_cta_dismiss" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
-    "Loading user..." : {
-
+    "login_load_user_failed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not load your user"
+          }
+        }
+      }
     },
-    "Loading..." : {
-
+    "login_profile_loading" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading..."
+          }
+        }
+      }
     },
-    "Log in" : {
-
+    "login_profile_loading_user" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading user..."
+          }
+        }
+      }
     },
-    "Log out" : {
-
-    },
-    "login_error" : {
-
+    "login_section_favourites" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorite Movies"
+          }
+        }
+      }
     },
     "login_title" : {
       "extractionState" : "manual",
@@ -51,17 +124,58 @@
         }
       }
     },
+    "login_user_welcome %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome, %@"
+          }
+        }
+      }
+    },
     "OK" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
     "Reload" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reload"
+          }
+        }
+      }
     },
     "Reload list" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reload list"
+          }
+        }
+      }
     },
     "Welcome, %@" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome, %@"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
