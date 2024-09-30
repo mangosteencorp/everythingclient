@@ -90,13 +90,6 @@ public struct TMDBAPITabView: View {
     }
 }
 
-
-struct ThirdView: View {
-    var body: some View {
-        Text("Third View")
-            .font(.largeTitle)
-    }
-}
 @available(iOS 15,*)
 #Preview {
     TMDBAPITabView(tmdbKey: "")

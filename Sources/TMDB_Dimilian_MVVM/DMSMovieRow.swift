@@ -6,47 +6,6 @@ fileprivate let formatter: DateFormatter = {
     return formatter
 }()
 
-@available(iOS 15, macOS 12, *)
-struct MoviePosterImage: View {
-    var posterPath: String?
-    var posterSize: PosterSize
-
-    var body: some View {
-        if let posterPath = posterPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                        .frame(width: posterSize.width, height: posterSize.height)
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: posterSize.width, height: posterSize.height)
-                        .cornerRadius(10)
-                        .shadow(radius: 5)
-                case .failure:
-                    Image(systemName: "photo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: posterSize.width, height: posterSize.height)
-                        .foregroundColor(.gray)
-                @unknown default:
-                    EmptyView()
-                        .frame(width: posterSize.width, height: posterSize.height)
-                }
-            }
-        } else {
-            Image(systemName: "photo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: posterSize.width, height: posterSize.height)
-                .foregroundColor(.gray)
-        }
-    }
-
-}
-
 struct PosterSize {
     var width: CGFloat
     var height: CGFloat
@@ -54,21 +13,6 @@ struct PosterSize {
     static let medium = PosterSize(width: 100, height: 150)
 }
 
-@available(iOS 15, macOS 12, *)
-struct TitleStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .font(.headline) // Set the font to headline
-            .foregroundColor(.primary) // Set the text color to primary
-            .padding(.vertical, 4) // Add vertical padding
-    }
-}
-@available(iOS 15, macOS 12, *)
-extension View {
-    func titleStyle() -> some View {
-        self.modifier(TitleStyle())
-    }
-}
 
 @available(iOS 13, macOS 10.15, *)
 extension Color {

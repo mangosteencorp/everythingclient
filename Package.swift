@@ -53,7 +53,10 @@ let package = Package(
                                "TMDB_dancarvajc_Login"
                               ]),
         .target(
-            name: "TMDB_Dimilian_MVVM"),
+            name: "TMDB_Dimilian_MVVM",
+            resources: [
+                .process("Resources")
+            ]),
         .target(
             name: "TMDB_Dimilian_clean",
             dependencies: ["Swinject"],
