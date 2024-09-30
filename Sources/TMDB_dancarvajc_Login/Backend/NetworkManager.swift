@@ -4,7 +4,7 @@ import Network
 import AuthenticationServices
 final class NetworkManager: NSObject, ObservableObject {
     @Published var noInternet: Bool = false
-    @Published var noWifinoCelularData = false
+    @Published var noWifiNoCellularData = false
     
     private let monitor = NWPathMonitor()
     
@@ -17,7 +17,7 @@ final class NetworkManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        detectWIFIandData()
+        detectWiFiAndData()
     }
     
     func makeHTTPRequest<T:Decodable>(url: URLRequest) async throws-> T {
@@ -88,16 +88,16 @@ final class NetworkManager: NSObject, ObservableObject {
         sessionAuth.start()
     }
     
-    private func detectWIFIandData() {
+    private func detectWiFiAndData() {
         monitor.start(queue: .main)
         monitor.pathUpdateHandler = { path in
             if path.status == .satisfied {
-                print("TENEMOS WIFI/DATA")
-                self.noWifinoCelularData = false
+                print("WE HAVE WIFI/DATA")
+                self.noWifiNoCellularData = false
                 self.noInternet = false
             } else {
-                print("NO HAY WIFI/DATA")
-                self.noWifinoCelularData = true
+                print("NO WIFI/DATA AVAILABLE")
+                self.noWifiNoCellularData = true
                 self.noInternet = true
             }
         }
@@ -112,20 +112,20 @@ extension NetworkManager: ASWebAuthenticationPresentationContextProviding {
 
 extension NetworkManager: URLSessionTaskDelegate, URLSessionDataDelegate {
     func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-        print("SIN INTERNET")
+        print("NO INTERNET")
         noInternet = true
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
         guard task.error == nil, let metric = metrics.transactionMetrics.first?.resourceFetchType else {
-            print("HUBO UN TASK ERROR QUE NO ES NIL")
+            print("THERE WAS A NON-NIL TASK ERROR")
             noInternet = true
             return
         }
         
         switch metric {
         case .networkLoad, .serverPush:
-            print("RECURSO OBTENIDO DE NEWORKLOAD, SERVERPUSH")
+            print("RESOURCE OBTAINED FROM NETWORK LOAD, SERVER PUSH")
             noInternet = false
         default:
             break

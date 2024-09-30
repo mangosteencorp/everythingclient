@@ -1,7 +1,7 @@
 import Foundation
 
 enum EndPoint {
-    static let apiKey = "0141e6d543b187f0b7e6bb3a1902209a"
+    static var apiKey = ""
     static let authStep2 = "https://www.themoviedb.org/authenticate/"
     private static let baseURL = "https://api.themoviedb.org/3/"
     

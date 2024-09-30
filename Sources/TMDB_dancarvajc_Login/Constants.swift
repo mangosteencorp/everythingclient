@@ -1,4 +1,3 @@
-
 import Foundation
 import Nuke
 struct Constants{
@@ -17,7 +16,7 @@ struct Constants{
         
     }
     
-    //MARK: completion (closure) que permite saber si cargó o no correctamente una imagen y gestionar el internet con ello. Es el para todas las imágenes (LazyImage) por eso lo puse como constante.
+    //MARK: completion (closure) that allows knowing if an image loaded correctly or not and manage internet connectivity with it. It's used for all images (LazyImage), that's why I put it as a constant.
     
     static func onCompletionLazyImage(networkVM: NetworkViewModel) -> (Result<ImageResponse, Error>)->() {
         return { (result: Result<ImageResponse, Error>) in
@@ -26,24 +25,20 @@ struct Constants{
                 
             case .success(let sucess):
                 
-                //Si la imagen carga de caché, no hace nada (puede o no que tenga internet), sino significa que cargó desde internet
+                //If the image loads from cache, do nothing (may or may not have internet), otherwise it means it loaded from the internet
                 if sucess.cacheType == .memory || sucess.cacheType == .disk {
                     
                 }else{
                     networkVM.noInternet = false
                 }
                 
-                //                if !(sucess.cacheType == .memory || sucess.cacheType == .disk) {
-                //                    NetworkManager.shared.noInternet = false
-                //                }
-                
                 case .failure(let error):
                 
-                //Si falla la carga de imagen, no hay internet o la URL está mala
+                //If image loading fails, there's no internet or the URL is bad
                 let error2 = error as! Nuke.ImagePipeline.Error
                 
                 if error2.description.contains("Response status code was unacceptable"){
-                    print("Error en la URL de la imagen")
+                    print("Error in the image URL")
                     networkVM.noInternet = false
                     return
                 }
@@ -51,10 +46,10 @@ struct Constants{
                 if let error2 = error2.dataLoadingError as? URLError{
                     switch error2.code{
                     case .dataNotAllowed:
-                        print("NO IINTERNET POR NO DATOS??")
+                        print("NO INTERNET FOR NO DATA??")
                         networkVM.noInternet = true
                     case .notConnectedToInternet:
-                        print("NO INTERNETTTT DE URL?")
+                        print("NO INTERNETTTT FROM URL?")
                         networkVM.noInternet = true
                     default:
                         break

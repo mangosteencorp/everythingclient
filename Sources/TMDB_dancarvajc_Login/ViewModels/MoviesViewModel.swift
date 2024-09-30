@@ -1,4 +1,3 @@
-
 import Foundation
 import SwiftUI
 import AuthenticationServices
@@ -24,7 +23,7 @@ public class MoviesViewModel: NSObject, ObservableObject {
     }
     
     
-    //MARK: Permite poner o sacar de favoritos una película
+    //MARK: Allows adding or removing a movie from favorites
     @MainActor func setFavoriteMovie(accID: String, idMovie: Int, favorite: Bool) async -> Bool {
         
         var result = false
@@ -32,7 +31,7 @@ public class MoviesViewModel: NSObject, ObservableObject {
             let request = try EndPoint.createURLRequest(url: .setfavoriteMovie(accID), method: .POST, query: ["api_key":EndPoint.apiKey,"session_id":keychainM.getSessionID()], parameters: ["media_type":"movie", "media_id": idMovie, "favorite": favorite])
             
             let resp : FavResp = try await service.makeHTTPRequest(url: request)
-            print("ESTATOS FAV:")
+            print("FAVORITE STATUS:")
             print(resp.statusMessage)
             result = true
             service.noInternet = false
@@ -44,24 +43,24 @@ public class MoviesViewModel: NSObject, ObservableObject {
         return result
     }
     
-    //MARK: Recopila las películas de acuerdo al tipo que se ponga (ROUTE)
+    //MARK: Fetches movies according to the specified type (ROUTE)
     @MainActor func fetchMovies(of type: Route, search: String = "") async {
       //  guard isLoading == false else{return}
         isLoading = true
         
         do {
-            //Se genera la URL
-            let urlRequest = try EndPoint.createURLRequest(url: type, method: .GET, query: type == .searchMovie ? ["api_key" : EndPoint.apiKey, "language":"es-mx","query":search] : ["api_key" : EndPoint.apiKey, "language":"es-mx"])
+            // Generate the URL
+            let urlRequest = try EndPoint.createURLRequest(url: type, method: .GET, query: type == .searchMovie ? ["api_key" : EndPoint.apiKey, "language":"en-US","query":search] : ["api_key" : EndPoint.apiKey, "language":"en-US"])
             
-            //Se hace la petición HTTP
+            // Make the HTTP request
             let movies: MoviesResp = try await service.makeHTTPRequest(url: urlRequest)
             
-            //De manera paralela se obtiene la información de cada película, se decodifica y se genera los modelos (objetos) de las películas
+            // In parallel, obtain information for each movie, decode it, and generate movie models (objects)
             let resultadoFinal = try await withThrowingTaskGroup(of: FullMovieModel.self, returning: [FullMovieModel].self, body: { grouptask in
                 
                 for movie in movies.results {
                     grouptask.addTask {
-                        let urlRequest = try EndPoint.createURLRequest(url: .movie("\(movie.id)"), method: .GET, query: ["api_key" : EndPoint.apiKey, "append_to_response": "credits", "language":"es-mx"])
+                        let urlRequest = try EndPoint.createURLRequest(url: .movie("\(movie.id)"), method: .GET, query: ["api_key" : EndPoint.apiKey, "append_to_response": "credits", "language":"en-US"])
                         let fullMovie: FullMovieModel = try await self.service.makeHTTPRequest(url: urlRequest)
                         return fullMovie
                     }
@@ -85,13 +84,11 @@ public class MoviesViewModel: NSObject, ObservableObject {
         
     }
     
-    //MARK: Se obtienen las películas marcadas en favoritos del usuario
+    //MARK: Fetch the user's favorite movies
     @MainActor func fetchFavoritesMovies(accID: String) async {
-        // guard isLoading == false else {return}
-       // isLoading = true
         
         do {
-            let urlRequest = try EndPoint.createURLRequest(url: .getFavoritesMovies(accID), method: .GET, query: ["api_key" : EndPoint.apiKey,"session_id":keychainM.getSessionID(), "language":"es-mx"])
+            let urlRequest = try EndPoint.createURLRequest(url: .getFavoritesMovies(accID), method: .GET, query: ["api_key" : EndPoint.apiKey,"session_id":keychainM.getSessionID(), "language":"en-US"])
             
             let movies: FavoritesMoviesResp = try await service.makeHTTPRequest(url: urlRequest)
             
@@ -103,7 +100,7 @@ public class MoviesViewModel: NSObject, ObservableObject {
         }
     }
     
-    //MARK: Función que carga los errores si los hubiere
+    //MARK: Function that loads errors if any
     @MainActor private func loadError(_ error: Error){
         isLoading = false
         alertMessage = error.localizedDescription

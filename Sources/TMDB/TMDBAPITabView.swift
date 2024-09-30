@@ -13,7 +13,7 @@ public struct TMDBAPITabView: View {
             AnyView(DMSNowPlayingView(apiKey: tmdbKey)),
             AnyView(TMDB_Dimilian_clean.MovieListPage(apiKey: tmdbKey, type: .upcoming)),
             
-            AnyView(ProfileTabView()) // {{ edit_1 }} Added LoginView
+            AnyView(ProfileTabView(tmdbKey)) // {{ edit_1 }} Added LoginView
         ]
     }
     public var body: some View {
