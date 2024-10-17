@@ -5,7 +5,7 @@ import Foundation
 import Combine
 
 @available(iOS 15, macOS 10.15, *)
-public struct DMSNowPlayingView: View {
+public struct DMSNowPlayingPage: View {
     @StateObject private var viewModel = NowPlayingViewModel()
     public init(apiKey: String){
         APIKeys.tmdbKey = apiKey
@@ -34,6 +34,6 @@ public struct DMSNowPlayingView: View {
 
 @available(iOS 15, macOS 10.15, *)
 #Preview {
-    DMSNowPlayingView(apiKey: "")
+    DMSNowPlayingPage(apiKey: "")
 }
 
