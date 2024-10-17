@@ -28,7 +28,9 @@ struct MovieRow: View {
     var body: some View {
         HStack {
             ZStack(alignment: .topLeading) {
-                MoviePosterImage(posterPath: movie.poster_path, posterSize: .medium)
+                RemoteTMDBImage(posterPath: movie.poster_path,
+                                posterSize: .medium,
+                                image: ImageSize.medium)
             }
             .fixedSize()
             .animation(.spring())

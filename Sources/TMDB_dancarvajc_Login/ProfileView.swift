@@ -1,7 +1,7 @@
 import SwiftUI
 
 
-//MARK: Vista contenedora de perfil
+//MARK: Profile container view
 public struct ProfileView: View {
     
     @EnvironmentObject private var userVM: UserViewModel
@@ -61,7 +61,7 @@ public struct ProfileView: View {
             
         }
         
-        //Comprueba que haya alguna session en Keychain. Se hizo de esta forma para no forzar el try! en la función getSessionID
+        // Checks if there's a session in Keychain. It was done this way to avoid forcing try! in the getSessionID function
         .onAppear(perform: {
             let newValue = try? userVM.keychainM.getSessionID() == ""
             if newValue != nil{
@@ -86,7 +86,9 @@ public struct ProfileTabView: View {
     let networkManager = NetworkManager()
     let keychainManager = KeychainManager()
     
-    public init(){}
+    public init(_ apiKey: String = ""){
+        EndPoint.apiKey = apiKey
+    }
     public var body: some View {
         ProfileView()
             .environmentObject(UserViewModel(service: networkManager, keychainM: keychainManager))

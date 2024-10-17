@@ -1,6 +1,6 @@
 import SwiftUI
 
-@available(iOS 15, macOS 12, *)
+
 struct TitleStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -9,8 +9,8 @@ struct TitleStyle: ViewModifier {
             .padding(.vertical, 4) // Add vertical padding
     }
 }
-@available(iOS 15, macOS 12, *)
-extension View {
+
+extension Text {
     func titleStyle() -> some View {
         self.modifier(TitleStyle())
     }
