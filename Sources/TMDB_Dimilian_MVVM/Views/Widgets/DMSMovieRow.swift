@@ -20,7 +20,7 @@ extension Color {
 }
 
 
-@available(iOS 15, macOS 12, *)
+
 struct MovieRow: View {
     let movie: Movie
     var displayListImage = true

@@ -19,7 +19,11 @@ public struct DMSNowPlayingPage: View {
                     Text(errorMessage)
                 } else {
                     List(viewModel.movies) { movie in
-                        MovieRow(movie: movie)
+                        NavigationLink(
+                            destination: MovieDetailPage(movieId: movie.id)) {
+                                MovieRow(movie: movie)
+                            }
+                        
                     }
                 }
             }

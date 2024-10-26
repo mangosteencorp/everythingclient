@@ -25,3 +25,8 @@ struct People: Codable, Identifiable {
         let poster_path: String?
     }
 }
+struct MovieCredits: Decodable {
+    let id: Int
+    let cast: [People]
+    let crew: [People]
+}

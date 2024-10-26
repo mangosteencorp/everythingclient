@@ -147,6 +147,10 @@ public struct APIService {
     public func fetchNowPlayingMovies() async -> Result<NowPlayingResponse, APIError> {
         return await fetch(endpoint: .nowPlaying, params: nil)
     }
+    func fetchMovieDetail(movieId: Int) async -> Result<Movie, APIError> {
+        return await fetch(endpoint: .movieDetail(movie: movieId), params: nil)
+        
+    }
 }
 
 extension URLRequest {
