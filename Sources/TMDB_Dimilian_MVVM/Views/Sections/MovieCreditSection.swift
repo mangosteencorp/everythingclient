@@ -2,19 +2,19 @@ import SwiftUI
 
 struct MovieCreditSection: View {
     let movieId: Int
-    @StateObject private var creditsViewModel = MovieCastingViewModel()
+    @StateObject fileprivate var creditsViewModel = MovieCastingViewModel()
     
     var body: some View {
-        HStack {
+        Section {
             switch creditsViewModel.state {
             case .loading:
                 ProgressView(L10n.playingLoading)
             case .success(let credits):
                 // Display the credits information
-                VStack {
-                    MovieCrosslinePeopleRow(title: L10n.castSectionTitle, peoples: credits.cast)
-                    MovieCrosslinePeopleRow(title: L10n.castSectionTitle, peoples: credits.crew)
-                }
+                
+                MovieCrosslinePeopleRow(title: L10n.castSectionTitle, peoples: credits.cast)
+                MovieCrosslinePeopleRow(title: L10n.castSectionTitle, peoples: credits.crew)
+                
                 
             case .error(let errorMessage):
                 Text("Error: \(errorMessage)")
