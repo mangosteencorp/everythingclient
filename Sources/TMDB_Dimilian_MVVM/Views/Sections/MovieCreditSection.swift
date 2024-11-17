@@ -8,12 +8,12 @@ struct MovieCreditSection: View {
         Section {
             switch creditsViewModel.state {
             case .loading:
-                ProgressView(L10n.playingLoading)
+                RedactedMovieCrosslinePeopleRow()
             case .success(let credits):
                 // Display the credits information
                 
                 MovieCrosslinePeopleRow(title: L10n.castSectionTitle, peoples: credits.cast)
-                MovieCrosslinePeopleRow(title: L10n.castSectionTitle, peoples: credits.crew)
+                MovieCrosslinePeopleRow(title: L10n.crewSectionTitle, peoples: credits.crew)
                 
                 
             case .error(let errorMessage):

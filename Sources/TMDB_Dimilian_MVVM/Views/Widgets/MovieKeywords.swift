@@ -1,5 +1,5 @@
 import SwiftUI
-@available(iOS 15, macOS 12, *)
+
 struct MovieKeywords : View {
     let keywords: [Keyword]
     
@@ -23,7 +23,7 @@ struct MovieKeywords : View {
             .padding(.vertical)
     }
 }
-@available(iOS 15, macOS 12, *)
+
 #Preview {
     MovieKeywords(keywords: [
         Keyword(id: 613, name: "new year's eve"),

@@ -1,4 +1,6 @@
 import SwiftUI
+
+
 struct MovieCrosslinePeopleRow : View {
     let title: String
     let peoples: [People]
@@ -31,6 +33,23 @@ struct MovieCrosslinePeopleRow : View {
         }
         .listRowInsets(EdgeInsets())
         .padding(.vertical)
+    }
+    
+}
+
+struct RedactedMovieCrosslinePeopleRow: View {
+    var body: some View {
+        MovieCrosslinePeopleRow(
+            title: "Cast",
+            peoples: [
+                People.redacted(),
+                People.redacted(),
+                People.redacted(),
+                People.redacted(),
+                People.redacted(),
+                People.redacted()
+            ])
+        .redacted(if: true)
     }
 }
 
@@ -83,5 +102,12 @@ struct PeopleRowItem: View {
     
     
     return MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples)
+        
+}
+
+#Preview {
+    
+    
+    return RedactedMovieCrosslinePeopleRow()
         
 }

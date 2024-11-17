@@ -20,7 +20,7 @@ public struct DMSNowPlayingPage: View {
                 } else {
                     List(viewModel.movies) { movie in
                         NavigationLink(
-                            destination: MovieDetailPage(movieId: movie.id)) {
+                            destination: MovieDetailPage(movie: movie)) {
                                 MovieRow(movie: movie)
                             }
                         
@@ -38,6 +38,7 @@ public struct DMSNowPlayingPage: View {
 
 @available(iOS 15, macOS 10.15, *)
 #Preview {
+    // FIXME: preview with api key
     DMSNowPlayingPage(apiKey: "")
 }
 

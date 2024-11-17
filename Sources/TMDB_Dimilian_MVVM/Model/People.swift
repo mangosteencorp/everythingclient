@@ -24,6 +24,9 @@ struct People: Codable, Identifiable {
         let original_title: String?
         let poster_path: String?
     }
+    static func redacted() -> People {
+        return People(id: Int.random(in: 1...100000), name: "",  profile_path: nil, known_for_department: "Acting", also_known_as: nil, birthDay: nil, deathDay: nil, place_of_birth: nil, biography: nil, popularity: 57.714)
+    }
 }
 struct MovieCredits: Decodable {
     let id: Int
