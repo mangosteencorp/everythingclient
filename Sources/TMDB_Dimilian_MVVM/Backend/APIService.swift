@@ -144,8 +144,14 @@ public struct APIService {
             return .failure(.networkError(error: error))
         }
     }
-    public func fetchNowPlayingMovies() async -> Result<NowPlayingResponse, APIError> {
-        return await fetch(endpoint: .nowPlaying, params: nil)
+    public func fetchNowPlayingMovies(page: Int? = nil) async -> Result<NowPlayingResponse, APIError> {
+        let params: [String: String]? = {
+            if let p = page {
+                return ["page": "\(p)"]
+            }
+            return nil
+        }()
+        return await fetch(endpoint: .nowPlaying, params: params)
     }
     func fetchMovieDetail(movieId: Int) async -> Result<Movie, APIError> {
         return await fetch(endpoint: .movieDetail(movie: movieId), params: nil)

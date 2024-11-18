@@ -10,7 +10,9 @@ struct MovieDetailPage: View {
                     MovieOverview(movie: movie)
                 }
                 Section {
-                    MovieKeywords(keywords: movie.keywords?.keywords ?? [])
+                    if let kwList = movie.keywords?.keywords, kwList.count > 0 {
+                        MovieKeywords(keywords: kwList)
+                    }
                     MovieCreditSection(movieId: movie.id)
                 }
             }

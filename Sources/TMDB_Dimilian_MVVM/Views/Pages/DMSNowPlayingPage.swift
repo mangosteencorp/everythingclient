@@ -19,10 +19,17 @@ public struct DMSNowPlayingPage: View {
                     Text(errorMessage)
                 } else {
                     List(viewModel.movies) { movie in
-                        NavigationLink(
-                            destination: MovieDetailPage(movie: movie)) {
-                                MovieRow(movie: movie)
-                            }
+                        VStack {
+                            NavigationLink(
+                                destination: MovieDetailPage(movie: movie)) {
+                                    MovieRow(movie: movie)
+                                }
+                                .onAppear {
+                                    debugPrint("onAppear \(movie.id):\(movie.title)")
+                                    viewModel.fetchMoreContentIfNeeded(currentMovieId: movie.id)
+                                }
+                        }
+                        
                         
                     }
                 }
