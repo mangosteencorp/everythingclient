@@ -46,12 +46,12 @@ let package = Package(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
         
-            .target(
-                name: "TMDB",
-                dependencies: ["TMDB_Dimilian_MVVM",
-                               "TMDB_Dimilian_clean",
-                               "TMDB_dancarvajc_Login"
-                              ]),
+        .target(
+            name: "TMDB",
+            dependencies: ["TMDB_Dimilian_MVVM",
+                            "TMDB_Dimilian_clean",
+                            "TMDB_dancarvajc_Login"
+                            ]),
         .target(
             name: "TMDB_Dimilian_MVVM",
             resources: [

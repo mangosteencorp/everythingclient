@@ -40,7 +40,7 @@ struct MovieCrosslinePeopleRow : View {
 struct RedactedMovieCrosslinePeopleRow: View {
     var body: some View {
         MovieCrosslinePeopleRow(
-            title: "Cast",
+            title: L10n.castSectionTitle,
             peoples: [
                 People.redacted(),
                 People.redacted(),

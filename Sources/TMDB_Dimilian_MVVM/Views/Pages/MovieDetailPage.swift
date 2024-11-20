@@ -1,16 +1,18 @@
 import SwiftUI
 struct MovieDetailPage: View {
-    let movie: Movie
+    var movie: Movie
+    @ObservedObject var movieDetailViewModel = MovieDetailViewModel()
     var body: some View {
+        
         ZStack(alignment: .bottom) {
             List {
                 Section {
-                    MovieCoverRow(movie: movie)
+                    MovieCoverRow(movie: getMovie())
                     // TODO: Button rows: Wishlist, Seenlist, list
-                    MovieOverview(movie: movie)
+                    MovieOverview(movie: getMovie())
                 }
                 Section {
-                    if let kwList = movie.keywords?.keywords, kwList.count > 0 {
+                    if let kwList = getMovie().keywords?.keywords, kwList.count > 0 {
                         MovieKeywords(keywords: kwList)
                     }
                     MovieCreditSection(movieId: movie.id)
@@ -19,6 +21,14 @@ struct MovieDetailPage: View {
             .navigationBarTitle(Text(movie.userTitle), displayMode: .large)
             // TODO: .navigationBarItems(trailing: Button(action: onAddButton) "text.badge.plus"
             // Movie Poster row
+        }.onAppear {
+            movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
         }
+    }
+    func getMovie() -> Movie {
+        if case .success(let mv) = movieDetailViewModel.state {
+            return mv
+        }
+        return movie
     }
 }
