@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "everythingclient",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v14),
         .macOS(.v11)
@@ -26,16 +27,15 @@ let package = Package(
         .library(
             name: "TMDB_Dimilian_clean",
             targets: ["TMDB_Dimilian_clean"]),
-        // Trending page
-        .library(
-            name: "TMDB_Dimilian_OG",
-            targets: ["TMDB_Dimilian_OG"]),
+        
         // Sign in
-        .library(name: "TMDB_AlonsoUpcomingMovies_og", type: .dynamic, targets: ["TMDB_AlonsoUpcomingMovies_og"]),
+        
+        .library(name: "TMDB_dancarvajc_Login",  targets: ["TMDB_dancarvajc_Login"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
-        
+        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
+        .package(url: "https://github.com/kean/Nuke.git", from: "12.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -46,25 +46,36 @@ let package = Package(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
         
-            .target(
-                name: "TMDB",
-                dependencies: ["TMDB_Dimilian_MVVM",
-                               "TMDB_Dimilian_clean",
-                               "TMDB_AlonsoUpcomingMovies_og"]),
         .target(
-            name: "TMDB_Dimilian_MVVM"),
+            name: "TMDB",
+            dependencies: ["TMDB_Dimilian_MVVM",
+                            "TMDB_Dimilian_clean",
+                            "TMDB_dancarvajc_Login"
+                            ]),
+        .target(
+            name: "TMDB_Dimilian_MVVM",
+            resources: [
+                .process("Resources")
+            ]),
         .target(
             name: "TMDB_Dimilian_clean",
-            dependencies: ["Swinject"]),
+            dependencies: ["Swinject"],
+            swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
+        ),
         .testTarget(
             name: "TMDB_Dimilian_clean_tests",
             dependencies: ["TMDB_Dimilian_clean"]),
-        .target(name: "TMDB_Dimilian_OG", dependencies: ["TMDB_Dimilian_OG_UI", "TMDB_Dimilian_OG_Backend"]),
-        .target(name: "TMDB_Dimilian_OG_UI"),
-        .target(name: "TMDB_Dimilian_OG_Backend"),
+        
         .target(
-            name: "TMDB_AlonsoUpcomingMovies_og"
-            // https://claude.ai/chat/7b9a2446-c213-4685-b290-1d6e92bca1bc
+            name: "TMDB_dancarvajc_Login",
+            dependencies: [
+                "KeychainAccess",
+                .product(name: "Nuke", package: "Nuke"),
+                .product(name: "NukeUI", package: "Nuke")
+            ],
+            resources: [
+                .process("Resources")
+            ]
         ),
     ]
 )
