@@ -13,7 +13,7 @@ struct MoviePosterImage: View {
 
     var body: some View {
         if let posterPath = posterPath, let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)") {
-            if #available(iOS 15.0, *) {
+            if #available(iOS 15.0, macOS 12.0, *) {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .empty:

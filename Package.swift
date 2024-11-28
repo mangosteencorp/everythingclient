@@ -79,4 +79,4 @@ let package = Package(
         ),
     ]
 )
-// icon: https://claude.ai/chat/84b7ac4c-75d9-4778-bc18-f24711a64d4b
+
