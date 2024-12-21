@@ -3,10 +3,14 @@ import Combine
 
 struct RemoteTMDBImage: View {
     let posterPath: String?
-    let posterSize: PosterSize
+    let posterSize: PosterSize 
+    
     let image: ImageSize
     var body: some View {
-        if let posterPath = posterPath, let url = image.path(poster: posterPath) {
+        if let posterPath = posterPath,
+            let url = image.path(poster: posterPath)
+           {
+            
             if #available(iOS 15.0, *) {
                 AsyncImage(url: url) { phase in
                     switch phase {
@@ -97,5 +101,14 @@ class ImageLoader: ObservableObject {
             }
         }
         task.resume()
+    }
+}
+
+struct PosterFrameModifier: ViewModifier {
+    let posterSize: PosterSize
+
+    func body(content: Content) -> some View {
+        content
+            .frame(width: posterSize.width, height: posterSize.height)
     }
 }

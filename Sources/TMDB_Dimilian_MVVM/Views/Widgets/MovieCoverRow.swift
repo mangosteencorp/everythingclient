@@ -5,7 +5,13 @@ struct MovieCoverRow: View {
         ZStack {
             // MovieTopBackdropImage
             
-            RemoteTMDBImage(posterPath: movie.backdrop_path, posterSize: PosterSize(width: 250, height: 250), image: .medium)
+            RemoteTMDBImage(posterPath: movie.backdrop_path,
+                            posterSize: PosterSize(height: 250),
+                            image: .medium)
+                .blur(radius: 50, opaque: true)
+                .overlay(Color.black.opacity(0.3))
+                .animation(.easeInOut)
+                .transition(.opacity)
             VStack(alignment: .leading) {
                 HStack(spacing: 16) {
                     RemoteTMDBImage(posterPath: movie.poster_path, posterSize: .medium, image: .medium)

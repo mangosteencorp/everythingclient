@@ -7,8 +7,8 @@ fileprivate let formatter: DateFormatter = {
 }()
 
 struct PosterSize {
-    var width: CGFloat
-    var height: CGFloat
+    var width: CGFloat?
+    var height: CGFloat?
     
     static let medium = PosterSize(width: 100, height: 150)
 }
