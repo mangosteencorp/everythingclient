@@ -9,7 +9,15 @@
     }
   ],
   "defaultOptions" : {
-
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "TMDB_Dimilian_clean_tests",
+          "name" : "TMDB_Dimilian_clean_tests"
+        }
+      ]
+    }
   },
   "testTargets" : [
     {
