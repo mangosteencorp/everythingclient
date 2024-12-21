@@ -2,3 +2,5 @@
 *.xcuserdatad
 .build
 .vscode/settings.json
+.DerivedData
+.output
