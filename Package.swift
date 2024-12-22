@@ -1,6 +1,6 @@
 // swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// MLS=Movie List, MDT=Movie details, 
 import PackageDescription
 
 let package = Package(
@@ -21,16 +21,16 @@ let package = Package(
             targets: ["TMDB"]),
         // Now Playign
         .library(
-            name: "TMDB_Dimilian_MVVM",
-            targets: ["TMDB_Dimilian_MVVM"]),
+            name: "TMDB_MVVM_MLS",
+            targets: ["TMDB_MVVM_MLS"]),
         // Upcoming
         .library(
-            name: "TMDB_Dimilian_clean",
-            targets: ["TMDB_Dimilian_clean"]),
+            name: "TMDB_clean_MLS",
+            targets: ["TMDB_clean_MLS"]),
         
         // Sign in
         
-        .library(name: "TMDB_dancarvajc_Login",  targets: ["TMDB_dancarvajc_Login"]),
+        .library(name: "TMDB_MVVM_Login",  targets: ["TMDB_MVVM_Login"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -48,26 +48,28 @@ let package = Package(
         
         .target(
             name: "TMDB",
-            dependencies: ["TMDB_Dimilian_MVVM",
-                            "TMDB_Dimilian_clean",
-                            "TMDB_dancarvajc_Login"
+            dependencies: ["TMDB_MVVM_MLS",
+                            "TMDB_clean_MLS",
+                            "TMDB_MVVM_Login"
                             ]),
+        .target(name: "TMDB_Shared_Backend"),
+        .target(name: "TMDB_Shared_UI"),
         .target(
-            name: "TMDB_Dimilian_MVVM",
+            name: "TMDB_MVVM_MLS",
             resources: [
                 .process("Resources")
             ]),
         .target(
-            name: "TMDB_Dimilian_clean",
+            name: "TMDB_clean_MLS",
             dependencies: ["Swinject"],
             swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
         ),
         .testTarget(
-            name: "TMDB_Dimilian_clean_tests",
-            dependencies: ["TMDB_Dimilian_clean"]),
+            name: "TMDB_clean_MLS_tests",
+            dependencies: ["TMDB_clean_MLS"]),
         
         .target(
-            name: "TMDB_dancarvajc_Login",
+            name: "TMDB_MVVM_Login",
             dependencies: [
                 "KeychainAccess",
                 .product(name: "Nuke", package: "Nuke"),
@@ -79,4 +81,4 @@ let package = Package(
         ),
     ]
 )
-// icon: https://claude.ai/chat/84b7ac4c-75d9-4778-bc18-f24711a64d4b
+
