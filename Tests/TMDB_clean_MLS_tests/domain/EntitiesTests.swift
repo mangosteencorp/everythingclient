@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import TMDB_Dimilian_clean
+@testable import TMDB_clean_MLS
 class MovieTests: XCTestCase {
     func testMovieInitialization() {
         // Given

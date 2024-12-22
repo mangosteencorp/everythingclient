@@ -1,6 +1,6 @@
 import XCTest
 import SwiftUI
-@testable import TMDB_Dimilian_clean
+@testable import TMDB_clean_MLS
 
 class ImageViewTests: XCTestCase {
     func testImageLoaderInitialization() {

@@ -1,6 +1,6 @@
 
 import Foundation
-@testable import TMDB_Dimilian_clean
+@testable import TMDB_clean_MLS
 struct MockData {
     static let movies: [APIMovie] = [
             APIMovie(

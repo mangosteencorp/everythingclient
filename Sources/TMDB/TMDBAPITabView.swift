@@ -1,7 +1,7 @@
-import TMDB_Dimilian_MVVM
-import TMDB_Dimilian_clean
+import TMDB_MVVM_MLS
+import TMDB_clean_MLS
 
-import TMDB_dancarvajc_Login
+import TMDB_MVVM_Login
 import SwiftUI
 @available(iOS 15,*)
 public struct TMDBAPITabView: View {
@@ -11,7 +11,7 @@ public struct TMDBAPITabView: View {
     public init(tmdbKey: String) {
         views =  [
             AnyView(DMSNowPlayingPage(apiKey: tmdbKey)),
-            AnyView(TMDB_Dimilian_clean.MovieListPage(apiKey: tmdbKey, type: .upcoming)),
+            AnyView(TMDB_clean_MLS.MovieListPage(apiKey: tmdbKey, type: .upcoming)),
             
             AnyView(ProfileTabView(tmdbKey)) // {{ edit_1 }} Added LoginView
         ]

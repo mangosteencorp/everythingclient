@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import TMDB_Dimilian_clean
+@testable import TMDB_clean_MLS
 class MovieRepositoryImplTests: XCTestCase {
 
     var repository: MovieRepositoryImpl!
@@ -45,7 +45,7 @@ class MovieRepositoryImplTests: XCTestCase {
     
 }
 class MockAPIService: APIServiceProtocol {
-    func fetchMovies(endpoint: TMDB_Dimilian_clean.APIService.Endpoint) async -> Result<TMDB_Dimilian_clean.MovieListResultModel, TMDB_Dimilian_clean.APIService.APIError> {
+    func fetchMovies(endpoint: TMDB_clean_MLS.APIService.Endpoint) async -> Result<TMDB_clean_MLS.MovieListResultModel, TMDB_clean_MLS.APIService.APIError> {
         return resultToReturn ?? .failure(.noResponse)
     }
     

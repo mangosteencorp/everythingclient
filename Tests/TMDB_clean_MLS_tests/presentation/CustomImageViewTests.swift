@@ -1,7 +1,7 @@
 import XCTest
 import SwiftUI
 import Combine
-@testable import TMDB_Dimilian_clean
+@testable import TMDB_clean_MLS
 
 class CustomImageViewTests: XCTestCase {
     var cancellables: Set<AnyCancellable> = []
