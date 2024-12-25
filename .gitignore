@@ -2,5 +2,7 @@
 *.xcuserdatad
 .build
 .vscode/settings.json
+DerivedData
 .DerivedData
 .output
+coverage_report.txt

@@ -32,7 +32,10 @@ public struct MovieListPage: View {
             .onAppear {
                 viewModel.fetchMovies()
             }
-        }.navigationViewStyle(StackNavigationViewStyle())
+        }
+        #if os(iOS)
+        .navigationViewStyle(StackNavigationViewStyle())
+        #endif
     }
 }
 public enum MovieListType {
