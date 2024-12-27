@@ -1,6 +1,6 @@
 import SwiftUI
 import NukeUI
-
+import Nuke
 
 struct UserView: View {
     @EnvironmentObject private var userVM: UserViewModel
@@ -15,7 +15,40 @@ struct UserView: View {
                 VStack{
                     //MARK: User profile picture
                     LazyImage(url: URL(string: Constants.gravatarURL + user.avatar.gravatar.hash)!)
-                        .onCompletion(Constants.onCompletionLazyImage(networkVM: networkVM))
+                        .onCompletion({ (result: Result<ImageResponse, Error>) in
+                            switch result {
+                            case .success(let success):
+                                //If the image loads from cache, do nothing (may or may not have internet), otherwise it means it loaded from the internet
+                                if success.cacheType == .memory || success.cacheType == .disk {
+                                    
+                                } else {
+                                    networkVM.noInternet = false
+                                }
+                                
+                            case .failure(let error):
+                                //If image loading fails, there's no internet or the URL is bad
+                                let error2 = error as! Nuke.ImagePipeline.Error
+                                
+                                if error2.description.contains("Response status code was unacceptable") {
+                                    print("Error in the image URL")
+                                    networkVM.noInternet = false
+                                    return
+                                }
+                                
+                                if let error2 = error2.dataLoadingError as? URLError {
+                                    switch error2.code {
+                                    case .dataNotAllowed:
+                                        print("NO INTERNET FOR NO DATA??")
+                                        networkVM.noInternet = true
+                                    case .notConnectedToInternet:
+                                        print("NO INTERNETTTT FROM URL?")
+                                        networkVM.noInternet = true
+                                    default:
+                                        break
+                                    }
+                                }
+                            }
+                        })
                         .aspectRatio(contentMode: .fit)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(.white, lineWidth: 4))
