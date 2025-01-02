@@ -52,7 +52,8 @@ let package = Package(
                             "TMDB_clean_MLS",
                             "TMDB_MVVM_Login"
                             ]),
-        .target(name: "TMDB_Shared_Backend"),
+        .target(name: "TMDB_Shared_Backend",
+                dependencies: ["Swinject"]),
         .target(name: "TMDB_Shared_UI"),
         .target(
             name: "TMDB_MVVM_MLS",
@@ -72,6 +73,8 @@ let package = Package(
             name: "TMDB_MVVM_Login",
             dependencies: [
                 "KeychainAccess",
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
                 .product(name: "Nuke", package: "Nuke"),
                 .product(name: "NukeUI", package: "Nuke")
             ],

@@ -32,6 +32,13 @@ public struct TMDBAPIService {
             URLQueryItem(name: "language", value: Locale.preferredLanguages[0])
         ]
         
+        // Add extra queries from endpoint if available
+        if let extraQueries = endpoint.extraQuery() {
+            queryItems.append(contentsOf: extraQueries.map { 
+                URLQueryItem(name: $0.key, value: $0.value)
+            })
+        }
+        
         if let sessionId = authRepository.getSessionId(), endpoint.needAuthentication() {
             queryItems.append(URLQueryItem(name: "session_id", value: sessionId))
         }
@@ -45,10 +52,10 @@ public struct TMDBAPIService {
         var request = URLRequest(url: url)
         request.httpMethod = endpoint.httpMethod().method()
         request.httpBody = endpoint.body()
-        
+        debugPrint(request.curlString)
         let (data, response) = try await session.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse else {
+        guard let _ = response as? HTTPURLResponse else {
             throw TMDBAPIError.noResponse
         }
         
@@ -91,7 +98,7 @@ public enum TMDBEndpoint {
     
     // Authentication & Account
     case authStep1
-    case authStep3
+    case authNewSession(requestToken: String)
     case logOut
     case accountInfo
     
@@ -155,7 +162,7 @@ public enum TMDBEndpoint {
         // Authentication & Account
         case .authStep1:
             return "authentication/token/new"
-        case .authStep3:
+        case .authNewSession:
             return "authentication/session/new"
         case .logOut:
             return "authentication/session"
@@ -194,8 +201,22 @@ public enum TMDBEndpoint {
         return nil
     }
     
+    func extraQuery() -> [String: String]? {
+        switch self {
+        case .authNewSession(let requestToken):
+            return ["request_token": requestToken]
+        default:
+            return nil
+        }
+    }
+    
     func httpMethod() -> HTTPMethod {
-        return .get
+        switch self {
+        case .authNewSession:
+            return .post
+        default:
+            return .get
+        }
     }
     
     public func returnType() throws -> Decodable.Type {

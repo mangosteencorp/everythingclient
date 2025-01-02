@@ -1,9 +1,9 @@
 import SwiftUI
-import AuthenticationServices
+
 import Foundation
 import Combine
 import Network
-
+import TMDB_Shared_Backend
 
 
 public struct LoginView: View {
@@ -21,7 +21,9 @@ public struct LoginView: View {
                 Text("login_btn_login", bundle: Bundle.module)
             })
             .disabled(userVM.isLoading)
-            
+            if #available(iOS 15.0, *) {
+                TMDBSignInButton()
+            } 
             if userVM.isLoading {
                 ProgressView()
             }
