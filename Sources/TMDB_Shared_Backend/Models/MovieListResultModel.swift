@@ -9,7 +9,7 @@
 import Foundation
 
 public struct MovieListResultModel: Decodable {
-    let dates: Dates
+    let dates: Dates?
     let page: Int
     public let results: [TMDBMovieModel]
     let totalPages: Int
