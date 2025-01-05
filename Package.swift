@@ -28,9 +28,6 @@ let package = Package(
             name: "TMDB_clean_MLS",
             targets: ["TMDB_clean_MLS"]),
         
-        // Sign in
-        
-        .library(name: "TMDB_MVVM_Login",  targets: ["TMDB_MVVM_Login"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -81,6 +78,10 @@ let package = Package(
             resources: [
                 .process("Resources")
             ]
+        ),
+        .target(
+            name: "TMDB_Clean_Profile",
+            dependencies: ["TMDB_Shared_Backend"]
         ),
     ]
 )
