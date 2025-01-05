@@ -9,11 +9,11 @@
 import Foundation
 
 public struct MovieListResultModel: Decodable {
-    let dates: Dates?
-    let page: Int
+    public let dates: Dates?
+    public let page: Int
     public let results: [TMDBMovieModel]
-    let totalPages: Int
-    let totalResults: Int
+    public let totalPages: Int
+    public let totalResults: Int
 
     enum CodingKeys: String, CodingKey {
         case dates, page, results
@@ -22,8 +22,8 @@ public struct MovieListResultModel: Decodable {
     }
 }
 
-struct Dates: Decodable {
-    let maximum: String
-    let minimum: String
+public struct Dates: Decodable {
+    public let maximum: String
+    public let minimum: String
 }
 

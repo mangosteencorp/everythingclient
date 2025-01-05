@@ -1,22 +1,22 @@
-struct AccountInfoModel: Codable {
-    let avatar: Avatar
-    let id: Int
-    let iso_639_1: String
-    let iso_3166_1: String
-    let name: String
-    let include_adult: Bool
-    let username: String
+public struct AccountInfoModel: Codable {
+    public let avatar: Avatar
+    public let id: Int
+    public let iso_639_1: String
+    public let iso_3166_1: String
+    public let name: String
+    public let include_adult: Bool
+    public let username: String
     
-    struct Avatar: Codable {
-        let gravatar: Gravatar
-        let tmdb: TMDB
+    public struct Avatar: Codable {
+        public let gravatar: Gravatar
+        public let tmdb: TMDB
         
-        struct Gravatar: Codable {
-            let hash: String
+        public struct Gravatar: Codable {
+            public let hash: String
         }
         
-        struct TMDB: Codable {
-            let avatar_path: String?
+        public struct TMDB: Codable {
+            public let avatar_path: String?
         }
     }
 } 
