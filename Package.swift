@@ -51,7 +51,6 @@ let package = Package(
             name: "TMDB",
             dependencies: ["TMDB_MVVM_MLS",
                             "TMDB_clean_MLS",
-                            "TMDB_MVVM_Login",
                            "TMDB_Clean_Profile",
                            "Swinject"
                             ]),
@@ -71,20 +70,6 @@ let package = Package(
         .testTarget(
             name: "TMDB_clean_MLS_tests",
             dependencies: ["TMDB_clean_MLS"]),
-        
-        .target(
-            name: "TMDB_MVVM_Login",
-            dependencies: [
-                "KeychainAccess",
-                "TMDB_Shared_UI",
-                "TMDB_Shared_Backend",
-                .product(name: "Nuke", package: "Nuke"),
-                .product(name: "NukeUI", package: "Nuke")
-            ],
-            resources: [
-                .process("Resources")
-            ]
-        ),
         .target(
             name: "TMDB_Clean_Profile",
             dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher"]
