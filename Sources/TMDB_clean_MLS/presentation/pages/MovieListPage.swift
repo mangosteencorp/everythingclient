@@ -1,11 +1,14 @@
 import SwiftUI
+import Swinject
+
 public struct MovieListPage: View {
     @StateObject private var viewModel: MoviesViewModel
     let type: MovieListType
     
-    public init(apiKey: String, type: MovieListType) {
-        let container = AppContainer.shared.container
+    public init(container: Container, apiKey: String, type: MovieListType) {
         APIKeys.tmdbKey = apiKey
+        let movieAssembly = MovieAssembly()
+        movieAssembly.assemble(container: container)
         let viewModel: MoviesViewModel
         switch type {
         case .nowPlaying:
@@ -59,4 +62,7 @@ public enum MovieListType {
             return "calendar"
         }
     }
+}
+struct APIKeys {
+    static var tmdbKey = ""
 }

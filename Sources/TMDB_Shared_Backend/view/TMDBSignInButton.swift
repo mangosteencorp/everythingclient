@@ -5,7 +5,7 @@ public struct TMDBSignInButton: View {
     @ObservedObject private var viewModel: AuthenticationViewModel
     
     public init(viewModel: AuthenticationViewModel? = nil) {
-        self.viewModel = viewModel ?? TMDB_Shared_Backend.container.resolve(AuthenticationViewModel.self)!
+        self.viewModel = viewModel ?? TMDB_Shared_Backend.container!.resolve(AuthenticationViewModel.self)!
     }
     
     public var body: some View {

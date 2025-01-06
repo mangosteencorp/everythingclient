@@ -1,6 +1,6 @@
 import UIKit
 import Combine
-class ProfileViewController: UIViewController {
+public class ProfileViewController: UIViewController {
     private let viewModel: ProfileViewModel
     private var cancellables = Set<AnyCancellable>()
     
@@ -23,7 +23,7 @@ class ProfileViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         bindViewModel()

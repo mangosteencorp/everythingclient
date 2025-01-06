@@ -1,21 +1,20 @@
 import Swinject
-class AppContainer {
-    static let shared = AppContainer()
+
+public class MovieAssembly: Assembly {
+    public init() {}
     
-    let container: Container
-    
-    private init() {
-        container = Container()
-        registerDependencies()
-    }
-    
-    private func registerDependencies() {
-        container.register(APIService.self) { _ in APIService.shared }.inObjectScope(.container)
+    public func assemble(container: Container) {
+        // Register API Service
+        container.register(APIService.self) { _ in 
+            APIService.shared 
+        }.inObjectScope(.container)
         
+        // Register Repository
         container.register(MovieRepository.self) { resolver in
             MovieRepositoryImpl(apiService: resolver.resolve(APIService.self)!)
         }.inObjectScope(.container)
         
+        // Register Use Cases
         container.register(FetchNowPlayingMoviesUseCase.self) { resolver in
             FetchNowPlayingMoviesUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
         }
@@ -24,6 +23,7 @@ class AppContainer {
             FetchUpcomingMoviesUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
         }
         
+        // Register ViewModels
         container.register(MoviesViewModel.self, name: "nowPlaying") { resolver in
             MoviesViewModel(fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!)
         }
@@ -32,8 +32,4 @@ class AppContainer {
             MoviesViewModel(fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!)
         }
     }
-}
-
-struct APIKeys {
-    static var tmdbKey = ""
-}
+} 

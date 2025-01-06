@@ -2,9 +2,11 @@ import Foundation
 import Swinject
 
 public class TMDB_Shared_Backend {
-    public static let container = Container()
     
-    public static func configure(apiKey: String) {
+    static var container: Container? = nil
+    
+    public static func configure(container: Container, apiKey: String) {
+        TMDB_Shared_Backend.container = container
         // Register basic services
         container.register(KeychainDataSource.self) { _ in
             KeychainDataSource()

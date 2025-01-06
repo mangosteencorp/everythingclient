@@ -1,20 +1,24 @@
 import TMDB_MVVM_MLS
 import TMDB_clean_MLS
-
+import TMDB_Clean_Profile
 import TMDB_MVVM_Login
 import SwiftUI
+import TMDB_Shared_Backend
+import Swinject
 @available(iOS 15,*)
 public struct TMDBAPITabView: View {
     
     @State private var currentIndex = 0
     private let views: [AnyView]
     public init(tmdbKey: String) {
+        let container = Container()
+        TMDB_Shared_Backend.configure(container: container, apiKey: tmdbKey)
         views =  [
             AnyView(DMSNowPlayingPage(apiKey: tmdbKey)),
-            AnyView(TMDB_clean_MLS.MovieListPage(apiKey: tmdbKey, type: .upcoming)),
-            
-            AnyView(ProfileTabView(tmdbKey)) // {{ edit_1 }} Added LoginView
+            AnyView(TMDB_clean_MLS.MovieListPage(container: container, apiKey: tmdbKey, type: .upcoming)),
+            AnyView(ProfilePageVCView(container: container))
         ]
+        
     }
     public var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {

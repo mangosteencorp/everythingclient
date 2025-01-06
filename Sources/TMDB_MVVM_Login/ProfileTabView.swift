@@ -6,7 +6,6 @@ public struct ProfileTabView: View {
     
     public init(_ apiKey: String = ""){
         EndPoint.apiKey = apiKey
-        TMDB_Shared_Backend.configure(apiKey: apiKey)
     }
     public var body: some View {
         ProfileView()
