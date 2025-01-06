@@ -1,6 +1,10 @@
 import Foundation
 import Combine
 public protocol AuthenticationViewModelProtocol: ObservableObject {
+    var isAuthenticatedPublisher: Published<Bool>.Publisher { get }
+    var isLoadingPublisher: Published<Bool>.Publisher { get }
+    var errorPublisher: Published<Error?>.Publisher { get }
+    
     var isAuthenticated: Bool { get }
     var isLoading: Bool { get }
     var error: Error? { get set }
@@ -20,6 +24,10 @@ public class AuthenticationViewModel: AuthenticationViewModelProtocol {
         self.webAuthService = webAuthService
         self.isAuthenticated = authService.isAuthenticated
     }
+    
+    public var isAuthenticatedPublisher: Published<Bool>.Publisher { $isAuthenticated }
+    public var isLoadingPublisher: Published<Bool>.Publisher { $isLoading }
+    public var errorPublisher: Published<Error?>.Publisher { $error }
     
     public func signIn() async {
         DispatchQueue.main.async {

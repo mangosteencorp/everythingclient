@@ -23,11 +23,14 @@ let package = Package(
         .library(
             name: "TMDB_MVVM_MLS",
             targets: ["TMDB_MVVM_MLS"]),
-        // Upcoming
+        // Upcoming movies
         .library(
             name: "TMDB_clean_MLS",
             targets: ["TMDB_clean_MLS"]),
-        
+        // Profile page
+        .library(
+            name: "TMDB_Clean_Profile",
+            targets: ["TMDB_Clean_Profile"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -47,7 +50,8 @@ let package = Package(
             name: "TMDB",
             dependencies: ["TMDB_MVVM_MLS",
                             "TMDB_clean_MLS",
-                            "TMDB_MVVM_Login"
+                            "TMDB_MVVM_Login",
+                           "TMDB_Clean_Profile"
                             ]),
         .target(name: "TMDB_Shared_Backend",
                 dependencies: ["Swinject"]),
@@ -81,7 +85,7 @@ let package = Package(
         ),
         .target(
             name: "TMDB_Clean_Profile",
-            dependencies: ["TMDB_Shared_Backend"]
+            dependencies: ["TMDB_Shared_Backend", "Swinject"]
         ),
     ]
 )
