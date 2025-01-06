@@ -45,6 +45,7 @@ class ProfileViewModel: ObservableObject {
     func signOut() {
         Task {
             await authViewModel.signOut()
+            state = .unauthorized
         }
     }
     func signIn() async {

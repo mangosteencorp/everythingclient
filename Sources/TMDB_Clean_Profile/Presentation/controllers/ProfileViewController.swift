@@ -1,6 +1,6 @@
 import UIKit
 import Combine
-public class ProfileViewController: UIViewController {
+public class ProfileViewController: UIViewController, ProfileContentViewControllerDelegate {
     private let viewModel: ProfileViewModel
     private var cancellables = Set<AnyCancellable>()
     
@@ -32,14 +32,6 @@ public class ProfileViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = .systemBackground
         title = "Profile"
-        
-        // Setup navigation bar
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Sign Out",
-            style: .plain,
-            target: self,
-            action: #selector(signOutTapped)
-        )
         
         // Add loading indicator
         loadingView.translatesAutoresizingMaskIntoConstraints = false
@@ -94,15 +86,15 @@ public class ProfileViewController: UIViewController {
         switch state {
         case .unauthorized:
             unauthorizedView.isHidden = false
-            navigationItem.rightBarButtonItem?.isEnabled = false
+            
             
         case .loading:
             loadingView.startAnimating()
-            navigationItem.rightBarButtonItem?.isEnabled = false
+            
             
         case .loaded(let profile):
-            navigationItem.rightBarButtonItem?.isEnabled = true
             let contentVC = ProfileContentViewController(profile: profile)
+            contentVC.delegate = self
             addChild(contentVC)
             contentVC.view.frame = view.bounds
             view.addSubview(contentVC.view)
@@ -114,13 +106,11 @@ public class ProfileViewController: UIViewController {
             errorView.configure(with: error) { [weak self] in
                 self?.viewModel.fetchProfile()
             }
-            navigationItem.rightBarButtonItem?.isEnabled = true
+            
         }
     }
     
-    @objc private func signOutTapped() {
-        Task {
-            await viewModel.signOut()
-        }
+    func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController) {
+        viewModel.signOut()
     }
 }

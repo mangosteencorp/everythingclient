@@ -1,9 +1,17 @@
 import UIKit
 import TMDB_Shared_Backend
 import Kingfisher
+
+protocol ProfileContentViewControllerDelegate: AnyObject {
+    func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController)
+}
+
 class ProfileContentViewController: UIViewController {
+    weak var delegate: ProfileContentViewControllerDelegate?
     private let profile: ProfileEntity
     private var multiSectionViewController: MultiSectionViewController<ProfileCollectionItem>?
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
@@ -31,6 +39,14 @@ class ProfileContentViewController: UIViewController {
         return label
     }()
     
+    private lazy var signOutButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Sign Out", for: .normal)
+        button.setTitleColor(.systemRed, for: .normal)
+        button.addTarget(self, action: #selector(signOutTapped), for: .touchUpInside)
+        return button
+    }()
+    
     init(profile: ProfileEntity) {
         self.profile = profile
         super.init(nibName: nil, bundle: nil)
@@ -50,7 +66,7 @@ class ProfileContentViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         // Setup header stack view with improved spacing
-        let headerStack = UIStackView(arrangedSubviews: [avatarImageView, nameLabel, usernameLabel])
+        let headerStack = UIStackView(arrangedSubviews: [avatarImageView, nameLabel, usernameLabel, signOutButton])
         headerStack.axis = .vertical
         headerStack.spacing = 6
         headerStack.alignment = .center
@@ -180,6 +196,9 @@ class ProfileContentViewController: UIViewController {
         multiSectionVC.didMove(toParent: self)
         
         self.multiSectionViewController = multiSectionVC
+    }
+    @objc private func signOutTapped() {
+        delegate?.profileContentViewControllerDidTapSignOut(self)
     }
 }
 

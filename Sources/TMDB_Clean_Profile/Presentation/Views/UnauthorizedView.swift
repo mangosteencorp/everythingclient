@@ -37,7 +37,31 @@ class UnauthorizedView: UIView {
     }
     
     private func setupViews() {
-        // Setup layout constraints here
+        backgroundColor = .systemBackground
+        
+        [imageView, titleLabel, signInButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            addSubview($0)
+        }
+        
+        NSLayoutConstraint.activate([
+            // Image view constraints
+            imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -60),
+            imageView.widthAnchor.constraint(equalToConstant: 100),
+            imageView.heightAnchor.constraint(equalToConstant: 100),
+            
+            // Title label constraints
+            titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            
+            // Sign in button constraints
+            signInButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
+            signInButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            signInButton.widthAnchor.constraint(equalToConstant: 200),
+            signInButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
     }
     
     func setSignInAction(_ action: @escaping () -> Void) {
