@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 import SwiftUI
-
+import Kingfisher
 // MARK: - Section Type Enum
 enum SectionType: String, Codable {
     case featured = "featured"
@@ -11,7 +11,7 @@ enum SectionType: String, Codable {
 // MARK: - Models
 protocol CollectionItem: Hashable, Codable {
     var id: Int { get }
-    var image: String { get }
+    var imageURL: URL { get }
     var name: String { get }
     var tagline: String { get }
     var subheading: String { get }
@@ -281,7 +281,7 @@ class FeaturedCell: UICollectionViewCell, SelfConfiguringCell {
         tagline.text = item.tagline.uppercased()
         name.text = item.name
         subtitle.text = item.subheading
-        imageView.image = UIImage(named: item.image)
+        imageView.kf.setImage(with: item.imageURL)
     }
 }
 
@@ -336,6 +336,6 @@ class MediumTableCell: UICollectionViewCell, SelfConfiguringCell {
     func configure<T: CollectionItem>(with item: T) {
         name.text = item.name
         subtitle.text = item.subheading
-        imageView.image = UIImage(named: item.image)
+        imageView.kf.setImage(with: item.imageURL)
     }
 }

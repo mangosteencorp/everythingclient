@@ -35,7 +35,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
-        .package(url: "https://github.com/kean/Nuke.git", from: "12.0.0")
+        .package(url: "https://github.com/kean/Nuke.git", from: "12.0.0"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -85,7 +86,7 @@ let package = Package(
         ),
         .target(
             name: "TMDB_Clean_Profile",
-            dependencies: ["TMDB_Shared_Backend", "Swinject"]
+            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher"]
         ),
     ]
 )

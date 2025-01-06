@@ -1,4 +1,6 @@
 import UIKit
+import TMDB_Shared_Backend
+import Kingfisher
 class ProfileContentViewController: UIViewController {
     private let profile: ProfileEntity
     private var multiSectionViewController: MultiSectionViewController<ProfileCollectionItem>?
@@ -75,18 +77,20 @@ class ProfileContentViewController: UIViewController {
         if let avatarPath = profile.accountInfo.avatarPath {
             // Here you would load the avatar image using your image loading system
             // For example: imageLoader.loadImage(path: avatarPath, into: avatarImageView)
+            avatarImageView.kf.setImage(with: TMDBImageSize.original.buildImageUrl(path: avatarPath))
         }
     }
     
     private func setupSections() {
         var sections: [Section<ProfileCollectionItem>] = []
-        
+        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
         // Add watchlist section (featured)
         if let watchlist = profile.watchlistTVShows {
             let watchlistItems = watchlist.map { show in
-                ProfileCollectionItem(
+                let imageUrl = show.posterPath != nil ? TMDBImageSize.medium.buildImageUrl(path: show.posterPath!) : placeholderImageUrl
+                return ProfileCollectionItem(
                     id: show.id,
-                    image: show.posterPath ?? "",
+                    imageURL: imageUrl,
                     name: show.name,
                     tagline: "TV Show",
                     subheading: "First aired: \(show.firstAirDate)"
@@ -107,7 +111,7 @@ class ProfileContentViewController: UIViewController {
             let tvShowItems = favoriteTVShows.map { show in
                 ProfileCollectionItem(
                     id: show.id,
-                    image: show.posterPath ?? "",
+                    imageURL: show.posterPath != nil ? TMDBImageSize.small.buildImageUrl(path: show.posterPath!) : placeholderImageUrl,
                     name: show.name,
                     tagline: String(format: "%.1f★", show.voteAverage),
                     subheading: show.overview
@@ -128,7 +132,7 @@ class ProfileContentViewController: UIViewController {
             let movieItems = favoriteMovies.map { movie in
                 ProfileCollectionItem(
                     id: movie.id,
-                    image: movie.posterPath ?? "",
+                    imageURL: movie.posterPath != nil ? TMDBImageSize.small.buildImageUrl(path: movie.posterPath!) : placeholderImageUrl,
                     name: movie.title,
                     tagline: String(format: "%.1f★", movie.voteAverage),
                     subheading: movie.overview
@@ -170,7 +174,7 @@ class ProfileContentViewController: UIViewController {
 // MARK: - Profile Collection Item
 struct ProfileCollectionItem: CollectionItem {
     let id: Int
-    let image: String
+    let imageURL: URL
     let name: String
     let tagline: String
     let subheading: String
