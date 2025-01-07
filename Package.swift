@@ -52,6 +52,7 @@ let package = Package(
             dependencies: ["TMDB_MVVM_MLS",
                             "TMDB_clean_MLS",
                            "TMDB_Clean_Profile",
+                           "TMDB_Shared_UI",
                            "Swinject"
                             ]),
         .target(name: "TMDB_Shared_Backend",

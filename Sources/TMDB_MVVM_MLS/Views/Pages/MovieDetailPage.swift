@@ -1,8 +1,12 @@
 import SwiftUI
-struct MovieDetailPage: View {
+public struct MovieDetailPage: View {
     var movie: Movie
     @ObservedObject var movieDetailViewModel = MovieDetailViewModel()
-    var body: some View {
+    public init(movie: Movie) {
+        self.movie = movie
+        self.movieDetailViewModel = movieDetailViewModel
+    }
+    public var body: some View {
         
         ZStack(alignment: .bottom) {
             List {
