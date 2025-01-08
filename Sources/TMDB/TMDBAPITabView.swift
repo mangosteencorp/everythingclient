@@ -60,12 +60,12 @@ public struct TMDBAPITabView: View {
             case .nowPlaying:
                 DMSNowPlayingPage(apiKey: tmdbKey)
                     .navigationDestination(for: MovieDetailRoute.self) { route in
-                        //MovieDetailPage(movieRoute: route.movieRoute)
+                        MovieDetailPage(movieRoute: route.movie)
                     }
             case .upcoming:
                 TMDB_clean_MLS.MovieListPage(container: container, apiKey: tmdbKey, type: .upcoming)
                     .navigationDestination(for: MovieDetailRoute.self) { route in
-                        //MovieDetailPage(movieRoute: route.movieRoute)
+                        MovieDetailPage(movieRoute: route.movie)
                     }
             case .profile:
                 ProfilePageVCView(container: container)

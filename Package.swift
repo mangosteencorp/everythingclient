@@ -60,6 +60,7 @@ let package = Package(
         .target(name: "TMDB_Shared_UI"),
         .target(
             name: "TMDB_MVVM_MLS",
+            dependencies: ["TMDB_Shared_UI"],
             resources: [
                 .process("Resources")
             ]),

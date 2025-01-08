@@ -1,9 +1,15 @@
 import SwiftUI
+import TMDB_Shared_UI
 public struct MovieDetailPage: View {
     var movie: Movie
     @ObservedObject var movieDetailViewModel = MovieDetailViewModel()
     public init(movie: Movie) {
         self.movie = movie
+        self.movieDetailViewModel = movieDetailViewModel
+    }
+    public init(movieRoute: MovieRouteModel) {
+        // Convert MovieRouteModel to Movie
+        self.movie = Movie(id: movieRoute.id, original_title: movieRoute.originalTitle ?? "", title: movieRoute.title, overview: movieRoute.overview, poster_path: movieRoute.posterPath, backdrop_path: movieRoute.backdropPath, popularity: movieRoute.popularity ?? 0.0, vote_average: movieRoute.voteAverage, vote_count: movieRoute.voteCount, release_date: movieRoute.releaseDate, genres: nil, runtime: nil, status: nil, video: false)
         self.movieDetailViewModel = movieDetailViewModel
     }
     public var body: some View {
