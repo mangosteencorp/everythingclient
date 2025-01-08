@@ -1,11 +1,16 @@
 import SwiftUI
 import Combine
 
-struct RemoteTMDBImage: View {
+public struct RemoteTMDBImage: View {
     let posterPath: String?
     let posterSize: PosterSize
     let image: ImageSize
-    var body: some View {
+    public init(posterPath: String?, posterSize: PosterSize, image: ImageSize) {
+        self.posterPath = posterPath
+        self.posterSize = posterSize
+        self.image = image
+    }
+    public var body: some View {
         if let posterPath = posterPath, let url = image.path(poster: posterPath) {
             if #available(iOS 15.0, *) {
                 AsyncImage(url: url) { phase in

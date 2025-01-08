@@ -141,6 +141,12 @@ public enum TMDBEndpoint {
         switch self {
         case .authNewSession(let requestToken):
             return ["request_token": requestToken]
+        case .movieDetail:
+            let languages = Locale.preferredLanguages.joined(separator: ",")
+            return [
+                "include_image_language": languages,
+                "append_to_response": "keywords,images"
+            ]
         default:
             return nil
         }
@@ -157,9 +163,16 @@ public enum TMDBEndpoint {
     
     public func returnType() throws -> Decodable.Type {
         switch self {
-        case .popular, .nowPlaying, .upcoming, .getFavoriteMovies: return MovieListResultModel.self
-        case .accountInfo: return AccountInfoModel.self
-        case .getFavoriteTVShows, .getWatchlistTVShows: return TVShowListResultModel.self
+        case .popular, .nowPlaying, .upcoming, .getFavoriteMovies: 
+            return MovieListResultModel.self
+        case .accountInfo: 
+            return AccountInfoModel.self
+        case .getFavoriteTVShows, .getWatchlistTVShows: 
+            return TVShowListResultModel.self
+        case .movieDetail:
+            return MovieDetailModel.self
+        case .credits:
+            return MovieCreditsModel.self
         default:
             throw TMDBAPIError.unsupportedEndpoint
         }

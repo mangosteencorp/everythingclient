@@ -1,9 +1,12 @@
 import SwiftUI
-
+import TMDB_Shared_Backend
 struct MovieCreditSection: View {
     let movieId: Int
-    @StateObject fileprivate var creditsViewModel = MovieCastingViewModel()
-    
+    @ObservedObject var creditsViewModel: MovieCastingViewModel
+    init(movieId: Int, apiService: TMDBAPIService) {
+        self.movieId = movieId
+        creditsViewModel = MovieCastingViewModel(apiService: apiService)
+    }
     var body: some View {
         Section {
             switch creditsViewModel.state {

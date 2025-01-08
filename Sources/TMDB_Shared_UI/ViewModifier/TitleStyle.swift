@@ -11,7 +11,7 @@ struct TitleStyle: ViewModifier {
 }
 
 extension Text {
-    func titleStyle() -> some View {
+    public func titleStyle() -> some View {
         self.modifier(TitleStyle())
     }
 }

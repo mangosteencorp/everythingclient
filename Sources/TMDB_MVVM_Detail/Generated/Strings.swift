@@ -10,13 +10,10 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
-  /// Localizable.strings
-  ///   everythingclient
-  /// 
-  ///   Created by Quang on 2024-09-30.
-  public static let playingLoading = L10n.tr("Localizable", "playing_loading", fallback: "Loading...")
-  /// Now Playing
-  public static let playingTitle = L10n.tr("Localizable", "playing_title", fallback: "Now Playing")
+  /// Cast
+  public static let castSectionTitle = L10n.tr("Localizable", "cast_section_title", fallback: "Cast")
+  /// Crew
+  public static let crewSectionTitle = L10n.tr("Localizable", "crew_section_title", fallback: "Crew")
 }
 // swiftlint:enable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:enable nesting type_body_length type_name vertical_whitespace_opening_braces

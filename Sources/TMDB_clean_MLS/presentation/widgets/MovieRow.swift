@@ -1,5 +1,5 @@
 import SwiftUI
-
+import TMDB_Shared_UI
 fileprivate let formatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
@@ -72,11 +72,6 @@ extension View {
     func titleStyle() -> some View {
         self.modifier(TitleStyle())
     }
-}
-
-@available(iOS 13, macOS 10.15, *)
-extension Color {
-    static let steamGold = Color(red: 199 / 255, green: 165 / 255, blue: 67 / 255)
 }
 
 

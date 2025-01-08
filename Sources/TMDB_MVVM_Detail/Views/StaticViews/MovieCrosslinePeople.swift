@@ -1,5 +1,5 @@
 import SwiftUI
-
+import TMDB_Shared_UI
 
 struct MovieCrosslinePeopleRow : View {
     let title: String
@@ -49,7 +49,7 @@ struct RedactedMovieCrosslinePeopleRow: View {
                 People.redacted(),
                 People.redacted()
             ])
-        .redacted(if: true)
+        .redacted(reason: .placeholder)
     }
 }
 

@@ -1,6 +1,6 @@
 // swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
-// MLS=Movie List, MDT=Movie details, 
+// MLS=Movie List, MDT=Movie details,
 import PackageDescription
 
 let package = Package(
@@ -31,6 +31,9 @@ let package = Package(
         .library(
             name: "TMDB_Clean_Profile",
             targets: ["TMDB_Clean_Profile"]),
+        .library(
+            name: "TMDB_MVVM_Detail",
+            targets: ["TMDB_MVVM_Detail"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -47,17 +50,25 @@ let package = Package(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
         
-        .target(
-            name: "TMDB",
-            dependencies: ["TMDB_MVVM_MLS",
-                            "TMDB_clean_MLS",
-                           "TMDB_Clean_Profile",
-                           "TMDB_Shared_UI",
-                           "Swinject"
-                            ]),
+            .target(
+                name: "TMDB",
+                dependencies: ["TMDB_MVVM_MLS",
+                               "TMDB_clean_MLS",
+                               "TMDB_Clean_Profile",
+                               "TMDB_Shared_UI",
+                               "TMDB_MVVM_Detail",
+                               "Swinject"
+                              ]),
         .target(name: "TMDB_Shared_Backend",
                 dependencies: ["Swinject"]),
         .target(name: "TMDB_Shared_UI"),
+        .target(name: "TMDB_MVVM_Detail", dependencies: [
+            "TMDB_Shared_UI",
+            "Swinject",
+            "TMDB_Shared_Backend"],
+                resources: [
+                    .process("Resources")
+                ]),
         .target(
             name: "TMDB_MVVM_MLS",
             dependencies: ["TMDB_Shared_UI"],

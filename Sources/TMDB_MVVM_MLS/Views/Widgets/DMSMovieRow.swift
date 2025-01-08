@@ -1,17 +1,11 @@
 import SwiftUI
-
+import TMDB_Shared_UI
 fileprivate let formatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
     return formatter
 }()
 
-struct PosterSize {
-    var width: CGFloat
-    var height: CGFloat
-    
-    static let medium = PosterSize(width: 100, height: 150)
-}
 
 
 @available(iOS 13, macOS 10.15, *)

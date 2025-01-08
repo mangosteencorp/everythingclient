@@ -1,16 +1,15 @@
 import SwiftUI
 import TMDB_Shared_UI
+import TMDB_Shared_Backend
 public struct MovieDetailPage: View {
     var movie: Movie
-    @ObservedObject var movieDetailViewModel = MovieDetailViewModel()
-    public init(movie: Movie) {
-        self.movie = movie
-        self.movieDetailViewModel = movieDetailViewModel
-    }
-    public init(movieRoute: MovieRouteModel) {
+    @ObservedObject var movieDetailViewModel: MovieDetailViewModel
+    let apiService: TMDBAPIService
+    public init(movieRoute: MovieRouteModel, apiKey: String) {
         // Convert MovieRouteModel to Movie
         self.movie = Movie(id: movieRoute.id, original_title: movieRoute.originalTitle ?? "", title: movieRoute.title, overview: movieRoute.overview, poster_path: movieRoute.posterPath, backdrop_path: movieRoute.backdropPath, popularity: movieRoute.popularity ?? 0.0, vote_average: movieRoute.voteAverage, vote_count: movieRoute.voteCount, release_date: movieRoute.releaseDate, genres: nil, runtime: nil, status: nil, video: false)
-        self.movieDetailViewModel = movieDetailViewModel
+        self.apiService = TMDBAPIService(apiKey: apiKey)
+        self.movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
     }
     public var body: some View {
         
@@ -25,7 +24,7 @@ public struct MovieDetailPage: View {
                     if let kwList = getMovie().keywords?.keywords, kwList.count > 0 {
                         MovieKeywords(keywords: kwList)
                     }
-                    MovieCreditSection(movieId: movie.id)
+                    MovieCreditSection(movieId: movie.id, apiService: self.apiService)
                 }
             }
             .navigationBarTitle(Text(movie.userTitle), displayMode: .large)

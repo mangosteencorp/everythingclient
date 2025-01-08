@@ -1,4 +1,5 @@
 import TMDB_MVVM_MLS
+import TMDB_MVVM_Detail
 import TMDB_clean_MLS
 import TMDB_Clean_Profile
 import SwiftUI
@@ -60,12 +61,12 @@ public struct TMDBAPITabView: View {
             case .nowPlaying:
                 DMSNowPlayingPage(apiKey: tmdbKey)
                     .navigationDestination(for: MovieDetailRoute.self) { route in
-                        MovieDetailPage(movieRoute: route.movie)
+                        MovieDetailPage(movieRoute: route.movie, apiKey: tmdbKey)
                     }
             case .upcoming:
                 TMDB_clean_MLS.MovieListPage(container: container, apiKey: tmdbKey, type: .upcoming)
                     .navigationDestination(for: MovieDetailRoute.self) { route in
-                        MovieDetailPage(movieRoute: route.movie)
+                        MovieDetailPage(movieRoute: route.movie, apiKey: tmdbKey)
                     }
             case .profile:
                 ProfilePageVCView(container: container)

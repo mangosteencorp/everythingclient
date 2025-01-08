@@ -1,21 +1,5 @@
 import Foundation
 
-struct Keyword: Codable, Identifiable {
-    let id: Int
-    let name: String
-}
-
-
-struct ImageData: Codable, Identifiable {
-    var id: String {
-        file_path
-    }
-    let aspect_ratio: Float
-    let file_path: String
-    let height: Int
-    let width: Int
-}
-
 struct Genre: Codable, Identifiable {
     let id: Int
     let name: String
@@ -49,33 +33,8 @@ public struct Movie: Codable, Identifiable {
     }()
     
     let genres: [Genre]?
-    let runtime: Int?
-    let status: String?
     let video: Bool
     
-    var keywords: Keywords?
-    var images: MovieImages?
-    
-    var production_countries: [productionCountry]?
-    
-    var character: String?
-    var department: String?
-    
-    struct Keywords: Codable {
-        let keywords: [Keyword]?
-    }
-    
-    struct MovieImages: Codable {
-        let posters: [ImageData]?
-        let backdrops: [ImageData]?
-    }
-    
-    struct productionCountry: Codable, Identifiable {
-        var id: String {
-            name
-        }
-        let name: String
-    }
 }
 
 let sampleEmptyMovie = Movie(id: 0,
@@ -89,8 +48,6 @@ let sampleEmptyMovie = Movie(id: 0,
                         vote_count: 1000,
                         release_date: "1972-03-14",
                         genres: [Genre(id: 0, name: "test")],
-                        runtime: 80,
-                        status: "released",
                         video: false)
 
 let sampleApeMovie = Movie(
@@ -105,12 +62,5 @@ let sampleApeMovie = Movie(
     vote_count: 955,
     release_date: "2024-05-10",
     genres: nil,
-    runtime: nil,
-    status: nil,
-    video: false,
-    keywords: nil,
-    images: nil,
-    production_countries: nil,
-    character: nil,
-    department: nil
+    video: false
 )
