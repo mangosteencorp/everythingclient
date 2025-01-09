@@ -77,7 +77,7 @@ let package = Package(
             ]),
         .target(
             name: "TMDB_clean_MLS",
-            dependencies: ["Swinject"],
+            dependencies: ["Swinject", "TMDB_Shared_UI"],
             swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
         ),
         .testTarget(

@@ -1,6 +1,7 @@
 import SwiftUI
 import Swinject
 
+@available(iOS 16.0, *)
 public struct MovieListPage: View {
     @StateObject private var viewModel: MoviesViewModel
     let type: MovieListType
