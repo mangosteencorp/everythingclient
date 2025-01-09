@@ -15,21 +15,15 @@ class MovieCastingViewModel: ObservableObject {
     init(apiService: TMDBAPIService) {
         self.apiService = apiService
     }
-    func fetchMovieDetail(movieId: Int) {
+    @MainActor
+    func fetchMovieDetail(movieId: Int) async {
         state = .loading
-        
-        Task {
-            
-            let newState: MovieCastingState
-            do {
-                let result : MovieCredits = try await apiService.request(.credits(movie: movieId))
-                newState = .success(result)
-            } catch {
-                newState = .error(error.localizedDescription)
-            }
-            DispatchQueue.main.async {
-                self.state = newState
-            }
+        let newState: MovieCastingState
+        do {
+            let result : MovieCredits = try await apiService.request(.credits(movie: movieId))
+            state = .success(result)
+        } catch {
+            state = .error(error.localizedDescription)
         }
     }
 }
