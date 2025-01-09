@@ -2,7 +2,7 @@ import SwiftUI
 import TMDB_Shared_Backend
 struct MovieCreditSection: View {
     let movieId: Int
-    @ObservedObject var creditsViewModel: MovieCastingViewModel
+    @ObservedObject var creditsViewModel: MovieCastingViewModel // avoiding The problem that every time the parent view redraws, a new instance of MovieCastingViewModel is created because it's initialized in the init method. 
     init(movieId: Int, creditsViewModel: MovieCastingViewModel) {
         self.movieId = movieId
         self.creditsViewModel = creditsViewModel
