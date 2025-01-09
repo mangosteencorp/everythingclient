@@ -3,9 +3,9 @@ import TMDB_Shared_Backend
 struct MovieCreditSection: View {
     let movieId: Int
     @ObservedObject var creditsViewModel: MovieCastingViewModel
-    init(movieId: Int, apiService: TMDBAPIService) {
+    init(movieId: Int, creditsViewModel: MovieCastingViewModel) {
         self.movieId = movieId
-        creditsViewModel = MovieCastingViewModel(apiService: apiService)
+        self.creditsViewModel = creditsViewModel
     }
     var body: some View {
         Section {
@@ -24,11 +24,8 @@ struct MovieCreditSection: View {
                     .foregroundColor(.red)
             }
         }.onFirstAppear {
-            Task.detached {
-                await creditsViewModel.fetchMovieDetail(movieId: movieId)
-            }
+            creditsViewModel.fetchMovieCredits(movieId: movieId)
         }
-        .debugBorder()
     }
     
 }
@@ -72,5 +69,7 @@ extension View {
     }
 }
 #Preview {
-    MovieCreditSection(movieId: 939243, apiService: .init(apiKey: "apiKey"))
+    MovieCreditSection(movieId: 939243,
+                       creditsViewModel: MovieCastingViewModel(
+                        apiService: TMDBAPIService(apiKey: "")))
 }

@@ -65,4 +65,12 @@ public struct TMDBAPIService {
             throw TMDBAPIError.jsonDecodingError(error: error)
         }
     }
+    public func request<T: Decodable>(_ endpoint: TMDBEndpoint) async -> Result<T,TMDBAPIError> {
+        do {
+            let result: T = try await request(endpoint)
+            return .success(result)
+        } catch {
+            return .failure(error as! TMDBAPIError)
+        }
+    }
 }

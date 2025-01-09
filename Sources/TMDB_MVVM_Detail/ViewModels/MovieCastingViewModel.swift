@@ -8,22 +8,28 @@ enum MovieCastingState {
 }
 
 class MovieCastingViewModel: ObservableObject {
-    @Published var state: MovieCastingState = .loading
-
+    @Published var state: MovieCastingState
+    
     private var cancellables = Set<AnyCancellable>()
     private let apiService : TMDBAPIService
     init(apiService: TMDBAPIService) {
         self.apiService = apiService
-    }
-    @MainActor
-    func fetchMovieDetail(movieId: Int) async {
         state = .loading
-        let newState: MovieCastingState
-        do {
-            let result : MovieCredits = try await apiService.request(.credits(movie: movieId))
-            state = .success(result)
-        } catch {
-            state = .error(error.localizedDescription)
+    }
+    
+    func fetchMovieCredits(movieId: Int) {
+        state = .loading
+        Task{
+            let result : Result<MovieCredits,TMDBAPIError> = await apiService.request(.credits(movie: movieId))
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let credits):
+                    self.state = .success(credits)
+                case .failure(let error):
+                    self.state = .error(error.localizedDescription)
+                    
+                }
+            }
         }
     }
 }
