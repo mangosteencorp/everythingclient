@@ -24,7 +24,9 @@ struct MovieCreditSection: View {
                     .foregroundColor(.red)
             }
         }.onFirstAppear {
-            creditsViewModel.fetchMovieDetail(movieId: movieId)
+            Task.detached {
+                await creditsViewModel.fetchMovieDetail(movieId: movieId)
+            }
         }
         .debugBorder()
     }
