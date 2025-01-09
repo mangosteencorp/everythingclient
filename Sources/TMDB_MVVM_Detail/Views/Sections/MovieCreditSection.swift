@@ -69,3 +69,6 @@ extension View {
         return self.modifier(OnFirstAppearModifier(perform: perform))
     }
 }
+#Preview {
+    MovieCreditSection(movieId: 939243, apiService: .init(apiKey: "apiKey"))
+}
