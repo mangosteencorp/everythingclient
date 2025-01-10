@@ -9,11 +9,14 @@ TEST_SCHEMES=(
 
 # Create output directory if it doesn't exist
 COVERAGE_REPORT=".output/coverage_report.txt"
+COVERAGE_100_REPORT=".output/coverage_100_report.txt"
 mkdir -p $(dirname "$COVERAGE_REPORT")
 
-# Create a coverage report file
+# Create coverage report files
 echo "Coverage Report Generated on $(date)" > $COVERAGE_REPORT
+echo "100% Coverage Report Generated on $(date)" > $COVERAGE_100_REPORT
 echo "----------------------------------------" >> $COVERAGE_REPORT
+echo "----------------------------------------" >> $COVERAGE_100_REPORT
 
 # Run tests and generate coverage for each scheme
 for scheme in "${TEST_SCHEMES[@]}"
@@ -39,6 +42,7 @@ do
         -instr-profile \$(find $derived_data_path/Build/ProfileData -type d -depth 1 -exec ls -td {} + | head -n 1)/Coverage.profdata \
         --ignore-filename-regex='.*/Tests/.*' \
         --ignore-filename-regex='.*/SourcePackages/checkouts/.*' \
+        --ignore-filename-regex='.*/Intermediates\.noindex/.*' \
         --use-color"
     
     # Print full coverage report to console
@@ -50,8 +54,12 @@ do
     eval "$coverage_cmd" | while read -r line
     do
         # Check if line contains coverage data (has a percentage)
-        if [[ $line =~ [0-9]+\.[0-9]+% ]] && [[ ! $line =~ "100.00%" ]]; then
-            echo "$line" >> $COVERAGE_REPORT
+        if [[ $line =~ [0-9]+\.[0-9]+% ]]; then
+            if [[ $line =~ "100.00%" ]]; then
+                echo "$line" >> $COVERAGE_100_REPORT
+            else
+                echo "$line" >> $COVERAGE_REPORT
+            fi
         fi
     done
     
@@ -59,3 +67,9 @@ do
 done
 
 echo "Coverage report has been generated in $COVERAGE_REPORT"
+
+# Print the contents of both coverage reports
+echo -e "\nFiles with 100% coverage:"
+cat "$COVERAGE_100_REPORT"
+echo "Files with less than 100% coverage:"
+cat "$COVERAGE_REPORT"
