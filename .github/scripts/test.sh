@@ -32,7 +32,7 @@ do
     local_derived_data="./.DerivedData/everythingclient"
     default_derived_data="$HOME/Library/Developer/Xcode/DerivedData/everythingclient"
     
-    derived_data_path=$default_derived_data # use local_derived_data for local testing
+    derived_data_path=$local_derived_data # use local_derived_data for local testing
 
     coverage_cmd="xcrun llvm-cov report \
         $derived_data_path/Build/Products/Debug-iphonesimulator/$scheme.xctest/$scheme \

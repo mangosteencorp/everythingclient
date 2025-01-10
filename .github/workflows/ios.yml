@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Configure Xcode DerivedData path
+        run: |
+          defaults write com.apple.dt.Xcode IDECustomDerivedDataLocation "./.DerivedData"
       - name: Set up secrets in xcconfig
         run: |
           echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig

@@ -1,9 +1,4 @@
-public protocol AuthRepository {
-    func getSessionId() -> String?
-    func saveSessionId(_ sessionId: String) throws
-    func clearSessionId() throws
-}
-
+import Foundation
 public class DefaultAuthRepository: AuthRepository {
     private let keychainDataSource: KeychainDataSource
     private let sessionIdKey = "tmdb_session_id"
