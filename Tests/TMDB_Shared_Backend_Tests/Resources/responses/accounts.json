@@ -1,0 +1,16 @@
+{
+  "avatar": {
+    "gravatar": {
+      "hash": "dsaeuqincdjsh12345jkljl"
+    },
+    "tmdb": {
+      "avatar_path": null
+    }
+  },
+  "id": 22222,
+  "iso_639_1": "en",
+  "iso_3166_1": "CA",
+  "name": "",
+  "include_adult": false,
+  "username": "user1"
+}

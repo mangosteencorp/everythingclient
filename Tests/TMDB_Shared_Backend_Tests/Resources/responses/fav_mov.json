@@ -1,0 +1,167 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/1pmXyN3sKeYoUhu5VBZiDU4BX21.jpg",
+      "genre_ids": [
+        16,
+        28,
+        878,
+        10751
+      ],
+      "id": 1184918,
+      "original_language": "en",
+      "original_title": "The Wild Robot",
+      "overview": "After a shipwreck, an intelligent robot called Roz is stranded on an uninhabited island. To survive the harsh environment, Roz bonds with the island's animals and cares for an orphaned baby goose.",
+      "popularity": 718.614,
+      "poster_path": "/9w0Vh9eizfBXrcomiaFWTIPdboo.jpg",
+      "release_date": "2024-09-12",
+      "title": "The Wild Robot",
+      "video": false,
+      "vote_average": 8.375,
+      "vote_count": 3874
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/tmU7GeKVybMWFButWEGl2M4GeiP.jpg",
+      "genre_ids": [
+        18,
+        80
+      ],
+      "id": 238,
+      "original_language": "en",
+      "original_title": "The Godfather",
+      "overview": "Spanning the years 1945 to 1955, a chronicle of the fictional Italian-American Corleone crime family. When organized crime family patriarch, Vito Corleone barely survives an attempt on his life, his youngest son, Michael steps in to take care of the would-be killers, launching a campaign of bloody revenge.",
+      "popularity": 262.202,
+      "poster_path": "/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+      "release_date": "1972-03-14",
+      "title": "The Godfather",
+      "video": false,
+      "vote_average": 8.7,
+      "vote_count": 20844
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/vZG7PrX9HmdgL5qfZRjhJsFYEIA.jpg",
+      "genre_ids": [
+        28,
+        878,
+        12
+      ],
+      "id": 912649,
+      "original_language": "en",
+      "original_title": "Venom: The Last Dance",
+      "overview": "Eddie and Venom are on the run. Hunted by both of their worlds and with the net closing in, the duo are forced into a devastating decision that will bring the curtains down on Venom and Eddie's last dance.",
+      "popularity": 2911.214,
+      "poster_path": "/aosm8NMQ3UyoBVpSxyimorCQykC.jpg",
+      "release_date": "2024-10-22",
+      "title": "Venom: The Last Dance",
+      "video": false,
+      "vote_average": 6.803,
+      "vote_count": 2241
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/zOpe0eHsq0A2NvNyBbtT6sj53qV.jpg",
+      "genre_ids": [
+        28,
+        878,
+        35,
+        10751
+      ],
+      "id": 939243,
+      "original_language": "en",
+      "original_title": "Sonic the Hedgehog 3",
+      "overview": "Sonic, Knuckles, and Tails reunite against a powerful new adversary, Shadow, a mysterious villain with powers unlike anything they have faced before. With their abilities outmatched in every way, Team Sonic must seek out an unlikely alliance in hopes of stopping Shadow and protecting the planet.",
+      "popularity": 4115.631,
+      "poster_path": "/d8Ryb8AunYAuycVKDp5HpdWPKgC.jpg",
+      "release_date": "2024-12-19",
+      "title": "Sonic the Hedgehog 3",
+      "video": false,
+      "vote_average": 7.6,
+      "vote_count": 426
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/uLXK1LQM28XovWHPao3ViTeggXA.jpg",
+      "genre_ids": [
+        80,
+        18,
+        53
+      ],
+      "id": 559969,
+      "original_language": "en",
+      "original_title": "El Camino: A Breaking Bad Movie",
+      "overview": "In the wake of his dramatic escape from captivity, Jesse Pinkman must come to terms with his past in order to forge some kind of future.",
+      "popularity": 36.41,
+      "poster_path": "/ePXuKdXZuJx8hHMNr2yM4jY2L7Z.jpg",
+      "release_date": "2019-10-11",
+      "title": "El Camino: A Breaking Bad Movie",
+      "video": false,
+      "vote_average": 6.966,
+      "vote_count": 4928
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/n6bUvigpRFqSwmPp1m2YADdbRBc.jpg",
+      "genre_ids": [
+        80,
+        53,
+        18
+      ],
+      "id": 475557,
+      "original_language": "en",
+      "original_title": "Joker",
+      "overview": "During the 1980s, a failed stand-up comedian is driven insane and turns to a life of crime and chaos in Gotham City while becoming an infamous psychopathic crime figure.",
+      "popularity": 118.967,
+      "poster_path": "/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
+      "release_date": "2019-10-01",
+      "title": "Joker",
+      "video": false,
+      "vote_average": 8.143,
+      "vote_count": 25944
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/6aoyUbvu0419XLKLIMoH0TkEicH.jpg",
+      "genre_ids": [
+        80,
+        18
+      ],
+      "id": 103,
+      "original_language": "en",
+      "original_title": "Taxi Driver",
+      "overview": "A mentally unstable Vietnam War veteran works as a night-time taxi driver in New York City where the perceived decadence and sleaze feed his urge for violent action.",
+      "popularity": 71.203,
+      "poster_path": "/ekstpH614fwDX8DUln1a2Opz0N8.jpg",
+      "release_date": "1976-02-09",
+      "title": "Taxi Driver",
+      "video": false,
+      "vote_average": 8.1,
+      "vote_count": 12331
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/uWOJbarUXfVf6B4o0368dh138eR.jpg",
+      "genre_ids": [
+        18,
+        14,
+        27
+      ],
+      "id": 426063,
+      "original_language": "en",
+      "original_title": "Nosferatu",
+      "overview": "A gothic tale of obsession between a haunted young woman and the terrifying vampire infatuated with her, causing untold horror in its wake.",
+      "popularity": 923.788,
+      "poster_path": "/5qGIxdEO841C0tdY8vOdLoRVrr0.jpg",
+      "release_date": "2024-12-25",
+      "title": "Nosferatu",
+      "video": false,
+      "vote_average": 6.9,
+      "vote_count": 727
+    }
+  ],
+  "total_pages": 1,
+  "total_results": 8
+}

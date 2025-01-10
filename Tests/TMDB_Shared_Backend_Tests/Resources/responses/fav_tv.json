@@ -1,0 +1,133 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/2wNuLc0cEoPz6PZItftrZLHjG2k.jpg",
+      "genre_ids": [
+        18,
+        10751
+      ],
+      "id": 251691,
+      "origin_country": [
+        "SA"
+      ],
+      "original_language": "ar",
+      "original_name": "خريف القلب",
+      "overview": "A devastating car accident unearths a long-buried secret that turns wealthy businessman Rashid and hardworking Nahla's life around; fifteen years ago, their daughters were switched at birth.",
+      "popularity": 1905.731,
+      "poster_path": "/8uDmIxjBx90y5OCwJDBADtQzxb7.jpg",
+      "first_air_date": "2024-10-27",
+      "name": "Autumn of the Heart",
+      "vote_average": 4,
+      "vote_count": 10
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/cD9PxbrdWYgL7MUpD9eOYuiSe2P.jpg",
+      "genre_ids": [
+        80,
+        18,
+        9648
+      ],
+      "id": 2734,
+      "origin_country": [
+        "US"
+      ],
+      "original_language": "en",
+      "original_name": "Law & Order: Special Victims Unit",
+      "overview": "In the criminal justice system, sexually-based offenses are considered especially heinous. In New York City, the dedicated detectives who investigate these vicious felonies are members of an elite squad known as the Special Victims Unit. These are their stories.",
+      "popularity": 1070.203,
+      "poster_path": "/abWOCrIo7bbAORxcQyOFNJdnnmR.jpg",
+      "first_air_date": "1999-09-20",
+      "name": "Law & Order: Special Victims Unit",
+      "vote_average": 7.9,
+      "vote_count": 3851
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/vFJpFtQsYs6jY1CrAESGneVVI3o.jpg",
+      "genre_ids": [
+        18
+      ],
+      "id": 273327,
+      "origin_country": [
+        "EG"
+      ],
+      "original_language": "ar",
+      "original_name": "نقطة سودة",
+      "overview": "“Black Point” takes place in a social romantic setting, exploring the complex relationships between its diverse characters.",
+      "popularity": 1202.393,
+      "poster_path": "/xrGx7uRbCc9qwU76YD2wJXL56Js.jpg",
+      "first_air_date": "2024-11-11",
+      "name": "Black Point",
+      "vote_average": 1,
+      "vote_count": 1
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hu3i0AEfCUV76q0CLsdGyRrchSi.jpg",
+      "genre_ids": [
+        10764,
+        9648
+      ],
+      "id": 61583,
+      "origin_country": [
+        "ES"
+      ],
+      "original_language": "es",
+      "original_name": "Cuarto milenio",
+      "overview": "",
+      "popularity": 619.34,
+      "poster_path": "/fnuPYgBw5UriMqE6bfrtbjZlrqH.jpg",
+      "first_air_date": "2005-11-13",
+      "name": "Cuarto milenio",
+      "vote_average": 7.5,
+      "vote_count": 49
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/mu3lEhGovyhKHPJzb7HNYtZUCDT.jpg",
+      "genre_ids": [
+        10766
+      ],
+      "id": 206559,
+      "origin_country": [
+        "ZA"
+      ],
+      "original_language": "af",
+      "original_name": "Binnelanders",
+      "overview": "A South African Afrikaans soap opera. It is set in and around the fictional private hospital, Binneland Kliniek, in Pretoria, and the storyline follows the trials, trauma and tribulations of the staff and patients of the hospital.",
+      "popularity": 4638.165,
+      "poster_path": "/3bzECfllho8PphdYujLUIuhncJD.jpg",
+      "first_air_date": "2005-10-13",
+      "name": "Binnelanders",
+      "vote_average": 5.6,
+      "vote_count": 80
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/ukAmSyNdtWduHZfm27R2EOsguKt.jpg",
+      "genre_ids": [
+        10759,
+        9648,
+        18
+      ],
+      "id": 93405,
+      "origin_country": [
+        "KR"
+      ],
+      "original_language": "ko",
+      "original_name": "오징어 게임",
+      "overview": "Hundreds of cash-strapped players accept a strange invitation to compete in children's games. Inside, a tempting prize awaits — with deadly high stakes.",
+      "popularity": 8435.793,
+      "poster_path": "/1QdXdRYfktUSONkl1oD5gc6Be0s.jpg",
+      "first_air_date": "2021-09-17",
+      "name": "Squid Game",
+      "vote_average": 7.842,
+      "vote_count": 14818
+    }
+  ],
+  "total_pages": 1,
+  "total_results": 6
+}
