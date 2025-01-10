@@ -28,9 +28,23 @@ do
         -enableCodeCoverage YES
     
     # Store the coverage command to reuse it
+    # First try workspace-relative .DerivedData
+    local_derived_data="./.DerivedData/everythingclient"
+    default_derived_data="$HOME/Library/Developer/Xcode/DerivedData/everythingclient"
+    
+    derived_data_path=""
+    if [ -d "$local_derived_data" ]; then
+        derived_data_path="$local_derived_data"
+    elif [ -d "$default_derived_data" ]; then
+        derived_data_path="$default_derived_data"
+    else
+        echo "Error: Could not find DerivedData directory"
+        exit 1
+    fi
+
     coverage_cmd="xcrun llvm-cov report \
-        ./.DerivedData/everythingclient/Build/Products/Debug-iphonesimulator/$scheme.xctest/$scheme \
-        -instr-profile $(find ./.DerivedData/everythingclient/Build/ProfileData -type d -depth 1 -exec ls -td {} + | head -n 1)/Coverage.profdata \
+        $derived_data_path/Build/Products/Debug-iphonesimulator/$scheme.xctest/$scheme \
+        -instr-profile \$(find $derived_data_path/Build/ProfileData -type d -depth 1 -exec ls -td {} + | head -n 1)/Coverage.profdata \
         --ignore-filename-regex='.*/Tests/.*' \
         --ignore-filename-regex='.*/SourcePackages/checkouts/.*' \
         --use-color"
