@@ -82,7 +82,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_clean_MLS_tests",
-            dependencies: ["TMDB_clean_MLS"]),
+            dependencies: ["TMDB_clean_MLS", "Tests_Shared_Helpers"]),
         .target(
             name: "TMDB_Clean_Profile",
             dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher"]
@@ -91,6 +91,10 @@ let package = Package(
             name: "TMDB_Shared_Backend_Tests",
             dependencies: ["TMDB_Shared_Backend"],
             resources: [.process("Resources")] // needed for Bundle.module
+        ),
+        .target(
+            name: "Tests_Shared_Helpers",
+            path: "Tests/Tests_Shared_Helpers"
         ),
     ]
 )

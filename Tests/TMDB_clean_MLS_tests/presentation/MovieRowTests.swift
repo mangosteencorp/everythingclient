@@ -1,6 +1,8 @@
 import XCTest
 import SwiftUI
 @testable import TMDB_clean_MLS
+import Tests_Shared_Helpers
+
 
 class MovieRowTests: XCTestCase {
     func testMovieRowInitialization() {
