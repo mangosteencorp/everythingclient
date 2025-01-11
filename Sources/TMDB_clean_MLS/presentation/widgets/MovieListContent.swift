@@ -7,10 +7,20 @@ struct MovieListContent: View {
     
     var body: some View {
         List(movies, id: \.id) { movie in
-            NavigationLink(value: MovieDetailRoute(movie: MovieRouteModel(id: movie.id, title: movie.title, overview: movie.overview, posterPath: movie.posterPath, backdropPath: nil, voteAverage: movie.voteAverage, voteCount: 0, releaseDate: nil, popularity: movie.popularity, originalTitle: "")), label: {
-                MovieRow(movie: movie)
+            NavigationLink(value: MovieDetailRoute(movie: MovieRouteModel(
+                id: movie.id,
+                title: movie.title,
+                overview: movie.overview,
+                posterPath: movie.posterPath,
+                backdropPath: nil,
+                voteAverage: movie.voteAverage,
+                voteCount: 0,
+                releaseDate: nil,
+                popularity: movie.popularity,
+                originalTitle: ""
+            )), label: {
+                MovieRow(movie: movie.toMovieRowEntity())
             })
-            
         }
         #if DEBUG
         .onAppear {

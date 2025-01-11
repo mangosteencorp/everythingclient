@@ -1,5 +1,6 @@
 // Entities
 import Foundation
+import TMDB_Shared_UI
 struct Movie: Equatable {
     let id: Int
     let title: String
@@ -23,4 +24,17 @@ struct Movie: Equatable {
         Movie(id: 835113, title: "Woman of the Hour", overview: "The stranger-than-fiction story of an aspiring actor in 1970s Los Angeles and a serial killer in the midst of a years-long murder spree, whose lives intersect when they're cast on an episode of The Dating Game.", posterPath: "/td4fbQkQ0bb9GY4NwjTXj6pV60i.jpg", voteAverage: 0, popularity: 30.62, releaseDate: dateFormatter.date(from: "2024-10-11"))
     ]
 #endif
+}
+
+extension Movie {
+    func toMovieRowEntity() -> MovieRowEntity {
+        return MovieRowEntity(
+            id: id,
+            posterPath: posterPath,
+            title: title,
+            voteAverage: Double(voteAverage),
+            releaseDate: releaseDate,
+            overview: overview
+        )
+    }
 }

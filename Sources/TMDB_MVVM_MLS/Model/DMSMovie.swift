@@ -1,5 +1,5 @@
 import Foundation
-
+import TMDB_Shared_UI
 struct Genre: Codable, Identifiable {
     let id: Int
     let name: String
@@ -35,6 +35,16 @@ public struct Movie: Codable, Identifiable {
     let genres: [Genre]?
     let video: Bool
     
+    func toMovieRowEntity() -> MovieRowEntity {
+        return MovieRowEntity(
+            id: id,
+            posterPath: poster_path,
+            title: userTitle,
+            voteAverage: Double(vote_average),
+            releaseDate: releaseDate,
+            overview: overview
+        )
+    }
 }
 
 let sampleEmptyMovie = Movie(id: 0,

@@ -46,10 +46,12 @@ public struct DMSNowPlayingPage: View {
 struct NavigationMovieRow: View {
     @ObservedObject var viewModel: NowPlayingViewModel
     let movie: Movie
+    
     init(_ vm: NowPlayingViewModel, movie: Movie) {
         self.viewModel = vm
         self.movie = movie
     }
+    
     var body: some View {
         NavigationLink(value: MovieDetailRoute(movie: MovieRouteModel(
             id: movie.id,
@@ -60,9 +62,10 @@ struct NavigationMovieRow: View {
             voteAverage: movie.vote_average,
             voteCount: movie.vote_count,
             releaseDate: movie.release_date,
-            popularity: movie.popularity, originalTitle: movie.original_title
+            popularity: movie.popularity,
+            originalTitle: movie.original_title
         )), label: {
-            MovieRow(movie: movie)
+            MovieRow(movie: movie.toMovieRowEntity())
         })
         .onAppear {
             debugPrint("onAppear \(movie.id):\(movie.title)")

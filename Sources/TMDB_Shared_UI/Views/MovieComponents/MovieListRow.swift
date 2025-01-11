@@ -1,17 +1,45 @@
+//
+//  MovieRowEntity.swift
+//  everythingclient
+//
+//  Created by Quang on 2025-01-11.
+//
+
+
 import SwiftUI
-import TMDB_Shared_UI
+
 fileprivate let formatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
     return formatter
 }()
 
-@available(iOS 14, macOS 11, *)
-struct MovieRow: View {
-    let movie: Movie
-    var displayListImage = true
+public struct MovieRowEntity {
+    let id: Int
+    let posterPath: String?
+    let title: String
+    let voteAverage: Double
+    let releaseDate: Date?
+    let overview: String
+    public init(id: Int, posterPath: String?, title: String, voteAverage: Double, releaseDate: Date?, overview: String) {
+        self.id = id
+        self.posterPath = posterPath
+        self.title = title
+        self.voteAverage = voteAverage
+        self.releaseDate = releaseDate
+        self.overview = overview
+    }
+}
 
-    var body: some View {
+@available(iOS 14, macOS 11, *)
+public struct MovieRow: View {
+    let movie: MovieRowEntity
+    var displayListImage = true
+    public init(movie: MovieRowEntity, displayListImage: Bool = true) {
+        self.movie = movie
+        self.displayListImage = displayListImage
+    }
+    public var body: some View {
         HStack {
             ZStack(alignment: .topLeading) {
                 RemoteTMDBImage(posterPath: movie.posterPath ?? "",
@@ -46,11 +74,3 @@ struct MovieRow: View {
     }
 }
 
-
-@available(iOS 13, macOS 11, *)
-extension View {
-    @ViewBuilder
-    func redacted(if condition: @autoclosure () -> Bool) -> some View {
-        redacted(reason: condition() ? .placeholder : [])
-    }
-}
