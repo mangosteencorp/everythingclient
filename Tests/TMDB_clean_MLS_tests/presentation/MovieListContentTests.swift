@@ -1,5 +1,6 @@
 import XCTest
 import SwiftUI
+import ViewInspector
 @testable import TMDB_clean_MLS
 import TMDB_Shared_UI
 
@@ -38,4 +39,22 @@ class MovieListContentTests: XCTestCase {
         XCTAssertEqual(moviesProperty[0].popularity, movies[0].popularity)
         XCTAssertEqual(moviesProperty[0].releaseDate, movies[0].releaseDate)
     }
+    
+    func testListViewStructure() throws {
+        let movie = Movie(
+            id: 1,
+            title: "Test Movie",
+            overview: "Test Overview",
+            posterPath: "/test.jpg",
+            voteAverage: 7.5,
+            popularity: 100.0,
+            releaseDate: Movie.dateFormatter.date(from: "2024-01-01")
+        )
+        let content = MovieListContent(movies: [movie])
+        
+        // verify if there's a list and movie title displayed
+        let _ = try content.inspect().find(viewWithAccessibilityIdentifier: "MovieListContent.List")
+        let _ = try content.inspect().find(text: "Test Movie")
+    }
+    
 } 

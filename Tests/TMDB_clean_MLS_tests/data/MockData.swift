@@ -19,7 +19,7 @@ struct MockData {
                 poster_path: "/path2.jpg",
                 vote_average: 8.2,
                 popularity: 88.3,
-                release_date: "2021-01-02"
+                release_date: nil
             )
         ]
 

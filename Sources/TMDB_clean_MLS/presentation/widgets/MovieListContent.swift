@@ -1,6 +1,6 @@
 import SwiftUI
 import TMDB_Shared_UI
-// Add this new struct at the end of the file
+
 @available(iOS 16.0, *)
 struct MovieListContent: View {
     let movies: [Movie]
@@ -21,7 +21,7 @@ struct MovieListContent: View {
             )), label: {
                 MovieRow(movie: movie.toMovieRowEntity())
             })
-        }
+        }.accessibilityIdentifier("MovieListContent.List")
         #if DEBUG
         .onAppear {
             debugPrint(movies)
