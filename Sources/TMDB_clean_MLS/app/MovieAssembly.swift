@@ -1,17 +1,17 @@
 import Swinject
-
+import TMDB_Shared_Backend
 public class MovieAssembly: Assembly {
     public init() {}
     
     public func assemble(container: Container) {
         // Register API Service
-        container.register(APIService.self) { _ in 
-            APIService.shared 
+        container.register(APIServiceProtocol.self) { _ in
+            TMDBAPIService(apiKey: APIKeys.tmdbKey)
         }.inObjectScope(.container)
         
         // Register Repository
         container.register(MovieRepository.self) { resolver in
-            MovieRepositoryImpl(apiService: resolver.resolve(APIService.self)!)
+            MovieRepositoryImpl(apiService: resolver.resolve(APIServiceProtocol.self)!)
         }.inObjectScope(.container)
         
         // Register Use Cases

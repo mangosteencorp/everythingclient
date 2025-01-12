@@ -2,12 +2,14 @@ import SwiftUI
 import Foundation
 import Combine
 import TMDB_Shared_UI
+import TMDB_Shared_Backend
 @available(iOS 16, macOS 10.15, *)
 public struct DMSNowPlayingPage: View {
-    @StateObject private var viewModel = NowPlayingViewModel()
+    @ObservedObject var viewModel: NowPlayingViewModel
     
     public init(apiKey: String){
         APIKeys.tmdbKey = apiKey
+        viewModel = NowPlayingViewModel(apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey))
     }
     
     public var body: some View {

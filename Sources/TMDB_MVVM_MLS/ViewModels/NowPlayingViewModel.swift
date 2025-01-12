@@ -1,6 +1,21 @@
 import SwiftUI
 import Combine
-
+import TMDB_Shared_Backend
+protocol APIServiceProtocol {
+    func fetchNowPlayingMovies(page: Int?) async -> Result<NowPlayingResponse, Error>
+}
+extension TMDBAPIService: APIServiceProtocol {
+    func fetchNowPlayingMovies(page: Int?) async -> Result<NowPlayingResponse, any Error> {
+        let result: Result<NowPlayingResponse, TMDBAPIError> = await request(.nowPlaying(page: page))
+        // Map TMDBAPIError to Error
+        switch result {
+        case .success(let response):
+            return .success(response)
+        case .failure(let error):
+            return .failure(error as Error)
+        }
+    }
+}
 
 class NowPlayingViewModel: ObservableObject {
     @Published var movies: [Movie] = []
@@ -9,14 +24,16 @@ class NowPlayingViewModel: ObservableObject {
     var currentPage: Int = 1
     
     private var cancellables = Set<AnyCancellable>()
-    private let apiService = APIService.shared
-    
+    private let apiService: APIServiceProtocol
+    init(apiService: APIServiceProtocol) {
+        self.apiService = apiService
+    }
     func fetchNowPlayingMovies() {
         isLoading = true
         errorMessage = nil
         
         Task {
-            let result = await self.apiService.fetchNowPlayingMovies()
+            let result = await self.apiService.fetchNowPlayingMovies(page: nil)
             DispatchQueue.main.async {
                 self.isLoading = false
                 switch result {

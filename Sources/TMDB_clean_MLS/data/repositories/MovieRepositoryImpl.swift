@@ -1,9 +1,30 @@
+import TMDB_Shared_Backend
 protocol APIServiceProtocol {
-    func fetchMovies(endpoint: APIService.Endpoint) async -> Result<MovieListResultModel, APIService.APIError>
+    func fetchMovies(endpoint: MovieListType) async -> Result<MovieListResultModel, Error>
 }
-extension APIService: APIServiceProtocol {
-    // Ensure that all required methods are implemented here
+
+extension TMDBAPIService: APIServiceProtocol {
+    func fetchMovies(endpoint: MovieListType) async -> Result<MovieListResultModel, Error> {
+        let listTypeEndpoint: TMDBEndpoint = {
+            switch endpoint {
+            case .nowPlaying:
+                return .nowPlaying()
+            case .upcoming:
+                return .upcoming()
+            }
+        }()
+        let result: Result<MovieListResultModel, TMDBAPIError> = await request<MovieListResultModel>(listTypeEndpoint)
+        
+        // Map TMDBAPIError to Error
+        switch result {
+        case .success(let response):
+            return .success(response)
+        case .failure(let error):
+            return .failure(error as Error)
+        }
+    }
 }
+
 class MovieRepositoryImpl: MovieRepository {
     private let apiService: APIServiceProtocol
     
@@ -19,7 +40,7 @@ class MovieRepositoryImpl: MovieRepository {
         return await fetchMovies(endpoint: .upcoming)
     }
     
-    private func fetchMovies(endpoint: APIService.Endpoint) async -> Result<[Movie], Error> {
+    private func fetchMovies(endpoint: MovieListType) async -> Result<[Movie], Error> {
             let result = await apiService.fetchMovies(endpoint: endpoint)
             switch result {
             case .success(let response):

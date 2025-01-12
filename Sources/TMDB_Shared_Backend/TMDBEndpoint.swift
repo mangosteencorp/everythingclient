@@ -3,7 +3,7 @@ import Foundation
 public enum TMDBEndpoint {
     
     // Movie Lists
-    case popular, topRated, upcoming, nowPlaying, trending
+    case popular(page: Int? = nil), topRated(page: Int? = nil), upcoming(page: Int? = nil), nowPlaying(page: Int? = nil), trending(page: Int? = nil)
     
     // Movie Details
     case movieDetail(movie: Int)
@@ -147,6 +147,11 @@ public enum TMDBEndpoint {
                 "include_image_language": languages,
                 "append_to_response": "keywords,images"
             ]
+        case .popular(let page), .topRated(let page), .upcoming(let page), .nowPlaying(let page), .trending(let page):
+            if let page = page {
+                return ["page": String(page)]
+            }
+            return nil
         default:
             return nil
         }

@@ -71,13 +71,13 @@ let package = Package(
                 ]),
         .target(
             name: "TMDB_MVVM_MLS",
-            dependencies: ["TMDB_Shared_UI"],
+            dependencies: ["TMDB_Shared_UI", "TMDB_Shared_Backend"],
             resources: [
                 .process("Resources")
             ]),
         .target(
             name: "TMDB_clean_MLS",
-            dependencies: ["Swinject", "TMDB_Shared_UI"],
+            dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend"],
             swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
         ),
         .testTarget(
