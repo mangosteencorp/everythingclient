@@ -22,11 +22,7 @@ struct MovieListContent: View {
                 MovieRow(movie: movie.toMovieRowEntity())
             })
         }.accessibilityIdentifier("MovieListContent.List")
-        #if DEBUG
-        .onAppear {
-            debugPrint(movies)
-        }
-        #endif
+        
     }
 }
 #if DEBUG
