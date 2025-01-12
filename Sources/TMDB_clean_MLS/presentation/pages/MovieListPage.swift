@@ -3,21 +3,21 @@ import Swinject
 
 @available(iOS 16.0, *)
 public struct MovieListPage: View {
-    @StateObject private(set) var viewModel: MoviesViewModel
+    @ObservedObject private(set) var viewModel: MoviesViewModel
     let type: MovieListType
     
     public init(container: Container, apiKey: String, type: MovieListType) {
         APIKeys.tmdbKey = apiKey
         let movieAssembly = MovieAssembly()
         movieAssembly.assemble(container: container)
-        let viewModel: MoviesViewModel
+        
         switch type {
         case .nowPlaying:
-            viewModel = container.resolve(MoviesViewModel.self, name: "nowPlaying")!
+            self.viewModel = container.resolve(MoviesViewModel.self, name: "nowPlaying")!
         case .upcoming:
-            viewModel = container.resolve(MoviesViewModel.self, name: "upcoming")!
+            self.viewModel = container.resolve(MoviesViewModel.self, name: "upcoming")!
         }
-        _viewModel = StateObject(wrappedValue: viewModel)
+        
         self.type = type
     }
     

@@ -11,6 +11,8 @@ class MovieListPageTests: XCTestCase {
     override func setUp() {
         super.setUp()
         container = Container()
+        let assembly = MovieAssembly()
+        assembly.assemble(container: container)
         mockViewModel = MoviesViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
     }
     
@@ -31,28 +33,23 @@ class MovieListPageTests: XCTestCase {
     func testMovieListPageViewStates() {
         // Given
         let page = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying)
-        let mirror = Mirror(reflecting: page)
-        guard let viewModel = mirror.descendant("viewModel") as? MoviesViewModel else {
-            XCTFail("ViewModel not found")
-            return
-        }
         
         // Test Loading State
-        viewModel.isLoading = true
+        page.viewModel.isLoading = true
         let loadingView = page.body
         let loadingContent = findViewWithId(loadingView, viewId: "loadingView")
         XCTAssertNotNil(loadingContent, "Loading view should be visible when isLoading is true")
         
         // Test Error State
-        viewModel.isLoading = false
-        viewModel.errorMessage = "Test Error"
+        page.viewModel.isLoading = false
+        page.viewModel.errorMessage = "Test Error"
         let errorView = page.body
         let errorContent = findViewWithId(errorView, viewId: "errorView")
         XCTAssertNotNil(errorContent, "Error view should be visible when error message exists")
         
         // Test Content State
-        viewModel.errorMessage = nil
-        viewModel.movies = [Movie(id: 1, title: "Test Movie", overview: "Overview", posterPath: nil, voteAverage: 7.5, popularity: 100.0, releaseDate: nil)]
+        page.viewModel.errorMessage = nil
+        page.viewModel.movies = [Movie(id: 1, title: "Test Movie", overview: "Overview", posterPath: nil, voteAverage: 7.5, popularity: 100.0, releaseDate: nil)]
         let contentView = page.body
         let movieListContent = findViewWithId(contentView, viewId: "movieListContent")
         XCTAssertNotNil(movieListContent, "MovieListContent should be visible when there are movies")
