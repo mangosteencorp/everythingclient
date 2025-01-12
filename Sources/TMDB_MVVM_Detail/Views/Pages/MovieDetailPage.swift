@@ -43,3 +43,38 @@ public struct MovieDetailPage: View {
         return movie
     }
 }
+#if DEBUG
+let exampleMovieDetailPage: MovieDetailPage = {
+    var p = MovieDetailPage(
+        movieRoute: MovieRouteModel(
+            id: exampleMovieDetail.id,
+            title: exampleMovieDetail.title,
+            overview: exampleMovieDetail.original_title,
+            posterPath: exampleMovieDetail.overview,
+            backdropPath: exampleMovieDetail.backdrop_path,
+            voteAverage: exampleMovieDetail.vote_average,
+            voteCount: exampleMovieDetail.vote_count,
+            releaseDate: exampleMovieDetail.release_date,
+            popularity: exampleMovieDetail.popularity,
+            originalTitle: exampleMovieDetail.original_title
+        ),
+        apiKey: "dummy-key"
+    )
+    let apiService = TMDBAPIService(apiKey: "dummy-key")
+    let movieDetailVM = MovieDetailViewModel(apiService: apiService)
+    
+    let creditVM = MovieCastingViewModel(apiService: apiService)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        movieDetailVM.state = .success(exampleMovieDetail)
+        creditVM.state = .success(exampleMovieCredits)
+    }
+    p.creditsViewModel = creditVM
+    p.movieDetailViewModel = movieDetailVM
+    return p
+}()
+#Preview {
+    return NavigationView {
+        exampleMovieDetailPage
+    }
+}
+#endif
