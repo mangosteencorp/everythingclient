@@ -39,6 +39,7 @@ public struct MovieListPage: View {
             .onAppear {
                 viewModel.fetchMovies()
             }
+            .accessibilityIdentifier("movieListPage.group")
         }
         #if os(iOS)
         .navigationViewStyle(StackNavigationViewStyle())
