@@ -14,12 +14,13 @@ public struct MovieDetailPage: View {
         self.creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
     }
     public var body: some View {
-        
         ZStack(alignment: .bottom) {
             List {
                 Section {
                     MovieCoverRow(movie: getMovie())
-                    // TODO: Button rows: Wishlist, Seenlist, list
+                        .frame(height: 250)
+                }
+                Section {
                     MovieOverview(movie: getMovie())
                 }
                 Section {
@@ -29,9 +30,8 @@ public struct MovieDetailPage: View {
                     MovieCreditSection(movieId: movie.id, creditsViewModel: creditsViewModel)
                 }
             }
+            .listStyle(PlainListStyle())
             .navigationBarTitle(Text(movie.userTitle), displayMode: .large)
-            // TODO: .navigationBarItems(trailing: Button(action: onAddButton) "text.badge.plus"
-            // Movie Poster row
         }.onFirstAppear {
             movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
         }
@@ -72,6 +72,7 @@ let exampleMovieDetailPage: MovieDetailPage = {
     p.movieDetailViewModel = movieDetailVM
     return p
 }()
+
 #Preview {
     return NavigationView {
         exampleMovieDetailPage

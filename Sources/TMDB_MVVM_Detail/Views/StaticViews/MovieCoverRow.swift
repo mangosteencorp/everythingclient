@@ -3,38 +3,47 @@ import TMDB_Shared_UI
 struct MovieCoverRow: View {
     let movie: Movie
     var body: some View {
-        ZStack {
-            // MovieTopBackdropImage
-            
-            RemoteTMDBImage(posterPath: movie.backdrop_path, posterSize: PosterSize(width: 250, height: 250), image: .medium)
-            VStack(alignment: .leading) {
-                HStack(spacing: 16) {
-                    RemoteTMDBImage(posterPath: movie.poster_path, posterSize: .medium, image: .medium)
-                        .padding(.leading, 16)
-                    VStack(alignment: .leading, spacing: 16) {
-                        MovieInfoRow(movie: movie)
-                        HStack {
-                            PopularityBadge(score: Int(movie.vote_average * 10), textColor: .white)
-                            Text("\(movie.vote_count) ratings")
-                                .lineLimit(1)
-                                .foregroundColor(.white)
+        GeometryReader { geometry in
+            ZStack {
+                
+                RemoteTMDBImage(
+                    posterPath: movie.backdrop_path,
+                    posterSize: PosterSize(width: geometry.size.width, height: 250),
+                    image: .medium
+                )
+                .blur(radius: 3)
+                .overlay(Color.black.opacity(0.6))
+                
+                VStack(alignment: .leading) {
+                    HStack(spacing: 16) {
+                        RemoteTMDBImage(posterPath: movie.poster_path, posterSize: .medium, image: .medium)
+                            .padding(.leading, 16)
+                        VStack(alignment: .leading, spacing: 16) {
+                            MovieInfoRow(movie: movie)
+                            HStack {
+                                PopularityBadge(score: Int(movie.vote_average * 10), textColor: .white)
+                                Text("\(movie.vote_count) ratings")
+                                    .lineLimit(1)
+                                    .foregroundColor(.white)
+                            }
                         }
                     }
+                    genresBadges().padding(.top, 16)
                 }
-                genresBadges().padding(.top, 16)
+                
             }
+            .listRowInsets(EdgeInsets())
+            
         }
-        .listRowInsets(EdgeInsets())
-        
     }
     private func genresBadges() -> some View {
-        let fakeGenres = Array(repeating: Genre(id: 0, name: "     "), count: 3)
+        
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-                ForEach(movie.genres ?? fakeGenres) { genre in
+                ForEach(movie.genres ?? []) { genre in
                     // TODO: MoviesGenreList
                     NavigationLink(destination: EmptyView()) {
-                        RoundedBadge(text: genre.name, color: .secondary)
+                        RoundedBadge(text: genre.name, color: .accentColor)
                     }.disabled(movie.genres == nil)
                 }
             }
@@ -97,5 +106,12 @@ struct MovieInfoRow : View {
 #Preview {
     Section{
         MovieCoverRow(movie: exampleMovieDetail).debugBorder(color: .purple)
+    }
+}
+#Preview {
+    Section {
+        MovieCoverRow(movie: exampleMovieDetail)
+        // TODO: Button rows: Wishlist, Seenlist, list
+        MovieOverview(movie: exampleMovieDetail)
     }
 }

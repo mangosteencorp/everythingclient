@@ -5,10 +5,12 @@ public struct RemoteTMDBImage: View {
     let posterPath: String?
     let posterSize: PosterSize
     let image: ImageSize
-    public init(posterPath: String?, posterSize: PosterSize, image: ImageSize) {
+    let contentMode: ContentMode
+    public init(posterPath: String?, posterSize: PosterSize, image: ImageSize, contentMode: ContentMode = .fit) {
         self.posterPath = posterPath
         self.posterSize = posterSize
         self.image = image
+        self.contentMode = contentMode
     }
     public var body: some View {
         if let posterPath = posterPath, let url = image.path(poster: posterPath) {
@@ -21,7 +23,7 @@ public struct RemoteTMDBImage: View {
                     case .success(let image):
                         image
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .aspectRatio(contentMode: self.contentMode)
                             .frame(width: posterSize.width, height: posterSize.height)
                             .cornerRadius(10)
                             .shadow(radius: 5)
