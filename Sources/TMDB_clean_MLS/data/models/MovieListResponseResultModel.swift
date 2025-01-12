@@ -1,6 +1,6 @@
 import Foundation
 
-public struct MovieListResultModel: Decodable {
+public struct MovieListResultModel: Codable {
     let dates: Dates
     let page: Int
     public let results: [APIMovie]
@@ -14,7 +14,7 @@ public struct MovieListResultModel: Decodable {
     }
 }
 
-struct Dates: Decodable {
+struct Dates: Codable {
     let maximum: String
     let minimum: String
 }
