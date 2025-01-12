@@ -3,7 +3,7 @@ import Swinject
 
 @available(iOS 16.0, *)
 public struct MovieListPage: View {
-    @StateObject private var viewModel: MoviesViewModel
+    @StateObject private(set) var viewModel: MoviesViewModel
     let type: MovieListType
     
     public init(container: Container, apiKey: String, type: MovieListType) {
@@ -26,10 +26,13 @@ public struct MovieListPage: View {
             Group {
                 if viewModel.isLoading {
                     ProgressView("Loading...")
+                        .id("loadingView")
                 } else if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
+                        .id("errorView")
                 } else {
                     MovieListContent(movies: viewModel.movies)
+                        .id("movieListContent")
                 }
             }
             .navigationTitle(type.title)

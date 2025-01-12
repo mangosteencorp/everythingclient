@@ -15,12 +15,12 @@ fileprivate let formatter: DateFormatter = {
 }()
 
 public struct MovieRowEntity {
-    let id: Int
-    let posterPath: String?
-    let title: String
-    let voteAverage: Double
-    let releaseDate: Date?
-    let overview: String
+    public let id: Int
+    public let posterPath: String?
+    public let title: String
+    public let voteAverage: Double
+    public let releaseDate: Date?
+    public let overview: String
     public init(id: Int, posterPath: String?, title: String, voteAverage: Double, releaseDate: Date?, overview: String) {
         self.id = id
         self.posterPath = posterPath

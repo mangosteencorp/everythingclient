@@ -51,4 +51,54 @@ class MovieTests: XCTestCase {
         XCTAssertEqual(movie.popularity, popularity)
         XCTAssertNil(movie.releaseDate)
     }
+    
+    func testToMovieRowEntity() {
+        // Given
+        let dateFormatter = Movie.dateFormatter
+        let releaseDate = dateFormatter.date(from: "2024-01-01")!
+        let movie = Movie(
+            id: 1,
+            title: "Test Movie",
+            overview: "Test Overview",
+            posterPath: "/test/path.jpg",
+            voteAverage: 7.5,
+            popularity: 100.0,
+            releaseDate: releaseDate
+        )
+        
+        // When
+        let movieRowEntity = movie.toMovieRowEntity()
+        
+        // Then
+        XCTAssertEqual(movieRowEntity.id, movie.id)
+        XCTAssertEqual(movieRowEntity.title, movie.title)
+        XCTAssertEqual(movieRowEntity.overview, movie.overview)
+        XCTAssertEqual(movieRowEntity.posterPath, movie.posterPath)
+        XCTAssertEqual(movieRowEntity.voteAverage, Double(movie.voteAverage))
+        XCTAssertEqual(movieRowEntity.releaseDate, movie.releaseDate)
+    }
+    
+    func testToMovieRowEntityWithNilFields() {
+        // Given
+        let movie = Movie(
+            id: 1,
+            title: "Test Movie",
+            overview: "Test Overview",
+            posterPath: nil,
+            voteAverage: 7.5,
+            popularity: 100.0,
+            releaseDate: nil
+        )
+        
+        // When
+        let movieRowEntity = movie.toMovieRowEntity()
+        
+        // Then
+        XCTAssertEqual(movieRowEntity.id, movie.id)
+        XCTAssertEqual(movieRowEntity.title, movie.title)
+        XCTAssertEqual(movieRowEntity.overview, movie.overview)
+        XCTAssertNil(movieRowEntity.posterPath)
+        XCTAssertEqual(movieRowEntity.voteAverage, Double(movie.voteAverage))
+        XCTAssertNil(movieRowEntity.releaseDate)
+    }
 }

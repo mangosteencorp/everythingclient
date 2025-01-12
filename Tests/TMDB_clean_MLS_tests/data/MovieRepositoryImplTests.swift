@@ -35,7 +35,7 @@ class MovieRepositoryImplTests: XCTestCase {
     func testFetchMoviesFailure() async {
         // Setup mock API to return success...
         let expectation = XCTestExpectation(description: "Fetch movies succeeds")
-        mockAPIService.resultToReturn = .failure(.noResponse)
+        mockAPIService.resultToReturn = .failure(MockError.noResponse)
         let result = await repository.fetchUpcomingMovies()
         if case .success(let movies) = result {
             XCTFail()
@@ -45,9 +45,9 @@ class MovieRepositoryImplTests: XCTestCase {
     
 }
 class MockAPIService: APIServiceProtocol {
-    func fetchMovies(endpoint: TMDB_clean_MLS.APIService.Endpoint) async -> Result<TMDB_clean_MLS.MovieListResultModel, TMDB_clean_MLS.APIService.APIError> {
-        return resultToReturn ?? .failure(.noResponse)
+    func fetchMovies(endpoint: MovieListType) async -> Result<MovieListResultModel, Error> {
+        return resultToReturn ?? .failure(MockError.noResponse)
     }
     
-    var resultToReturn: Result<MovieListResultModel, APIService.APIError>?
+    var resultToReturn: Result<MovieListResultModel, Error>?
 }

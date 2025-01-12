@@ -14,7 +14,7 @@ class MovieAssemblyTests: XCTestCase {
     
     func testDependencyRegistration() {
         // Test APIService registration
-        XCTAssertNotNil(container.resolve(APIService.self))
+        XCTAssertNotNil(container.resolve(APIServiceProtocol.self))
         
         // Test Repository registration
         XCTAssertNotNil(container.resolve(MovieRepository.self))

@@ -50,7 +50,7 @@ class MoviesViewModelTests: XCTestCase {
     func testFetchMoviesFailure() {
         // Given
         let expectation = XCTestExpectation(description: "Fetch movies fails and updates error message")
-        let error = APIService.APIError.noResponse
+        let error = MockError.noResponse
         mockUseCase.mockResult = .failure(error)
         
         // When

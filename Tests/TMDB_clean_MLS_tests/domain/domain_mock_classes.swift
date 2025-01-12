@@ -5,7 +5,7 @@ class MockFetchMoviesUseCase: FetchMoviesUseCase {
     var mockResult: Result<[Movie], Error>?
     
     func execute() async -> Result<[Movie], Error> {
-        return mockResult ?? .failure(APIService.APIError.noResponse)
+        return mockResult ?? .failure(MockError.noResponse)
     }
 }
 
@@ -19,4 +19,8 @@ class MockMovieRepository: MovieRepository {
     func fetchUpcomingMovies() async -> Result<[Movie], Error> {
         return result
     }
+}
+
+enum MockError : Error {
+    case noResponse
 }
