@@ -1,18 +1,18 @@
 # xcstrings is not supported yet by swiftgen, 
 # please wait for this to be merged https://github.com/SwiftGen/SwiftGen/pull/1124
 strings:
-  inputs: Sources/TMDB_dancarvajc_Login/Resources/Localizable.xcstrings
-  outputs:
-    - templateName: structured-swift5
-      params:
-        publicAccess: true
-        enumName: L10n
-      output: Sources/TMDB_dancarvajc_Login/Generated/Strings.swift
-
-  inputs: Sources/TMDB_Dimilian_MVVM/Resources/en.lproj/Localizable.strings
-  outputs:
-    - templateName: structured-swift5
-      params:
-        publicAccess: true
-        enumName: L10n
-      output: Sources/TMDB_Dimilian_MVVM/Generated/Strings.swift
+  - inputs: Sources/TMDB_MVVM_Detail/Resources/en.lproj/Localizable.strings
+    outputs:
+      - templateName: structured-swift5
+        params:
+          publicAccess: true
+          enumName: L10n
+        output: Sources/TMDB_MVVM_Detail/Generated/Strings.swift
+  
+  - inputs: Sources/TMDB_MVVM_MLS/Resources/en.lproj/Localizable.strings
+    outputs:
+      - templateName: structured-swift5
+        params:
+          publicAccess: true
+          enumName: L10n
+        output: Sources/TMDB_MVVM_MLS/Generated/Strings.swift

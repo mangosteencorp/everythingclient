@@ -8,7 +8,7 @@ public struct RootContentView: View {
     }
     public var body: some View {
         TabView(selection: $selectedTab){
-            if #available(iOS 15, *) {
+            if #available(iOS 16, *) {
                 TMDBAPITabView(tmdbKey: tmdbAPIKey)
                     .tabItem {
                         Label(

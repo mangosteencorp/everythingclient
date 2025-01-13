@@ -1,96 +1,102 @@
-import TMDB_Dimilian_MVVM
-import TMDB_Dimilian_clean
-
-import TMDB_dancarvajc_Login
+import TMDB_MVVM_MLS
+import TMDB_MVVM_Detail
+import TMDB_clean_MLS
+import TMDB_Clean_Profile
 import SwiftUI
-@available(iOS 15,*)
+import TMDB_Shared_Backend
+import TMDB_Shared_UI
+import Swinject
+@available(iOS 16,*)
 public struct TMDBAPITabView: View {
+    @StateObject private var coordinator: Coordinator
+    private let container: Container
+    private let tmdbKey: String
     
-    @State private var currentIndex = 0
-    private let views: [AnyView]
     public init(tmdbKey: String) {
-        views =  [
-            AnyView(DMSNowPlayingPage(apiKey: tmdbKey)),
-            AnyView(TMDB_Dimilian_clean.MovieListPage(apiKey: tmdbKey, type: .upcoming)),
-            
-            AnyView(ProfileTabView(tmdbKey)) // {{ edit_1 }} Added LoginView
-        ]
-    }
-    public var body: some View {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-                    TabView {
-                        ForEach(0..<views.count, id: \.self) { index in
-                            views[index]
-                                .tabItem {
-                                    Label(tabTitle(for: index), systemImage: tabIcon(for: index))
-                                }
-                        }
-                    }.tabViewStyle(PageTabViewStyle())
-        } else {
-            NavigationView {
-                VStack {
-                    Spacer()
-                    
-                    views[currentIndex]
-                    
-                    Spacer()
-                }
-                
-                .navigationBarTitle("TMDB API Example", displayMode: .inline)
-                .navigationBarItems(trailing: HStack {
-                    previousButton
-                    nextButton
-                })
-            }.navigationViewStyle(StackNavigationViewStyle())
-        }
+        self.tmdbKey = tmdbKey
+        let container = Container()
+        TMDB_Shared_Backend.configure(container: container, apiKey: tmdbKey)
+        self.container = container
+        
+        let tabList: [TabRoute] = [.nowPlaying, .upcoming, .profile]
+        _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
     
-    private func tabTitle(for index: Int) -> String {
-            switch index {
-            case 0: return "Now Playing"
-            case 1: return "Upcoming"
-            case 2: return "Profile"
-            default: return ""
+    public var body: some View {
+        Group {
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                TabView(selection: $coordinator.selectedTab) {
+                    ForEach(coordinator.tabList, id: \.self) { tab in
+                        navigationStackForTab(tab)
+                            .tabItem {
+                                Label(tab.title, systemImage: tab.iconName)
+                            }
+                            .tag(tab)
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle())
+            } else {
+                NavigationStack {
+                    VStack {
+                        Spacer()
+                        navigationStackForTab(coordinator.selectedTab)
+                        Spacer()
+                    }
+                    .navigationBarTitle("TMDB API Example", displayMode: .inline)
+                    .navigationBarItems(trailing: HStack {
+                        previousButton
+                        nextButton
+                    })
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
             }
         }
-        
-        private func tabIcon(for index: Int) -> String {
-            switch index {
-            case 0: return "play.circle"
-            case 1: return "calendar"
-            case 2: return "person"
-            default: return ""
+        .environmentObject(coordinator)
+    }
+    
+    @ViewBuilder
+    private func navigationStackForTab(_ tab: TabRoute) -> some View {
+        NavigationStack(path: coordinator.path(for: tab)) {
+            switch tab {
+            case .nowPlaying:
+                DMSNowPlayingPage(apiKey: tmdbKey)
+                    .navigationDestination(for: MovieDetailRoute.self) { route in
+                        MovieDetailPage(movieRoute: route.movie, apiKey: tmdbKey)
+                    }
+            case .upcoming:
+                TMDB_clean_MLS.MovieListPage(container: container, apiKey: tmdbKey, type: .upcoming)
+                    .navigationDestination(for: MovieDetailRoute.self) { route in
+                        MovieDetailPage(movieRoute: route.movie, apiKey: tmdbKey)
+                    }
+            case .profile:
+                ProfilePageVCView(container: container)
             }
         }
+    }
     
     private var previousButton: some View {
-        Button(action: previousView) {
+        Button(action: {
+            if coordinator.currentIndex > 0 {
+                coordinator.switchTab(to: coordinator.currentIndex - 1)
+            }
+        }) {
             Text("<")
         }
-        .disabled(currentIndex == 0)
+        .disabled(coordinator.currentIndex == 0)
     }
     
     private var nextButton: some View {
-        Button(action: nextView) {
+        Button(action: {
+            if coordinator.currentIndex < coordinator.tabList.count - 1 {
+                coordinator.switchTab(to: coordinator.currentIndex + 1)
+            }
+        }) {
             Text(">")
         }
-        .disabled(currentIndex == views.count - 1)
-    }
-    
-    private func nextView() {
-        if currentIndex < views.count - 1 {
-            currentIndex += 1
-        }
-    }
-    
-    private func previousView() {
-        if currentIndex > 0 {
-            currentIndex -= 1
-        }
+        .disabled(coordinator.currentIndex == coordinator.tabList.count - 1)
     }
 }
-
-@available(iOS 15,*)
+@available(iOS 16,*)
 #Preview {
     TMDBAPITabView(tmdbKey: "")
 }

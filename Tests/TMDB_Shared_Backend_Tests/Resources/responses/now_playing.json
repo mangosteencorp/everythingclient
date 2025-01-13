@@ -1,0 +1,403 @@
+{
+  "dates": {
+    "maximum": "2025-01-08",
+    "minimum": "2024-11-27"
+  },
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/zOpe0eHsq0A2NvNyBbtT6sj53qV.jpg",
+      "genre_ids": [
+        28,
+        878,
+        35,
+        10751
+      ],
+      "id": 939243,
+      "original_language": "en",
+      "original_title": "Sonic the Hedgehog 3",
+      "overview": "Sonic, Knuckles, and Tails reunite against a powerful new adversary, Shadow, a mysterious villain with powers unlike anything they have faced before. With their abilities outmatched in every way, Team Sonic must seek out an unlikely alliance in hopes of stopping Shadow and protecting the planet.",
+      "popularity": 3668.314,
+      "poster_path": "/x7NPbBlrvFRJrpinBSRlMOOUWom.jpg",
+      "release_date": "2024-12-20",
+      "title": "Sonic the Hedgehog 3",
+      "video": false,
+      "vote_average": 7.677,
+      "vote_count": 382
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/uWOJbarUXfVf6B4o0368dh138eR.jpg",
+      "genre_ids": [
+        27,
+        14,
+        18
+      ],
+      "id": 426063,
+      "original_language": "en",
+      "original_title": "Nosferatu",
+      "overview": "A gothic tale of obsession between a haunted young woman and the terrifying vampire infatuated with her, causing untold horror in its wake.",
+      "popularity": 1034.597,
+      "poster_path": "/5qGIxdEO841C0tdY8vOdLoRVrr0.jpg",
+      "release_date": "2024-12-25",
+      "title": "Nosferatu",
+      "video": false,
+      "vote_average": 6.828,
+      "vote_count": 598
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/v9Du2HC3hlknAvGlWhquRbeifwW.jpg",
+      "genre_ids": [
+        28,
+        12,
+        53
+      ],
+      "id": 539972,
+      "original_language": "en",
+      "original_title": "Kraven the Hunter",
+      "overview": "Kraven Kravinoff's complex relationship with his ruthless gangster father, Nikolai, starts him down a path of vengeance with brutal consequences, motivating him to become not only the greatest hunter in the world, but also one of its most feared.",
+      "popularity": 666.98,
+      "poster_path": "/i47IUSsN126K11JUzqQIOi1Mg1M.jpg",
+      "release_date": "2024-12-13",
+      "title": "Kraven the Hunter",
+      "video": false,
+      "vote_average": 5.87,
+      "vote_count": 281
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/kylozAI9Rf1pp7pZ8nFPK4s1s5n.jpg",
+      "genre_ids": [
+        28,
+        12,
+        14,
+        16
+      ],
+      "id": 1357633,
+      "original_language": "ja",
+      "original_title": "俺だけレベルアップな件 -ReAwakening-",
+      "overview": "Over a decade after 'gates' connecting worlds appeared, awakening 'hunters' with superpowers, weakest hunter Sung Jinwoo encounters a double dungeon and accepts a mysterious quest, becoming the only one able to level up, changing his fate. A catch-up recap of the first season coupled with an exclusive sneak peek of the first two episodes of the highly anticipated second season in one momentous theatrical fan experience.",
+      "popularity": 622.995,
+      "poster_path": "/uzHMp5heVLR68kbbUEXFPsmxYsM.jpg",
+      "release_date": "2024-12-06",
+      "title": "Solo Leveling -ReAwakening-",
+      "video": false,
+      "vote_average": 7.57,
+      "vote_count": 50
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/XNVdWNgiAHu8y4BsJv5ndUHXxN.jpg",
+      "genre_ids": [
+        16,
+        35,
+        10751
+      ],
+      "id": 929204,
+      "original_language": "en",
+      "original_title": "Wallace & Gromit: Vengeance Most Fowl",
+      "overview": "Gromit’s concern that Wallace is becoming too dependent on his inventions proves justified, when Wallace invents a “smart” gnome that seems to develop a mind of its own. When it emerges that a vengeful figure from the past might be masterminding things, it falls to Gromit to battle sinister forces and save his master… or Wallace may never be able to invent again!",
+      "popularity": 536.039,
+      "poster_path": "/6BxK38ehxuX2dJmZIMpJcVNbYks.jpg",
+      "release_date": "2024-12-18",
+      "title": "Wallace & Gromit: Vengeance Most Fowl",
+      "video": false,
+      "vote_average": 7.7,
+      "vote_count": 172
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/2iq7ezjTeU8cASeRZCH4cn25TeI.jpg",
+      "genre_ids": [
+        18,
+        10752,
+        36
+      ],
+      "id": 1061699,
+      "original_language": "en",
+      "original_title": "The Six Triple Eight",
+      "overview": "During World War II, the US Army's only all-Black, all-women battalion takes on an impossible mission: sorting through a three-year backlog of 17 million pieces of mail that hadn't been delivered to American soldiers and finish within six months.",
+      "popularity": 353.65,
+      "poster_path": "/7tvAnzZj9e9AjdoHaN9jshm2Cjw.jpg",
+      "release_date": "2024-12-06",
+      "title": "The Six Triple Eight",
+      "video": false,
+      "vote_average": 7.713,
+      "vote_count": 270
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/47bsGWAEtJNWMcd3oNS7TELmi6v.jpg",
+      "genre_ids": [
+        35,
+        27,
+        878
+      ],
+      "id": 1094274,
+      "original_language": "en",
+      "original_title": "Y2K",
+      "overview": "Two high school nobodies make the decision to crash the last major celebration before the new millennium on New Year's Eve 1999. The night becomes even crazier than they could have ever dreamed when the clock strikes midnight.",
+      "popularity": 342.053,
+      "poster_path": "/qndubIQalyxBJI5EBNZKGXEX74q.jpg",
+      "release_date": "2024-12-06",
+      "title": "Y2K",
+      "video": false,
+      "vote_average": 5.273,
+      "vote_count": 86
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hctfNoMpQGfn3VXdBYb9p0P5bT5.jpg",
+      "genre_ids": [
+        18
+      ],
+      "id": 1097549,
+      "original_language": "en",
+      "original_title": "Babygirl",
+      "overview": "A high-powered CEO puts her career and family on the line when she begins a torrid affair with her much younger intern.",
+      "popularity": 280.515,
+      "poster_path": "/A8HbTd0FemZyFCh5qvJFpHGiwF8.jpg",
+      "release_date": "2024-12-25",
+      "title": "Babygirl",
+      "video": false,
+      "vote_average": 6,
+      "vote_count": 36
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/rWs3Q9bT7zCH6t004z67UGuWUwu.jpg",
+      "genre_ids": [
+        16,
+        35,
+        10751,
+        14,
+        12
+      ],
+      "id": 645757,
+      "original_language": "en",
+      "original_title": "That Christmas",
+      "overview": "It's an unforgettable Christmas for the townsfolk of Wellington-on-Sea when the worst snowstorm in history alters everyone's plans — including Santa's.",
+      "popularity": 267.422,
+      "poster_path": "/sx86KHWwWbW5ZckPEQh39J0Fio3.jpg",
+      "release_date": "2024-11-29",
+      "title": "That Christmas",
+      "video": false,
+      "vote_average": 7.2,
+      "vote_count": 300
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/keC82cQ8q0ZHthrbvzWq04kGnbv.jpg",
+      "genre_ids": [
+        28,
+        18,
+        53,
+        80
+      ],
+      "id": 857598,
+      "original_language": "te",
+      "original_title": "పుష్పా 2 - The Rule",
+      "overview": "Pushpa struggles to sustain his sandalwood smuggling business in the face of tough opposition from the police, led by arch-rival Bhanwar Singh Shekhawat.",
+      "popularity": 152.171,
+      "poster_path": "/gpNcQfQ4YGtFwEcrjcK9HxVM2KF.jpg",
+      "release_date": "2024-12-05",
+      "title": "Pushpa 2 - The Rule",
+      "video": false,
+      "vote_average": 7.2,
+      "vote_count": 35
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/9iw4a6AQkxUO3EuRn59Vgrqf0zO.jpg",
+      "genre_ids": [
+        18,
+        10402
+      ],
+      "id": 1038263,
+      "original_language": "en",
+      "original_title": "Maria",
+      "overview": "Maria Callas, the world's greatest opera singer, lives the last days of her life in 1970s Paris, as she confronts her identity and life.",
+      "popularity": 145.105,
+      "poster_path": "/6xHKEYfrO1FpVZJJnKy5BhfWVCK.jpg",
+      "release_date": "2024-11-27",
+      "title": "Maria",
+      "video": false,
+      "vote_average": 6.975,
+      "vote_count": 100
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hCR5Rh2LBILxakZvEzTUzSCPRrb.jpg",
+      "genre_ids": [
+        10402,
+        35,
+        18
+      ],
+      "id": 799766,
+      "original_language": "en",
+      "original_title": "Better Man",
+      "overview": "Follow Robbie Williams' journey from childhood, to being the youngest member of chart-topping boyband Take That, through to his unparalleled achievements as a record-breaking solo artist – all the while confronting the challenges that stratospheric fame and success can bring.",
+      "popularity": 103.492,
+      "poster_path": "/fbGCmMp0HlYnAPv28GOENPShezM.jpg",
+      "release_date": "2024-12-25",
+      "title": "Better Man",
+      "video": false,
+      "vote_average": 7.7,
+      "vote_count": 41
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hmZnqijPaaACjenDkrbWcCmcADI.jpg",
+      "genre_ids": [
+        18
+      ],
+      "id": 549509,
+      "original_language": "en",
+      "original_title": "The Brutalist",
+      "overview": "Escaping post-war Europe, visionary architect László Tóth arrives in America to rebuild his life, his work, and his marriage to his wife Erzsébet after being forced apart during wartime by shifting borders and regimes. On his own in a strange new country, László settles in Pennsylvania, where the wealthy and prominent industrialist Harrison Lee Van Buren recognizes his talent for building. But power and legacy come at a heavy cost.",
+      "popularity": 101.618,
+      "poster_path": "/iuKb7dsBkQJJYEuvScMER9WonBH.jpg",
+      "release_date": "2024-12-25",
+      "title": "The Brutalist",
+      "video": false,
+      "vote_average": 6.115,
+      "vote_count": 13
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/1s9lGSEuA5wJxArChuL0WfV236Q.jpg",
+      "genre_ids": [
+        18,
+        10749
+      ],
+      "id": 1059128,
+      "original_language": "en",
+      "original_title": "Queer",
+      "overview": "In 1950s Mexico City, William Lee, an American expat in his late forties, leads a solitary life amidst a small American community. However, the arrival in town of Eugene Allerton, a young student, stirs William into finally establishing a meaningful connection with someone.",
+      "popularity": 70.577,
+      "poster_path": "/xe4b2TMciLKA1C0JlhWxb4ENLln.jpg",
+      "release_date": "2024-12-13",
+      "title": "Queer",
+      "video": false,
+      "vote_average": 6.803,
+      "vote_count": 33
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/2bvQvN0Hom6X28HA6CUADWFhbtH.jpg",
+      "genre_ids": [
+        28,
+        18,
+        53
+      ],
+      "id": 1217690,
+      "original_language": "en",
+      "original_title": "Homestead",
+      "overview": "A nuclear bomb is detonated in Los Angeles, and the nation devolves into unprecedented chaos. Ex-Green Beret Jeff Eriksson and his family escape to The Homestead, an eccentric prepper’s fortress nestled in the mountains. As violent threats and apocalyptic conditions creep toward their borders, the residents of The Homestead are left to wonder: how long can a group of people resist both the dangers of human nature and the bloodshed at their doorstep?",
+      "popularity": 56.575,
+      "poster_path": "/hQmDLJoygswaH0nQelyXC5HgM9Z.jpg",
+      "release_date": "2024-12-20",
+      "title": "Homestead",
+      "video": false,
+      "vote_average": 5,
+      "vote_count": 10
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/N3pqL3tOaG3cVGv1DMEwKulzdC.jpg",
+      "genre_ids": [
+        18
+      ],
+      "id": 1226141,
+      "original_language": "cn",
+      "original_title": "破。地獄",
+      "overview": "A debt-ridden wedding planner inadvertently becomes a successful funeral planner. However, he must convince a traditional Taoist priest of his legitimacy to continue operating in the field.",
+      "popularity": 20.595,
+      "poster_path": "/x4UT6SsBEnVzyeYm86WItNl4wGG.jpg",
+      "release_date": "2024-12-06",
+      "title": "The Last Dance",
+      "video": false,
+      "vote_average": 8.444,
+      "vote_count": 19
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hoQ7adfFOiLs4DXT7rn0CnB9qTl.jpg",
+      "genre_ids": [
+        36,
+        10402
+      ],
+      "id": 1002155,
+      "original_language": "fr",
+      "original_title": "Monsieur Aznavour",
+      "overview": "From his poor childhood to his rise to fame, from his triumphs to his failures, from Paris to New York, discover the exceptional journey of an artist. Intimate, intense, fragile and indestructible, devoted to his art until the very end, here is one of the most immortal singers of all time: MONSIEUR AZNAVOUR.",
+      "popularity": 17.826,
+      "poster_path": "/23FkaTaAosaTcTgyuJdTf7TvcJu.jpg",
+      "release_date": "2024-11-29",
+      "title": "Monsieur Aznavour",
+      "video": false,
+      "vote_average": 7.336,
+      "vote_count": 174
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/yRcUcRpvqgDyjj8T9TEZ7oUNbfk.jpg",
+      "genre_ids": [
+        18,
+        14,
+        878
+      ],
+      "id": 881366,
+      "original_language": "en",
+      "original_title": "The End",
+      "overview": "After the sudden arrival of a stranger threatens the family’s luxurious compound deep underground, Son begins to question their seemingly perfect existence.",
+      "popularity": 12.905,
+      "poster_path": "/kYMLpw3DQjQjp2jzNrg3KvNFIr6.jpg",
+      "release_date": "2024-12-13",
+      "title": "The End",
+      "video": false,
+      "vote_average": 8,
+      "vote_count": 2
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/vzv9RRc6zMCFzkqBgULvQmjDYoN.jpg",
+      "genre_ids": [
+        18
+      ],
+      "id": 1113583,
+      "original_language": "en",
+      "original_title": "Oh, Canada",
+      "overview": "Famed Canadian-American leftist documentary filmmaker Leonard Fife was one of sixty thousand draft evaders and deserters who fled to Canada to avoid serving in Vietnam. Now in his late seventies, Fife is dying of cancer in Montreal and has agreed to a final interview in which he is determined to bare all his secrets at last, to demythologize his mythologized life.",
+      "popularity": 11.36,
+      "poster_path": "/hKDR5AYXRTPb751oc7xK2Ay3PH0.jpg",
+      "release_date": "2024-12-13",
+      "title": "Oh, Canada",
+      "video": false,
+      "vote_average": 5.8,
+      "vote_count": 11
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/52Y5dhla9zYAKipkf1CoZ8Cf8SL.jpg",
+      "genre_ids": [
+        35
+      ],
+      "id": 1269040,
+      "original_language": "fr",
+      "original_title": "À la conquête de la crème fraîche",
+      "overview": "Gaétan's wife is at work and he prepares himself carefully at home in order to indulge in the pleasures of the flesh. Masturbation can, however, entail its share of risks... Filmed with $200 as part of the Party pooper spectacular competition at the Cabane à sang festival!",
+      "popularity": 11.05,
+      "poster_path": "/jbD11mKlnMssY9m0vaoTjjjx7Nn.jpg",
+      "release_date": "2025-01-04",
+      "title": "À la conquête de la crème fraîche",
+      "video": false,
+      "vote_average": 0,
+      "vote_count": 0
+    }
+  ],
+  "total_pages": 3,
+  "total_results": 51
+}
