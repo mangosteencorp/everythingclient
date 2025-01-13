@@ -1,2 +1,23 @@
 "cast_section_title" = "Cast";
 "crew_section_title" = "Crew";
+
+// MovieCrosslinePeopleRow
+"see_all" = "See all";
+
+// MovieOverview
+"overview_title" = "Overview:";
+"read_more" = "Read more";
+"read_less" = "Less";
+
+// MovieKeywords
+"keywords_title" = "Keywords";
+
+// MovieInfoRow
+"minutes_format" = "%@ minutes";
+"separator" = "•";
+
+// Error messages
+"error_format" = "Error: %@";
+
+// Ratings
+"ratings_format" = "%@ ratings";

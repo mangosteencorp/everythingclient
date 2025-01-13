@@ -5,8 +5,7 @@ struct MovieKeywords : View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // TODO: localization
-            Text("Keywords")
+            Text(L10n.keywordsTitle)
                 .titleStyle()
                 .padding(.leading)
             ScrollView(.horizontal, showsIndicators: false) {

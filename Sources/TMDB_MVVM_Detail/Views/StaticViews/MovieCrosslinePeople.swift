@@ -19,8 +19,7 @@ struct MovieCrosslinePeopleRow : View {
                     .padding(.leading)
                 NavigationLink(destination: peoplesListView,
                                label: {
-                    // TODO: localization
-                    Text("See all").foregroundColor(.blue)
+                    Text(L10n.seeAll).foregroundColor(.blue)
                 })
             }
             ScrollView(.horizontal, showsIndicators: false) {

@@ -22,7 +22,7 @@ struct MovieCoverRow: View {
                             MovieInfoRow(movie: movie)
                             HStack {
                                 PopularityBadge(score: Int(movie.vote_average * 10), textColor: .white)
-                                Text("\(movie.vote_count) ratings")
+                                Text(L10n.ratingsFormat(movie.vote_count))
                                     .lineLimit(1)
                                     .foregroundColor(.white)
                             }
@@ -70,7 +70,7 @@ struct MovieInfoRow : View {
                 Text(date.prefix(4)).font(.subheadline)
             }
             if let runtime = movie.runtime {
-                Text("• \(runtime) minutes")
+                Text(L10n.minutesFormat(String(runtime)))
                     .font(.subheadline)
                     .animation(asyncTextAnimation)
                     .transition(asyncTextTransition)
