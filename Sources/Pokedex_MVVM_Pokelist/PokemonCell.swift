@@ -69,19 +69,19 @@ class PokemonCell: UICollectionViewCell {
         
         // Load image from URL using Kingfisher
         if let url = URL(string: pokemon.imageURL) {
-            spriteImageView.kf.setImage(with: url, placeholder: nil, options: nil) { result in
+            spriteImageView.kf.setImage(with: url) { result in
                 switch result {
                 case .success(let value):
                     let downloadedImage = value.image
                     // Compute average color from the downloaded image
-                    let avgColor = downloadedImage.averageColor ?? .systemGray
+                    let avgColor = downloadedImage.dominantColor ?? .blue
                     // Update the cell's background color on the main thread
-                    DispatchQueue.main.async {
-                        self.contentView.backgroundColor = avgColor
-                    }
+                    
+                    self.contentView.backgroundColor = avgColor
+                    
                 case .failure:
                     // If it fails, keep it gray or set any fallback color
-                    self.contentView.backgroundColor = .systemGray
+                    self.contentView.backgroundColor = .systemOrange
                 }
             }
         } else {
