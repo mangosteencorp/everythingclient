@@ -18,7 +18,9 @@ Clear separation of features into modules: There's 4 feature modules in this pro
 - **TMDB_Clean_Profile**: Handling authentication and displaying user profile (including avatar, favourite movies & TV shows & watchlist). Using **Clean Architecture** and **UIKit** and **Combine** for concurrency.
 
 These modules are connected using Coordinator pattern.
-In progress: a new module featuring Pokedex GraphQL API + RxSwift + UIKit
+
+In progress: a new module featuring **Pokedex GraphQL API + RxSwift**
+
 
 <details>
 <summary>Getting started</summary>
@@ -28,7 +30,9 @@ TMDB_API_KEY=1d9b898a212ea52e283351e521e17871
 PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient
 ```
 </details>
+
 # Practices
+
 ## Architecture & Design
 
 Modularization:
