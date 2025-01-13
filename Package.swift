@@ -34,6 +34,8 @@ let package = Package(
         .library(
             name: "TMDB_MVVM_Detail",
             targets: ["TMDB_MVVM_Detail"]),
+        .library(name: "Pokedex", targets: ["Pokedex"]),
+        .library(name: "Pokedex_MVVM_Pokelist", targets: ["Pokedex_MVVM_Pokelist"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -50,16 +52,16 @@ let package = Package(
         .testTarget(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
-        
-            .target(
-                name: "TMDB",
-                dependencies: ["TMDB_MVVM_MLS",
-                               "TMDB_clean_MLS",
-                               "TMDB_Clean_Profile",
-                               "TMDB_Shared_UI",
-                               "TMDB_MVVM_Detail",
-                               "Swinject"
-                              ]),
+        // MARK: TMDB
+        .target(
+            name: "TMDB",
+            dependencies: ["TMDB_MVVM_MLS",
+                           "TMDB_clean_MLS",
+                           "TMDB_Clean_Profile",
+                           "TMDB_Shared_UI",
+                           "TMDB_MVVM_Detail",
+                           "Swinject"
+                          ]),
         .target(name: "TMDB_Shared_Backend",
                 dependencies: ["Swinject"]),
         .target(name: "TMDB_Shared_UI"),
@@ -93,6 +95,14 @@ let package = Package(
             dependencies: ["TMDB_Shared_Backend"],
             resources: [.process("Resources")] // needed for Bundle.module
         ),
+        // MARK: Pokedex
+        .target(name: "Pokedex",
+                dependencies: ["Pokedex_MVVM_Pokelist"]
+               ),
+        .target(name: "Pokedex_MVVM_Pokelist",
+                dependencies: ["Kingfisher"]
+               ),
+        // MARK: Common
         .target(
             name: "Tests_Shared_Helpers",
             path: "Tests/Tests_Shared_Helpers"
