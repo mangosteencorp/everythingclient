@@ -23,7 +23,7 @@ class PokemonCell: UICollectionViewCell {
     
     private let idLabel: UILabel = {
         let label = UILabel()
-        label.textAlignment = .center
+        label.textAlignment = .right
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         label.textColor = .white.withAlphaComponent(0.8)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -34,7 +34,7 @@ class PokemonCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        contentView.layer.cornerRadius = 10
+        contentView.layer.cornerRadius = 12
         contentView.clipsToBounds = true
         
         contentView.addSubview(spriteImageView)
@@ -43,15 +43,17 @@ class PokemonCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             spriteImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            spriteImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -10),
-            spriteImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.6),
+            spriteImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -16),
+            spriteImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.7),
             spriteImageView.heightAnchor.constraint(equalTo: spriteImageView.widthAnchor),
             
-            nameLabel.topAnchor.constraint(equalTo: spriteImageView.bottomAnchor, constant: 4),
-            nameLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            idLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            idLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
             
-            idLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 2),
-            idLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
+            nameLabel.topAnchor.constraint(equalTo: spriteImageView.bottomAnchor, constant: 8),
+            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -8)
         ])
     }
     

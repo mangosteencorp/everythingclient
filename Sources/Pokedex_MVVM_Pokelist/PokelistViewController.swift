@@ -15,6 +15,7 @@ class ViewController: UIViewController {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 8
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.translatesAutoresizingMaskIntoConstraints = false
@@ -31,6 +32,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .black
         
         view.addSubview(collectionView)
         
@@ -53,8 +55,8 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: PokemonCell.reuseIdentifier,
-                for: indexPath) as? PokemonCell else {
+            withReuseIdentifier: PokemonCell.reuseIdentifier,
+            for: indexPath) as? PokemonCell else {
             return UICollectionViewCell()
         }
         
@@ -64,18 +66,22 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
         return cell
     }
     
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let padding: CGFloat = 16 * 2 // Left and right padding
+        let spacing: CGFloat = 8      // Minimum spacing between items
+        let maxCellWidth: CGFloat = 180 // Maximum width for each cell
         
-        let columns: CGFloat = 2
-        let spacing: CGFloat = 8
-        let totalSpacing = (columns - 1) * spacing
-        let availableWidth = collectionView.bounds.width
-            - totalSpacing
-            - collectionView.contentInset.left
-            - collectionView.contentInset.right
-        let cellWidth = floor(availableWidth / columns)
+        let availableWidth = collectionView.bounds.width - padding
+        
+        // Calculate number of columns that can fit
+        let numberOfColumns = max(2, Int(availableWidth / maxCellWidth))
+        
+        // Calculate actual cell width
+        let totalSpacing = CGFloat(numberOfColumns - 1) * spacing
+        let cellWidth = min(maxCellWidth, (availableWidth - totalSpacing) / CGFloat(numberOfColumns))
         
         return CGSize(width: cellWidth, height: cellWidth)
     }
