@@ -5,7 +5,7 @@
       "**/*.graphql"
     ],
     "schemaSearchPaths" : [
-      "**/*.graphqls"
+      "graphql/schema.json"
     ]
   },
   "schemaDownloadConfiguration": {
