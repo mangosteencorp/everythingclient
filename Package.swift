@@ -35,7 +35,9 @@ let package = Package(
             name: "TMDB_MVVM_Detail",
             targets: ["TMDB_MVVM_Detail"]),
         .library(name: "Pokedex", targets: ["Pokedex"]),
-        .library(name: "Pokedex_MVVM_Pokelist", targets: ["Pokedex_MVVM_Pokelist"]),
+        // for building purpose
+        .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
+        .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -101,15 +103,19 @@ let package = Package(
         ),
         // MARK: Pokedex
         .target(name: "Pokedex",
-                dependencies: ["Pokedex_MVVM_Pokelist"]
+                dependencies: ["Pokedex_Pokelist"]
                ),
-        .target(name: "Pokedex_MVVM_Pokelist",
-                dependencies: ["Kingfisher"]
+        .target(name: "Pokedex_Pokelist",
+                dependencies: ["Kingfisher", "Pokedex_Shared_Backend"]
                ),
         // MARK: Common
         .target(
             name: "Tests_Shared_Helpers",
             path: "Tests/Tests_Shared_Helpers"
+        ),
+        .target(
+            name: "Pokedex_Shared_Backend", 
+            dependencies: [.product(name: "Apollo", package: "apollo-ios")]
         ),
     ]
 )
