@@ -62,7 +62,7 @@ class PokemonCell: UICollectionViewCell {
     }
     
     // MARK: - Configure Cell
-    func configure(with pokemon: Pokemon) {
+    func configure(with pokemon: PokemonEntity) {
         nameLabel.text = pokemon.name
         idLabel.text = "#\(pokemon.id)"
         
