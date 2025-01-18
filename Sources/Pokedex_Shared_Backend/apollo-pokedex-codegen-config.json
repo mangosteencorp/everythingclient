@@ -1,5 +1,5 @@
 {
-  "schemaNamespace" : "PokedexAPI",
+  "schemaNamespace" : "Pokedex_Shared_Backend",
   "input" : {
     "operationSearchPaths" : [
       "**/*.graphql"
