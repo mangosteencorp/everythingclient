@@ -23,17 +23,12 @@ public class PokemonService {
                 switch result {
                 case .success(let response):
                     let pokemons = response.data?.pokemon_v2_pokemon.compactMap { pokemon -> Pokemon? in
-                        guard let spriteString = pokemon.pokemon_v2_pokemonsprites.first?.sprites,
-                              let spriteData = spriteString.data(using: .utf8),
-                              let json = try? JSONSerialization.jsonObject(with: spriteData) as? String
-                        else {
-                            return nil
-                        }
+                        guard let spriteString = pokemon.pokemon_v2_pokemonsprites.first?.sprites as? String else { return nil}
                         
                         return Pokemon(
                             id: pokemon.id,
                             name: pokemon.name.capitalized,
-                            imageURL: json
+                            imageURL: spriteString
                         )
                     } ?? []
                     continuation.resume(returning: pokemons)
