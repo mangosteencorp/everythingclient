@@ -1,14 +1,20 @@
 import UIKit
-
-class ViewController: UIViewController {
+import Pokedex_Shared_Backend
+public class PokelistViewController: UIViewController {
+    private let pokemonService: PokemonService
+    private var pokemons: [Pokemon] = []
+    private var isLoading = false
+    private var currentOffset = 0
+    private let itemsPerPage = 20
     
-    // Example: sample data
-    let pokemons: [Pokemon] = [
-        Pokemon(id: 1, name: "Bulbasaur", imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/101.png"),
-        Pokemon(id: 2, name: "Ivysaur", imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/102.png"),
-        Pokemon(id: 3, name: "Venusaur", imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/103.png")
-        // Add more ...
-    ]
+    public init(pokemonService: PokemonService) {
+        self.pokemonService = pokemonService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -30,7 +36,7 @@ class ViewController: UIViewController {
         return cv
     }()
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         
@@ -42,17 +48,45 @@ class ViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+        
+        loadMorePokemons()
+    }
+    
+    private func loadMorePokemons() {
+        guard !isLoading else { return }
+        isLoading = true
+        
+        Task {
+            do {
+                let newPokemons = try await pokemonService.fetchPokemons(
+                    limit: itemsPerPage,
+                    offset: currentOffset
+                )
+                
+                await MainActor.run {
+                    self.pokemons.append(contentsOf: newPokemons)
+                    self.currentOffset += newPokemons.count
+                    self.collectionView.reloadData()
+                    self.isLoading = false
+                }
+            } catch {
+                print("Error loading pokemons: \(error)")
+                await MainActor.run {
+                    self.isLoading = false
+                }
+            }
+        }
     }
 }
 
 // MARK: - UICollectionViewDataSource, UICollectionViewDelegateFlowLayout
-extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension PokelistViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return pokemons.count
     }
     
-    func collectionView(_ collectionView: UICollectionView,
+    public func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: PokemonCell.reuseIdentifier,
@@ -67,7 +101,7 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
     }
     
     
-    func collectionView(_ collectionView: UICollectionView,
+    public func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         let padding: CGFloat = 16 * 2 // Left and right padding
@@ -86,7 +120,21 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
         return CGSize(width: cellWidth, height: cellWidth)
     }
 }
+
+// MARK: - UIScrollViewDelegate
+extension PokelistViewController: UIScrollViewDelegate {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let screenHeight = scrollView.frame.size.height
+        
+        // Load more when user scrolls near the bottom
+        if offsetY > contentHeight - screenHeight - 100 {
+            loadMorePokemons()
+        }
+    }
+}
 @available(iOS 17.0, *)
 #Preview {
-    ViewController()
+    PokelistViewController(pokemonService: PokemonService.shared)
 }

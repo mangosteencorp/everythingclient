@@ -54,7 +54,8 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "everythingclient", dependencies: ["TMDB"]),
+            name: "everythingclient",
+            dependencies: ["TMDB", "Pokedex"]),
         .testTarget(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
@@ -102,20 +103,30 @@ let package = Package(
             resources: [.process("Resources")] // needed for Bundle.module
         ),
         // MARK: Pokedex
-        .target(name: "Pokedex",
-                dependencies: ["Pokedex_Pokelist"]
-               ),
-        .target(name: "Pokedex_Pokelist",
-                dependencies: ["Kingfisher", "Pokedex_Shared_Backend"]
-               ),
+        .target(
+            name: "Pokedex",
+            dependencies: [
+                "Pokedex_Pokelist",
+                "Pokedex_Shared_Backend"
+            ]
+        ),
+        .target(
+            name: "Pokedex_Pokelist",
+            dependencies: [
+                "Kingfisher",
+                "Pokedex_Shared_Backend"
+            ]
+        ),
+        .target(
+            name: "Pokedex_Shared_Backend",
+            dependencies: [
+                .product(name: "Apollo", package: "apollo-ios")
+            ]
+        ),
         // MARK: Common
         .target(
             name: "Tests_Shared_Helpers",
             path: "Tests/Tests_Shared_Helpers"
-        ),
-        .target(
-            name: "Pokedex_Shared_Backend", 
-            dependencies: [.product(name: "Apollo", package: "apollo-ios")]
         ),
     ]
 )

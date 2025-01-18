@@ -1,6 +1,6 @@
 import UIKit
 import Kingfisher
-
+import Pokedex_Shared_Backend
 class PokemonCell: UICollectionViewCell {
     static let reuseIdentifier = "PokemonCell"
     
