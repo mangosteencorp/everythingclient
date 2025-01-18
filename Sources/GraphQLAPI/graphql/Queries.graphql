@@ -1,0 +1,9 @@
+query PokemonList($limit: Int!, $offset: Int!, $spritePath: String!) {
+  pokemon_v2_pokemon(limit: $limit, offset: $offset) {
+    id
+    name
+    pokemon_v2_pokemonsprites {
+      sprites(path: $spritePath)
+    }
+  }
+}
