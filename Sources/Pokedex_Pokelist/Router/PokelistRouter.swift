@@ -1,8 +1,8 @@
 import UIKit
 import Pokedex_Shared_Backend
 
-final class PokelistRouter: PokelistRouterProtocol {
-    static func createModule(pokemonService: PokemonService) -> UIViewController {
+public final class PokelistRouter: PokelistRouterProtocol {
+    public static func createModule(pokemonService: PokemonService) -> UIViewController {
         let view = PokelistViewController()
         let presenter = PokelistPresenter()
         let interactor = PokelistInteractor(pokemonService: pokemonService)

@@ -5,11 +5,11 @@ import Pokedex_Shared_Backend
 public struct PokedexView: UIViewControllerRepresentable {
     public init() {}
     
-    public func makeUIViewController(context: Context) -> PokelistViewController {
-        return PokelistViewController(pokemonService: PokemonService.shared)
+    public func makeUIViewController(context: Context) -> UIViewController {
+        return PokelistRouter.createModule(pokemonService: PokemonService.shared)
     }
     
-    public func updateUIViewController(_ uiViewController: PokelistViewController, context: Context) {
+    public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         // Updates can be handled here if needed
     }
 }
