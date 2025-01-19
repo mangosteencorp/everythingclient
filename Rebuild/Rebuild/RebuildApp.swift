@@ -7,11 +7,25 @@
 
 import SwiftUI
 import everythingclient
+
 @main
 struct RebuildApp: App {
+    private var availableTabs: Set<AppTab> {
+        #if DEBUG
+        // Show all tabs in debug builds
+        return Set(AppTab.allCases)
+        #else
+        // Show only TMDB tab in release builds (App Store/TestFlight)
+        return [.tmdb]
+        #endif
+    }
+    
     var body: some Scene {
         WindowGroup {
-            RootContentView(TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"))
+            RootContentView(
+                TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
+                availableTabs: availableTabs
+            )
         }
     }
 }
