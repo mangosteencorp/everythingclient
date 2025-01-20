@@ -14,18 +14,29 @@ public struct DMSNowPlayingPage: View {
     
     public var body: some View {
         NavigationView {
-            Group {
-                if viewModel.isLoading {
-                    AnyView(ProgressView(L10n.playingLoading))
-                } else if let errorMessage = viewModel.errorMessage {
-                    AnyView(Text(errorMessage))
-                } else {
-                    AnyView(List(viewModel.movies) { movie in
-                        VStack {
+            VStack(spacing: 0) {
+                // Sticky search bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    TextField("Search movies...", text: $viewModel.searchQuery)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color(UIColor.systemBackground))
+                
+                // Content below search bar
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView(L10n.playingLoading)
+                    } else if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                    } else {
+                        List(viewModel.movies) { movie in
                             NavigationMovieRow(viewModel, movie: movie)
                         }
-                        
-                    })
+                    }
                 }
             }
             .navigationTitle(L10n.playingTitle)
@@ -33,7 +44,8 @@ public struct DMSNowPlayingPage: View {
             .onAppear {
                 viewModel.fetchNowPlayingMovies()
             }
-        }.navigationViewStyle(StackNavigationViewStyle())
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

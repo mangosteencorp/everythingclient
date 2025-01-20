@@ -14,7 +14,8 @@ public enum TMDBEndpoint {
     case review(movie: Int)
     
     // Search
-    case searchMovie, searchKeyword, searchPerson
+    case searchMovie(query: String, page: Int? = nil)
+    case searchKeyword, searchPerson
     
     // Person
     case popularPersons
@@ -152,6 +153,12 @@ public enum TMDBEndpoint {
                 return ["page": String(page)]
             }
             return nil
+        case .searchMovie(let query, let page):
+            var params = ["query": query]
+            if let page = page {
+                params["page"] = String(page)
+            }
+            return params
         default:
             return nil
         }
@@ -178,6 +185,8 @@ public enum TMDBEndpoint {
             return MovieDetailModel.self
         case .credits:
             return MovieCreditsModel.self
+        case .searchMovie:
+            return MovieListResultModel.self
         default:
             throw TMDBAPIError.unsupportedEndpoint
         }
