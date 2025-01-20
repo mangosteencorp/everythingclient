@@ -24,10 +24,12 @@ These modules are connected using Coordinator pattern.
 <details>
 <summary>Getting started</summary>
 Create a xcconfig file with this pattern in Build.xcconfig:
+
 ```
 TMDB_API_KEY=
 PRODUCT_BUNDLE_IDENTIFIER=
 ```
+
 </details>
 
 # Practices
