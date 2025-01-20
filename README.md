@@ -1,7 +1,7 @@
 iOS Best Practices Demo Project
 =============================
 
-This repository serves its purpose as  comprehensive iOS project demonstrating current best practices and modern iOS development approaches. It tries to replicate as many best practices as possible across mulitple iOS architectures and free public APIs.
+This repository serves its purpose as  comprehensive iOS project demonstrating current best practices and modern iOS development approaches. It tries to replicate as many best practices as possible across mulitple iOS architectures and free public APIs. Testflight: https://testflight.apple.com/join/FaXX2mUY
 
 Progress status is classified as:
 - ✅ Finished
@@ -23,10 +23,10 @@ These modules are connected using Coordinator pattern.
 
 <details>
 <summary>Getting started</summary>
-Create a xcconfig file with this pattern:
+Create a xcconfig file with this pattern in Build.xcconfig:
 ```
-TMDB_API_KEY=1d9b898a212ea52e283351e521e17871
-PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient
+TMDB_API_KEY=
+PRODUCT_BUNDLE_IDENTIFIER=
 ```
 </details>
 
