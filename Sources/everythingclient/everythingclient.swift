@@ -1,37 +1,21 @@
 import SwiftUI
 import TMDB
 import Pokedex
-
-public enum AppTab: Int, CaseIterable, Identifiable {
-    
-    case tmdb = 0
-    case pokedex = 1
-    
-    public var id: Int { rawValue }
-    
-    var label: (String, String) {
-        switch self {
-        case .tmdb:
-            return ("TMDB", "movieclapper")
-        case .pokedex:
-            return ("Pokédex", "sparkles")
-        }
-    }
-}
-
+import AppCore
 public struct RootContentView: View {
+    @StateObject private var tabManager = TabManager.shared
     @State private var selectedTab = 0
     let tmdbAPIKey: String
-    let availableTabs: Set<AppTab>
+    private let isAppStoreOrTestFlight: Bool
     
-    public init(TMDBApiKey: String, availableTabs: Set<AppTab> = Set(AppTab.allCases)) {
+    public init(TMDBApiKey: String, isAppStoreOrTestFlight: Bool = true) {
         self.tmdbAPIKey = TMDBApiKey
-        self.availableTabs = availableTabs
+        self.isAppStoreOrTestFlight = isAppStoreOrTestFlight
     }
     
     public var body: some View {
         TabView(selection: $selectedTab) {
-            ForEach(Array(availableTabs)) { tab in
+            ForEach(Array(tabManager.availableTabs)) { tab in
                 switch tab {
                 case .tmdb:
                     if #available(iOS 16, *) {
@@ -50,9 +34,12 @@ public struct RootContentView: View {
                 }
             }
         }
+        .onAppear {
+            tabManager.availableTabs = isAppStoreOrTestFlight ? Set([.tmdb]) : Set(AppTab.allCases)
+        }
     }
 }
 
 #Preview {
-    RootContentView(TMDBApiKey: "", availableTabs: [.pokedex]) // Example showing only Pokedex tab
+    RootContentView(TMDBApiKey: "") // Example showing only Pokedex tab
 }

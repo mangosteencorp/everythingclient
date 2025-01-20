@@ -38,6 +38,7 @@ let package = Package(
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
+        
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
@@ -55,7 +56,7 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "everythingclient",
-            dependencies: ["TMDB", "Pokedex"]),
+            dependencies: ["TMDB", "Pokedex", "AppCore"]),
         .testTarget(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
@@ -73,7 +74,7 @@ let package = Package(
                 dependencies: ["Swinject"]),
         .target(name: "TMDB_Shared_UI"),
         .target(name: "TMDB_MVVM_Detail", dependencies: [
-            "TMDB_Shared_UI",
+            "TMDB_Shared_UI", "AppCore",
             "Swinject",
             "TMDB_Shared_Backend"],
                 resources: [
@@ -127,6 +128,10 @@ let package = Package(
         .target(
             name: "Tests_Shared_Helpers",
             path: "Tests/Tests_Shared_Helpers"
+        ),
+        
+        .target(
+            name: "AppCore"
         ),
     ]
 )
