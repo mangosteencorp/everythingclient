@@ -1,7 +1,7 @@
 import Foundation
 
 public struct NowPlayingResponse: Decodable {
-    let dates: Dates
+    let dates: Dates?
     let page: Int
     public let results: [Movie]
     let totalPages: Int

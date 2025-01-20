@@ -96,17 +96,12 @@ struct PeopleRowItem: View {
         }
     }
 }
-
+#if DEBUG
 #Preview {
-    
-    
     return MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples)
-        
 }
 
 #Preview {
-    
-    
     return RedactedMovieCrosslinePeopleRow()
-        
 }
+#endif

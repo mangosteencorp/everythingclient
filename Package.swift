@@ -34,37 +34,46 @@ let package = Package(
         .library(
             name: "TMDB_MVVM_Detail",
             targets: ["TMDB_MVVM_Detail"]),
+        .library(name: "Pokedex", targets: ["Pokedex"]),
+        // for building purpose
+        .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
+        .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
+        
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
-        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
-        .package(url: "https://github.com/kean/Nuke.git", from: "12.0.0"),
+        
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0"),
         .package(url: "https://github.com/nalexn/ViewInspector", from: "0.10.0"),
+        .package(
+            url: "https://github.com/apollographql/apollo-ios.git",
+            .upToNextMajor(from: "1.0.0")
+        ),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "everythingclient", dependencies: ["TMDB"]),
+            name: "everythingclient",
+            dependencies: ["TMDB", "Pokedex", "AppCore"]),
         .testTarget(
             name: "everythingclientTests",
             dependencies: ["everythingclient"]),
-        
-            .target(
-                name: "TMDB",
-                dependencies: ["TMDB_MVVM_MLS",
-                               "TMDB_clean_MLS",
-                               "TMDB_Clean_Profile",
-                               "TMDB_Shared_UI",
-                               "TMDB_MVVM_Detail",
-                               "Swinject"
-                              ]),
+        // MARK: TMDB
+        .target(
+            name: "TMDB",
+            dependencies: ["TMDB_MVVM_MLS",
+                           "TMDB_clean_MLS",
+                           "TMDB_Clean_Profile",
+                           "TMDB_Shared_UI",
+                           "TMDB_MVVM_Detail",
+                           "Swinject"
+                          ]),
         .target(name: "TMDB_Shared_Backend",
                 dependencies: ["Swinject"]),
         .target(name: "TMDB_Shared_UI"),
         .target(name: "TMDB_MVVM_Detail", dependencies: [
-            "TMDB_Shared_UI",
+            "TMDB_Shared_UI", "AppCore",
             "Swinject",
             "TMDB_Shared_Backend"],
                 resources: [
@@ -93,9 +102,35 @@ let package = Package(
             dependencies: ["TMDB_Shared_Backend"],
             resources: [.process("Resources")] // needed for Bundle.module
         ),
+        // MARK: Pokedex
+        .target(
+            name: "Pokedex",
+            dependencies: [
+                "Pokedex_Pokelist",
+                "Pokedex_Shared_Backend"
+            ]
+        ),
+        .target(
+            name: "Pokedex_Pokelist",
+            dependencies: [
+                "Kingfisher",
+                "Pokedex_Shared_Backend"
+            ]
+        ),
+        .target(
+            name: "Pokedex_Shared_Backend",
+            dependencies: [
+                .product(name: "Apollo", package: "apollo-ios")
+            ]
+        ),
+        // MARK: Common
         .target(
             name: "Tests_Shared_Helpers",
             path: "Tests/Tests_Shared_Helpers"
+        ),
+        
+        .target(
+            name: "AppCore"
         ),
     ]
 )

@@ -1,13 +1,13 @@
 {
-  "originHash" : "0ca1fedf43ae683f36c2888c271daaa52bf165a18bf5f0ec7f77b15307f36d86",
+  "originHash" : "2540ef71884a2ec97f88b901a37590f676693c33accb2427492c9b34e8ba823e",
   "pins" : [
     {
-      "identity" : "keychainaccess",
+      "identity" : "apollo-ios",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kishikawakatsumi/KeychainAccess.git",
+      "location" : "https://github.com/apollographql/apollo-ios.git",
       "state" : {
-        "revision" : "84e546727d66f1adc5439debad16270d0fdd04e7",
-        "version" : "4.2.2"
+        "revision" : "0d140a1933cb9cbafb2c6861b5d358d422d5f21e",
+        "version" : "1.16.0"
       }
     },
     {
@@ -20,12 +20,12 @@
       }
     },
     {
-      "identity" : "nuke",
+      "identity" : "sqlite.swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kean/Nuke.git",
+      "location" : "https://github.com/stephencelis/SQLite.swift.git",
       "state" : {
-        "revision" : "0ead44350d2737db384908569c012fe67c421e4d",
-        "version" : "12.8.0"
+        "revision" : "a95fc6df17d108bd99210db5e8a9bac90fe984b8",
+        "version" : "0.15.3"
       }
     },
     {

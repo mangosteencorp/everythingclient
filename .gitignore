@@ -6,3 +6,5 @@ DerivedData
 .DerivedData
 .output
 coverage_report.txt
+Sources/Pokedex_Shared_GraphQL/GraphQL
+apollo-ios-cli

@@ -102,7 +102,7 @@ struct MovieInfoRow : View {
         }
     }
 }
-
+#if DEBUG
 #Preview {
     Section{
         MovieCoverRow(movie: exampleMovieDetail).debugBorder(color: .purple)
@@ -115,3 +115,4 @@ struct MovieInfoRow : View {
         MovieOverview(movie: exampleMovieDetail)
     }
 }
+#endif

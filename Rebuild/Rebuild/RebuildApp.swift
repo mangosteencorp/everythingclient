@@ -7,11 +7,21 @@
 
 import SwiftUI
 import everythingclient
+
 @main
 struct RebuildApp: App {
+    #if DEBUG
+    let isAppStoreOrTestFlight = false
+    #else
+    let isAppStoreOrTestFlight = true
+    #endif
+    
     var body: some Scene {
         WindowGroup {
-            RootContentView(TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"))
+            RootContentView(
+                TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
+                isAppStoreOrTestFlight: isAppStoreOrTestFlight
+            )
         }
     }
 }

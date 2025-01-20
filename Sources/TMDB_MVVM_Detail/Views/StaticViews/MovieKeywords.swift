@@ -1,7 +1,19 @@
 import SwiftUI
 
-struct MovieKeywords : View {
+struct MovieKeywords: View {
     let keywords: [Keyword]
+    let specialKeywordIds: [Int]
+    let onSpecialKeywordLongPress: ((Int) -> Void)?
+    
+    init(
+        keywords: [Keyword],
+        specialKeywordIds: [Int] = [],
+        onSpecialKeywordLongPress: ((Int) -> Void)? = nil
+    ) {
+        self.keywords = keywords
+        self.specialKeywordIds = specialKeywordIds
+        self.onSpecialKeywordLongPress = onSpecialKeywordLongPress
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -10,19 +22,25 @@ struct MovieKeywords : View {
                 .padding(.leading)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(keywords) {keyword in
-                        NavigationLink(destination: EmptyView()) {
-                            RoundedBadge(text: keyword.name, color: .steamGold)
+                    ForEach(keywords) { keyword in
+                        if specialKeywordIds.contains(keyword.id) {
+                            NavigationLink(destination: Button("Back"){ self.onSpecialKeywordLongPress?(keyword.id) }) {
+                                RoundedBadge(text: keyword.name, color: .steamGold)
+                            }
+                        } else {
+                            NavigationLink(destination: EmptyView()) {
+                                RoundedBadge(text: keyword.name, color: .steamGold)
+                            }
                         }
                     }
                 }.padding(.leading)
             }
         }
-            .listRowInsets(EdgeInsets())
-            .padding(.vertical)
+        .listRowInsets(EdgeInsets())
+        .padding(.vertical)
     }
 }
-
+#if DEBUG
 #Preview {
     MovieKeywords(keywords: [
         Keyword(id: 613, name: "new year's eve"),
@@ -46,6 +64,7 @@ struct MovieKeywords : View {
         Keyword(id: 283085, name: "body horror"),
         Keyword(id: 295902, name: "actress"),
         Keyword(id: 325778, name: "bold"),
-        Keyword(id: 325801, name: "distressing")    
+        Keyword(id: 325801, name: "distressing")
     ])
 }
+#endif

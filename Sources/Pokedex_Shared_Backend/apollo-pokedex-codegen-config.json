@@ -1,0 +1,42 @@
+{
+  "schemaNamespace" : "Pokedex_Shared_Backend",
+  "input" : {
+    "operationSearchPaths" : [
+      "**/*.graphql"
+    ],
+    "schemaSearchPaths" : [
+      "graphql/schema.json"
+    ]
+  },
+  "schemaDownloadConfiguration": {
+    "downloadMethod": {
+      "introspection": {
+        "endpointURL": "https://beta.pokeapi.co/graphql/v1beta",
+        "httpMethod": {
+          "POST": {}
+        },
+        "outputFormat": "JSON",
+        "includeDeprecatedInputValues": false
+      }
+    },
+    "downloadTimeout": 60,
+    "headers": [],
+    "outputPath": "./graphql/schema.json"
+  },
+  "output" : {
+    "testMocks" : {
+      "none" : {
+      }
+    },
+    "schemaTypes" : {
+      "path" : "./generated/schema/",
+      "moduleType": {
+        "other": {}
+      }
+    },
+    "operations" : {
+      "inSchemaModule" : {
+      }
+    }
+  }
+}
