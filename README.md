@@ -16,10 +16,9 @@ Clear separation of features into modules: There's 4 feature modules in this pro
 - **TMDB_Clean_MLS**: Display list of movies (from now playing or popular TMDB API) using **Clean Architecture** and **SwiftUI**.
 - **TMDB_MVVM_MLS**: same as TMDB_Clean_MLS but using **MVVM architecture**. Also supports endless loading
 - **TMDB_Clean_Profile**: Handling authentication and displaying user profile (including avatar, favourite movies & TV shows & watchlist). Using **Clean Architecture** and **UIKit** and **Combine** for concurrency.
+- **Pokedex_Pokelist**: loading a Pokemon list from Pokedex **GraphQL** API. Using **VIPER** architecture and **UIKit**
 
 These modules are connected using Coordinator pattern.
-
-In progress: a new module featuring **Pokedex GraphQL API + RxSwift**
 
 
 <details>
@@ -54,7 +53,8 @@ Swinject are used for dependency injection.
 - ✅ 100% code coverage for TMDB_Clean_MLS module. For testabbility purpose:
     - Data layer & domain layer should be wrapped in protocol for easy mocking. Mocking `URLProtocol` is for testing URLSession Task creation.
     - Using ViewInspector library for SwiftUI unit testing.
-- 🔴 Snapshot testing using PointFreeCo's SnapshotTesting library and UI testing.
+- 🔴 Snapshot testing using PointFreeCo's SnapshotTesting library
+- 🔴 UI testing for integration tests
 
 ## Development Tools & Automation
 
