@@ -19,6 +19,7 @@ public protocol PokelistPresenterProtocol: AnyObject {
     func viewDidLoad()
     func loadMorePokemons()
     func getPokemons() -> [PokemonEntity]
+    func didSelectPokemon(at index: Int) 
 }
 
 // MARK: - Interactor

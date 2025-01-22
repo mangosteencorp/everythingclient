@@ -95,6 +95,10 @@ extension PokelistViewController: UICollectionViewDataSource, UICollectionViewDe
         
         return CGSize(width: cellWidth, height: cellWidth)
     }
+    
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        presenter?.didSelectPokemon(at: indexPath.item)
+    }
 }
 
 // MARK: - UIScrollViewDelegate
