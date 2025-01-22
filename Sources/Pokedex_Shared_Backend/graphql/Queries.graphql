@@ -7,3 +7,36 @@ query PokemonList($limit: Int!, $offset: Int!, $spritePath: String!) {
     }
   }
 }
+
+query PokemonDetail($id: Int!) {
+  pokemon_v2_pokemon(where: {id: {_eq: $id}}) {
+    id
+    name
+    weight
+    pokemon_species_id
+    pokemon_v2_pokemonmoves(distinct_on: move_id) {
+      move_id
+      id
+      pokemon_v2_move {
+        name
+      }
+    }
+    pokemon_v2_pokemonsprites {
+      sprites(path: "other.showdown.front_shiny")
+    }
+    pokemon_v2_pokemonabilities {
+      ability_id
+      pokemon_v2_ability {
+        name
+      }
+    }
+    pokemon_v2_pokemonstats {
+      stat_id
+      base_stat
+      effort
+      pokemon_v2_stat {
+        name
+      }
+    }
+  }
+}
