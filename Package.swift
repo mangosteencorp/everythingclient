@@ -37,6 +37,7 @@ let package = Package(
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
+        .library(name: "Pokedex_Detail", targets: ["Pokedex_Detail"]),
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
         
     ],
@@ -49,6 +50,7 @@ let package = Package(
             url: "https://github.com/apollographql/apollo-ios.git",
             .upToNextMajor(from: "1.0.0")
         ),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -107,6 +109,7 @@ let package = Package(
             name: "Pokedex",
             dependencies: [
                 "Pokedex_Pokelist",
+                "Pokedex_Detail",
                 "Pokedex_Shared_Backend"
             ]
         ),
@@ -115,6 +118,15 @@ let package = Package(
             dependencies: [
                 "Kingfisher",
                 "Pokedex_Shared_Backend"
+            ]
+        ),
+        .target(
+            name: "Pokedex_Detail",
+            dependencies: [
+                "Kingfisher",
+                "Pokedex_Shared_Backend",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"),
             ]
         ),
         .target(

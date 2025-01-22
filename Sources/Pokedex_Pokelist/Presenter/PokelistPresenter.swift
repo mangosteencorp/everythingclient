@@ -1,39 +1,45 @@
 import Foundation
-
-final class PokelistPresenter: PokelistPresenterProtocol {
-    weak var view: PokelistViewProtocol?
-    var interactor: PokelistInteractorProtocol?
-    var router: PokelistRouterProtocol?
+import UIKit
+public final class PokelistPresenter: PokelistPresenterProtocol {
+    public init() {}
+    
+    public weak var view: PokelistViewProtocol?
+    public var interactor: PokelistInteractorProtocol?
+    public var router: PokelistRouterProtocol?
     
     private var pokemons: [PokemonEntity] = []
     private var isLoading = false
     
-    func viewDidLoad() {
+    public func viewDidLoad() {
         loadMorePokemons()
     }
     
-    func loadMorePokemons() {
+    public func loadMorePokemons() {
         guard !isLoading else { return }
         isLoading = true
         view?.showLoading()
         interactor?.fetchPokemons(limit: 20, offset: pokemons.count)
     }
     
-    func getPokemons() -> [PokemonEntity] {
+    public func getPokemons() -> [PokemonEntity] {
         return pokemons
+    }
+    
+    func didSelectPokemon(at index: Int) {
+        router?.navigateToPokemonDetail(from: view as? UIViewController, with:  getPokemons()[index].id)
     }
 }
 
 // MARK: - PokelistInteractorOutputProtocol
 extension PokelistPresenter: PokelistInteractorOutputProtocol {
-    func didFetchPokemons(_ newPokemons: [PokemonEntity]) {
+    public func didFetchPokemons(_ newPokemons: [PokemonEntity]) {
         pokemons.append(contentsOf: newPokemons)
         isLoading = false
         view?.hideLoading()
         view?.showPokemons()
     }
     
-    func didFailFetchingPokemons(with error: Error) {
+    public func didFailFetchingPokemons(with error: Error) {
         isLoading = false
         view?.hideLoading()
         view?.showError(error)

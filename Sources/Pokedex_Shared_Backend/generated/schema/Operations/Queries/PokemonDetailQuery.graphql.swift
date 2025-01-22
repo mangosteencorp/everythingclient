@@ -7,16 +7,24 @@ public class PokemonDetailQuery: GraphQLQuery {
   public static let operationName: String = "PokemonDetail"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query PokemonDetail($id: Int!) { pokemon_v2_pokemon(where: { id: { _eq: $id } }) { __typename id name weight pokemon_species_id pokemon_v2_pokemonmoves(distinct_on: move_id) { __typename move_id id pokemon_v2_move { __typename name } } pokemon_v2_pokemonsprites { __typename sprites(path: "other.showdown.front_shiny") } pokemon_v2_pokemonabilities { __typename ability_id pokemon_v2_ability { __typename name } } pokemon_v2_pokemonstats { __typename stat_id base_stat effort pokemon_v2_stat { __typename name } } } }"#
+      #"query PokemonDetail($id: Int!, $spritePath: String!) { pokemon_v2_pokemon(where: { id: { _eq: $id } }) { __typename id name weight pokemon_species_id pokemon_v2_pokemonmoves(distinct_on: move_id) { __typename move_id id pokemon_v2_move { __typename name } } pokemon_v2_pokemonsprites { __typename sprites(path: $spritePath) } pokemon_v2_pokemonabilities { __typename ability_id pokemon_v2_ability { __typename name } } pokemon_v2_pokemonstats { __typename stat_id base_stat effort pokemon_v2_stat { __typename name } } } }"#
     ))
 
   public var id: Int
+  public var spritePath: String
 
-  public init(id: Int) {
+  public init(
+    id: Int,
+    spritePath: String
+  ) {
     self.id = id
+    self.spritePath = spritePath
   }
 
-  public var __variables: Variables? { ["id": id] }
+  public var __variables: Variables? { [
+    "id": id,
+    "spritePath": spritePath
+  ] }
 
   public struct Data: Pokedex_Shared_Backend.SelectionSet {
     public let __data: DataDict
@@ -110,7 +118,7 @@ public class PokemonDetailQuery: GraphQLQuery {
         public static var __parentType: any ApolloAPI.ParentType { Pokedex_Shared_Backend.Objects.Pokemon_v2_pokemonsprites }
         public static var __selections: [ApolloAPI.Selection] { [
           .field("__typename", String.self),
-          .field("sprites", Pokedex_Shared_Backend.Jsonb.self, arguments: ["path": "other.showdown.front_shiny"]),
+          .field("sprites", Pokedex_Shared_Backend.Jsonb.self, arguments: ["path": .variable("spritePath")]),
         ] }
 
         public var sprites: Pokedex_Shared_Backend.Jsonb { __data["sprites"] }

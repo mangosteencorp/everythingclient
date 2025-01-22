@@ -2,10 +2,10 @@ import SwiftUI
 import Pokedex_Shared_Backend
 #if DEBUG
 let pokemonService = PokemonService.shared
-let previewViewController = PokelistRouter.createModule(pokemonService: pokemonService)
+//let previewViewController = PokelistRouter.createModule(pokemonService: pokemonService)
 #Preview {
     UIViewControllerPreview{
-        previewViewController
+        UIViewController()
     }
 }
 struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {

@@ -1,15 +1,15 @@
 import Foundation
 import Pokedex_Shared_Backend
 
-final class PokelistInteractor: PokelistInteractorProtocol {
-    weak var presenter: PokelistInteractorOutputProtocol?
+public final class PokelistInteractor: PokelistInteractorProtocol {
+    public weak var presenter: PokelistInteractorOutputProtocol?
     private let pokemonService: PokemonService
     
-    init(pokemonService: PokemonService) {
+    public init(pokemonService: PokemonService) {
         self.pokemonService = pokemonService
     }
     
-    func fetchPokemons(limit: Int, offset: Int) {
+    public func fetchPokemons(limit: Int, offset: Int) {
         Task {
             do {
                 let pokemons = try await pokemonService.fetchPokemons(limit: limit, offset: offset)

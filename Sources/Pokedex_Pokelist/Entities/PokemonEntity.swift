@@ -1,9 +1,9 @@
 import Foundation
 import Pokedex_Shared_Backend
-struct PokemonEntity {
-    let id: Int
-    let name: String
-    let imageURL: String
+public struct PokemonEntity {
+    public let id: Int
+    public let name: String
+    public let imageURL: String
     
     init(id: Int, name: String, imageURL: String) {
         self.id = id

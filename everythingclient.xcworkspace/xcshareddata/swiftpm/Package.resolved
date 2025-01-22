@@ -1,5 +1,5 @@
 {
-  "originHash" : "2540ef71884a2ec97f88b901a37590f676693c33accb2427492c9b34e8ba823e",
+  "originHash" : "50fba26fb2c13a702bc5e55f2f8589d0a3a9083437263271b47b1915f83e5963",
   "pins" : [
     {
       "identity" : "apollo-ios",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "e6749919f9761d573d37a7d7e78b1b854c191d7f",
         "version" : "8.1.3"
+      }
+    },
+    {
+      "identity" : "rxswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ReactiveX/RxSwift.git",
+      "state" : {
+        "revision" : "c7c7d2cf50a3211fe2843f76869c698e4e417930",
+        "version" : "6.8.0"
       }
     },
     {

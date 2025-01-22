@@ -8,7 +8,7 @@ query PokemonList($limit: Int!, $offset: Int!, $spritePath: String!) {
   }
 }
 
-query PokemonDetail($id: Int!) {
+query PokemonDetail($id: Int!, $spritePath: String!) {
   pokemon_v2_pokemon(where: {id: {_eq: $id}}) {
     id
     name
@@ -22,7 +22,7 @@ query PokemonDetail($id: Int!) {
       }
     }
     pokemon_v2_pokemonsprites {
-      sprites(path: "other.showdown.front_shiny")
+      sprites(path: $spritePath)
     }
     pokemon_v2_pokemonabilities {
       ability_id
