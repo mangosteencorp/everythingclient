@@ -12,7 +12,10 @@ public class PokemonDetailViewController: UIViewController {
     
     private var loadingViewController: LoadingViewController?
     private var contentViewController: PokemonContentDetailViewController?
+    private var contentLoadedViewController: PokemonContentLoadedDetailViewController?
     private var errorViewController: RobotErrorViewController?
+    
+    private var isShowingAlternateDesign = false
     
     private let containerView: UIView = {
         let view = UIView()
@@ -61,6 +64,7 @@ public class PokemonDetailViewController: UIViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] pokemon in
                 self?.showContentView(with: pokemon)
+                self?.setupNavigationButton()
             })
             .disposed(by: disposeBag)
         
@@ -71,6 +75,27 @@ public class PokemonDetailViewController: UIViewController {
                 self?.showErrorView()
             })
             .disposed(by: disposeBag)
+    }
+    
+    private func setupNavigationButton() {
+        let switchButton = UIBarButtonItem(
+            image: UIImage(systemName: "arrow.left.arrow.right"),
+            style: .plain,
+            target: self,
+            action: #selector(switchDesignTapped)
+        )
+        navigationItem.rightBarButtonItem = switchButton
+    }
+    
+    @objc private func switchDesignTapped() {
+        guard let pokemon = viewModel.pokemonDetail.value else { return }
+        isShowingAlternateDesign.toggle()
+        
+        if isShowingAlternateDesign {
+            showAlternateContentView(with: pokemon)
+        } else {
+            showContentView(with: pokemon)
+        }
     }
     
     private func showLoadingView() {
@@ -108,6 +133,20 @@ public class PokemonDetailViewController: UIViewController {
         self.contentViewController = contentVC
     }
     
+    private func showAlternateContentView(with pokemon: PokemonDetailModel) {
+        removeCurrentChildViewController()
+        
+        let contentVC = PokemonContentLoadedDetailViewController()
+        addChild(contentVC)
+        containerView.addSubview(contentVC.view)
+        contentVC.view.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        contentVC.didMove(toParent: self)
+        
+        self.contentLoadedViewController = contentVC
+    }
+    
     private func showErrorView() {
         removeCurrentChildViewController()
         
@@ -133,6 +172,11 @@ public class PokemonDetailViewController: UIViewController {
         contentViewController?.view.removeFromSuperview()
         contentViewController?.removeFromParent()
         contentViewController = nil
+        
+        contentLoadedViewController?.willMove(toParent: nil)
+        contentLoadedViewController?.view.removeFromSuperview()
+        contentLoadedViewController?.removeFromParent()
+        contentLoadedViewController = nil
         
         errorViewController?.willMove(toParent: nil)
         errorViewController?.view.removeFromSuperview()
