@@ -127,6 +127,7 @@ public class PokemonDetailViewController: UIViewController {
             statView.configure(with: stat)
             statsStackView.addArrangedSubview(statView)
         }
+        self.navigationController?.pushViewController(PokemonContentDetailViewController(pokemon: pokemon), animated: true)
     }
     
     private func showError(_ error: Error) {

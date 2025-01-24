@@ -1,10 +1,20 @@
-
 import UIKit
 import Kingfisher
+import Pokedex_Shared_Backend
 class PokemonContentDetailViewController: UIViewController {
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()
+    private var pokemon: PokemonDetail?
+    
+    init(pokemon: PokemonDetail) {
+        self.pokemon = pokemon
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,25 +40,27 @@ class PokemonContentDetailViewController: UIViewController {
         // Pokémon Image
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        if let url = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif") {
+        if let url = URL(string: pokemon?.imageURL ?? "") {
             imageView.kf.setImage(with: url)
         }
         
         // Name and Number
         let nameLabel = UILabel()
-        nameLabel.text = "Caterpie"
+        nameLabel.text = pokemon?.name
         nameLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         
         let numberLabel = UILabel()
-        numberLabel.text = "#010"
+        numberLabel.text = "#\(String(format: "%03d", pokemon?.id ?? 0))"
         numberLabel.font = UIFont.systemFont(ofSize: 18)
         numberLabel.textColor = .secondaryLabel
         
         // Weight
-        let weightView = createInfoBadge(title: "2.9 kg")
+        let weightText = String(format: "%.1f kg", Float(pokemon?.weight ?? 0) / 10.0)
+        let weightView = createInfoBadge(title: weightText)
         
         // Abilities
-        let abilitiesView = createInfoBadge(title: "Abilities: Shield Dust · Run Away")
+        let abilitiesText = "Abilities: " + (pokemon?.abilities.map { $0.name }.joined(separator: " · ") ?? "")
+        let abilitiesView = createInfoBadge(title: abilitiesText)
         
         // Stats Grid
         let statsView = createStatsGrid()
@@ -102,13 +114,12 @@ class PokemonContentDetailViewController: UIViewController {
     }
     
     private func createStatsGrid() -> UIView {
-        let stats = [
-            ("HP", "45"), ("Attack", "30"), ("Defense", "35"),
-            ("Sp. Atk", "20"), ("Sp. Def", "20"), ("Speed", "45")
-        ]
+        let stats = pokemon?.stats.map { stat in
+            (stat.name.capitalized, String(stat.baseStat))
+        } ?? []
         
-        let column1 = createStatColumn(stats: Array(stats[0...2]))
-        let column2 = createStatColumn(stats: Array(stats[3...5]))
+        let column1 = createStatColumn(stats: Array(stats.prefix(3)))
+        let column2 = createStatColumn(stats: Array(stats.suffix(from: min(3, stats.count))))
         
         let stackView = UIStackView(arrangedSubviews: [column1, column2])
         stackView.axis = .horizontal
@@ -204,13 +215,14 @@ class PokemonContentDetailViewController: UIViewController {
 
 extension PokemonContentDetailViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 5
+        return pokemon?.moves.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MoveCell", for: indexPath) as! MoveCell
-        let moves = ["Tackle", "String Shot", "Snore", "Bug Bite", "Electroweb"]
-        cell.configure(with: moves[indexPath.item])
+        if let move = pokemon?.moves[indexPath.item] {
+            cell.configure(with: move.name)
+        }
         return cell
     }
 }
@@ -249,7 +261,9 @@ class MoveCell: UICollectionViewCell {
     }
 }
 
-
+fileprivate typealias Ability = PokemonDetail.Ability
+fileprivate typealias Move = PokemonDetail.Move
+fileprivate typealias Stat = PokemonDetail.Stat
 #if DEBUG
 import SwiftUI
 struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {
@@ -267,7 +281,32 @@ struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControll
 }
 #Preview {
     UIViewControllerPreview {
-        PokemonContentDetailViewController()
+        PokemonContentDetailViewController(pokemon: PokemonDetail(
+            id: 1,
+            name: "Caterpie",
+            imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif",
+            weight: 290,
+            speciesId: 1,
+            moves: [
+                PokemonDetail.Move(id: 1, moveId: 33, name: "Tackle"),
+                PokemonDetail.Move(id: 2, moveId: 81, name: "String Shot"),
+                PokemonDetail.Move(id: 3, moveId: 173, name: "Snore"),
+                PokemonDetail.Move(id: 4, moveId: 450, name: "Bug Bite"),
+                PokemonDetail.Move(id: 5, moveId: 527, name: "Electroweb")
+            ],
+            abilities: [
+                PokemonDetail.Ability(abilityId: 19, name: "Shield Dust"),
+                PokemonDetail.Ability(abilityId: 50, name: "Run Away")
+            ],
+            stats: [
+                PokemonDetail.Stat(statId: 1, baseStat: 45, effort: 1, name: "HP"),
+                PokemonDetail.Stat(statId: 2, baseStat: 30, effort: 0, name: "Attack"),
+                PokemonDetail.Stat(statId: 3, baseStat: 35, effort: 0, name: "Defense"),
+                PokemonDetail.Stat(statId: 4, baseStat: 20, effort: 0, name: "Sp. Atk"),
+                PokemonDetail.Stat(statId: 5, baseStat: 20, effort: 0, name: "Sp. Def"),
+                PokemonDetail.Stat(statId: 6, baseStat: 45, effort: 0, name: "Speed")
+            ]
+        ))
     }
 }
 #endif
