@@ -3,9 +3,16 @@ import RxSwift
 import RxCocoa
 import Kingfisher
 import Pokedex_Shared_Backend
+
+public typealias PokemonDetailModel = PokemonDetail
+
 public class PokemonDetailViewController: UIViewController {
     private let viewModel: PokemonDetailViewModel
     private let disposeBag = DisposeBag()
+    
+    private var loadingViewController: LoadingViewController?
+    private var contentViewController: PokemonContentDetailViewController?
+    private var errorViewController: RobotErrorViewController?
     
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
@@ -96,48 +103,104 @@ public class PokemonDetailViewController: UIViewController {
     }
     
     private func setupBindings() {
+        // Bind loading state
+        viewModel.isLoading
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] isLoading in
+                if isLoading {
+                    self?.showLoadingView()
+                } else {
+                    self?.hideLoadingView()
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        // Bind pokemon detail
         viewModel.pokemonDetail
             .compactMap { $0 }
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] pokemon in
-                self?.updateUI(with: pokemon)
+                self?.showContentView(with: pokemon)
             })
             .disposed(by: disposeBag)
         
+        // Bind error
         viewModel.error
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] error in
-                self?.showError(error)
+                self?.showErrorView()
             })
             .disposed(by: disposeBag)
     }
     
-    private func updateUI(with pokemon: PokemonDetail) {
-        nameLabel.text = pokemon.name
+    private func showLoadingView() {
+        removeCurrentChildViewController()
         
-        if let url = URL(string: pokemon.imageURL) {
-            imageView.kf.setImage(with: url)
-        }
+        let loadingVC = LoadingViewController()
+        addChild(loadingVC)
+        loadingVC.view.frame = view.bounds
+        view.addSubview(loadingVC.view)
+        loadingVC.didMove(toParent: self)
         
-        statsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
-        // Add stats
-        pokemon.stats.forEach { stat in
-            let statView = StatView()
-            statView.configure(with: stat)
-            statsStackView.addArrangedSubview(statView)
-        }
-        self.navigationController?.pushViewController(PokemonContentDetailViewController(pokemon: pokemon), animated: true)
+        self.loadingViewController = loadingVC
     }
     
-    private func showError(_ error: Error) {
-        let alert = UIAlertController(
-            title: "Error",
-            message: error.localizedDescription,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+    private func hideLoadingView() {
+        loadingViewController?.willMove(toParent: nil)
+        loadingViewController?.view.removeFromSuperview()
+        loadingViewController?.removeFromParent()
+        loadingViewController = nil
+    }
+    
+    private func showContentView(with pokemon: PokemonDetailModel) {
+        removeCurrentChildViewController()
+        
+        let contentVC = PokemonContentDetailViewController(pokemon: pokemon)
+        addChild(contentVC)
+        contentVC.view.frame = view.bounds
+        view.addSubview(contentVC.view)
+        contentVC.didMove(toParent: self)
+        
+        self.contentViewController = contentVC
+    }
+    
+    private func showErrorView() {
+        removeCurrentChildViewController()
+        
+        let errorVC = RobotErrorViewController()
+        errorVC.delegate = self
+        addChild(errorVC)
+        errorVC.view.frame = view.bounds
+        view.addSubview(errorVC.view)
+        errorVC.didMove(toParent: self)
+        
+        self.errorViewController = errorVC
+    }
+    
+    private func removeCurrentChildViewController() {
+        loadingViewController?.willMove(toParent: nil)
+        loadingViewController?.view.removeFromSuperview()
+        loadingViewController?.removeFromParent()
+        loadingViewController = nil
+        
+        contentViewController?.willMove(toParent: nil)
+        contentViewController?.view.removeFromSuperview()
+        contentViewController?.removeFromParent()
+        contentViewController = nil
+        
+        errorViewController?.willMove(toParent: nil)
+        errorViewController?.view.removeFromSuperview()
+        errorViewController?.removeFromParent()
+        errorViewController = nil
+    }
+}
+
+extension PokemonDetailViewController: RobotErrorViewControllerDelegate {
+    func didTapTryAgain() {
+        // Retry loading the pokemon
+        if let currentPokemonId = viewModel.currentPokemonId {
+            viewModel.loadPokemon(id: currentPokemonId)
+        }
     }
 }
 

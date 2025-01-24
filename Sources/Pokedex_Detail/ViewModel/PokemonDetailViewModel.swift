@@ -15,6 +15,9 @@ public class PokemonDetailViewModel {
     let isLoading = BehaviorRelay<Bool>(value: false)
     let error = PublishRelay<Error>()
     
+    // Add property to track current pokemon id
+    private(set) var currentPokemonId: Int?
+    
     public init(pokemonService: PokemonService) {
         self.pokemonService = pokemonService
         
@@ -50,6 +53,7 @@ public class PokemonDetailViewModel {
     }
     
     public func loadPokemon(id: Int) {
+        currentPokemonId = id
         pokemonIdRelay.accept(id)
     }
 }
