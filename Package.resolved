@@ -1,5 +1,5 @@
 {
-  "originHash" : "37051b5556ecdac8075819d67895ed59e0eeeed2941d3101ae200989bba55778",
+  "originHash" : "4802fa3af0d53fc48ec56d211643e9aa17d0a1fe1d27de2366646306e982b9d7",
   "pins" : [
     {
       "identity" : "apollo-ios",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "c7c7d2cf50a3211fe2843f76869c698e4e417930",
         "version" : "6.8.0"
+      }
+    },
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit.git",
+      "state" : {
+        "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
+        "version" : "5.7.1"
       }
     },
     {

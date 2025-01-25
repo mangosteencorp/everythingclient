@@ -1,6 +1,6 @@
 import UIKit
 import Kingfisher
-
+import Pokedex_Shared_Backend
 class PokemonContentLoadedDetailViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
@@ -49,32 +49,15 @@ class PokemonContentLoadedDetailViewController: UIViewController {
     private let abilitiesStackView: UIStackView = createStackView()
     private let movesStackView: UIStackView = createStackView()
     
-    private static func createCard() -> UIView {
-        let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 10
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    private let pokemon: PokemonDetailModel
+    
+    init(pokemon: PokemonDetailModel) {
+        self.pokemon = pokemon
+        super.init(nibName: nil, bundle: nil)
     }
     
-    private static func createSectionLabel(text: String) -> UILabel {
-        let label = UILabel()
-        label.text = text
-        label.font = .systemFont(ofSize: 18, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-    
-    private static func createStackView() -> UIStackView {
-        let sv = UIStackView()
-        sv.axis = .vertical
-        sv.spacing = 10
-        sv.translatesAutoresizingMaskIntoConstraints = false
-        return sv
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
@@ -165,50 +148,51 @@ class PokemonContentLoadedDetailViewController: UIViewController {
     }
     
     private func loadSprite() {
-        if let url = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif") {
+        if let url = URL(string: pokemon.imageURL) {
             spriteImageView.kf.setImage(with: url)
         }
     }
     
     private func setupContent() {
+        nameLabel.text = "\(pokemon.name) #\(String(format: "%03d", pokemon.id))"
+        
         setupStats()
         setupAbilities()
         setupMoves()
     }
     
     private func setupStats() {
-        let stats = [
-            ("HP", 45, UIColor(red: 255/255, green: 89/255, blue: 89/255, alpha: 1)),
-            ("ATK", 30, UIColor(red: 245/255, green: 172/255, blue: 120/255, alpha: 1)),
-            ("DEF", 35, UIColor(red: 250/255, green: 224/255, blue: 120/255, alpha: 1)),
-            ("SPD", 45, UIColor(red: 250/255, green: 146/255, blue: 178/255, alpha: 1))
+        let statsMap = [
+            "hp": ("HP", UIColor(red: 255/255, green: 89/255, blue: 89/255, alpha: 1)),
+            "attack": ("ATK", UIColor(red: 245/255, green: 172/255, blue: 120/255, alpha: 1)),
+            "defense": ("DEF", UIColor(red: 250/255, green: 224/255, blue: 120/255, alpha: 1)),
+            "speed": ("SPD", UIColor(red: 250/255, green: 146/255, blue: 178/255, alpha: 1))
         ]
         
-        stats.forEach { stat in
-            statsStackView.addArrangedSubview(createStatBar(name: stat.0, value: stat.1, color: stat.2))
-        }
+        pokemon.stats
+            .filter { stat in statsMap.keys.contains(stat.name) }
+            .forEach { stat in
+                if let (displayName, color) = statsMap[stat.name] {
+                    statsStackView.addArrangedSubview(
+                        createStatBar(name: displayName, value: stat.baseStat, color: color)
+                    )
+                }
+            }
     }
     
     private func setupAbilities() {
-        let abilities = [
-            ("Shield Dust", false),
-            ("Run Away", true)
-        ]
-        
-        abilities.forEach { ability in
+        pokemon.abilities.forEach { ability in
             let abilityLabel = UILabel()
-            abilityLabel.text = ability.0 + (ability.1 ? " (Hidden)" : "")
+            abilityLabel.text = ability.name.capitalized
             abilityLabel.font = .systemFont(ofSize: 14)
             abilitiesStackView.addArrangedSubview(abilityLabel)
         }
     }
     
     private func setupMoves() {
-        let moves = ["Tackle", "String Shot", "Bug Bite", "Electroweb"]
-        
-        moves.forEach { move in
+        pokemon.moves.prefix(4).forEach { move in
             let moveLabel = UILabel()
-            moveLabel.text = move
+            moveLabel.text = move.name.capitalized
             moveLabel.font = .systemFont(ofSize: 14)
             movesStackView.addArrangedSubview(moveLabel)
         }
@@ -262,12 +246,65 @@ class PokemonContentLoadedDetailViewController: UIViewController {
         
         return containerView
     }
+    
+    private static func createCard() -> UIView {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        view.layer.cornerRadius = 12
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+        view.layer.shadowRadius = 4
+        view.layer.shadowOpacity = 0.1
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }
+    
+    private static func createSectionLabel(text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }
+    
+    private static func createStackView() -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 10
+        stackView.alignment = .fill
+        stackView.distribution = .fill
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }
 }
 #if DEBUG
 import SwiftUI
-#Preview  {
+#Preview {
     UIViewControllerPreview {
-        PokemonContentLoadedDetailViewController()
+        let pokemon = PokemonDetail(
+            id: 10,
+            name: "Caterpie",
+            imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif",
+            weight: 29,
+            speciesId: 10,
+            moves: [
+                .init(id: 1, moveId: 1, name: "Tackle"),
+                .init(id: 2, moveId: 2, name: "String Shot"),
+                .init(id: 3, moveId: 3, name: "Bug Bite"),
+                .init(id: 4, moveId: 4, name: "Electroweb")
+            ],
+            abilities: [
+                .init(abilityId: 1, name: "Shield Dust"),
+                .init(abilityId: 2, name: "Run Away")
+            ],
+            stats: [
+                .init(statId: 1, baseStat: 45, effort: 1, name: "hp"),
+                .init(statId: 2, baseStat: 30, effort: 0, name: "attack"),
+                .init(statId: 3, baseStat: 35, effort: 0, name: "defense"),
+                .init(statId: 6, baseStat: 45, effort: 0, name: "speed")
+            ]
+        )
+        return PokemonContentLoadedDetailViewController(pokemon: pokemon)
     }
 }
 #endif

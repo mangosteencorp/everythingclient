@@ -136,7 +136,7 @@ public class PokemonDetailViewController: UIViewController {
     private func showAlternateContentView(with pokemon: PokemonDetailModel) {
         removeCurrentChildViewController()
         
-        let contentVC = PokemonContentLoadedDetailViewController()
+        let contentVC = PokemonContentLoadedDetailViewController(pokemon: pokemon)
         addChild(contentVC)
         containerView.addSubview(contentVC.view)
         contentVC.view.snp.makeConstraints { make in
