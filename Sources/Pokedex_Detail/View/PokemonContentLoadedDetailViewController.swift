@@ -89,7 +89,7 @@ class PokemonContentLoadedDetailViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -304,7 +304,12 @@ import SwiftUI
                 .init(statId: 6, baseStat: 45, effort: 0, name: "speed")
             ]
         )
-        return PokemonContentLoadedDetailViewController(pokemon: pokemon)
+        let navVC = UINavigationController(rootViewController: UIViewController())
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+            navVC.pushViewController(PokemonContentLoadedDetailViewController(pokemon: pokemon), animated: false)
+        })
+        return navVC
     }
 }
 #endif
+
