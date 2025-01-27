@@ -78,13 +78,7 @@ public class PokemonDetailViewController: UIViewController {
     }
     
     private func setupNavigationButton() {
-        let switchButton = UIBarButtonItem(
-            image: UIImage(systemName: "arrow.left.arrow.right"),
-            style: .plain,
-            target: self,
-            action: #selector(switchDesignTapped)
-        )
-        navigationItem.rightBarButtonItem = switchButton
+        addSwitchDesignButton(action: #selector(switchDesignTapped))
     }
     
     @objc private func switchDesignTapped() {
