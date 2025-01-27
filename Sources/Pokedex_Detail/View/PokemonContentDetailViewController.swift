@@ -1,6 +1,8 @@
 import UIKit
 import Kingfisher
 import Pokedex_Shared_Backend
+import Shared_UI_Support
+
 class PokemonContentDetailViewController: UIViewController {
     
     private let scrollView = UIScrollView()
@@ -266,19 +268,6 @@ fileprivate typealias Move = PokemonDetail.Move
 fileprivate typealias Stat = PokemonDetail.Stat
 #if DEBUG
 import SwiftUI
-struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {
-    let viewController: ViewController
-    
-    init(_ builder: @escaping () -> ViewController) {
-        viewController = builder()
-    }
-    
-    func makeUIViewController(context: Context) -> ViewController {
-        viewController
-    }
-    
-    func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
-}
 #Preview {
     UIViewControllerPreview {
         PokemonContentDetailViewController(pokemon: PokemonDetail(

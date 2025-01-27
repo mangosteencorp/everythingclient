@@ -1,11 +1,4 @@
-//
-//  RobotErrorViewControllerDelegate.swift
-//  everythingclient
-//
-//  Created by Quang on 2025-01-23.
-//
-
-
+import Shared_UI_Support
 import UIKit
 
 protocol RobotErrorViewControllerDelegate: AnyObject {

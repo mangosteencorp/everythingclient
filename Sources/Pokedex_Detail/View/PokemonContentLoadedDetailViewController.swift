@@ -1,6 +1,7 @@
 import UIKit
 import Kingfisher
 import Pokedex_Shared_Backend
+import Shared_UI_Support
 class PokemonContentLoadedDetailViewController: UIViewController {
     
     private let scrollView: UIScrollView = {

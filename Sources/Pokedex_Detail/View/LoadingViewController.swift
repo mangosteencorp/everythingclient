@@ -1,11 +1,4 @@
-//
-//  LoadingViewController.swift
-//  everythingclient
-//
-//  Created by Quang on 2025-01-24.
-//
-
-
+import Shared_UI_Support
 import UIKit
 
 class LoadingViewController: UIViewController {

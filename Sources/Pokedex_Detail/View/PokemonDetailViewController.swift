@@ -3,7 +3,7 @@ import RxSwift
 import RxCocoa
 import SnapKit
 import Pokedex_Shared_Backend
-
+import Shared_UI_Support
 public typealias PokemonDetailModel = PokemonDetail
 
 public class PokemonDetailViewController: UIViewController {

@@ -98,7 +98,7 @@ let package = Package(
             dependencies: ["TMDB_clean_MLS", "Tests_Shared_Helpers", "ViewInspector"]),
         .target(
             name: "TMDB_Clean_Profile",
-            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher"]
+            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support"]
         ),
         .testTarget(
             name: "TMDB_Shared_Backend_Tests",
@@ -118,7 +118,8 @@ let package = Package(
             name: "Pokedex_Pokelist",
             dependencies: [
                 "Kingfisher",
-                "Pokedex_Shared_Backend"
+                "Pokedex_Shared_Backend",
+                "Shared_UI_Support"
             ]
         ),
         .target(
@@ -129,6 +130,7 @@ let package = Package(
                 .product(name: "RxSwift", package: "RxSwift"),
                 .product(name: "RxCocoa", package: "RxSwift"),
                 .product(name: "SnapKit", package: "SnapKit"),
+                "Shared_UI_Support"
             ]
         ),
         .target(
@@ -145,6 +147,9 @@ let package = Package(
         
         .target(
             name: "AppCore"
+        ),
+        .target(
+            name: "Shared_UI_Support"
         ),
     ]
 )
