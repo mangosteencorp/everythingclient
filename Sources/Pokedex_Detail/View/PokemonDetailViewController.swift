@@ -6,16 +6,25 @@ import Pokedex_Shared_Backend
 import Shared_UI_Support
 public typealias PokemonDetailModel = PokemonDetail
 
+// Add protocol
+protocol PokemonContentViewController: UIViewController {
+    init(pokemon: PokemonDetailModel)
+}
+
 public class PokemonDetailViewController: UIViewController {
     private let viewModel: PokemonDetailViewModel
     private let disposeBag = DisposeBag()
     
     private var loadingViewController: LoadingViewController?
-    private var contentViewController: PokemonContentDetailViewController?
-    private var contentLoadedViewController: PokemonContentLoadedDetailViewController?
     private var errorViewController: RobotErrorViewController?
     
-    private var isShowingAlternateDesign = false
+    // Replace individual content view controllers with array and current index
+    private var contentViewControllers: [PokemonContentViewController.Type] = [
+        DetailDesign1ViewController.self,
+        DetailDesign2ViewController.self
+    ]
+    private var currentContentIndex = 0
+    private var currentContentViewController: PokemonContentViewController?
     
     private let containerView: UIView = {
         let view = UIView()
@@ -83,13 +92,8 @@ public class PokemonDetailViewController: UIViewController {
     
     @objc private func switchDesignTapped() {
         guard let pokemon = viewModel.pokemonDetail.value else { return }
-        isShowingAlternateDesign.toggle()
-        
-        if isShowingAlternateDesign {
-            showAlternateContentView(with: pokemon)
-        } else {
-            showContentView(with: pokemon)
-        }
+        currentContentIndex = (currentContentIndex + 1) % contentViewControllers.count
+        showContentView(with: pokemon)
     }
     
     private func showLoadingView() {
@@ -116,7 +120,7 @@ public class PokemonDetailViewController: UIViewController {
     private func showContentView(with pokemon: PokemonDetailModel) {
         removeCurrentChildViewController()
         
-        let contentVC = PokemonContentDetailViewController(pokemon: pokemon)
+        let contentVC = contentViewControllers[currentContentIndex].init(pokemon: pokemon)
         addChild(contentVC)
         containerView.addSubview(contentVC.view)
         contentVC.view.snp.makeConstraints { make in
@@ -124,21 +128,7 @@ public class PokemonDetailViewController: UIViewController {
         }
         contentVC.didMove(toParent: self)
         
-        self.contentViewController = contentVC
-    }
-    
-    private func showAlternateContentView(with pokemon: PokemonDetailModel) {
-        removeCurrentChildViewController()
-        
-        let contentVC = PokemonContentLoadedDetailViewController(pokemon: pokemon)
-        addChild(contentVC)
-        containerView.addSubview(contentVC.view)
-        contentVC.view.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        contentVC.didMove(toParent: self)
-        
-        self.contentLoadedViewController = contentVC
+        self.currentContentViewController = contentVC
     }
     
     private func showErrorView() {
@@ -162,15 +152,10 @@ public class PokemonDetailViewController: UIViewController {
         loadingViewController?.removeFromParent()
         loadingViewController = nil
         
-        contentViewController?.willMove(toParent: nil)
-        contentViewController?.view.removeFromSuperview()
-        contentViewController?.removeFromParent()
-        contentViewController = nil
-        
-        contentLoadedViewController?.willMove(toParent: nil)
-        contentLoadedViewController?.view.removeFromSuperview()
-        contentLoadedViewController?.removeFromParent()
-        contentLoadedViewController = nil
+        currentContentViewController?.willMove(toParent: nil)
+        currentContentViewController?.view.removeFromSuperview()
+        currentContentViewController?.removeFromParent()
+        currentContentViewController = nil
         
         errorViewController?.willMove(toParent: nil)
         errorViewController?.view.removeFromSuperview()
@@ -186,6 +171,11 @@ extension PokemonDetailViewController: RobotErrorViewControllerDelegate {
         }
     }
 }
+
+// Update view controllers to conform to protocol
+extension DetailDesign1ViewController: PokemonContentViewController {}
+extension DetailDesign2ViewController: PokemonContentViewController {}
+
 #if DEBUG
 import SwiftUI
 #Preview {

@@ -2,7 +2,7 @@ import UIKit
 import Kingfisher
 import Pokedex_Shared_Backend
 import Shared_UI_Support
-class PokemonContentLoadedDetailViewController: UIViewController {
+class DetailDesign2ViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
@@ -52,7 +52,7 @@ class PokemonContentLoadedDetailViewController: UIViewController {
     
     private let pokemon: PokemonDetailModel
     
-    init(pokemon: PokemonDetailModel) {
+    required init(pokemon: PokemonDetailModel) {
         self.pokemon = pokemon
         super.init(nibName: nil, bundle: nil)
     }
@@ -307,7 +307,7 @@ import SwiftUI
         )
         let navVC = UINavigationController(rootViewController: UIViewController())
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-            navVC.pushViewController(PokemonContentLoadedDetailViewController(pokemon: pokemon), animated: false)
+            navVC.pushViewController(DetailDesign2ViewController(pokemon: pokemon), animated: false)
         })
         return navVC
     }

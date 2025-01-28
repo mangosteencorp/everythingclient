@@ -3,13 +3,13 @@ import Kingfisher
 import Pokedex_Shared_Backend
 import Shared_UI_Support
 
-class PokemonContentDetailViewController: UIViewController {
+class DetailDesign1ViewController: UIViewController {
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private var pokemon: PokemonDetail?
     
-    init(pokemon: PokemonDetail) {
+    required init(pokemon: PokemonDetail) {
         self.pokemon = pokemon
         super.init(nibName: nil, bundle: nil)
     }
@@ -215,7 +215,7 @@ class PokemonContentDetailViewController: UIViewController {
     }
 }
 
-extension PokemonContentDetailViewController: UICollectionViewDataSource {
+extension DetailDesign1ViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return pokemon?.moves.count ?? 0
     }
@@ -270,7 +270,7 @@ fileprivate typealias Stat = PokemonDetail.Stat
 import SwiftUI
 #Preview {
     UIViewControllerPreview {
-        PokemonContentDetailViewController(pokemon: PokemonDetail(
+        DetailDesign1ViewController(pokemon: PokemonDetail(
             id: 1,
             name: "Caterpie",
             imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif",
