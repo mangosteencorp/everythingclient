@@ -34,7 +34,7 @@ public struct TMDBAPITabView: View {
                             .tag(tab)
                     }
                 }
-                .tabViewStyle(PageTabViewStyle())
+                //.tabViewStyle(PageTabViewStyle())
             } else {
                 NavigationStack {
                     VStack {
@@ -96,7 +96,9 @@ public struct TMDBAPITabView: View {
         .disabled(coordinator.currentIndex == coordinator.tabList.count - 1)
     }
 }
+#if DEBUG
 @available(iOS 16,*)
 #Preview {
     TMDBAPITabView(tmdbKey: "")
 }
+#endif

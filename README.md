@@ -9,6 +9,19 @@ Progress status is classified as:
 - 🔴 Not Started
 - 🔔 Finished but needs updates
 
+- [iOS Best Practices Demo Project](#ios-best-practices-demo-project)
+- [Overview](#overview)
+- [Practices](#practices)
+  - [Architecture \& Design](#architecture--design)
+  - [Security](#security)
+  - [Testing](#testing)
+  - [Development Tools \& Automation](#development-tools--automation)
+  - [UI/UX](#uiux)
+- [Project Structure](#project-structure)
+  - [CI/CD](#cicd)
+  - [Collaboration](#collaboration)
+
+
 # Overview 
 
 Clear separation of features into modules: There's 4 feature modules in this project to displaying content from TMDB REST API:
@@ -17,6 +30,7 @@ Clear separation of features into modules: There's 4 feature modules in this pro
 - **TMDB_MVVM_MLS**: same as TMDB_Clean_MLS but using **MVVM architecture**. Also supports endless loading
 - **TMDB_Clean_Profile**: Handling authentication and displaying user profile (including avatar, favourite movies & TV shows & watchlist). Using **Clean Architecture** and **UIKit** and **Combine** for concurrency.
 - **Pokedex_Pokelist**: loading a Pokemon list from Pokedex **GraphQL** API. Using **VIPER** architecture and **UIKit**
+- **Pokedex_Detail**: loading a Pokemon detail from Pokedex **GraphQL** API. Using RxSwift & RxCocoa for reactive programming. MVVM architecture.
 
 These modules are connected using Coordinator pattern.
 

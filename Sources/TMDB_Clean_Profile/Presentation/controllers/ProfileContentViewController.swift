@@ -1,7 +1,7 @@
 import UIKit
 import TMDB_Shared_Backend
 import Kingfisher
-
+import Shared_UI_Support
 protocol ProfileContentViewControllerDelegate: AnyObject {
     func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController)
 }
@@ -290,21 +290,6 @@ struct ProfileContentViewController_Previews: PreviewProvider {
             return ProfileContentViewController(profile: sampleProfileEntity)
         }
     }
-}
-
-// Helper struct to wrap UIViewController for SwiftUI preview
-struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {
-    let viewController: ViewController
-    
-    init(_ builder: @escaping () -> ViewController) {
-        viewController = builder()
-    }
-    
-    func makeUIViewController(context: Context) -> ViewController {
-        viewController
-    }
-    
-    func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
 }
 
 #endif

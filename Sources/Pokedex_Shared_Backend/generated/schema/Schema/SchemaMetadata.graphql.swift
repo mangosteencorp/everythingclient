@@ -20,8 +20,14 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
 
   public static func objectType(forTypename typename: String) -> ApolloAPI.Object? {
     switch typename {
+    case "pokemon_v2_ability": return Pokedex_Shared_Backend.Objects.Pokemon_v2_ability
+    case "pokemon_v2_move": return Pokedex_Shared_Backend.Objects.Pokemon_v2_move
     case "pokemon_v2_pokemon": return Pokedex_Shared_Backend.Objects.Pokemon_v2_pokemon
+    case "pokemon_v2_pokemonability": return Pokedex_Shared_Backend.Objects.Pokemon_v2_pokemonability
+    case "pokemon_v2_pokemonmove": return Pokedex_Shared_Backend.Objects.Pokemon_v2_pokemonmove
     case "pokemon_v2_pokemonsprites": return Pokedex_Shared_Backend.Objects.Pokemon_v2_pokemonsprites
+    case "pokemon_v2_pokemonstat": return Pokedex_Shared_Backend.Objects.Pokemon_v2_pokemonstat
+    case "pokemon_v2_stat": return Pokedex_Shared_Backend.Objects.Pokemon_v2_stat
     case "query_root": return Pokedex_Shared_Backend.Objects.Query_root
     default: return nil
     }

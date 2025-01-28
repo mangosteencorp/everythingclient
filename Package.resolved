@@ -1,5 +1,5 @@
 {
-  "originHash" : "2540ef71884a2ec97f88b901a37590f676693c33accb2427492c9b34e8ba823e",
+  "originHash" : "4802fa3af0d53fc48ec56d211643e9aa17d0a1fe1d27de2366646306e982b9d7",
   "pins" : [
     {
       "identity" : "apollo-ios",
@@ -17,6 +17,24 @@
       "state" : {
         "revision" : "e6749919f9761d573d37a7d7e78b1b854c191d7f",
         "version" : "8.1.3"
+      }
+    },
+    {
+      "identity" : "rxswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ReactiveX/RxSwift.git",
+      "state" : {
+        "revision" : "c7c7d2cf50a3211fe2843f76869c698e4e417930",
+        "version" : "6.8.0"
+      }
+    },
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit.git",
+      "state" : {
+        "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
+        "version" : "5.7.1"
       }
     },
     {

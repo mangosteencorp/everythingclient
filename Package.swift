@@ -37,6 +37,7 @@ let package = Package(
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
+        .library(name: "Pokedex_Detail", targets: ["Pokedex_Detail"]),
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
         
     ],
@@ -49,6 +50,8 @@ let package = Package(
             url: "https://github.com/apollographql/apollo-ios.git",
             .upToNextMajor(from: "1.0.0")
         ),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
+        .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -95,7 +98,7 @@ let package = Package(
             dependencies: ["TMDB_clean_MLS", "Tests_Shared_Helpers", "ViewInspector"]),
         .target(
             name: "TMDB_Clean_Profile",
-            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher"]
+            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support"]
         ),
         .testTarget(
             name: "TMDB_Shared_Backend_Tests",
@@ -107,6 +110,7 @@ let package = Package(
             name: "Pokedex",
             dependencies: [
                 "Pokedex_Pokelist",
+                "Pokedex_Detail",
                 "Pokedex_Shared_Backend"
             ]
         ),
@@ -114,7 +118,19 @@ let package = Package(
             name: "Pokedex_Pokelist",
             dependencies: [
                 "Kingfisher",
-                "Pokedex_Shared_Backend"
+                "Pokedex_Shared_Backend",
+                "Shared_UI_Support"
+            ]
+        ),
+        .target(
+            name: "Pokedex_Detail",
+            dependencies: [
+                "Kingfisher",
+                "Pokedex_Shared_Backend",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"),
+                .product(name: "SnapKit", package: "SnapKit"),
+                "Shared_UI_Support"
             ]
         ),
         .target(
@@ -131,6 +147,9 @@ let package = Package(
         
         .target(
             name: "AppCore"
+        ),
+        .target(
+            name: "Shared_UI_Support"
         ),
     ]
 )

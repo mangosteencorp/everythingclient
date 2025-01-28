@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import SwiftUI
 import Kingfisher
+import Shared_UI_Support
 // MARK: - Section Type Enum
 enum SectionType: String, Codable {
     case featured = "featured"
@@ -663,7 +664,7 @@ let sampleSections: [Section<ProfileCollectionItem>] = [
     )
 ]
 #Preview {
-    UIViewControllerPreview{
+    UIViewControllerPreview {
         MultiSectionViewController(sections: sampleSections)
     }
 }

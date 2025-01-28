@@ -2,7 +2,7 @@ import UIKit
 import Pokedex_Shared_Backend
 
 // MARK: - View
-protocol PokelistViewProtocol: AnyObject {
+public protocol PokelistViewProtocol: AnyObject {
     var presenter: PokelistPresenterProtocol? { get set }
     func showPokemons()
     func showError(_ error: Error)
@@ -11,7 +11,7 @@ protocol PokelistViewProtocol: AnyObject {
 }
 
 // MARK: - Presenter
-protocol PokelistPresenterProtocol: AnyObject {
+public protocol PokelistPresenterProtocol: AnyObject {
     var view: PokelistViewProtocol? { get set }
     var interactor: PokelistInteractorProtocol? { get set }
     var router: PokelistRouterProtocol? { get set }
@@ -19,22 +19,24 @@ protocol PokelistPresenterProtocol: AnyObject {
     func viewDidLoad()
     func loadMorePokemons()
     func getPokemons() -> [PokemonEntity]
+    func didSelectPokemon(at index: Int) 
 }
 
 // MARK: - Interactor
-protocol PokelistInteractorProtocol: AnyObject {
+public protocol PokelistInteractorProtocol: AnyObject {
     var presenter: PokelistInteractorOutputProtocol? { get set }
     func fetchPokemons(limit: Int, offset: Int)
 }
 
 // MARK: - Interactor Output
-protocol PokelistInteractorOutputProtocol: AnyObject {
+public protocol PokelistInteractorOutputProtocol: AnyObject {
     func didFetchPokemons(_ pokemons: [PokemonEntity])
     func didFailFetchingPokemons(with error: Error)
 }
 
 // MARK: - Router
-protocol PokelistRouterProtocol: AnyObject {
+
+public protocol PokelistRouterProtocol: AnyObject {
     static func createModule(pokemonService: PokemonService) -> UIViewController
-    // Add navigation methods here when needed
-} 
+    func navigateToPokemonDetail(from view: UIViewController?, with id: Int)
+}
