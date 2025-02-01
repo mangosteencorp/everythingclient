@@ -1,12 +1,36 @@
 import SwiftUI
 import UIKit
 import Swinject
-
+import TMDB_Shared_Backend
 public struct ProfilePageVCView: UIViewControllerRepresentable {
-    private let container: Container
+    public class Coordinator: NSObject {
+        var onNavigateToMovie: (Int) -> Void
+        var onNavigateToTVShow: (Int) -> Void
+        
+        init(onNavigateToMovie: @escaping (Int) -> Void, onNavigateToTVShow: @escaping (Int) -> Void) {
+            self.onNavigateToMovie = onNavigateToMovie
+            self.onNavigateToTVShow = onNavigateToTVShow
+        }
+        
+        func navigateToMovie(_ id: Int) {
+            onNavigateToMovie(id)
+        }
+        
+        func navigateToTVShow(_ id: Int) {
+            onNavigateToTVShow(id)
+        }
+    }
     
-    public init(container: Container) {
+    private let container: Container
+    var onNavigateToMovie: (Int) -> Void
+    var onNavigateToTVShow: (Int) -> Void
+    
+    public init(container: Container, 
+                onNavigateToMovie: @escaping (Int) -> Void,
+                onNavigateToTVShow: @escaping (Int) -> Void) {
         self.container = container
+        self.onNavigateToMovie = onNavigateToMovie
+        self.onNavigateToTVShow = onNavigateToTVShow
         TMDB_Clean_Profile.configure(container)
     }
     
@@ -14,18 +38,18 @@ public struct ProfilePageVCView: UIViewControllerRepresentable {
         guard let viewController = container.resolve(ProfileViewController.self) else {
             fatalError("Failed to resolve ProfileViewController")
         }
+        viewController.setCoordinator(makeCoordinator())
         return viewController
     }
     
     public func updateUIViewController(_ uiViewController: ProfileViewController, context: Context) {
         // No updates needed as the ViewController handles its own state
     }
-}
-
-#if DEBUG
-struct ProfilePageVCView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfilePageVCView(container: Container())
+    public func makeCoordinator() -> Coordinator {
+        return Coordinator(
+            onNavigateToMovie: onNavigateToMovie,
+            onNavigateToTVShow: onNavigateToTVShow
+        )
     }
 }
-#endif
+

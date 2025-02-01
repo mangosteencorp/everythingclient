@@ -3,6 +3,7 @@ import Combine
 public class ProfileViewController: UIViewController, ProfileContentViewControllerDelegate {
     private let viewModel: ProfileViewModel
     private var cancellables = Set<AnyCancellable>()
+    private var coordinator: ProfilePageVCView.Coordinator?
     
     // Child View Controllers
     private let unauthorizedView = UnauthorizedView()
@@ -95,6 +96,7 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
         case .loaded(let profile):
             let contentVC = ProfileContentViewController(profile: profile)
             contentVC.delegate = self
+            contentVC.coordinator = coordinator
             addChild(contentVC)
             contentVC.view.frame = view.bounds
             view.addSubview(contentVC.view)
@@ -112,5 +114,10 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
     
     func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController) {
         viewModel.signOut()
+    }
+    
+    // Add setter for coordinator
+    func setCoordinator(_ coordinator: ProfilePageVCView.Coordinator) {
+        self.coordinator = coordinator
     }
 }

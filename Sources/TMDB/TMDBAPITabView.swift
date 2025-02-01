@@ -12,6 +12,11 @@ public struct TMDBAPITabView: View {
     private let container: Container
     private let tmdbKey: String
     
+    @State private var isShowingMovieDetail = false
+    @State private var isShowingTVShowDetail = false
+    @State private var selectedMovieId: Int?
+    @State private var selectedTVShowId: Int?
+    
     public init(tmdbKey: String) {
         self.tmdbKey = tmdbKey
         let container = Container()
@@ -69,7 +74,26 @@ public struct TMDBAPITabView: View {
                         MovieDetailPage(movieRoute: route.movie, apiKey: tmdbKey)
                     }
             case .profile:
-                ProfilePageVCView(container: container)
+                ProfilePageVCView(container: container,
+                    onNavigateToMovie: { movieId in
+                        selectedMovieId = movieId
+                        isShowingMovieDetail = true
+                    },
+                    onNavigateToTVShow: { tvShowId in
+                        selectedTVShowId = tvShowId
+                        isShowingTVShowDetail = true
+                    }
+                )
+                    .navigationDestination(isPresented: $isShowingMovieDetail) {
+                        if let movieId = selectedMovieId {
+                            Text("Movie detail \(movieId)")
+                        }
+                    }
+                    .navigationDestination(isPresented: $isShowingTVShowDetail) {
+                        if let tvShowId = selectedTVShowId {
+                            Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
+                        }
+                    }
             }
         }
     }

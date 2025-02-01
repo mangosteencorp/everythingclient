@@ -88,6 +88,10 @@ let package = Package(
             resources: [
                 .process("Resources")
             ]),
+        .testTarget(
+            name: "TMDB_MVVM_MLS_Tests",
+            dependencies: ["TMDB_MVVM_MLS"]
+            ),
         .target(
             name: "TMDB_clean_MLS",
             dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend"],
@@ -98,7 +102,7 @@ let package = Package(
             dependencies: ["TMDB_clean_MLS", "Tests_Shared_Helpers", "ViewInspector"]),
         .target(
             name: "TMDB_Clean_Profile",
-            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support"]
+            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support", "TMDB_Shared_UI"]
         ),
         .testTarget(
             name: "TMDB_Shared_Backend_Tests",

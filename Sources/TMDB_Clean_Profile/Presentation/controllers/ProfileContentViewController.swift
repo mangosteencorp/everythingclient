@@ -6,8 +6,16 @@ protocol ProfileContentViewControllerDelegate: AnyObject {
     func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController)
 }
 
-class ProfileContentViewController: UIViewController {
+enum ProfileContentSection: Int {
+    case watchlistTV = 1
+    case favoriteTV = 2
+    case favoriteMovie = 3
+}
+
+class ProfileContentViewController: UIViewController, MultiSectionViewControllerDelegate {
+    
     weak var delegate: ProfileContentViewControllerDelegate?
+    weak var coordinator: ProfilePageVCView.Coordinator?
     private let profile: ProfileEntity
     private var multiSectionViewController: MultiSectionViewController<ProfileCollectionItem>?
     private let scrollView = UIScrollView()
@@ -126,7 +134,7 @@ class ProfileContentViewController: UIViewController {
             }
             
             sections.append(Section(
-                id: 1,
+                id: ProfileContentSection.watchlistTV.rawValue,
                 type: .featured,
                 title: "Watchlist",
                 subtitle: "Shows you want to watch",
@@ -147,7 +155,7 @@ class ProfileContentViewController: UIViewController {
             }
             
             sections.append(Section(
-                id: 2,
+                id: ProfileContentSection.favoriteTV.rawValue,
                 type: .mediumTable,
                 title: "Favorite TV Shows",
                 subtitle: "Your top picks",
@@ -168,7 +176,7 @@ class ProfileContentViewController: UIViewController {
             }
             
             sections.append(Section(
-                id: 3,
+                id: ProfileContentSection.favoriteMovie.rawValue,
                 type: .mediumTable,
                 title: "Favorite Movies",
                 subtitle: "Your movie collection",
@@ -176,7 +184,7 @@ class ProfileContentViewController: UIViewController {
             ))
         }
         
-        let multiSectionVC = MultiSectionViewController(sections: sections)
+        let multiSectionVC = MultiSectionViewController(sections: sections, delegate: self)
         addChild(multiSectionVC)
         
         let containerView = UIView()
@@ -200,7 +208,26 @@ class ProfileContentViewController: UIViewController {
     @objc private func signOutTapped() {
         delegate?.profileContentViewControllerDidTapSignOut(self)
     }
+    
+    // MARK: MultiSection delegate
+    func didSelectItem<ProfileCollectionItem>(_ item: ProfileCollectionItem, in section: Section<ProfileCollectionItem>) {
+        switch section.id {
+        case ProfileContentSection.favoriteMovie.rawValue:
+            if let favMov = profile.favoriteMovies?.first(where: { $0.id == item.id }) {
+                coordinator?.navigateToMovie(favMov.id)
+            }
+        case ProfileContentSection.favoriteTV.rawValue, ProfileContentSection.watchlistTV.rawValue:
+            if let tvShow = (profile.favoriteTVShows?.first(where: { $0.id == item.id }) ?? 
+                           profile.watchlistTVShows?.first(where: { $0.id == item.id })) {
+                coordinator?.navigateToTVShow(tvShow.id)
+            }
+        default:
+            break
+        }
+    }
 }
+
+
 
 // MARK: - Profile Collection Item
 struct ProfileCollectionItem: CollectionItem {
