@@ -54,4 +54,8 @@ public struct Movie: Codable, Identifiable {
         }
         let name: String
     }
+    
+    static func placeholder(id: Int) -> Movie {
+        return Movie(id: id, original_title: "", title: "", overview: "", poster_path: nil, backdrop_path: nil, popularity: 0.0, vote_average: 0.0, vote_count: 0, release_date: nil, genres: nil, runtime: nil, status: nil, video: false)
+    }
 }

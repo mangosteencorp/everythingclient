@@ -28,7 +28,7 @@ public struct Movie: Codable, Identifiable {
     
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyy-MM-dd"
+        formatter.dateFormat = "yyyy-MM-dd"
         return formatter
     }()
     

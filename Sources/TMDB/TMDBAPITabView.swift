@@ -86,7 +86,7 @@ public struct TMDBAPITabView: View {
                 )
                     .navigationDestination(isPresented: $isShowingMovieDetail) {
                         if let movieId = selectedMovieId {
-                            Text("Movie detail \(movieId)")
+                            MovieDetailPage(movieId: movieId, apiKey: tmdbKey)
                         }
                     }
                     .navigationDestination(isPresented: $isShowingTVShowDetail) {

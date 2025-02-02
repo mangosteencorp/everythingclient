@@ -17,6 +17,13 @@ public struct MovieDetailPage: View {
         self.creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
     }
     
+    public init(movieId: Int, apiKey: String) {
+        self.movie = Movie.placeholder(id: movieId)
+        self.apiService = TMDBAPIService(apiKey: apiKey)
+        self.movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
+        self.creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+    }
+    
     public var body: some View {
         ZStack(alignment: .bottom) {
             List {
