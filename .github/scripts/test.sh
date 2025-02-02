@@ -4,7 +4,13 @@
 TEST_SCHEMES=(
     "TMDB_clean_MLS_tests"
     "TMDB_Shared_Backend_Tests"
+    "TMDB_MVVM_MLS_Tests"
     # Add more schemes here as needed
+)
+
+SHARED_SCHEMES=(
+    "TMDB_Shared_Backend"
+    "TMDB_Shared_UI"
 )
 
 # Create output directory if it doesn't exist
@@ -17,18 +23,42 @@ echo "Coverage Report Generated on $(date)" > $COVERAGE_REPORT
 echo "100% Coverage Report Generated on $(date)" > $COVERAGE_100_REPORT
 echo "----------------------------------------" >> $COVERAGE_REPORT
 echo "----------------------------------------" >> $COVERAGE_100_REPORT
+device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
 
 # Run tests and generate coverage for each scheme
 for scheme in "${TEST_SCHEMES[@]}"
 do
     echo "Processing scheme: $scheme"
     echo "\nTesting $scheme..." >> $COVERAGE_REPORT
-    
-    # Run xcodebuild test
     xcodebuild test \
         -scheme "$scheme" \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+        -destination "platform=iOS Simulator,name=$device,OS=latest" \
         -enableCodeCoverage YES
+    # Initialize ignore_schemes array with default ignores
+    ignore_schemes=()
+    
+    # Check if the test scheme is related to any shared scheme
+    for shared_scheme in "${SHARED_SCHEMES[@]}"; do
+        if [[ "$scheme" =~ ^"${shared_scheme}" ]]; then
+            continue  # Skip adding this shared scheme to ignores
+        else
+            ignore_schemes+=("$shared_scheme")
+        fi
+    done
+    
+    # Build the ignore patterns for coverage command
+    ignore_patterns=(
+        "--ignore-filename-regex='.*/Tests/.*'"
+        "--ignore-filename-regex='.*/SourcePackages/checkouts/.*'"
+        "--ignore-filename-regex='.*/Intermediates\.noindex/.*'"
+        "--ignore-filename-regex='.*/generated/.*'"
+        "--ignore-filename-regex='.*/Generated/.*'"
+    )
+    
+    # Add ignore patterns for shared schemes
+    for ignore_scheme in "${ignore_schemes[@]}"; do
+        ignore_patterns+=("--ignore-filename-regex='.*/${ignore_scheme}/.*'")
+    done
     
     # Store the coverage command to reuse it
     # First try workspace-relative .DerivedData
@@ -40,9 +70,7 @@ do
     coverage_cmd="xcrun llvm-cov report \
         $derived_data_path/Build/Products/Debug-iphonesimulator/$scheme.xctest/$scheme \
         -instr-profile \$(find $derived_data_path/Build/ProfileData -type d -depth 1 -exec ls -td {} + | head -n 1)/Coverage.profdata \
-        --ignore-filename-regex='.*/Tests/.*' \
-        --ignore-filename-regex='.*/SourcePackages/checkouts/.*' \
-        --ignore-filename-regex='.*/Intermediates\.noindex/.*' \
+        ${ignore_patterns[@]} \
         --use-color"
     
     # Print full coverage report to console
