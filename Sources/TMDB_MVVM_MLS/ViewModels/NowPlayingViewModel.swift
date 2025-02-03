@@ -22,9 +22,9 @@ class NowPlayingViewModel: ObservableObject {
             .sink { [weak self] query in
                 if !query.isEmpty {
                     self?.searchMovies(query: query)
-                } else {
+                } else if let self = self {
                     // Restore original now playing movies when search is empty
-                    self?.movies = self?.nowPlayingMovies ?? []
+                    self.movies = self.nowPlayingMovies
                 }
             }
             .store(in: &cancellables)
@@ -68,8 +68,7 @@ class NowPlayingViewModel: ObservableObject {
     }
     
     func fetchMoreContentIfNeeded(currentMovieId: Int) {
-        guard searchQuery.isEmpty else { return } // Don't load more while searching
-        if currentMovieId == movies.last?.id {
+        if currentMovieId == movies.last?.id, searchQuery.isEmpty {
             Task {
                 let result = await self.apiService.fetchNowPlayingMovies(page: currentPage+1)
                 await MainActor.run {
