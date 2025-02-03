@@ -25,6 +25,7 @@ public struct DMSNowPlayingPage: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
                 .background(Color(UIColor.systemBackground))
+                .accessibilityIdentifier("movielist1.searchbar")
                 
                 // Content below search bar
                 Group {
@@ -39,6 +40,7 @@ public struct DMSNowPlayingPage: View {
                     }
                 }
             }
+            .accessibilityIdentifier("movielist1.group")
             .navigationTitle(L10n.playingTitle)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
@@ -48,42 +50,9 @@ public struct DMSNowPlayingPage: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
-
+#if DEBUG
 @available(iOS 16, macOS 10.15, *)
 #Preview {
-    // FIXME: preview with api key
     DMSNowPlayingPage(apiKey: "")
 }
-
-
-@available(iOS 16.0, *)
-struct NavigationMovieRow: View {
-    @ObservedObject var viewModel: NowPlayingViewModel
-    let movie: Movie
-    
-    init(_ vm: NowPlayingViewModel, movie: Movie) {
-        self.viewModel = vm
-        self.movie = movie
-    }
-    
-    var body: some View {
-        NavigationLink(value: MovieDetailRoute(movie: MovieRouteModel(
-            id: movie.id,
-            title: movie.title,
-            overview: movie.overview,
-            posterPath: movie.poster_path,
-            backdropPath: movie.backdrop_path,
-            voteAverage: movie.vote_average,
-            voteCount: movie.vote_count,
-            releaseDate: movie.release_date,
-            popularity: movie.popularity,
-            originalTitle: movie.original_title
-        )), label: {
-            MovieRow(movie: movie.toMovieRowEntity())
-        })
-        .onAppear {
-            debugPrint("onAppear \(movie.id):\(movie.title)")
-            viewModel.fetchMoreContentIfNeeded(currentMovieId: movie.id)
-        }
-    }
-}
+#endif

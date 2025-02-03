@@ -90,7 +90,7 @@ let package = Package(
             ]),
         .testTarget(
             name: "TMDB_MVVM_MLS_Tests",
-            dependencies: ["TMDB_MVVM_MLS"],
+            dependencies: ["TMDB_MVVM_MLS", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
             ),
         .target(
