@@ -125,4 +125,8 @@ public struct TMDBAPITabView: View {
 #Preview {
     TMDBAPITabView(tmdbKey: "")
 }
+@available(iOS 16,*)
+#Preview("Tab contain TMDBAPITabView") {
+    TMDBAPITabView(tmdbKey: <#T##String#>)
+}
 #endif
