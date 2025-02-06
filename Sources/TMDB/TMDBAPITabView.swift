@@ -28,34 +28,18 @@ public struct TMDBAPITabView: View {
     }
     
     public var body: some View {
-        Group {
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                TabView(selection: $coordinator.selectedTab) {
-                    ForEach(coordinator.tabList, id: \.self) { tab in
-                        navigationStackForTab(tab)
-                            .tabItem {
-                                Label(tab.title, systemImage: tab.iconName)
-                            }
-                            .tag(tab)
+        
+        TabView(selection: $coordinator.selectedTab) {
+            ForEach(coordinator.tabList, id: \.self) { tab in
+                navigationStackForTab(tab)
+                    .tabItem {
+                        Label(tab.title, systemImage: tab.iconName)
                     }
-                }
-                //.tabViewStyle(PageTabViewStyle())
-            } else {
-                NavigationStack {
-                    VStack {
-                        Spacer()
-                        navigationStackForTab(coordinator.selectedTab)
-                        Spacer()
-                    }
-                    .navigationBarTitle("TMDB API Example", displayMode: .inline)
-                    .navigationBarItems(trailing: HStack {
-                        previousButton
-                        nextButton
-                    })
-                }
-                .navigationViewStyle(StackNavigationViewStyle())
+                    .tag(tab)
             }
         }
+        //.tabViewStyle(PageTabViewStyle())
+        
         .environmentObject(coordinator)
     }
     
@@ -75,25 +59,25 @@ public struct TMDBAPITabView: View {
                     }
             case .profile:
                 ProfilePageVCView(container: container,
-                    onNavigateToMovie: { movieId in
-                        selectedMovieId = movieId
-                        isShowingMovieDetail = true
-                    },
-                    onNavigateToTVShow: { tvShowId in
-                        selectedTVShowId = tvShowId
-                        isShowingTVShowDetail = true
-                    }
+                                  onNavigateToMovie: { movieId in
+                    selectedMovieId = movieId
+                    isShowingMovieDetail = true
+                },
+                                  onNavigateToTVShow: { tvShowId in
+                    selectedTVShowId = tvShowId
+                    isShowingTVShowDetail = true
+                }
                 )
-                    .navigationDestination(isPresented: $isShowingMovieDetail) {
-                        if let movieId = selectedMovieId {
-                            MovieDetailPage(movieId: movieId, apiKey: tmdbKey)
-                        }
+                .navigationDestination(isPresented: $isShowingMovieDetail) {
+                    if let movieId = selectedMovieId {
+                        MovieDetailPage(movieId: movieId, apiKey: tmdbKey)
                     }
-                    .navigationDestination(isPresented: $isShowingTVShowDetail) {
-                        if let tvShowId = selectedTVShowId {
-                            Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
-                        }
+                }
+                .navigationDestination(isPresented: $isShowingTVShowDetail) {
+                    if let tvShowId = selectedTVShowId {
+                        Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
                     }
+                }
             }
         }
     }
@@ -127,6 +111,11 @@ public struct TMDBAPITabView: View {
 }
 @available(iOS 16,*)
 #Preview("Tab contain TMDBAPITabView") {
-    TMDBAPITabView(tmdbKey: <#T##String#>)
+    TabView {
+        TMDBAPITabView(tmdbKey: "YOUR_API_KEY")
+            .tabItem {
+                Label("TMDB", systemImage: "film")
+            }
+    }
 }
 #endif
