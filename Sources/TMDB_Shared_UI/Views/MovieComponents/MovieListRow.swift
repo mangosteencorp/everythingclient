@@ -33,6 +33,8 @@ public struct MovieRowEntity {
 
 @available(iOS 14, macOS 11, *)
 public struct MovieRow: View {
+    @State private var appear = false
+    
     let movie: MovieRowEntity
     var displayListImage = true
     public init(movie: MovieRowEntity, displayListImage: Bool = true) {
@@ -71,6 +73,13 @@ public struct MovieRow: View {
         .padding(.bottom, 8)
         .contextMenu { Text(self.movie.id.description) }
         .redacted(if: movie.id == 0)
+        .opacity(appear ? 1 : 0)
+        .offset(x: appear ? 0 : 50)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.3)) {
+                appear = true
+            }
+        }
     }
 }
 
