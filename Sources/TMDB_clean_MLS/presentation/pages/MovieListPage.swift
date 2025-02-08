@@ -19,6 +19,7 @@ public struct MovieListPage: View {
         }
         
         self.type = type
+        viewModel.fetchMovies()
     }
     
     public var body: some View {
@@ -36,9 +37,6 @@ public struct MovieListPage: View {
                 }
             }
             .navigationTitle(type.title)
-            .onAppear {
-                viewModel.fetchMovies()
-            }
             .accessibilityIdentifier("movieListPage.group")
         }
         #if os(iOS)

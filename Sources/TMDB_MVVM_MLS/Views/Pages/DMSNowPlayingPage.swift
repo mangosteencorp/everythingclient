@@ -10,6 +10,7 @@ public struct DMSNowPlayingPage: View {
     public init(apiKey: String){
         APIKeys.tmdbKey = apiKey
         viewModel = NowPlayingViewModel(apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey))
+        viewModel.fetchNowPlayingMovies()
     }
     
     public var body: some View {
@@ -43,9 +44,7 @@ public struct DMSNowPlayingPage: View {
             .accessibilityIdentifier("movielist1.group")
             .navigationTitle(L10n.playingTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                viewModel.fetchNowPlayingMovies()
-            }
+            
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
