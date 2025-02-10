@@ -33,13 +33,12 @@ public struct TMDBAPITabView: View {
             ForEach(coordinator.tabList, id: \.self) { tab in
                 navigationStackForTab(tab)
                     .tabItem {
-                        Label(tab.title, systemImage: tab.iconName)
+                        Image(systemName: tab.iconName)
                     }
                     .tag(tab)
             }
         }
-        .tabViewStyle(PageTabViewStyle())
-        
+        //.tabViewStyle(PageTabViewStyle())
         .environmentObject(coordinator)
     }
     
