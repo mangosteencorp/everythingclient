@@ -25,7 +25,7 @@ class MovieRepositoryImplTests: XCTestCase {
         let result = await repository.fetchNowPlayingMovies()
         if case .success(let movies) = result {
             XCTAssert(!movies.isEmpty, "Movies should not be empty on success")
-            XCTAssertEqual(movies.count,2, "Movies should not be empty on success")
+            XCTAssertEqual(movies.count, 2, "Movies should not be empty on success")
         } else {
             XCTFail("Expected successful movie fetch")
         }
@@ -38,7 +38,7 @@ class MovieRepositoryImplTests: XCTestCase {
         mockAPIService.resultToReturn = .failure(MockError.noResponse)
         let result = await repository.fetchUpcomingMovies()
         if case .success(let movies) = result {
-            XCTFail()
+            XCTFail("Expected failure movie fetch but got \(movies)")
         }
         
     }

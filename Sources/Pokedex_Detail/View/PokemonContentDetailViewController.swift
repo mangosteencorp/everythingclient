@@ -221,10 +221,11 @@ extension DetailDesign1ViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MoveCell", for: indexPath) as! MoveCell
-        if let move = pokemon?.moves[indexPath.item] {
-            cell.configure(with: move.name)
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MoveCell", for: indexPath) as? MoveCell,
+              let move = pokemon?.moves[indexPath.item] else {
+            return UICollectionViewCell()
         }
+        cell.configure(with: move.name)
         return cell
     }
 }
@@ -263,9 +264,6 @@ class MoveCell: UICollectionViewCell {
     }
 }
 
-fileprivate typealias Ability = PokemonDetail.Ability
-fileprivate typealias Move = PokemonDetail.Move
-fileprivate typealias Stat = PokemonDetail.Stat
 #if DEBUG
 import SwiftUI
 #Preview {

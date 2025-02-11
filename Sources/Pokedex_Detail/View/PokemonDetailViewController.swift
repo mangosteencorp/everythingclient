@@ -80,7 +80,7 @@ public class PokemonDetailViewController: UIViewController {
         // Bind error
         viewModel.error
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] error in
+            .subscribe(onNext: { [weak self] _ in
                 self?.showErrorView()
             })
             .disposed(by: disposeBag)

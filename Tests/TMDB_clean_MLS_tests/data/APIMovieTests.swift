@@ -10,7 +10,7 @@ import XCTest
 class APIMovieTests: XCTestCase {
     func testAPIMovieDecoding() throws {
         // Given
-        let json = """
+        let json = Data("""
         {
             "id": 1,
             "title": "Test Movie",
@@ -20,7 +20,7 @@ class APIMovieTests: XCTestCase {
             "popularity": 100.0,
             "release_date": "2023-06-29"
         }
-        """.data(using: .utf8)!
+        """.utf8)
         
         // When
         let apiMovie = try JSONDecoder().decode(APIMovie.self, from: json)
@@ -37,7 +37,7 @@ class APIMovieTests: XCTestCase {
     
     func testAPIMovieDecodingWithMissingOptionalFields() throws {
         // Given
-        let json = """
+        let json = Data("""
         {
             "id": 2,
             "title": "Another Test Movie",
@@ -45,7 +45,7 @@ class APIMovieTests: XCTestCase {
             "vote_average": 8.0,
             "popularity": 95.5
         }
-        """.data(using: .utf8)!
+        """.utf8)
         
         // When
         let apiMovie = try JSONDecoder().decode(APIMovie.self, from: json)
@@ -64,7 +64,7 @@ class APIMovieTests: XCTestCase {
 class MovieListResultModelTests: XCTestCase {
     func testMovieListResultModelDecoding() throws {
         // Given
-        let json = """
+        let json = Data("""
         {
             "dates": {
                 "maximum": "2023-07-29",
@@ -85,7 +85,7 @@ class MovieListResultModelTests: XCTestCase {
             "total_pages": 10,
             "total_results": 200
         }
-        """.data(using: .utf8)!
+        """.utf8)
         
         // When
         let movieListResult = try JSONDecoder().decode(MovieListResultModel.self, from: json)

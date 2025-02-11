@@ -21,6 +21,6 @@ class MockMovieRepository: MovieRepository {
     }
 }
 
-enum MockError : Error {
+enum MockError: Error {
     case noResponse
 }

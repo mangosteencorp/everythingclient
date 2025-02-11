@@ -35,7 +35,7 @@ public struct MovieDetailPage: View {
                     MovieOverview(movie: getMovie())
                 }
                 Section {
-                    if let kwList = getMovie().keywords?.keywords, kwList.count > 0 {
+                    if let kwList = getMovie().keywords?.keywords, !kwList.isEmpty {
                         MovieKeywords(
                             keywords: kwList,
                             specialKeywordIds: TabManager.shared.specialKeywordIdList(),
@@ -56,8 +56,8 @@ public struct MovieDetailPage: View {
     }
     
     func getMovie() -> Movie {
-        if case .success(let mv) = movieDetailViewModel.state {
-            return mv
+        if case .success(let mov) = movieDetailViewModel.state {
+            return mov
         }
         return movie
     }
@@ -65,7 +65,7 @@ public struct MovieDetailPage: View {
 #if DEBUG
 let exampleMovieDetailPage: MovieDetailPage = {
     let apiService = TMDBAPIService(apiKey: "dummy-key")
-    var p = MovieDetailPage(
+    var page = MovieDetailPage(
         movieRoute: exampleMovieDetail,
         apiService: apiService
     )
@@ -77,9 +77,9 @@ let exampleMovieDetailPage: MovieDetailPage = {
         movieDetailVM.state = .success(exampleMovieDetail)
         creditVM.state = .success(exampleMovieCredits)
     }
-    p.creditsViewModel = creditVM
-    p.movieDetailViewModel = movieDetailVM
-    return p
+    page.creditsViewModel = creditVM
+    page.movieDetailViewModel = movieDetailVM
+    return page
 }()
 
 #Preview {

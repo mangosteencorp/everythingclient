@@ -11,7 +11,7 @@ class MovieCastingViewModel: ObservableObject {
     @Published var state: MovieCastingState
     
     private var cancellables = Set<AnyCancellable>()
-    private let apiService : TMDBAPIService
+    private let apiService: TMDBAPIService
     init(apiService: TMDBAPIService) {
         self.apiService = apiService
         state = .loading
@@ -19,8 +19,8 @@ class MovieCastingViewModel: ObservableObject {
     
     func fetchMovieCredits(movieId: Int) {
         state = .loading
-        Task{
-            let result : Result<MovieCredits,TMDBAPIError> = await apiService.request(.credits(movie: movieId))
+        Task {
+            let result : Result<MovieCredits, TMDBAPIError> = await apiService.request(.credits(movie: movieId))
             DispatchQueue.main.async {
                 switch result {
                 case .success(let credits):

@@ -8,7 +8,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
     @ObservedObject var viewModel: NowPlayingViewModel
     let detailRouteBuilder: (Movie) -> Route
     public init(apiKey: String,
-                detailRouteBuilder: @escaping (Movie) -> Route){
+                detailRouteBuilder: @escaping (Movie) -> Route) {
         APIKeys.tmdbKey = apiKey
         viewModel = NowPlayingViewModel(apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey))
         self.detailRouteBuilder = detailRouteBuilder
@@ -52,8 +52,10 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
     }
 }
 #if DEBUG
+// swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
     DMSNowPlayingPage(apiKey: "", detailRouteBuilder: {_ in return 1})
 }
+// swiftlint:enable all
 #endif

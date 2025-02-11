@@ -7,7 +7,7 @@ struct MovieCoverRow: View {
             ZStack {
                 
                 RemoteTMDBImage(
-                    posterPath: movie.backdrop_path,
+                    posterPath: movie.backdropPath,
                     posterSize: PosterSize(width: geometry.size.width, height: 250),
                     image: .medium
                 )
@@ -16,13 +16,13 @@ struct MovieCoverRow: View {
                 
                 VStack(alignment: .leading) {
                     HStack(spacing: 16) {
-                        RemoteTMDBImage(posterPath: movie.poster_path, posterSize: .medium, image: .medium)
+                        RemoteTMDBImage(posterPath: movie.posterPath, posterSize: .medium, image: .medium)
                             .padding(.leading, 16)
                         VStack(alignment: .leading, spacing: 16) {
                             MovieInfoRow(movie: movie)
                             HStack {
-                                PopularityBadge(score: Int(movie.vote_average * 10), textColor: .white)
-                                Text(L10n.ratingsFormat(movie.vote_count))
+                                PopularityBadge(score: Int(movie.voteAverage * 10), textColor: .white)
+                                Text(L10n.ratingsFormat(movie.voteCount))
                                     .lineLimit(1)
                                     .foregroundColor(.white)
                             }
@@ -53,7 +53,7 @@ struct MovieCoverRow: View {
     }
 }
 
-struct MovieInfoRow : View {
+struct MovieInfoRow: View {
     let movie: Movie
     
     var asyncTextTransition: AnyTransition {
@@ -66,7 +66,7 @@ struct MovieInfoRow : View {
     
     private var infos: some View {
         HStack {
-            if let date = movie.release_date {
+            if let date = movie.releaseDate {
                 Text(date.prefix(4)).font(.subheadline)
             }
             if let runtime = movie.runtime {
@@ -87,8 +87,8 @@ struct MovieInfoRow : View {
     
     private var productionCountry: some View {
         Group {
-            if movie.production_countries?.isEmpty == false {
-                Text("\(movie.production_countries!.first!.name)")
+            if movie.productionCountries?.isEmpty == false {
+                Text("\(movie.productionCountries!.first!.name)")
                     .font(.subheadline)
                     .foregroundColor(.white)
             }
@@ -102,6 +102,7 @@ struct MovieInfoRow : View {
         }
     }
 }
+// swiftlint:disable all
 #if DEBUG
 #Preview {
     Section{
@@ -116,3 +117,4 @@ struct MovieInfoRow : View {
     }
 }
 #endif
+// swiftlint:enable all

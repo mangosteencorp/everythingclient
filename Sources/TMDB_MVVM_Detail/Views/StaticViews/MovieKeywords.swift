@@ -24,7 +24,7 @@ struct MovieKeywords: View {
                 HStack {
                     ForEach(keywords) { keyword in
                         if specialKeywordIds.contains(keyword.id) {
-                            NavigationLink(destination: Button("Back"){ self.onSpecialKeywordLongPress?(keyword.id) }) {
+                            NavigationLink(destination: Button("Back") { self.onSpecialKeywordLongPress?(keyword.id) }) {
                                 RoundedBadge(text: keyword.name, color: .steamGold)
                             }
                         } else {

@@ -1,7 +1,6 @@
-
 import SwiftUI
 
-public struct RoundedBadge : View {
+public struct RoundedBadge: View {
     public let text: String
     public let color: Color
     

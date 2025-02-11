@@ -8,22 +8,22 @@ public struct Genre: Codable, Identifiable {
 public struct Movie: Codable, Identifiable {
     public let id: Int
     
-    public let original_title: String
+    public let originalTitle: String
     public let title: String
     public var userTitle: String {
-        return original_title //: title
+        return originalTitle
     }
     
     public let overview: String
-    public let poster_path: String?
-    public let backdrop_path: String?
+    public let posterPath: String?
+    public let backdropPath: String?
     public let popularity: Float
-    public let vote_average: Float
-    public let vote_count: Int
+    public let voteAverage: Float
+    public let voteCount: Int
     
-    public let release_date: String?
-    public var releaseDate: Date? {
-        return release_date != nil ? Movie.dateFormatter.date(from: release_date!) : Date()
+    public let releaseDate: String?
+    public var releaseDateFormatted: Date? {
+        return releaseDate != nil ? Movie.dateFormatter.date(from: releaseDate!) : Date()
     }
     
     public static let dateFormatter: DateFormatter = {
@@ -35,42 +35,60 @@ public struct Movie: Codable, Identifiable {
     public let genres: [Genre]?
     public let video: Bool
     
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case originalTitle = "original_title"
+        case title
+        case overview
+        case posterPath = "poster_path"
+        case backdropPath = "backdrop_path"
+        case popularity
+        case voteAverage = "vote_average"
+        case voteCount = "vote_count"
+        case releaseDate = "release_date"
+        case genres
+        case video
+    }
+    
     public func toMovieRowEntity() -> MovieRowEntity {
         return MovieRowEntity(
             id: id,
-            posterPath: poster_path,
+            posterPath: posterPath,
             title: userTitle,
-            voteAverage: Double(vote_average),
-            releaseDate: releaseDate,
+            voteAverage: Double(voteAverage),
+            releaseDate: releaseDateFormatted,
             overview: overview
         )
     }
 }
-
+#if DEBUG
+// swiftlint:disable all
 let sampleEmptyMovie = Movie(id: 0,
-                        original_title: "Test movie Test movie Test movie Test movie Test movie Test movie Test movie ",
+                        originalTitle: "Test movie Test movie Test movie Test movie Test movie Test movie Test movie ",
                         title: "Test movie Test movie Test movie Test movie Test movie Test movie Test movie  Test movie Test movie Test movie",
                         overview: "Test desc",
-                        poster_path: "/uC6TTUhPpQCmgldGyYveKRAu8JN.jpg",
-                        backdrop_path: "/nl79FQ8xWZkhL3rDr1v2RFFR6J0.jpg",
+                        posterPath: "/uC6TTUhPpQCmgldGyYveKRAu8JN.jpg",
+                        backdropPath: "/nl79FQ8xWZkhL3rDr1v2RFFR6J0.jpg",
                         popularity: 50.5,
-                        vote_average: 8.9,
-                        vote_count: 1000,
-                        release_date: "1972-03-14",
+                        voteAverage: 8.9,
+                        voteCount: 1000,
+                        releaseDate: "1972-03-14",
                         genres: [Genre(id: 0, name: "test")],
                         video: false)
 
 let sampleApeMovie = Movie(
     id: 653346,
-    original_title: "Kingdom of the Planet of the Apes",
+    originalTitle: "Kingdom of the Planet of the Apes",
     title: "Kingdom of the Planet of the Apes",
     overview: "Several generations in the future following Caesar's reign, apes are now the dominant species and live harmoniously while humans have been reduced to living in the shadows. As a new tyrannical ape leader builds his empire, one young ape undertakes a harrowing journey that will cause him to question all that he has known about the past and to make choices that will define a future for apes and humans alike.",
-    poster_path: "/gKkl37BQuKTanygYQG1pyYgLVgf.jpg",
-    backdrop_path: "/fqv8v6AycXKsivp1T5yKtLbGXce.jpg",
+    posterPath: "/gKkl37BQuKTanygYQG1pyYgLVgf.jpg",
+    backdropPath: "/fqv8v6AycXKsivp1T5yKtLbGXce.jpg",
     popularity: 4050.674,
-    vote_average: 6.861,
-    vote_count: 955,
-    release_date: "2024-05-10",
+    voteAverage: 6.861,
+    voteCount: 955,
+    releaseDate: "2024-05-10",
     genres: nil,
     video: false
 )
+// swiftlint:enable all
+#endif

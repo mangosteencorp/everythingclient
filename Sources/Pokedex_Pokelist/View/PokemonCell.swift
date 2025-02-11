@@ -6,10 +6,10 @@ class PokemonCell: UICollectionViewCell {
     
     // MARK: - UI Elements
     private let spriteImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
     
     private let nameLabel: UILabel = {

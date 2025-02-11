@@ -1,4 +1,3 @@
-
 import Foundation
 @testable import TMDB_clean_MLS
 struct MockData {

@@ -18,7 +18,7 @@ class MovieDetailViewModel: ObservableObject {
     
     func fetchMovieDetail(movieId: Int)  {
         state = .loading
-        Task{
+        Task {
             let result : Result<Movie,TMDBAPIError> = await apiService.request(.movieDetail(movie: movieId))
             DispatchQueue.main.async {
                 switch result {

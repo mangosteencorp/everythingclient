@@ -57,7 +57,7 @@ class MoviesViewModelTests: XCTestCase {
         viewModel.fetchMovies()
         
         // Using a publisher to observe changes
-        let _ = viewModel.$errorMessage
+        _ = viewModel.$errorMessage
             .dropFirst()  // Drop the initial value
             .sink { updatedErrorMessage in
                 if updatedErrorMessage != nil {
@@ -74,5 +74,3 @@ class MoviesViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.errorMessage, error.localizedDescription)
     }
 }
-
-

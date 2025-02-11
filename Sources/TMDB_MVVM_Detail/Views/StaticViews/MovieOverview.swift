@@ -1,5 +1,5 @@
 import SwiftUI
-struct MovieOverview : View {
+struct MovieOverview: View {
     let movie: Movie
     @State var isOverviewExpanded: Bool = false
     

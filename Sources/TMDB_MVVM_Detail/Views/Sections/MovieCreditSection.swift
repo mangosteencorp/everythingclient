@@ -2,7 +2,8 @@ import SwiftUI
 import TMDB_Shared_Backend
 struct MovieCreditSection: View {
     let movieId: Int
-    @ObservedObject var creditsViewModel: MovieCastingViewModel // avoiding The problem that every time the parent view redraws, a new instance of MovieCastingViewModel is created because it's initialized in the init method. 
+    // avoiding The problem that every time the parent view redraws, a new instance of MovieCastingViewModel is created because it's initialized in the init method. 
+    @ObservedObject var creditsViewModel: MovieCastingViewModel 
     init(movieId: Int, creditsViewModel: MovieCastingViewModel) {
         self.movieId = movieId
         self.creditsViewModel = creditsViewModel
@@ -14,11 +15,8 @@ struct MovieCreditSection: View {
                 RedactedMovieCrosslinePeopleRow()
             case .success(let credits):
                 // Display the credits information
-                
                 MovieCrosslinePeopleRow(title: L10n.castSectionTitle, peoples: credits.cast)
-                MovieCrosslinePeopleRow(title: L10n.crewSectionTitle, peoples: credits.crew)
-                
-                
+                MovieCrosslinePeopleRow(title: L10n.crewSectionTitle, peoples: credits.crew)               
             case .error(let errorMessage):
                 Text("Error: \(errorMessage)")
                     .foregroundColor(.red)
@@ -46,7 +44,7 @@ extension View {
     }
 }
 struct OnFirstAppearModifier: ViewModifier {
-    let perform:() -> Void
+    let perform: () -> Void
     @State private var firstTime: Bool = true
     
     func body(content: Content) -> some View {
@@ -59,9 +57,6 @@ struct OnFirstAppearModifier: ViewModifier {
             }
     }
 }
-
-
-
 
 extension View {
     func onFirstAppear( perform: @escaping () -> Void ) -> some View {

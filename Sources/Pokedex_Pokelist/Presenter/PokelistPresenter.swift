@@ -26,7 +26,7 @@ public final class PokelistPresenter: PokelistPresenterProtocol {
     }
     
     public func didSelectPokemon(at index: Int) {
-        router?.navigateToPokemonDetail(from: view as? UIViewController, with:  getPokemons()[index].id)
+        router?.navigateToPokemonDetail(from: view as? UIViewController, with: getPokemons()[index].id)
     }
 }
 

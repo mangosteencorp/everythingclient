@@ -4,17 +4,36 @@ included:
 excluded:
   - .build
   - Package.swift
+  - "**/generated"  # Excludes any folder named 'generated' at any depth
+  # copied extensions
+  - "**/helpers"
+
+analyzer_rules:
+  - unused_declaration
+  - unused_import
+
+conditional_compilation_conditions:
+  - DEBUG
 
 # Customize rules as needed
 disabled_rules:
   - trailing_whitespace
+  - trailing_newline
+  - todo
+  - redundant_discardable_let
 opt_in_rules:
   - empty_count
   - empty_string
   - explicit_init
   - closure_spacing
+warning_rules:
+  - comma
+  - colon
+  - conditional_returns_on_newline
+  - nesting
+  - trailing_comma
 
 # Configure rule parameters
 line_length:
-  warning: 120
-  error: 150
+  warning: 200
+  error: 300

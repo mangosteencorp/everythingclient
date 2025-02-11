@@ -37,6 +37,6 @@ public struct MovieRouteModel: Hashable {
         self.init(id: id, title: "", overview: "", posterPath: nil, backdropPath: nil, voteAverage: 0.0, voteCount: 0, releaseDate: nil, popularity: nil, originalTitle: nil)
     }
     func toMovieDetailModel() -> TMDB_MVVM_Detail.Movie {
-        return TMDB_MVVM_Detail.Movie(id: self.id, original_title: self.originalTitle ?? "", title: self.title, overview: self.overview, poster_path: self.posterPath, backdrop_path: self.backdropPath, popularity: self.popularity ?? 0.0, vote_average: self.voteAverage, vote_count: self.voteCount, release_date: self.releaseDate, genres: nil, runtime: nil, status: nil, video: false)
+        return TMDB_MVVM_Detail.Movie(id: self.id, originalTitle: self.originalTitle ?? "", title: self.title, overview: self.overview, posterPath: self.posterPath, backdropPath: self.backdropPath, popularity: self.popularity ?? 0.0, voteAverage: self.voteAverage, voteCount: self.voteCount, releaseDate: self.releaseDate, genres: nil, runtime: nil, status: nil, video: false)
     }
 }

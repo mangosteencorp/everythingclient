@@ -121,8 +121,7 @@ class RobotErrorViewController: UIViewController {
         // Arms
         let leftArm = createArm(at: CGPoint(x: 0, y: 110))
         let rightArm = createArm(at: CGPoint(x: 120, y: 110))
-        
-        
+
         let antennaLight = createAntennaLight()
         
         // Inside createRobot() method

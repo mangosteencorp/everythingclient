@@ -7,8 +7,8 @@ struct NavigationMovieRow<Route: Hashable>: View {
     let movie: Movie
     let routeBuilder: (Movie) -> Route
     
-    init(_ vm: NowPlayingViewModel, movie: Movie, routeBuilder: @escaping (Movie) -> Route) {
-        self.viewModel = vm
+    init(_ viewModel: NowPlayingViewModel, movie: Movie, routeBuilder: @escaping (Movie) -> Route) {
+        self.viewModel = viewModel
         self.movie = movie
         self.routeBuilder = routeBuilder
     }

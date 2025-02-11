@@ -29,8 +29,6 @@ class DMSNowPlayingPageTests: XCTestCase {
         XCTAssertTrue(content.viewModel.isLoading)
     }
     
-    
-    
     func testErrorState() throws {
         // Set error state
         let errorMessage = "Test error message"

@@ -52,13 +52,13 @@ public struct TMDBAPITabView: View {
                         id: movie.id,
                         title: movie.title,
                         overview: movie.overview,
-                        posterPath: movie.poster_path,
-                        backdropPath: movie.backdrop_path,
-                        voteAverage: movie.vote_average,
-                        voteCount: movie.vote_count,
-                        releaseDate: movie.release_date,
+                        posterPath: movie.posterPath,
+                        backdropPath: movie.backdropPath,
+                        voteAverage: movie.voteAverage,
+                        voteCount: movie.voteCount,
+                        releaseDate: movie.releaseDate,
                         popularity: movie.popularity,
-                        originalTitle: movie.original_title
+                        originalTitle: movie.originalTitle
                     ))
                 }
                 .withTMDBNavigationDestinations(container: container)

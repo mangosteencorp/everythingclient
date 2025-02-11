@@ -1,21 +1,17 @@
-//
-//  ImageData.swift
-//  everythingclient
-//
-//  Created by Quang on 2025-01-08.
-//
-
-
 import Foundation
-
-
-
 struct ImageData: Codable, Identifiable {
     var id: String {
-        file_path
+        filePath
     }
-    let aspect_ratio: Float
-    let file_path: String
+    let aspectRatio: Float
+    let filePath: String
     let height: Int
     let width: Int
+    
+    private enum CodingKeys: String, CodingKey {
+        case aspectRatio = "aspect_ratio"
+        case filePath = "file_path"
+        case height
+        case width
+    }
 }

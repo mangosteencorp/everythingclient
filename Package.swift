@@ -43,7 +43,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Swinject/Swinject.git", from: "2.8.0"),
-        
+        .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.58.0"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0"),
         .package(url: "https://github.com/nalexn/ViewInspector", from: "0.10.0"),
         .package(
@@ -75,6 +75,7 @@ let package = Package(
         .target(name: "TMDB_Shared_Backend",
                 dependencies: ["Swinject"]),
         .target(name: "TMDB_Shared_UI"),
+        // Detail page
         .target(name: "TMDB_MVVM_Detail", dependencies: [
             "TMDB_Shared_UI", "AppCore",
             "Swinject",
@@ -82,6 +83,7 @@ let package = Package(
                 resources: [
                     .process("Resources")
                 ]),
+        // Movie list
         .target(
             name: "TMDB_MVVM_MLS",
             dependencies: ["TMDB_Shared_UI", "TMDB_Shared_Backend"],
@@ -93,6 +95,7 @@ let package = Package(
             dependencies: ["TMDB_MVVM_MLS", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
             ),
+        // Movie list - clean architecture
         .target(
             name: "TMDB_clean_MLS",
             dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend"],
@@ -101,10 +104,12 @@ let package = Package(
         .testTarget(
             name: "TMDB_clean_MLS_tests",
             dependencies: ["TMDB_clean_MLS", "Tests_Shared_Helpers", "ViewInspector"]),
+        
         .target(
             name: "TMDB_Clean_Profile",
             dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support", "TMDB_Shared_UI"]
         ),
+        
         .testTarget(
             name: "TMDB_Shared_Backend_Tests",
             dependencies: ["TMDB_Shared_Backend"],

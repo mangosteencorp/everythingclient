@@ -5,9 +5,9 @@ import Shared_UI_Support
 class DetailDesign2ViewController: UIViewController {
     
     private let scrollView: UIScrollView = {
-        let sv = UIScrollView()
-        sv.translatesAutoresizingMaskIntoConstraints = false
-        return sv
+        let scrollV = UIScrollView()
+        scrollV.translatesAutoresizingMaskIntoConstraints = false
+        return scrollV
     }()
     
     private let contentView: UIView = {
@@ -32,10 +32,10 @@ class DetailDesign2ViewController: UIViewController {
     }()
     
     private let spriteImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFit
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
     
     private let statsCard: UIView = createCard()
