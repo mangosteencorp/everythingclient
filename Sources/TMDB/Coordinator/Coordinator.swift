@@ -26,8 +26,12 @@ public enum TabRoute: Hashable {
 // MARK: - NavigationState.swift
 @available(iOS 16.0, *)
 public class NavigationState: ObservableObject {
-    @Published public  var path = NavigationPath()
+    @Published public var path = NavigationPath()
     @Published public  var sheet: (any Route)?
+    
+    public func navigate(to route: TMDBRoute) {
+        path.append(route)
+    }
     
     public func push(_ route: any Route) {
         path.append(route)
@@ -57,7 +61,7 @@ public class NavigationState: ObservableObject {
 @MainActor
 public class Coordinator: ObservableObject {
     @Published public var selectedTab: TabRoute
-    private var navigationStates: [TabRoute: NavigationState]
+    private(set) var navigationStates: [TabRoute: NavigationState]
     public let tabList: [TabRoute]
     public init(tabList: [TabRoute]) {
         self.tabList = tabList

@@ -9,9 +9,9 @@ public struct MovieDetailPage: View {
     @ObservedObject var creditsViewModel: MovieCastingViewModel
     let apiService: TMDBAPIService
     
-    public init(movieRoute: MovieRouteModel, apiKey: String) {
+    public init(movieRoute: Movie, apiKey: String) {
         // Convert MovieRouteModel to Movie
-        self.movie = Movie(id: movieRoute.id, original_title: movieRoute.originalTitle ?? "", title: movieRoute.title, overview: movieRoute.overview, poster_path: movieRoute.posterPath, backdrop_path: movieRoute.backdropPath, popularity: movieRoute.popularity ?? 0.0, vote_average: movieRoute.voteAverage, vote_count: movieRoute.voteCount, release_date: movieRoute.releaseDate, genres: nil, runtime: nil, status: nil, video: false)
+        self.movie = movieRoute
         self.apiService = TMDBAPIService(apiKey: apiKey)
         self.movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         self.creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
@@ -49,7 +49,7 @@ public struct MovieDetailPage: View {
                 }
             }
             .listStyle(PlainListStyle())
-            .navigationBarTitle(Text(movie.userTitle), displayMode: .large)
+            .navigationBarTitle(Text(getMovie().userTitle), displayMode: .large)
         }.onFirstAppear {
             movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
         }
@@ -65,18 +65,7 @@ public struct MovieDetailPage: View {
 #if DEBUG
 let exampleMovieDetailPage: MovieDetailPage = {
     var p = MovieDetailPage(
-        movieRoute: MovieRouteModel(
-            id: exampleMovieDetail.id,
-            title: exampleMovieDetail.title,
-            overview: exampleMovieDetail.original_title,
-            posterPath: exampleMovieDetail.overview,
-            backdropPath: exampleMovieDetail.backdrop_path,
-            voteAverage: exampleMovieDetail.vote_average,
-            voteCount: exampleMovieDetail.vote_count,
-            releaseDate: exampleMovieDetail.release_date,
-            popularity: exampleMovieDetail.popularity,
-            originalTitle: exampleMovieDetail.original_title
-        ),
+        movieRoute: exampleMovieDetail,
         apiKey: "dummy-key"
     )
     let apiService = TMDBAPIService(apiKey: "dummy-key")

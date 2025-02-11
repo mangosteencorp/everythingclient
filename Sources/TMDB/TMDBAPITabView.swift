@@ -47,51 +47,37 @@ public struct TMDBAPITabView: View {
         NavigationStack(path: coordinator.path(for: tab)) {
             switch tab {
             case .nowPlaying:
-                DMSNowPlayingPage(apiKey: tmdbKey
-                                  , detailRouteBuilder: { mov in
-                    return MovieDetailRoute(
-                        movie: MovieRouteModel(id: mov.id,
-                                               title: mov.title,
-                                               overview: mov.overview,
-                                               posterPath: mov.poster_path,
-                                               backdropPath: mov.backdrop_path,
-                                               voteAverage: mov.vote_average,
-                                               voteCount: mov.vote_count,
-                                               releaseDate: mov.release_date,
-                                               popularity: mov.popularity,
-                                               originalTitle: mov.original_title))
-                })
-                .navigationDestination(for: MovieDetailRoute.self) { route in
-                    MovieDetailPage(movieRoute: route.movie.toMovieDetailModel(), apiKey: tmdbKey)
+                DMSNowPlayingPage(apiKey: tmdbKey) { movie in
+                    TMDBRoute.movieDetail(MovieRouteModel(
+                        id: movie.id,
+                        title: movie.title,
+                        overview: movie.overview,
+                        posterPath: movie.poster_path,
+                        backdropPath: movie.backdrop_path,
+                        voteAverage: movie.vote_average,
+                        voteCount: movie.vote_count,
+                        releaseDate: movie.release_date,
+                        popularity: movie.popularity,
+                        originalTitle: movie.original_title
+                    ))
                 }
+                .withTMDBNavigationDestinations(apiKey: tmdbKey)
+                
             case .upcoming:
-                TMDB_clean_MLS.MovieListPage(container: container, apiKey: tmdbKey, type: .upcoming, detailRouteBuilder: {movId in
-                    return MovieDetailRoute(movie: MovieRouteModel(id: movId))
-                })
-                    .navigationDestination(for: MovieDetailRoute.self) { route in
-                        MovieDetailPage(movieRoute: route.movie.toMovieDetailModel(), apiKey: tmdbKey)
-                    }
+                TMDB_clean_MLS.MovieListPage(container: container, 
+                                           apiKey: tmdbKey, 
+                                           type: .upcoming) { movieId in
+                    TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
+                }
+                .withTMDBNavigationDestinations(apiKey: tmdbKey)
+                
             case .profile:
-                ProfilePageVCView(container: container,
-                                  onNavigateToMovie: { movieId in
-                    selectedMovieId = movieId
-                    isShowingMovieDetail = true
-                },
-                                  onNavigateToTVShow: { tvShowId in
-                    selectedTVShowId = tvShowId
-                    isShowingTVShowDetail = true
+                ProfilePageVCView(container: container) { movieId in
+                    coordinator.navigationStates[tab]?.navigate(to: .movieDetail(MovieRouteModel(id: movieId)))
+                } onNavigateToTVShow: { tvShowId in
+                    coordinator.navigationStates[tab]?.navigate(to: .tvShowDetail(tvShowId))
                 }
-                )
-                .navigationDestination(isPresented: $isShowingMovieDetail) {
-                    if let movieId = selectedMovieId {
-                        MovieDetailPage(movieId: movieId, apiKey: tmdbKey)
-                    }
-                }
-                .navigationDestination(isPresented: $isShowingTVShowDetail) {
-                    if let tvShowId = selectedTVShowId {
-                        Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
-                    }
-                }
+                .withTMDBNavigationDestinations(apiKey: tmdbKey)
             }
         }
     }
