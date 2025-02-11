@@ -1,0 +1,11 @@
+{
+    "workbench.colorTheme": "Default High Contrast",
+    "files.exclude": {
+        "**/.build": true,
+        "**/.DerivedData": true,
+        "**/.output": true,
+        "**/.swiftpm": true,
+        // "**/.generated": true,
+        "**/.build-*": true
+    },
+}

@@ -1,0 +1,20 @@
+included:
+  - Sources
+  - Tests
+excluded:
+  - .build
+  - Package.swift
+
+# Customize rules as needed
+disabled_rules:
+  - trailing_whitespace
+opt_in_rules:
+  - empty_count
+  - empty_string
+  - explicit_init
+  - closure_spacing
+
+# Configure rule parameters
+line_length:
+  warning: 120
+  error: 150
