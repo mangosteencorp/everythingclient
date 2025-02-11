@@ -47,14 +47,29 @@ public struct TMDBAPITabView: View {
         NavigationStack(path: coordinator.path(for: tab)) {
             switch tab {
             case .nowPlaying:
-                DMSNowPlayingPage(apiKey: tmdbKey)
-                    .navigationDestination(for: MovieDetailRoute.self) { route in
-                        MovieDetailPage(movieRoute: route.movie, apiKey: tmdbKey)
-                    }
+                DMSNowPlayingPage(apiKey: tmdbKey
+                                  , detailRouteBuilder: { mov in
+                    return MovieDetailRoute(
+                        movie: MovieRouteModel(id: mov.id,
+                                               title: mov.title,
+                                               overview: mov.overview,
+                                               posterPath: mov.poster_path,
+                                               backdropPath: mov.backdrop_path,
+                                               voteAverage: mov.vote_average,
+                                               voteCount: mov.vote_count,
+                                               releaseDate: mov.release_date,
+                                               popularity: mov.popularity,
+                                               originalTitle: mov.original_title))
+                })
+                .navigationDestination(for: MovieDetailRoute.self) { route in
+                    MovieDetailPage(movieRoute: route.movie.toMovieDetailModel(), apiKey: tmdbKey)
+                }
             case .upcoming:
-                TMDB_clean_MLS.MovieListPage(container: container, apiKey: tmdbKey, type: .upcoming)
+                TMDB_clean_MLS.MovieListPage(container: container, apiKey: tmdbKey, type: .upcoming, detailRouteBuilder: {movId in
+                    return MovieDetailRoute(movie: MovieRouteModel(id: movId))
+                })
                     .navigationDestination(for: MovieDetailRoute.self) { route in
-                        MovieDetailPage(movieRoute: route.movie, apiKey: tmdbKey)
+                        MovieDetailPage(movieRoute: route.movie.toMovieDetailModel(), apiKey: tmdbKey)
                     }
             case .profile:
                 ProfilePageVCView(container: container,

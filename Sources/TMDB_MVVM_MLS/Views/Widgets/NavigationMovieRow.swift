@@ -1,28 +1,20 @@
 import SwiftUI
 import TMDB_Shared_UI
+
 @available(iOS 16.0, *)
-struct NavigationMovieRow: View {
+struct NavigationMovieRow<Route: Hashable>: View {
     @ObservedObject var viewModel: NowPlayingViewModel
     let movie: Movie
+    let routeBuilder: (Movie) -> Route
     
-    init(_ vm: NowPlayingViewModel, movie: Movie) {
+    init(_ vm: NowPlayingViewModel, movie: Movie, routeBuilder: @escaping (Movie) -> Route) {
         self.viewModel = vm
         self.movie = movie
+        self.routeBuilder = routeBuilder
     }
     
     var body: some View {
-        NavigationLink(value: MovieDetailRoute(movie: MovieRouteModel(
-            id: movie.id,
-            title: movie.title,
-            overview: movie.overview,
-            posterPath: movie.poster_path,
-            backdropPath: movie.backdrop_path,
-            voteAverage: movie.vote_average,
-            voteCount: movie.vote_count,
-            releaseDate: movie.release_date,
-            popularity: movie.popularity,
-            originalTitle: movie.original_title
-        )), label: {
+        NavigationLink(value: routeBuilder(movie), label: {
             MovieRow(movie: movie.toMovieRowEntity())
         })
         .accessibilityIdentifier("movielist1.movierow\(movie.id)")

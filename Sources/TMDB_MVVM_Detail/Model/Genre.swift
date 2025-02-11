@@ -1,5 +1,5 @@
 import Foundation
-struct Genre: Codable, Identifiable {
-    let id: Int
+public struct Genre: Codable, Identifiable {
+    public let id: Int
     let name: String
 }

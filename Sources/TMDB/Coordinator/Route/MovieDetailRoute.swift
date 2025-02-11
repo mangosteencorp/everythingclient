@@ -1,4 +1,6 @@
 import SwiftUI
+import TMDB_MVVM_Detail
+
 // MARK: - MovieDetailRoute.swift
 public struct MovieDetailRoute: Route {
     public let movie: MovieRouteModel
@@ -46,5 +48,10 @@ public struct MovieRouteModel: Hashable {
         self.popularity = popularity
         self.originalTitle = originalTitle
     }
-    
+    public init(id: Int) {
+        self.init(id: id, title: "", overview: "", posterPath: nil, backdropPath: nil, voteAverage: 0.0, voteCount: 0, releaseDate: nil, popularity: nil, originalTitle: nil)
+    }
+    func toMovieDetailModel() -> TMDB_MVVM_Detail.Movie {
+        return TMDB_MVVM_Detail.Movie(id: self.id, original_title: self.originalTitle ?? "", title: self.title, overview: self.overview, poster_path: self.posterPath, backdrop_path: self.backdropPath, popularity: self.popularity ?? 0.0, vote_average: self.voteAverage, vote_count: self.voteCount, release_date: self.releaseDate, genres: nil, runtime: nil, status: nil, video: false)
+    }
 }

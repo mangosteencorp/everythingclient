@@ -4,12 +4,14 @@ import Combine
 import TMDB_Shared_UI
 import TMDB_Shared_Backend
 @available(iOS 16, macOS 10.15, *)
-public struct DMSNowPlayingPage: View {
+public struct DMSNowPlayingPage<Route: Hashable>: View {
     @ObservedObject var viewModel: NowPlayingViewModel
-    
-    public init(apiKey: String){
+    let detailRouteBuilder: (Movie) -> Route
+    public init(apiKey: String,
+                detailRouteBuilder: @escaping (Movie) -> Route){
         APIKeys.tmdbKey = apiKey
         viewModel = NowPlayingViewModel(apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey))
+        self.detailRouteBuilder = detailRouteBuilder
         viewModel.fetchNowPlayingMovies()
     }
     
@@ -36,7 +38,7 @@ public struct DMSNowPlayingPage: View {
                         Text(errorMessage)
                     } else {
                         List(viewModel.movies) { movie in
-                            NavigationMovieRow(viewModel, movie: movie)
+                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
                         }
                     }
                 }
@@ -52,6 +54,6 @@ public struct DMSNowPlayingPage: View {
 #if DEBUG
 @available(iOS 16, macOS 10.15, *)
 #Preview {
-    DMSNowPlayingPage(apiKey: "")
+    DMSNowPlayingPage(apiKey: "", detailRouteBuilder: {_ in return 1})
 }
 #endif

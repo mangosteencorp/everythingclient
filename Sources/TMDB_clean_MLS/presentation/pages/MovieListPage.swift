@@ -2,15 +2,15 @@ import SwiftUI
 import Swinject
 
 @available(iOS 16.0, *)
-public struct MovieListPage: View {
+public struct MovieListPage <Route: Hashable>: View {
     @ObservedObject private(set) var viewModel: MoviesViewModel
     let type: MovieListType
-    
-    public init(container: Container, apiKey: String, type: MovieListType) {
+    let detailRouteBuilder: (Int) -> Route
+    public init(container: Container, apiKey: String, type: MovieListType, detailRouteBuilder: @escaping (Int) -> Route) {
         APIKeys.tmdbKey = apiKey
         let movieAssembly = MovieAssembly()
         movieAssembly.assemble(container: container)
-        
+        self.detailRouteBuilder = detailRouteBuilder
         switch type {
         case .nowPlaying:
             self.viewModel = container.resolve(MoviesViewModel.self, name: "nowPlaying")!
@@ -32,7 +32,7 @@ public struct MovieListPage: View {
                     Text(errorMessage)
                         .id("errorView")
                 } else {
-                    MovieListContent(movies: viewModel.movies)
+                    MovieListContent(movies: viewModel.movies, detailRouteBuilder: detailRouteBuilder)
                         .id("movieListContent")
                 }
             }

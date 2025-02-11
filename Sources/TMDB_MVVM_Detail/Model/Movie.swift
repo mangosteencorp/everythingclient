@@ -39,17 +39,17 @@ public struct Movie: Codable, Identifiable {
     var character: String?
     var department: String?
     
-    struct Keywords: Codable {
+    public struct Keywords: Codable {
         let keywords: [Keyword]?
     }
     
-    struct MovieImages: Codable {
+    public struct MovieImages: Codable {
         let posters: [ImageData]?
         let backdrops: [ImageData]?
     }
     
-    struct productionCountry: Codable, Identifiable {
-        var id: String {
+    public struct productionCountry: Codable, Identifiable {
+        public var id: String {
             name
         }
         let name: String
@@ -57,5 +57,26 @@ public struct Movie: Codable, Identifiable {
     
     static func placeholder(id: Int) -> Movie {
         return Movie(id: id, original_title: "", title: "", overview: "", poster_path: nil, backdrop_path: nil, popularity: 0.0, vote_average: 0.0, vote_count: 0, release_date: nil, genres: nil, runtime: nil, status: nil, video: false)
+    }
+    public init(id: Int, original_title: String, title: String, overview: String, poster_path: String?, backdrop_path: String?, popularity: Float, vote_average: Float, vote_count: Int, release_date: String?, genres: [Genre]?, runtime: Int?, status: String?, video: Bool, keywords: Keywords? = nil, images: MovieImages? = nil, production_countries: [productionCountry]? = nil, character: String? = nil, department: String? = nil) {
+        self.id = id
+        self.original_title = original_title
+        self.title = title
+        self.overview = overview
+        self.poster_path = poster_path
+        self.backdrop_path = backdrop_path
+        self.popularity = popularity
+        self.vote_average = vote_average
+        self.vote_count = vote_count
+        self.release_date = release_date
+        self.genres = genres
+        self.runtime = runtime
+        self.status = status
+        self.video = video
+        self.keywords = keywords
+        self.images = images
+        self.production_countries = production_countries
+        self.character = character
+        self.department = department
     }
 }

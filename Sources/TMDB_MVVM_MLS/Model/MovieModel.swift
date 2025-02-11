@@ -1,41 +1,41 @@
 import Foundation
 import TMDB_Shared_UI
-struct Genre: Codable, Identifiable {
-    let id: Int
+public struct Genre: Codable, Identifiable {
+    public let id: Int
     let name: String
 }
 
 public struct Movie: Codable, Identifiable {
     public let id: Int
     
-    let original_title: String
-    let title: String
-    var userTitle: String {
+    public let original_title: String
+    public let title: String
+    public var userTitle: String {
         return original_title //: title
     }
     
-    let overview: String
-    let poster_path: String?
-    let backdrop_path: String?
-    let popularity: Float
-    let vote_average: Float
-    let vote_count: Int
+    public let overview: String
+    public let poster_path: String?
+    public let backdrop_path: String?
+    public let popularity: Float
+    public let vote_average: Float
+    public let vote_count: Int
     
-    let release_date: String?
-    var releaseDate: Date? {
+    public let release_date: String?
+    public var releaseDate: Date? {
         return release_date != nil ? Movie.dateFormatter.date(from: release_date!) : Date()
     }
     
-    static let dateFormatter: DateFormatter = {
+    public static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter
     }()
     
-    let genres: [Genre]?
-    let video: Bool
+    public let genres: [Genre]?
+    public let video: Bool
     
-    func toMovieRowEntity() -> MovieRowEntity {
+    public func toMovieRowEntity() -> MovieRowEntity {
         return MovieRowEntity(
             id: id,
             posterPath: poster_path,
