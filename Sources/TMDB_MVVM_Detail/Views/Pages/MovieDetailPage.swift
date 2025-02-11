@@ -9,17 +9,17 @@ public struct MovieDetailPage: View {
     @ObservedObject var creditsViewModel: MovieCastingViewModel
     let apiService: TMDBAPIService
     
-    public init(movieRoute: Movie, apiKey: String) {
+    public init(movieRoute: Movie, apiService: TMDBAPIService) {
         // Convert MovieRouteModel to Movie
         self.movie = movieRoute
-        self.apiService = TMDBAPIService(apiKey: apiKey)
+        self.apiService = apiService
         self.movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         self.creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
     }
     
-    public init(movieId: Int, apiKey: String) {
+    public init(movieId: Int, apiService: TMDBAPIService) {
         self.movie = Movie.placeholder(id: movieId)
-        self.apiService = TMDBAPIService(apiKey: apiKey)
+        self.apiService = apiService
         self.movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         self.creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
     }
@@ -64,11 +64,12 @@ public struct MovieDetailPage: View {
 }
 #if DEBUG
 let exampleMovieDetailPage: MovieDetailPage = {
+    let apiService = TMDBAPIService(apiKey: "dummy-key")
     var p = MovieDetailPage(
         movieRoute: exampleMovieDetail,
-        apiKey: "dummy-key"
+        apiService: apiService
     )
-    let apiService = TMDBAPIService(apiKey: "dummy-key")
+    
     let movieDetailVM = MovieDetailViewModel(apiService: apiService)
     
     let creditVM = MovieCastingViewModel(apiService: apiService)

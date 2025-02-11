@@ -61,23 +61,23 @@ public struct TMDBAPITabView: View {
                         originalTitle: movie.original_title
                     ))
                 }
-                .withTMDBNavigationDestinations(apiKey: tmdbKey)
+                .withTMDBNavigationDestinations(container: container)
                 
             case .upcoming:
-                TMDB_clean_MLS.MovieListPage(container: container, 
-                                           apiKey: tmdbKey, 
-                                           type: .upcoming) { movieId in
+                TMDB_clean_MLS.MovieListPage(container: container,
+                                             apiKey: tmdbKey,
+                                             type: .upcoming) { movieId in
                     TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
                 }
-                .withTMDBNavigationDestinations(apiKey: tmdbKey)
+                                             .withTMDBNavigationDestinations(container: container)
                 
             case .profile:
                 ProfilePageVCView(container: container) { movieId in
-                    coordinator.navigationStates[tab]?.navigate(to: .movieDetail(MovieRouteModel(id: movieId)))
+                    coordinator.navigate(to: .movieDetail(MovieRouteModel(id: movieId)), in: tab)
                 } onNavigateToTVShow: { tvShowId in
-                    coordinator.navigationStates[tab]?.navigate(to: .tvShowDetail(tvShowId))
+                    coordinator.navigate(to: .tvShowDetail(tvShowId), in: tab)
                 }
-                .withTMDBNavigationDestinations(apiKey: tmdbKey)
+                .withTMDBNavigationDestinations(container: container)
             }
         }
     }

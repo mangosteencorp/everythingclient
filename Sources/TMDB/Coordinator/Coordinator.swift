@@ -27,10 +27,11 @@ public enum TabRoute: Hashable {
 @available(iOS 16.0, *)
 public class NavigationState: ObservableObject {
     @Published public var path = NavigationPath()
-    @Published public  var sheet: (any Route)?
+    @Published public var sheet: (any Route)?
     
     public func navigate(to route: TMDBRoute) {
         path.append(route)
+        objectWillChange.send()  // Explicitly notify about the change
     }
     
     public func push(_ route: any Route) {
@@ -61,7 +62,7 @@ public class NavigationState: ObservableObject {
 @MainActor
 public class Coordinator: ObservableObject {
     @Published public var selectedTab: TabRoute
-    private(set) var navigationStates: [TabRoute: NavigationState]
+    @Published private(set) var navigationStates: [TabRoute: NavigationState]
     public let tabList: [TabRoute]
     public init(tabList: [TabRoute]) {
         self.tabList = tabList
@@ -77,8 +78,12 @@ public class Coordinator: ObservableObject {
     
     public func path(for tab: TabRoute) -> Binding<NavigationPath> {
         Binding(
-            get: { self.navigationStates[tab]!.path },
-            set: { self.navigationStates[tab]!.path = $0 }
+            get: { [weak self] in
+                self?.navigationStates[tab]?.path ?? NavigationPath()
+            },
+            set: { [weak self] newValue in
+                self?.navigationStates[tab]?.path = newValue
+            }
         )
     }
     
@@ -93,6 +98,13 @@ public class Coordinator: ObservableObject {
     
     public var currentIndex: Int {
         tabList.firstIndex(of: selectedTab) ?? 0
+    }
+    
+    public func navigate(to route: TMDBRoute, in tab: TabRoute) {
+        if let state = navigationStates[tab] {
+            state.navigate(to: route)
+            objectWillChange.send()  // Explicitly notify about the change
+        }
     }
 }
 

@@ -1,21 +1,6 @@
 import SwiftUI
 import TMDB_MVVM_Detail
 
-// MARK: - MovieDetailRoute.swift
-public struct MovieDetailRoute: Route {
-    public let movie: MovieRouteModel
-    public init(movie: MovieRouteModel) {
-        self.movie = movie
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(movie.id)
-    }
-    
-    public static func == (lhs: MovieDetailRoute, rhs: MovieDetailRoute) -> Bool {
-        lhs.movie.id == rhs.movie.id
-    }
-}
-
 public struct MovieRouteModel: Hashable {
     public let id: Int
     public let title: String
