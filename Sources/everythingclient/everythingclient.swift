@@ -34,12 +34,9 @@ public struct RootContentView: View {
                 }
             }
         }
+        
         .onAppear {
             tabManager.availableTabs = isAppStoreOrTestFlight ? Set([.tmdb]) : Set(AppTab.allCases)
         }
     }
-}
-
-#Preview {
-    RootContentView(TMDBApiKey: "") // Example showing only Pokedex tab
 }
