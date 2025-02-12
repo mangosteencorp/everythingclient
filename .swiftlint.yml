@@ -4,9 +4,12 @@ included:
 excluded:
   - .build
   - Package.swift
+  - Sources/**/generated/**
   - "**/generated"  # Excludes any folder named 'generated' at any depth
   # copied extensions
-  - "**/helpers"
+  - "**/helpers/**"
+  - Sources/**/helpers/**
+  - Tests/**/helpers/**
 
 analyzer_rules:
   - unused_declaration
@@ -27,6 +30,7 @@ opt_in_rules:
   - empty_string
   - explicit_init
   - closure_spacing
+  - force_unwrapping 
 warning_rules:
   - comma
   - colon
