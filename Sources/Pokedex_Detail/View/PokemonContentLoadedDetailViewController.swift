@@ -123,8 +123,7 @@ class DetailDesign2ViewController: UIViewController {
 
         for card in [statsCard, abilitiesCard, movesCard] {
             if let label = card.subviews.first(where: { $0 is UILabel }) as? UILabel,
-               let stackView = card.subviews.first(where: { $0 is UIStackView }) as? UIStackView
-            {
+               let stackView = card.subviews.first(where: { $0 is UIStackView }) as? UIStackView {
                 setupInnerCardConstraints(card: card, label: label, stackView: stackView)
             }
         }

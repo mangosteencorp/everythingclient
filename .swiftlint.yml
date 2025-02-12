@@ -21,6 +21,7 @@ disabled_rules:
   - trailing_newline
   - todo
   - redundant_discardable_let
+  - trailing_comma
 opt_in_rules:
   - empty_count
   - empty_string
@@ -31,7 +32,6 @@ warning_rules:
   - colon
   - conditional_returns_on_newline
   - nesting
-  - trailing_comma
 
 # Configure rule parameters
 line_length:

@@ -1,6 +1,7 @@
 // API Models
 import SwiftUI
 
+// swiftlint:disable identifier_name
 public struct APIMovie: Codable {
     let id: Int
     let title: String
@@ -10,3 +11,4 @@ public struct APIMovie: Codable {
     let popularity: Float
     let release_date: String?
 }
+// swiftlint:enable identifier_name

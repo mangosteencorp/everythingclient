@@ -74,8 +74,10 @@ public struct TMDBAPIService {
         do {
             let result: T = try await request(endpoint)
             return .success(result)
+        } catch let error as TMDBAPIError {
+            return .failure(error)
         } catch {
-            return .failure(error as! TMDBAPIError)
+            return .failure(.networkError(error: error))
         }
     }
 }

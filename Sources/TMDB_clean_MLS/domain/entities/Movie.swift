@@ -16,7 +16,7 @@ struct Movie: Equatable {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter
     }()
-
+// swiftlint:disable all
 #if DEBUG
     static let exampleMovies = [
         Movie(
@@ -67,7 +67,7 @@ struct Movie: Equatable {
     ]
 #endif
 }
-
+// swiftlint:enable all
 extension Movie {
     func toMovieRowEntity() -> MovieRowEntity {
         return MovieRowEntity(

@@ -72,11 +72,12 @@ Swinject are used for dependency injection.
 - 🔴 Snapshot testing using PointFreeCo's SnapshotTesting library
 - 🔴 UI testing for integration tests
 
-## Development Tools & Automation
+## Development Tools, Build tools & Automation
 
 - ✅ Code Generation
     - 🔴 Sourcery for mock generation
     - ✅ SwiftGen for type-safe assets and localizations (Note: SwiftGen still not supporting Xcode 15 String catalog so this project still use .strings files.)
+- ✅ Linting & Formatting: run `swiftformat .` or `swift package plugin swiftlint` at project root level
 
 ## UI/UX
 

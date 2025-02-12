@@ -550,7 +550,7 @@ class SectionHeaderView: UICollectionReusableView {
         subtitleLabel.text = subtitle
     }
 }
-
+// swiftlint:disable all
 #if DEBUG
 let sampleSections: [Section<ProfileCollectionItem>] = [
     // Featured Section (Watchlist)
@@ -701,3 +701,4 @@ let sampleSections: [Section<ProfileCollectionItem>] = [
     }
 }
 #endif
+// swiftlint:enable all

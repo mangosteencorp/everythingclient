@@ -248,6 +248,7 @@ struct ProfileCollectionItem: CollectionItem {
     let subheading: String
 }
 
+// swiftlint:disable all
 #if DEBUG
 import SwiftUI
 
@@ -330,3 +331,4 @@ struct ProfileContentViewController_Previews: PreviewProvider {
 }
 
 #endif
+// swiftlint:enable all
