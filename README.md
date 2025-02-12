@@ -78,6 +78,7 @@ Swinject are used for dependency injection.
     - 🔴 Sourcery for mock generation
     - ✅ SwiftGen for type-safe assets and localizations (Note: SwiftGen still not supporting Xcode 15 String catalog so this project still use .strings files.)
 - ✅ Linting & Formatting: run `swiftformat .` or `swift package plugin swiftlint` at project root level
+  - SwiftFormat and SwiftLint are also run as "run script phase" in Xcode build settings.
 
 ## UI/UX
 
