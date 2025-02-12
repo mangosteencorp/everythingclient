@@ -77,12 +77,10 @@ extension Text {
         } else if let key = mirror.descendant("storage", "anyTextStorage", "key") as? LocalizedStringKey {
             return key.resolved
         } else if let format = mirror.descendant("storage", "anyTextStorage", "storage", "format") as? any FormatStyle,
-                  let input = mirror.descendant("storage", "anyTextStorage", "storage", "input")
-        {
+                  let input = mirror.descendant("storage", "anyTextStorage", "storage", "input") {
             return format.format(any: input) as? String
         } else if let formatter = mirror.descendant("storage", "anyTextStorage", "formatter") as? Formatter,
-                  let object = mirror.descendant("storage", "anyTextStorage", "object")
-        {
+                  let object = mirror.descendant("storage", "anyTextStorage", "object") {
             return formatter.string(for: object)
         }
         return nil
