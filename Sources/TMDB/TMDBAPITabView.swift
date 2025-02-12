@@ -7,7 +7,7 @@ import TMDB_MVVM_MLS
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
-@available(iOS 16,*)
+@available(iOS 16, *)
 public struct TMDBAPITabView: View {
     @StateObject private var coordinator: Coordinator
     private let container: Container
