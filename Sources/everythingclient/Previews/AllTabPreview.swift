@@ -1,4 +1,5 @@
 import SwiftUI
+
 // swiftlint:disable all
 #if DEBUG
 #Preview {

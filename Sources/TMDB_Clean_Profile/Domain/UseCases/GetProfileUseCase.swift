@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 protocol GetProfileUseCaseProtocol {
     func execute() -> AnyPublisher<ProfileEntity, Error>
@@ -7,16 +7,16 @@ protocol GetProfileUseCaseProtocol {
 
 class DefaultGetProfileUseCase: GetProfileUseCaseProtocol {
     private let repository: ProfileRepositoryProtocol
-    
+
     init(repository: ProfileRepositoryProtocol) {
         self.repository = repository
     }
-    
+
     func execute() -> AnyPublisher<ProfileEntity, Error> {
         repository.getAccountInfo()
             .flatMap { accountInfo -> AnyPublisher<ProfileEntity, Error> in
                 let accountId = String(accountInfo.id)
-                
+
                 return Publishers.CombineLatest3(
                     self.repository.getFavoriteMovies(accountId: accountId),
                     self.repository.getFavoriteTVShows(accountId: accountId),
@@ -34,4 +34,4 @@ class DefaultGetProfileUseCase: GetProfileUseCaseProtocol {
             }
             .eraseToAnyPublisher()
     }
-} 
+}

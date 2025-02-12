@@ -4,7 +4,7 @@ struct MovieKeywords: View {
     let keywords: [Keyword]
     let specialKeywordIds: [Int]
     let onSpecialKeywordLongPress: ((Int) -> Void)?
-    
+
     init(
         keywords: [Keyword],
         specialKeywordIds: [Int] = [],
@@ -14,7 +14,7 @@ struct MovieKeywords: View {
         self.specialKeywordIds = specialKeywordIds
         self.onSpecialKeywordLongPress = onSpecialKeywordLongPress
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.keywordsTitle)
@@ -24,7 +24,8 @@ struct MovieKeywords: View {
                 HStack {
                     ForEach(keywords) { keyword in
                         if specialKeywordIds.contains(keyword.id) {
-                            NavigationLink(destination: Button("Back") { self.onSpecialKeywordLongPress?(keyword.id) }) {
+                            NavigationLink(destination: Button("Back") { self.onSpecialKeywordLongPress?(keyword.id)
+                            }) {
                                 RoundedBadge(text: keyword.name, color: .steamGold)
                             }
                         } else {
@@ -40,6 +41,7 @@ struct MovieKeywords: View {
         .padding(.vertical)
     }
 }
+
 #if DEBUG
 #Preview {
     MovieKeywords(keywords: [
@@ -53,18 +55,18 @@ struct MovieKeywords: View {
         Keyword(id: 6562, name: "celebrity"),
         Keyword(id: 11322, name: "female protagonist"),
         Keyword(id: 12670, name: "los angeles, california"),
-        Keyword(id: 163405, name: "aerobics"),
-        Keyword(id: 170383, name: "disfigurement"),
-        Keyword(id: 187056, name: "woman director"),
-        Keyword(id: 214664, name: "beauty standards"),
-        Keyword(id: 224636, name: "horror comedy"),
-        Keyword(id: 228429, name: "insecure woman"),
-        Keyword(id: 245415, name: "toxic masculinity"),
-        Keyword(id: 251961, name: "drug"),
-        Keyword(id: 283085, name: "body horror"),
-        Keyword(id: 295902, name: "actress"),
-        Keyword(id: 325778, name: "bold"),
-        Keyword(id: 325801, name: "distressing")
+        Keyword(id: 163_405, name: "aerobics"),
+        Keyword(id: 170_383, name: "disfigurement"),
+        Keyword(id: 187_056, name: "woman director"),
+        Keyword(id: 214_664, name: "beauty standards"),
+        Keyword(id: 224_636, name: "horror comedy"),
+        Keyword(id: 228_429, name: "insecure woman"),
+        Keyword(id: 245_415, name: "toxic masculinity"),
+        Keyword(id: 251_961, name: "drug"),
+        Keyword(id: 283_085, name: "body horror"),
+        Keyword(id: 295_902, name: "actress"),
+        Keyword(id: 325_778, name: "bold"),
+        Keyword(id: 325_801, name: "distressing"),
     ])
 }
 #endif

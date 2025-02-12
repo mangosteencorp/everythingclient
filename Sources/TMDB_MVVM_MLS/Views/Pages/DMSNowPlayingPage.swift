@@ -1,20 +1,23 @@
-import SwiftUI
-import Foundation
 import Combine
-import TMDB_Shared_UI
+import Foundation
+import SwiftUI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
+
 @available(iOS 16, macOS 10.15, *)
 public struct DMSNowPlayingPage<Route: Hashable>: View {
     @ObservedObject var viewModel: NowPlayingViewModel
     let detailRouteBuilder: (Movie) -> Route
-    public init(apiKey: String,
-                detailRouteBuilder: @escaping (Movie) -> Route) {
+    public init(
+        apiKey: String,
+        detailRouteBuilder: @escaping (Movie) -> Route
+    ) {
         APIKeys.tmdbKey = apiKey
         viewModel = NowPlayingViewModel(apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey))
         self.detailRouteBuilder = detailRouteBuilder
         viewModel.fetchNowPlayingMovies()
     }
-    
+
     public var body: some View {
         NavigationView {
             VStack(spacing: 0) {
@@ -29,7 +32,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
                 .padding(.vertical, 8)
                 .background(Color(UIColor.systemBackground))
                 .accessibilityIdentifier("movielist1.searchbar")
-                
+
                 // Content below search bar
                 Group {
                     if viewModel.isLoading {
@@ -46,16 +49,16 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
             .accessibilityIdentifier("movielist1.group")
             .navigationTitle(L10n.playingTitle)
             .navigationBarTitleDisplayMode(.inline)
-            
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
+
 #if DEBUG
 // swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
-    DMSNowPlayingPage(apiKey: "", detailRouteBuilder: {_ in return 1})
+    DMSNowPlayingPage(apiKey: "", detailRouteBuilder: { _ in 1 })
 }
 // swiftlint:enable all
 #endif

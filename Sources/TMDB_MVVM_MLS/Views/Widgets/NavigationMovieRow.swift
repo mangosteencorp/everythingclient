@@ -6,13 +6,13 @@ struct NavigationMovieRow<Route: Hashable>: View {
     @ObservedObject var viewModel: NowPlayingViewModel
     let movie: Movie
     let routeBuilder: (Movie) -> Route
-    
+
     init(_ viewModel: NowPlayingViewModel, movie: Movie, routeBuilder: @escaping (Movie) -> Route) {
         self.viewModel = viewModel
         self.movie = movie
         self.routeBuilder = routeBuilder
     }
-    
+
     var body: some View {
         NavigationLink(value: routeBuilder(movie), label: {
             MovieRow(movie: movie.toMovieRowEntity())

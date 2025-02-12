@@ -1,12 +1,6 @@
-//
-//  APIMovieTests.swift
-//  
-//
-//  Created by Quang on 2024-07-03.
-//
-
-import XCTest
 @testable import TMDB_clean_MLS
+import XCTest
+
 class APIMovieTests: XCTestCase {
     func testAPIMovieDecoding() throws {
         // Given
@@ -21,10 +15,10 @@ class APIMovieTests: XCTestCase {
             "release_date": "2023-06-29"
         }
         """.utf8)
-        
+
         // When
         let apiMovie = try JSONDecoder().decode(APIMovie.self, from: json)
-        
+
         // Then
         XCTAssertEqual(apiMovie.id, 1)
         XCTAssertEqual(apiMovie.title, "Test Movie")
@@ -34,7 +28,7 @@ class APIMovieTests: XCTestCase {
         XCTAssertEqual(apiMovie.popularity, 100.0)
         XCTAssertEqual(apiMovie.release_date, "2023-06-29")
     }
-    
+
     func testAPIMovieDecodingWithMissingOptionalFields() throws {
         // Given
         let json = Data("""
@@ -46,10 +40,10 @@ class APIMovieTests: XCTestCase {
             "popularity": 95.5
         }
         """.utf8)
-        
+
         // When
         let apiMovie = try JSONDecoder().decode(APIMovie.self, from: json)
-        
+
         // Then
         XCTAssertEqual(apiMovie.id, 2)
         XCTAssertEqual(apiMovie.title, "Another Test Movie")
@@ -86,10 +80,10 @@ class MovieListResultModelTests: XCTestCase {
             "total_results": 200
         }
         """.utf8)
-        
+
         // When
         let movieListResult = try JSONDecoder().decode(MovieListResultModel.self, from: json)
-        
+
         // Then
         XCTAssertEqual(movieListResult.dates.maximum, "2023-07-29")
         XCTAssertEqual(movieListResult.dates.minimum, "2023-06-29")
@@ -97,7 +91,7 @@ class MovieListResultModelTests: XCTestCase {
         XCTAssertEqual(movieListResult.results.count, 1)
         XCTAssertEqual(movieListResult.totalPages, 10)
         XCTAssertEqual(movieListResult.totalResults, 200)
-        
+
         let apiMovie = movieListResult.results[0]
         XCTAssertEqual(apiMovie.id, 1)
         XCTAssertEqual(apiMovie.title, "Test Movie")

@@ -1,6 +1,7 @@
-import SwiftUI
 import Combine
+import SwiftUI
 import TMDB_Shared_Backend
+
 enum MovieCastingState {
     case loading
     case success(MovieCredits)
@@ -9,25 +10,24 @@ enum MovieCastingState {
 
 class MovieCastingViewModel: ObservableObject {
     @Published var state: MovieCastingState
-    
+
     private var cancellables = Set<AnyCancellable>()
     private let apiService: TMDBAPIService
     init(apiService: TMDBAPIService) {
         self.apiService = apiService
         state = .loading
     }
-    
+
     func fetchMovieCredits(movieId: Int) {
         state = .loading
         Task {
-            let result : Result<MovieCredits, TMDBAPIError> = await apiService.request(.credits(movie: movieId))
+            let result: Result<MovieCredits, TMDBAPIError> = await apiService.request(.credits(movie: movieId))
             DispatchQueue.main.async {
                 switch result {
-                case .success(let credits):
+                case let .success(credits):
                     self.state = .success(credits)
-                case .failure(let error):
+                case let .failure(error):
                     self.state = .error(error.localizedDescription)
-                    
                 }
             }
         }

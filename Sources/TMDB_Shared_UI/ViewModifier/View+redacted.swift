@@ -1,8 +1,9 @@
 import SwiftUI
+
 @available(iOS 13, macOS 11, *)
-extension View {
+public extension View {
     @ViewBuilder
-    public func redacted(if condition: @autoclosure () -> Bool) -> some View {
+    func redacted(if condition: @autoclosure () -> Bool) -> some View {
         redacted(reason: condition() ? .placeholder : [])
     }
 }

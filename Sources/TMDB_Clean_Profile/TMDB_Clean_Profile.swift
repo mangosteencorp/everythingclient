@@ -6,6 +6,6 @@ public struct TMDB_Clean_Profile {
         let assembly = ProfileAssembly()
         assembly.assemble(container: container)
     }
-    
+
     private init() {}
-} 
+}

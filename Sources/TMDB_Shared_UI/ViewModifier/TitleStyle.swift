@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct TitleStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -10,8 +9,8 @@ struct TitleStyle: ViewModifier {
     }
 }
 
-extension Text {
-    public func titleStyle() -> some View {
-        self.modifier(TitleStyle())
+public extension Text {
+    func titleStyle() -> some View {
+        modifier(TitleStyle())
     }
 }

@@ -1,10 +1,12 @@
 import Foundation
 
 public enum TMDBEndpoint {
-    
     // Movie Lists
-    case popular(page: Int? = nil), topRated(page: Int? = nil), upcoming(page: Int? = nil), nowPlaying(page: Int? = nil), trending(page: Int? = nil)
-    
+    case popular(page: Int? = nil), topRated(page: Int? = nil), upcoming(page: Int? = nil), nowPlaying(
+        page: Int? = nil
+    ),
+        trending(page: Int? = nil)
+
     // Movie Details
     case movieDetail(movie: Int)
     case recommended(movie: Int)
@@ -12,38 +14,38 @@ public enum TMDBEndpoint {
     case videos(movie: Int)
     case credits(movie: Int)
     case review(movie: Int)
-    
+
     // Search
     case searchMovie(query: String, page: Int? = nil)
     case searchKeyword, searchPerson
-    
+
     // Person
     case popularPersons
     case personDetail(person: Int)
     case personMovieCredits(person: Int)
     case personImages(person: Int)
-    
+
     // Authentication & Account
     case authStep1
     case authNewSession(requestToken: String)
     case logOut
     case accountInfo
-    
+
     // Favorites
     case setFavoriteMovie(accountId: String)
     case getFavoriteMovies(accountId: String)
     case getFavoriteTVShows(accountId: String)
-    
+
     // Other
     case genres
     case discover
-    
+
     // Additional Movie Lists
     case topRatedMovies
-    
+
     // Watchlist
     case getWatchlistTVShows(accountId: String)
-    
+
     func path() -> String {
         switch self {
         // Movie Lists
@@ -57,7 +59,6 @@ public enum TMDBEndpoint {
             return "movie/now_playing"
         case .trending:
             return "trending/movie/day"
-            
         // Movie Details
         case let .movieDetail(movie):
             return "movie/\(movie)"
@@ -71,7 +72,6 @@ public enum TMDBEndpoint {
             return "movie/\(movie)/recommendations"
         case let .similar(movie):
             return "movie/\(movie)/similar"
-            
         // Person
         case .popularPersons:
             return "person/popular"
@@ -81,7 +81,6 @@ public enum TMDBEndpoint {
             return "person/\(person)/movie_credits"
         case let .personImages(person):
             return "person/\(person)/images"
-            
         // Search
         case .searchMovie:
             return "search/movie"
@@ -89,7 +88,6 @@ public enum TMDBEndpoint {
             return "search/keyword"
         case .searchPerson:
             return "search/person"
-            
         // Authentication & Account
         case .authStep1:
             return "authentication/token/new"
@@ -99,7 +97,6 @@ public enum TMDBEndpoint {
             return "authentication/session"
         case .accountInfo:
             return "account"
-            
         // Favorites
         case let .setFavoriteMovie(accountId):
             return "account/\(accountId)/favorite"
@@ -107,24 +104,20 @@ public enum TMDBEndpoint {
             return "account/\(accountId)/favorite/movies"
         case let .getFavoriteTVShows(accountId):
             return "account/\(accountId)/favorite/tv"
-            
         // Other
         case .genres:
             return "genre/movie/list"
         case .discover:
             return "discover/movie"
-            
         // Additional Movie Lists
         case .topRatedMovies:
             return "movie/top_rated"
-            
         // Watchlist
         case let .getWatchlistTVShows(accountId):
             return "account/\(accountId)/watchlist/tv"
-        
         }
     }
-    
+
     func needAuthentication() -> Bool {
         switch self {
         case .accountInfo, .setFavoriteMovie, .getFavoriteMovies, .getFavoriteTVShows, .getWatchlistTVShows, .logOut:
@@ -133,27 +126,27 @@ public enum TMDBEndpoint {
             return false
         }
     }
-    
+
     func body() -> Data? {
         return nil
     }
-    
+
     func extraQuery() -> [String: String]? {
         switch self {
-        case .authNewSession(let requestToken):
+        case let .authNewSession(requestToken):
             return ["request_token": requestToken]
         case .movieDetail:
             let languages = Locale.preferredLanguages.joined(separator: ",")
             return [
                 "include_image_language": languages,
-                "append_to_response": "keywords,images"
+                "append_to_response": "keywords,images",
             ]
-        case .popular(let page), .topRated(let page), .upcoming(let page), .nowPlaying(let page), .trending(let page):
+        case let .popular(page), let .topRated(page), let .upcoming(page), let .nowPlaying(page), let .trending(page):
             if let page = page {
                 return ["page": String(page)]
             }
             return nil
-        case .searchMovie(let query, let page):
+        case let .searchMovie(query, page):
             var params = ["query": query]
             if let page = page {
                 params["page"] = String(page)
@@ -163,7 +156,7 @@ public enum TMDBEndpoint {
             return nil
         }
     }
-    
+
     func httpMethod() -> HTTPMethod {
         switch self {
         case .authNewSession:
@@ -172,14 +165,14 @@ public enum TMDBEndpoint {
             return .get
         }
     }
-    
+
     public func returnType() throws -> Decodable.Type {
         switch self {
-        case .popular, .nowPlaying, .upcoming, .getFavoriteMovies: 
+        case .popular, .nowPlaying, .upcoming, .getFavoriteMovies:
             return MovieListResultModel.self
-        case .accountInfo: 
+        case .accountInfo:
             return AccountInfoModel.self
-        case .getFavoriteTVShows, .getWatchlistTVShows: 
+        case .getFavoriteTVShows, .getWatchlistTVShows:
             return TVShowListResultModel.self
         case .movieDetail:
             return MovieDetailModel.self

@@ -1,16 +1,16 @@
-import Foundation
 import Combine
+import Foundation
 import TMDB_Shared_Backend
 
 class DefaultProfileRepository: ProfileRepositoryProtocol {
     private let apiService: TMDBAPIService
     private let authRepository: AuthRepository
-    
+
     init(apiService: TMDBAPIService, authRepository: AuthRepository) {
         self.apiService = apiService
         self.authRepository = authRepository
     }
-    
+
     func getAccountInfo() -> AnyPublisher<AccountInfoEntity, Error> {
         Future { [weak self] promise in
             guard let self = self else { return }
@@ -30,13 +30,14 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
             }
         }.eraseToAnyPublisher()
     }
-    
+
     func getFavoriteMovies(accountId: String) -> AnyPublisher<[MovieEntity], Error> {
         Future { [weak self] promise in
             guard let self = self else { return }
             Task {
                 do {
-                    let response: MovieListResultModel = try await self.apiService.request(.getFavoriteMovies(accountId: accountId))
+                    let response: MovieListResultModel = try await self.apiService
+                        .request(.getFavoriteMovies(accountId: accountId))
                     let entities = response.results.map { movie in
                         MovieEntity(
                             id: movie.id,
@@ -54,13 +55,14 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
             }
         }.eraseToAnyPublisher()
     }
-    
+
     func getFavoriteTVShows(accountId: String) -> AnyPublisher<[TVShowEntity], Error> {
         Future { [weak self] promise in
             guard let self = self else { return }
             Task {
                 do {
-                    let response: TVShowListResultModel = try await self.apiService.request(.getFavoriteTVShows(accountId: accountId))
+                    let response: TVShowListResultModel = try await self.apiService
+                        .request(.getFavoriteTVShows(accountId: accountId))
                     let entities = response.results.map { show in
                         TVShowEntity(
                             id: show.id,
@@ -78,13 +80,14 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
             }
         }.eraseToAnyPublisher()
     }
-    
+
     func getWatchlistTVShows(accountId: String) -> AnyPublisher<[TVShowEntity], Error> {
         Future { [weak self] promise in
             guard let self = self else { return }
             Task {
                 do {
-                    let response: TVShowListResultModel = try await self.apiService.request(.getWatchlistTVShows(accountId: accountId))
+                    let response: TVShowListResultModel = try await self.apiService
+                        .request(.getWatchlistTVShows(accountId: accountId))
                     let entities = response.results.map { show in
                         TVShowEntity(
                             id: show.id,
@@ -102,4 +105,4 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
             }
         }.eraseToAnyPublisher()
     }
-} 
+}

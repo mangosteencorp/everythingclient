@@ -2,7 +2,7 @@ import SwiftUI
 import TMDB_Shared_UI
 
 @available(iOS 16.0, *)
-struct MovieListContent <Route: Hashable>: View {
+struct MovieListContent<Route: Hashable>: View {
     let movies: [Movie]
     let detailRouteBuilder: (Int) -> Route
     var body: some View {
@@ -11,12 +11,12 @@ struct MovieListContent <Route: Hashable>: View {
                 MovieRow(movie: movie.toMovieRowEntity())
             })
         }.accessibilityIdentifier("MovieListContent.List")
-        
     }
 }
+
 #if DEBUG
 @available(iOS 16.0, *)
 #Preview {
-    MovieListContent(movies: Movie.exampleMovies, detailRouteBuilder: {_ in 0})
+    MovieListContent(movies: Movie.exampleMovies, detailRouteBuilder: { _ in 0 })
 }
 #endif

@@ -1,18 +1,19 @@
+import AppCore
+import Pokedex
 import SwiftUI
 import TMDB
-import Pokedex
-import AppCore
+
 public struct RootContentView: View {
     @StateObject private var tabManager = TabManager.shared
     @State private var selectedTab = 0
     let tmdbAPIKey: String
     private let isAppStoreOrTestFlight: Bool
-    
+
     public init(TMDBApiKey: String, isAppStoreOrTestFlight: Bool = true) {
-        self.tmdbAPIKey = TMDBApiKey
+        tmdbAPIKey = TMDBApiKey
         self.isAppStoreOrTestFlight = isAppStoreOrTestFlight
     }
-    
+
     public var body: some View {
         TabView(selection: $selectedTab) {
             ForEach(Array(tabManager.availableTabs)) { tab in
@@ -34,7 +35,7 @@ public struct RootContentView: View {
                 }
             }
         }
-        
+
         .onAppear {
             tabManager.availableTabs = isAppStoreOrTestFlight ? Set([.tmdb]) : Set(AppTab.allCases)
         }

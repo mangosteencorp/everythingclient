@@ -20,4 +20,4 @@ public struct TVShow: Codable {
     public let name: String
     public let vote_average: Double
     public let vote_count: Int
-} 
+}

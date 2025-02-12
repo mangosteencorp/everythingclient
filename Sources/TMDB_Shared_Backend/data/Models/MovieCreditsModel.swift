@@ -33,4 +33,4 @@ public struct CrewMember: Codable {
     public let credit_id: String
     public let department: String
     public let job: String
-} 
+}

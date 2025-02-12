@@ -1,5 +1,6 @@
 // API Models
 import SwiftUI
+
 public struct TMDBMovieModel: Codable {
     public let id: Int
     public let title: String

@@ -2,26 +2,31 @@ import SwiftUI
 import Swinject
 
 @available(iOS 16.0, *)
-public struct MovieListPage <Route: Hashable>: View {
+public struct MovieListPage<Route: Hashable>: View {
     @ObservedObject private(set) var viewModel: MoviesViewModel
     let type: MovieListType
     let detailRouteBuilder: (Int) -> Route
-    public init(container: Container, apiKey: String, type: MovieListType, detailRouteBuilder: @escaping (Int) -> Route) {
+    public init(
+        container: Container,
+        apiKey: String,
+        type: MovieListType,
+        detailRouteBuilder: @escaping (Int) -> Route
+    ) {
         APIKeys.tmdbKey = apiKey
         let movieAssembly = MovieAssembly()
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
         switch type {
         case .nowPlaying:
-            self.viewModel = container.resolve(MoviesViewModel.self, name: "nowPlaying")!
+            viewModel = container.resolve(MoviesViewModel.self, name: "nowPlaying")!
         case .upcoming:
-            self.viewModel = container.resolve(MoviesViewModel.self, name: "upcoming")!
+            viewModel = container.resolve(MoviesViewModel.self, name: "upcoming")!
         }
-        
+
         self.type = type
         viewModel.fetchMovies()
     }
-    
+
     public var body: some View {
         NavigationView {
             Group {
@@ -39,15 +44,16 @@ public struct MovieListPage <Route: Hashable>: View {
             .navigationTitle(type.title)
             .accessibilityIdentifier("movieListPage.group")
         }
-        #if os(iOS)
+#if os(iOS)
         .navigationViewStyle(StackNavigationViewStyle())
-        #endif
+#endif
     }
 }
+
 public enum MovieListType {
     case nowPlaying
     case upcoming
-    
+
     var title: String {
         switch self {
         case .nowPlaying:
@@ -56,7 +62,7 @@ public enum MovieListType {
             return "Upcoming"
         }
     }
-    
+
     var iconName: String {
         switch self {
         case .nowPlaying:
@@ -66,6 +72,7 @@ public enum MovieListType {
         }
     }
 }
-struct APIKeys {
+
+enum APIKeys {
     static var tmdbKey = ""
 }

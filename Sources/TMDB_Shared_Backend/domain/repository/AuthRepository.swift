@@ -3,4 +3,3 @@ public protocol AuthRepository {
     func saveSessionId(_ sessionId: String) throws
     func clearSessionId() throws
 }
-

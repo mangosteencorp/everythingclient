@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 import TMDB_Shared_Backend
 
 class ProfileViewModel: ObservableObject {
@@ -7,11 +7,11 @@ class ProfileViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let getProfileUseCase: GetProfileUseCaseProtocol
     private let authViewModel: any AuthenticationViewModelProtocol
-    
+
     init(getProfileUseCase: GetProfileUseCaseProtocol, authViewModel: any AuthenticationViewModelProtocol) {
         self.getProfileUseCase = getProfileUseCase
         self.authViewModel = authViewModel
-        
+
         // Observe authentication state changes using the publisher
         authViewModel.isAuthenticatedPublisher
             .sink { [weak self] (isAuthenticated: Bool) in
@@ -23,15 +23,15 @@ class ProfileViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
+
     func fetchProfile() {
         state = .loading
-        
+
         getProfileUseCase.execute()
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in
-                    if case .failure(let error) = completion {
+                    if case let .failure(error) = completion {
                         self?.state = .error(error)
                     }
                 },
@@ -41,13 +41,14 @@ class ProfileViewModel: ObservableObject {
             )
             .store(in: &cancellables)
     }
-    
+
     func signOut() {
         Task {
             await authViewModel.signOut()
             state = .unauthorized
         }
     }
+
     func signIn() async {
         await authViewModel.signIn()
     }
@@ -58,4 +59,4 @@ enum ProfileViewState {
     case loading
     case loaded(ProfileEntity)
     case error(Error)
-} 
+}

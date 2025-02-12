@@ -83,4 +83,4 @@ public struct MovieImage: Codable {
     public let vote_average: Double
     public let vote_count: Int
     public let width: Int
-} 
+}

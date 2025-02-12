@@ -1,0 +1,31 @@
+# File options
+--exclude Pods,**/[Gg]enerated/**
+
+# Formatting options
+--ifdef outdent
+--allman false
+--indent 4
+--maxwidth 120
+--wraparguments before-first
+--wrapcollections before-first
+--semicolons never
+--stripunusedargs closure-only
+--header strip
+--trimwhitespace always
+--linebreaks lf
+
+# Rules
+--enable blankLinesAroundMark
+--enable blankLinesAtEndOfScope
+--enable blankLinesAtStartOfScope
+--enable blankLinesBetweenScopes
+--enable consecutiveBlankLines
+--enable redundantSelf
+--enable sortedImports
+--enable trailingCommas
+--enable trailingSpace
+--enable unusedArguments
+
+
+--anonymousforeach ignore
+--onelineforeach ignore

@@ -1,6 +1,4 @@
-import XCTest
 @testable import everythingclient
+import XCTest
 
-final class EverythingClientTests: XCTestCase {
-    
-}
+final class EverythingClientTests: XCTestCase {}

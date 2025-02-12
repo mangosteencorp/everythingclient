@@ -18,4 +18,3 @@ struct Dates: Decodable {
     let maximum: String
     let minimum: String
 }
-

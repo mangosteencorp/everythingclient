@@ -8,7 +8,7 @@ class ErrorView: UIView {
         stack.alignment = .center
         return stack
     }()
-    
+
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "exclamationmark.triangle.fill")
@@ -16,7 +16,7 @@ class ErrorView: UIView {
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
-    
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Something went wrong"
@@ -24,7 +24,7 @@ class ErrorView: UIView {
         label.textAlignment = .center
         return label
     }()
-    
+
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16)
@@ -33,7 +33,7 @@ class ErrorView: UIView {
         label.numberOfLines = 0
         return label
     }()
-    
+
     private let retryButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Try Again", for: .normal)
@@ -43,45 +43,47 @@ class ErrorView: UIView {
         button.layer.cornerRadius = 8
         return button
     }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
     }
-    
+
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupViews() {
         backgroundColor = .systemBackground
-        
+
         addSubview(containerStackView)
         containerStackView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         [imageView, titleLabel, messageLabel, retryButton].forEach {
             containerStackView.addArrangedSubview($0)
         }
-        
+
         NSLayoutConstraint.activate([
             containerStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             containerStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             containerStackView.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 32),
             containerStackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -32),
-            
+
             imageView.heightAnchor.constraint(equalToConstant: 50),
             imageView.widthAnchor.constraint(equalToConstant: 50),
-            
+
             retryButton.heightAnchor.constraint(equalToConstant: 44),
-            retryButton.widthAnchor.constraint(equalToConstant: 120)
+            retryButton.widthAnchor.constraint(equalToConstant: 120),
         ])
     }
-    
+
     func configure(with error: Error, retryAction: @escaping () -> Void) {
         messageLabel.text = error.localizedDescription
         retryButton.addAction(UIAction { _ in retryAction() }, for: .touchUpInside)
     }
 }
+
 @available(iOS 17, *)
 #Preview {
     ErrorView()

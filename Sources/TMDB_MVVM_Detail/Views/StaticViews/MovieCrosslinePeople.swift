@@ -4,23 +4,25 @@ import TMDB_Shared_UI
 struct MovieCrosslinePeopleRow: View {
     let title: String
     let peoples: [People]
-    
+
     private var peoplesListView: some View {
         List(peoples) { cast in
             PeopleListItem(people: cast)
         }.navigationBarTitle(title)
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
                 Text(title)
                     .titleStyle()
                     .padding(.leading)
-                NavigationLink(destination: peoplesListView,
-                               label: {
-                    Text(L10n.seeAll).foregroundColor(.blue)
-                })
+                NavigationLink(
+                    destination: peoplesListView,
+                    label: {
+                        Text(L10n.seeAll).foregroundColor(.blue)
+                    }
+                )
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
@@ -33,7 +35,6 @@ struct MovieCrosslinePeopleRow: View {
         .listRowInsets(EdgeInsets())
         .padding(.vertical)
     }
-    
 }
 
 struct RedactedMovieCrosslinePeopleRow: View {
@@ -46,20 +47,21 @@ struct RedactedMovieCrosslinePeopleRow: View {
                 People.redacted(),
                 People.redacted(),
                 People.redacted(),
-                People.redacted()
-            ])
+                People.redacted(),
+            ]
+        )
         .redacted(reason: .placeholder)
     }
 }
 
 struct PeopleListItem: View {
     let people: People
-    
+
     var body: some View {
         NavigationLink(destination: EmptyView()) {
             HStack {
                 RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, image: .cast)
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     Text(people.name)
                         .font(.headline)
@@ -70,14 +72,14 @@ struct PeopleListItem: View {
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
-            }// .contextMenu{ PeopleContextMenu(people: people.id) }
+            } // .contextMenu{ PeopleContextMenu(people: people.id) }
         }
     }
 }
 
 struct PeopleRowItem: View {
     let people: People
-    
+
     var body: some View {
         NavigationLink(destination: EmptyView()) {
             VStack(alignment: .center) {
@@ -96,6 +98,7 @@ struct PeopleRowItem: View {
         }
     }
 }
+
 #if DEBUG
 #Preview {
     return MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples)

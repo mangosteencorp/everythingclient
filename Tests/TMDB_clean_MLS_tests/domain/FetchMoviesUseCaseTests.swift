@@ -1,12 +1,6 @@
-//
-//  FetchMoviesUseCaseTests.swift
-//  
-//
-//  Created by Quang on 2024-07-03.
-//
-
-import XCTest
 @testable import TMDB_clean_MLS
+import XCTest
+
 // MARK: - FetchMoviesUseCaseTests
 
 class FetchMoviesUseCaseTests: XCTestCase {
@@ -27,7 +21,15 @@ class FetchMoviesUseCaseTests: XCTestCase {
 
     func testExecuteSuccess() async {
         // Given
-        let expectedMovies = [Movie(id: 1, title: "Test Movie", overview: "Test Overview", posterPath: nil, voteAverage: 7.5, popularity: 100, releaseDate: Date())]
+        let expectedMovies = [Movie(
+            id: 1,
+            title: "Test Movie",
+            overview: "Test Overview",
+            posterPath: nil,
+            voteAverage: 7.5,
+            popularity: 100,
+            releaseDate: Date()
+        )]
         mockRepository.result = .success(expectedMovies)
 
         // When
@@ -35,7 +37,7 @@ class FetchMoviesUseCaseTests: XCTestCase {
 
         // Then
         switch result {
-        case .success(let movies):
+        case let .success(movies):
             XCTAssertEqual(movies, expectedMovies)
         case .failure:
             XCTFail("Expected success, but got failure")
@@ -54,9 +56,8 @@ class FetchMoviesUseCaseTests: XCTestCase {
         switch result {
         case .success:
             XCTFail("Expected failure, but got success")
-        case .failure(let error):
+        case let .failure(error):
             XCTAssertEqual(error as NSError, expectedError)
         }
     }
 }
-

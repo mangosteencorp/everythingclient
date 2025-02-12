@@ -1,21 +1,14 @@
-//
-//  RebuildApp.swift
-//  Rebuild
-//
-//  Created by Quang on 2024-04-18.
-//
-
-import SwiftUI
 import everythingclient
+import SwiftUI
 
 @main
 struct RebuildApp: App {
-    #if DEBUG
+#if DEBUG
     let isAppStoreOrTestFlight = false
-    #else
+#else
     let isAppStoreOrTestFlight = true
-    #endif
-    
+#endif
+
     var body: some Scene {
         WindowGroup {
             RootContentView(
@@ -25,7 +18,6 @@ struct RebuildApp: App {
         }
     }
 }
-
 
 enum Configuration {
     enum Error: Swift.Error {

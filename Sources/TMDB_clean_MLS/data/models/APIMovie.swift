@@ -1,5 +1,6 @@
 // API Models
 import SwiftUI
+
 public struct APIMovie: Codable {
     let id: Int
     let title: String

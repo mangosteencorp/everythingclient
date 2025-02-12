@@ -1,8 +1,8 @@
-import XCTest
 import SwiftUI
-import ViewInspector
 @testable import TMDB_clean_MLS
 import TMDB_Shared_UI
+import ViewInspector
+import XCTest
 
 @available(iOS 16.0, *)
 class MovieListContentTests: XCTestCase {
@@ -17,19 +17,19 @@ class MovieListContentTests: XCTestCase {
                 voteAverage: 7.5,
                 popularity: 100.0,
                 releaseDate: Movie.dateFormatter.date(from: "2024-01-01")
-            )
+            ),
         ]
-        
+
         // When
         let content = MovieListContent(movies: movies)
-        
+
         // Then
         let mirror = Mirror(reflecting: content)
         guard let moviesProperty = mirror.children.first(where: { $0.label == "movies" })?.value as? [Movie] else {
             XCTFail("Movies property not found or wrong type")
             return
         }
-        
+
         XCTAssertEqual(moviesProperty.count, 1)
         XCTAssertEqual(moviesProperty[0].id, movies[0].id)
         XCTAssertEqual(moviesProperty[0].title, movies[0].title)
@@ -39,7 +39,7 @@ class MovieListContentTests: XCTestCase {
         XCTAssertEqual(moviesProperty[0].popularity, movies[0].popularity)
         XCTAssertEqual(moviesProperty[0].releaseDate, movies[0].releaseDate)
     }
-    
+
     func testListViewStructure() throws {
         let movie = Movie(
             id: 1,
@@ -51,10 +51,9 @@ class MovieListContentTests: XCTestCase {
             releaseDate: Movie.dateFormatter.date(from: "2024-01-01")
         )
         let content = MovieListContent(movies: [movie])
-        
+
         // verify if there's a list and movie title displayed
         let _ = try content.inspect().find(viewWithAccessibilityIdentifier: "MovieListContent.List")
         let _ = try content.inspect().find(text: "Test Movie")
     }
-    
-} 
+}

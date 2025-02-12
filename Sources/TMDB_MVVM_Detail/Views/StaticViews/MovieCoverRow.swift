@@ -1,11 +1,11 @@
 import SwiftUI
 import TMDB_Shared_UI
+
 struct MovieCoverRow: View {
     let movie: Movie
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                
                 RemoteTMDBImage(
                     posterPath: movie.backdropPath,
                     posterSize: PosterSize(width: geometry.size.width, height: 250),
@@ -13,7 +13,7 @@ struct MovieCoverRow: View {
                 )
                 .blur(radius: 3)
                 .overlay(Color.black.opacity(0.6))
-                
+
                 VStack(alignment: .leading) {
                     HStack(spacing: 16) {
                         RemoteTMDBImage(posterPath: movie.posterPath, posterSize: .medium, image: .medium)
@@ -30,14 +30,12 @@ struct MovieCoverRow: View {
                     }
                     genresBadges().padding(.top, 16)
                 }
-                
             }
             .listRowInsets(EdgeInsets())
-            
         }
     }
+
     private func genresBadges() -> some View {
-        
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 ForEach(movie.genres ?? []) { genre in
@@ -55,15 +53,15 @@ struct MovieCoverRow: View {
 
 struct MovieInfoRow: View {
     let movie: Movie
-    
+
     var asyncTextTransition: AnyTransition {
         .opacity
     }
-    
+
     var asyncTextAnimation: Animation {
         .easeInOut
     }
-    
+
     private var infos: some View {
         HStack {
             if let date = movie.releaseDate {
@@ -84,7 +82,7 @@ struct MovieInfoRow: View {
         }
         .foregroundColor(.white)
     }
-    
+
     private var productionCountry: some View {
         Group {
             if movie.productionCountries?.isEmpty == false {
@@ -94,7 +92,7 @@ struct MovieInfoRow: View {
             }
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             infos
@@ -102,13 +100,15 @@ struct MovieInfoRow: View {
         }
     }
 }
+
 // swiftlint:disable all
 #if DEBUG
 #Preview {
-    Section{
+    Section {
         MovieCoverRow(movie: exampleMovieDetail).debugBorder(color: .purple)
     }
 }
+
 #Preview {
     Section {
         MovieCoverRow(movie: exampleMovieDetail)
