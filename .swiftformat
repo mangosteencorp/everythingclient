@@ -1,5 +1,5 @@
 # File options
---exclude Pods,**/[Gg]enerated/**
+--exclude Pods,**/[Gg]enerated/**,Rebuild/Package.swift,Rebuild/**
 
 # Formatting options
 --ifdef outdent
@@ -29,3 +29,4 @@
 
 --anonymousforeach ignore
 --onelineforeach ignore
+--rules braces
