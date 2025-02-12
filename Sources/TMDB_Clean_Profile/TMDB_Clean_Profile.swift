@@ -9,4 +9,5 @@ public struct TMDB_Clean_Profile {
 
     private init() {}
 }
+
 // swiftlint:enable type_name

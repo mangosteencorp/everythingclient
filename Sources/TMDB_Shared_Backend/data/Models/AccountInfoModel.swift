@@ -21,4 +21,5 @@ public struct AccountInfoModel: Codable {
         }
     }
 }
+
 // swiftlint:enable identifier_name

@@ -22,4 +22,5 @@ public struct TVShow: Codable {
     public let vote_average: Double
     public let vote_count: Int
 }
+
 // swiftlint:enable identifier_name

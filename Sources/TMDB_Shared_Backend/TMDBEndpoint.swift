@@ -117,6 +117,7 @@ public enum TMDBEndpoint {
             return "account/\(accountId)/watchlist/tv"
         }
     }
+
     // swiftlint:enable cyclomatic_complexity
     func needAuthentication() -> Bool {
         switch self {

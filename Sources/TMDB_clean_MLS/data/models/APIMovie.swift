@@ -11,4 +11,5 @@ public struct APIMovie: Codable {
     let popularity: Float
     let release_date: String?
 }
+
 // swiftlint:enable identifier_name

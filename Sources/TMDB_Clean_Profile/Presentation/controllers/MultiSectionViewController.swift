@@ -550,6 +550,7 @@ class SectionHeaderView: UICollectionReusableView {
         subtitleLabel.text = subtitle
     }
 }
+
 // swiftlint:disable all
 #if DEBUG
 let sampleSections: [Section<ProfileCollectionItem>] = [

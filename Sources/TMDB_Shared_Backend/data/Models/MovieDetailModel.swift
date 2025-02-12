@@ -85,4 +85,5 @@ public struct MovieImage: Codable {
     public let vote_count: Int
     public let width: Int
 }
+
 // swiftlint:enable identifier_name

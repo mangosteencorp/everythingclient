@@ -34,4 +34,5 @@ public struct CrewMember: Codable {
     public let department: String
     public let job: String
 }
+
 // swiftlint:enable identifier_name

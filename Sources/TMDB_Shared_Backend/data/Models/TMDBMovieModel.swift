@@ -11,4 +11,5 @@ public struct TMDBMovieModel: Codable {
     public let popularity: Float
     public let release_date: String?
 }
+
 // swiftlint:enable identifier_name
