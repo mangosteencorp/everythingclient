@@ -19,38 +19,23 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
     }
 
     public var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Sticky search bar
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.gray)
-                    TextField("Search movies...", text: $viewModel.searchQuery)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(Color(UIColor.systemBackground))
-                .accessibilityIdentifier("movielist1.searchbar")
-
-                // Content below search bar
-                Group {
-                    if viewModel.isLoading {
-                        ProgressView(L10n.playingLoading)
-                    } else if let errorMessage = viewModel.errorMessage {
-                        Text(errorMessage)
-                    } else {
-                        List(viewModel.movies) { movie in
-                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                        }
-                    }
+        VStack(spacing: 0) {
+            // Content
+            Group {
+                if viewModel.isLoading {
+                    ProgressView(L10n.playingLoading)
+                } else if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                } else {
+                    List(viewModel.movies) { movie in
+                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                    }.searchable(text: $viewModel.searchQuery)
                 }
             }
-            .accessibilityIdentifier("movielist1.group")
-            .navigationTitle(L10n.playingTitle)
-            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
+        .accessibilityIdentifier("movielist1.group")
+        .navigationTitle(L10n.playingTitle)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

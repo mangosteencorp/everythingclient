@@ -81,28 +81,6 @@ public struct TMDBAPITabView: View {
                 }
                 .withTMDBNavigationDestinations(container: container)
             }
-        }
-    }
-
-    private var previousButton: some View {
-        Button(action: {
-            if coordinator.currentIndex > 0 {
-                coordinator.switchTab(to: coordinator.currentIndex - 1)
-            }
-        }) {
-            Text("<")
-        }
-        .disabled(coordinator.currentIndex == 0)
-    }
-
-    private var nextButton: some View {
-        Button(action: {
-            if coordinator.currentIndex < coordinator.tabList.count - 1 {
-                coordinator.switchTab(to: coordinator.currentIndex + 1)
-            }
-        }) {
-            Text(">")
-        }
-        .disabled(coordinator.currentIndex == coordinator.tabList.count - 1)
+        }.debugBorder()
     }
 }
