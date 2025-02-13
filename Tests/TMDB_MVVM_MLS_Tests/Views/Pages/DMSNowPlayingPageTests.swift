@@ -6,20 +6,19 @@ import XCTest
 
 @available(iOS 16.0, *)
 class DMSNowPlayingPageTests: XCTestCase {
-    var page: DMSNowPlayingPage!
 
     override func setUp() {
         super.setUp()
-        page = DMSNowPlayingPage(apiKey: "test_key")
     }
 
     func testInitialization() {
+        let page = DMSNowPlayingPage(apiKey: "test_key", detailRouteBuilder: {_ in 1})
         XCTAssertNotNil(page)
         XCTAssertEqual(APIKeys.tmdbKey, "test_key")
     }
 
     func testNavigationViewStructure() throws {
-        let content = DMSNowPlayingPage(apiKey: "test_key")
+        let content = DMSNowPlayingPage(apiKey: "test_key", detailRouteBuilder: {_ in 1})
         let navigationView = try content.inspect().find(ViewType.NavigationView.self)
         XCTAssertNotNil(navigationView)
         let searchBar = try content.inspect().find(viewWithAccessibilityIdentifier: "movielist1.searchbar")
@@ -30,6 +29,12 @@ class DMSNowPlayingPageTests: XCTestCase {
     }
 
     func testErrorState() throws {
+        let page = DMSNowPlayingPage(apiKey: "test_key", detailRouteBuilder: {_ in 1})
+        
+        // Create a hosting controller to properly initialize the view
+        let hostingController = UIHostingController(rootView: page)
+        _ = hostingController.view
+        
         // Set error state
         let errorMessage = "Test error message"
         page.viewModel.errorMessage = errorMessage
@@ -41,7 +46,13 @@ class DMSNowPlayingPageTests: XCTestCase {
     }
 
     func testMovieListState() throws {
-        // Set movies state
+        let page = DMSNowPlayingPage(apiKey: "test_key", detailRouteBuilder: {_ in 1})
+        
+        // Create a hosting controller to properly initialize the view
+        let hostingController = UIHostingController(rootView: page)
+        _ = hostingController.view
+        
+        // Now we can safely access and modify the viewModel
         let movie = sampleApeMovie
         page.viewModel.movies = [movie]
         page.viewModel.isLoading = false
@@ -52,13 +63,19 @@ class DMSNowPlayingPageTests: XCTestCase {
         XCTAssertNotNil(list)
 
         // Verify movie row
-        let movieRow = try list.find(NavigationMovieRow.self)
+        let movieRow = try list.find(NavigationMovieRow<Int>.self)
         XCTAssertNotNil(movieRow)
         let navRow = try movieRow.find(viewWithAccessibilityIdentifier: "movielist1.movierow\(sampleApeMovie.id)")
         try navRow.callOnAppear()
     }
 
     func testOnAppearFetchesMovies() throws {
+        let page = DMSNowPlayingPage(apiKey: "test_key", detailRouteBuilder: {_ in 1})
+        
+        // Create a hosting controller to properly initialize the view
+        let hostingController = UIHostingController(rootView: page)
+        _ = hostingController.view
+        
         // Find VStack and trigger onAppear
         let vstack = try page.inspect().find(ViewType.VStack.self)
         try vstack.callOnAppear()
@@ -68,6 +85,12 @@ class DMSNowPlayingPageTests: XCTestCase {
     }
 
     func testSearchQueryBinding() throws {
+        let page = DMSNowPlayingPage(apiKey: "test_key", detailRouteBuilder: {_ in 1})
+        
+        // Create a hosting controller to properly initialize the view
+        let hostingController = UIHostingController(rootView: page)
+        _ = hostingController.view
+        
         // Find TextField
         let textField = try page.inspect().find(ViewType.TextField.self)
 

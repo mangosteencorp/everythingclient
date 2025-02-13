@@ -39,20 +39,20 @@ final class ModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(firstMovie.id, 659_956)
-        XCTAssertEqual(firstMovie.original_title, "Brave the Dark")
+        XCTAssertEqual(firstMovie.originalTitle, "Brave the Dark")
         XCTAssertEqual(firstMovie.title, "Brave the Dark")
         XCTAssertEqual(firstMovie.userTitle, "Brave the Dark")
-        XCTAssertEqual(firstMovie.poster_path, "/sMmy9CICGEyFDcXM9fIXU2bDEcH.jpg")
-        XCTAssertEqual(firstMovie.backdrop_path, "/6pxyCuAgJ0uEpbMXmEfJ6NmUrD7.jpg")
+        XCTAssertEqual(firstMovie.posterPath, "/sMmy9CICGEyFDcXM9fIXU2bDEcH.jpg")
+        XCTAssertEqual(firstMovie.backdropPath, "/6pxyCuAgJ0uEpbMXmEfJ6NmUrD7.jpg")
         XCTAssertEqual(firstMovie.popularity, 11.393)
-        XCTAssertEqual(firstMovie.vote_average, 5.65)
-        XCTAssertEqual(firstMovie.vote_count, 10)
-        XCTAssertEqual(firstMovie.release_date, "2025-01-24")
+        XCTAssertEqual(firstMovie.voteAverage, 5.65)
+        XCTAssertEqual(firstMovie.voteCount, 10)
+        XCTAssertEqual(firstMovie.releaseDate, "2025-01-24")
         XCTAssertFalse(firstMovie.video)
 
         // Test date formatting
         let expectedDate = Movie.dateFormatter.date(from: "2025-01-24")
-        XCTAssertEqual(firstMovie.releaseDate, expectedDate)
+        XCTAssertEqual(firstMovie.releaseDateFormatted, expectedDate)
     }
 
     func testMovieToMovieRowEntityConversion() throws {
@@ -65,21 +65,21 @@ final class ModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(entity.id, movie.id)
-        XCTAssertEqual(entity.posterPath, movie.poster_path)
+        XCTAssertEqual(entity.posterPath, movie.posterPath)
         XCTAssertEqual(entity.title, movie.userTitle)
-        XCTAssertEqual(entity.voteAverage, Double(movie.vote_average))
-        XCTAssertEqual(entity.releaseDate, movie.releaseDate)
+        XCTAssertEqual(entity.voteAverage, Double(movie.voteAverage))
+        XCTAssertEqual(entity.releaseDate, movie.releaseDateFormatted)
         XCTAssertEqual(entity.overview, movie.overview)
     }
 
     func testMovieWithMissingOptionalFields() throws {
         // Find a movie in the JSON with null fields
         let response = try JSONDecoder().decode(NowPlayingResponse.self, from: jsonData)
-        let movieWithNulls = try XCTUnwrap(response.results.first { $0.poster_path == nil })
+        let movieWithNulls = try XCTUnwrap(response.results.first { $0.posterPath == nil })
 
         // Then
-        XCTAssertNil(movieWithNulls.poster_path)
-        XCTAssertNil(movieWithNulls.backdrop_path)
+        XCTAssertNil(movieWithNulls.posterPath)
+        XCTAssertNil(movieWithNulls.backdropPath)
     }
 
     func testDateFormatterFormat() {

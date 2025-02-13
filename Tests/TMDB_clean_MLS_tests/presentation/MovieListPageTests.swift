@@ -21,8 +21,8 @@ class MovieListPageTests: XCTestCase {
         let apiKey = "test_api_key"
 
         // When
-        let nowPlayingPage = MovieListPage(container: container, apiKey: apiKey, type: .nowPlaying)
-        let upcomingPage = MovieListPage(container: container, apiKey: apiKey, type: .upcoming)
+        let nowPlayingPage = MovieListPage(container: container, apiKey: apiKey, type: .nowPlaying, detailRouteBuilder: {_ in 1})
+        let upcomingPage = MovieListPage(container: container, apiKey: apiKey, type: .upcoming, detailRouteBuilder: {_ in 1})
 
         // Then
         XCTAssertNotNil(nowPlayingPage)
@@ -32,7 +32,7 @@ class MovieListPageTests: XCTestCase {
 
     func testMovieListPageViewStates() {
         // Given
-        let page = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying)
+        let page = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying, detailRouteBuilder: {_ in 1})
 
         // Test Loading State
         page.viewModel.isLoading = true
@@ -65,8 +65,8 @@ class MovieListPageTests: XCTestCase {
 
     func testNavigationTitle() {
         // Given
-        let nowPlayingPage = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying)
-        let upcomingPage = MovieListPage(container: container, apiKey: "test_key", type: .upcoming)
+        let nowPlayingPage = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying, detailRouteBuilder: {_ in 1})
+        let upcomingPage = MovieListPage(container: container, apiKey: "test_key", type: .upcoming, detailRouteBuilder: {_ in 1})
 
         // Then
         XCTAssertEqual(nowPlayingPage.type.title, "Now Playing")
