@@ -2,7 +2,7 @@ import Combine
 import SwiftUI
 import TMDB_Shared_Backend
 
-class NowPlayingViewModel: ObservableObject {
+public class NowPlayingViewModel: ObservableObject {
     @Published var movies: [Movie] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -13,7 +13,7 @@ class NowPlayingViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
 
-    init(apiService: APIServiceProtocol) {
+    public init(apiService: APIServiceProtocol) {
         self.apiService = apiService
 
         // Add search debounce

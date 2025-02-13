@@ -6,14 +6,15 @@ import TMDB_Shared_UI
 
 @available(iOS 16, macOS 10.15, *)
 public struct DMSNowPlayingPage<Route: Hashable>: View {
-    @StateObject private var viewModel: NowPlayingViewModel
+    @StateObject var viewModel: NowPlayingViewModel
     let detailRouteBuilder: (Movie) -> Route
     public init(
         apiKey: String,
+        viewModel: NowPlayingViewModel? = nil,
         detailRouteBuilder: @escaping (Movie) -> Route
     ) {
         APIKeys.tmdbKey = apiKey
-        _viewModel = StateObject(wrappedValue: NowPlayingViewModel(
+        _viewModel = StateObject(wrappedValue: viewModel ?? NowPlayingViewModel(
             apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey)
         ))
         self.detailRouteBuilder = detailRouteBuilder

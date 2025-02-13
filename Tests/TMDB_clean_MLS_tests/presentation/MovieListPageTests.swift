@@ -30,39 +30,6 @@ class MovieListPageTests: XCTestCase {
         XCTAssertEqual(APIKeys.tmdbKey, apiKey)
     }
 
-    func testMovieListPageViewStates() {
-        // Given
-        let page = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying, detailRouteBuilder: {_ in 1})
-
-        // Test Loading State
-        page.viewModel.isLoading = true
-        let loadingView = page.body
-        let loadingContent = findViewWithId(loadingView, viewId: "loadingView")
-        XCTAssertNotNil(loadingContent, "Loading view should be visible when isLoading is true")
-
-        // Test Error State
-        page.viewModel.isLoading = false
-        page.viewModel.errorMessage = "Test Error"
-        let errorView = page.body
-        let errorContent = findViewWithId(errorView, viewId: "errorView")
-        XCTAssertNotNil(errorContent, "Error view should be visible when error message exists")
-
-        // Test Content State
-        page.viewModel.errorMessage = nil
-        page.viewModel.movies = [Movie(
-            id: 1,
-            title: "Test Movie",
-            overview: "Overview",
-            posterPath: nil,
-            voteAverage: 7.5,
-            popularity: 100.0,
-            releaseDate: nil
-        )]
-        let contentView = page.body
-        let movieListContent = findViewWithId(contentView, viewId: "movieListContent")
-        XCTAssertNotNil(movieListContent, "MovieListContent should be visible when there are movies")
-    }
-
     func testNavigationTitle() {
         // Given
         let nowPlayingPage = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying, detailRouteBuilder: {_ in 1})

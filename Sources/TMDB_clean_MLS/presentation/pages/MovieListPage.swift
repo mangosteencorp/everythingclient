@@ -41,11 +41,11 @@ public struct MovieListPage<Route: Hashable>: View {
                 }
             }
             .navigationTitle(type.title)
-            .accessibilityIdentifier("movieListPage.group")
         }
 #if os(iOS)
         .navigationViewStyle(StackNavigationViewStyle())
 #endif
+        .accessibilityIdentifier("movieListPage.group")
         .onFirstAppear {
             viewModel.fetchMovies()
         }
