@@ -6,16 +6,17 @@ import TMDB_Shared_UI
 
 @available(iOS 16, macOS 10.15, *)
 public struct DMSNowPlayingPage<Route: Hashable>: View {
-    @ObservedObject var viewModel: NowPlayingViewModel
+    @StateObject private var viewModel: NowPlayingViewModel
     let detailRouteBuilder: (Movie) -> Route
     public init(
         apiKey: String,
         detailRouteBuilder: @escaping (Movie) -> Route
     ) {
         APIKeys.tmdbKey = apiKey
-        viewModel = NowPlayingViewModel(apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey))
+        _viewModel = StateObject(wrappedValue: NowPlayingViewModel(
+            apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey)
+        ))
         self.detailRouteBuilder = detailRouteBuilder
-        viewModel.fetchNowPlayingMovies()
     }
 
     public var body: some View {
@@ -36,6 +37,9 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
         .accessibilityIdentifier("movielist1.group")
         .navigationTitle(L10n.playingTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .onFirstAppear {
+            viewModel.fetchNowPlayingMovies()
+        }
     }
 }
 
@@ -44,6 +48,15 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
 @available(iOS 16, macOS 10.15, *)
 #Preview {
     DMSNowPlayingPage(apiKey: "", detailRouteBuilder: { _ in 1 })
+}
+
+@available(iOS 16, macOS 10.15, *)
+#Preview("now playing page within tab view") {
+    TabView {
+        DMSNowPlayingPage(apiKey: "",
+                          detailRouteBuilder: { _ in 1 }).tag(0)
+        Text("Second View").tag(1)
+    }
 }
 // swiftlint:enable all
 #endif

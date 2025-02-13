@@ -1,9 +1,9 @@
 import SwiftUI
 import Swinject
-
+import TMDB_Shared_UI
 @available(iOS 16.0, *)
 public struct MovieListPage<Route: Hashable>: View {
-    @ObservedObject private(set) var viewModel: MoviesViewModel
+    @StateObject var viewModel: MoviesViewModel
     let type: MovieListType
     let detailRouteBuilder: (Int) -> Route
     public init(
@@ -18,13 +18,12 @@ public struct MovieListPage<Route: Hashable>: View {
         self.detailRouteBuilder = detailRouteBuilder
         switch type {
         case .nowPlaying:
-            viewModel = container.resolve(MoviesViewModel.self, name: "nowPlaying")!
+            _viewModel = StateObject(wrappedValue: container.resolve(MoviesViewModel.self, name: "nowPlaying")!)
         case .upcoming:
-            viewModel = container.resolve(MoviesViewModel.self, name: "upcoming")!
+            _viewModel = StateObject(wrappedValue: container.resolve(MoviesViewModel.self, name: "upcoming")!)
         }
 
         self.type = type
-        viewModel.fetchMovies()
     }
 
     public var body: some View {
@@ -47,6 +46,9 @@ public struct MovieListPage<Route: Hashable>: View {
 #if os(iOS)
         .navigationViewStyle(StackNavigationViewStyle())
 #endif
+        .onFirstAppear {
+            viewModel.fetchMovies()
+        }
     }
 }
 
