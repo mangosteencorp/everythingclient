@@ -1,24 +1,17 @@
+# .github/workflows/swiftlint.yml
 name: SwiftLint
 
 on:
+  push:
+    branches: ['main']
   pull_request:
-    paths:
-      - '.github/workflows/swiftlint.yml'
-      - '.swiftlint.yml'
-      - '**/*.swift'
+    branches: ['main']
 
 jobs:
   SwiftLint:
-    runs-on: ubuntu-latest
+    runs-on: ghcr.io/cirruslabs/macos-runner:sonoma
     steps:
-      - uses: actions/checkout@v1
-      
-      - name: Mark workspace as safe
-        run: git config --global --add safe.directory /github/workspace
-        
-      - name: GitHub Action for SwiftLint (Only files changed in the PR)
-        uses: norio-nomura/action-swiftlint@3.2.1
+      - uses: actions/checkout@v4
+      - uses: cirruslabs/swiftlint-action@v1
         with:
-          args: --quiet
-        env:
-          DIFF_BASE: ${{ github.base_ref }}
+          version: latest
