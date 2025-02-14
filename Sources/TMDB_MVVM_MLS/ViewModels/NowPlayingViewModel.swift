@@ -3,7 +3,7 @@ import SwiftUI
 import TMDB_Shared_Backend
 
 public class NowPlayingViewModel: ObservableObject {
-    @Published private(set) var state: NowPlayingViewState = .initial
+    @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
 
     private var nowPlayingMovies: [Movie] = []

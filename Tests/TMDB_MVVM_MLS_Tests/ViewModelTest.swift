@@ -50,18 +50,18 @@ final class NowPlayingViewModelTests: XCTestCase {
 
         // Then
         let expectation = XCTestExpectation(description: "Fetch movies")
-        viewModel.$movies
-            .dropFirst() // Skip initial empty value
-            .sink { movies in
-                XCTAssertEqual(movies.count, expectedMovies.count)
-                XCTAssertEqual(movies.first?.id, expectedMovies.first?.id)
-                expectation.fulfill()
+        viewModel.$state
+            .dropFirst() // Skip initial state
+            .sink { state in
+                if case .loaded(let movies) = state {
+                    XCTAssertEqual(movies.count, expectedMovies.count)
+                    XCTAssertEqual(movies.first?.id, expectedMovies.first?.id)
+                    expectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
         await fulfillment(of: [expectation], timeout: 1.0)
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertNil(viewModel.errorMessage)
     }
 
     func testFetchNowPlayingMoviesFailure() async {
@@ -74,17 +74,17 @@ final class NowPlayingViewModelTests: XCTestCase {
 
         // Then
         let expectation = XCTestExpectation(description: "Fetch movies error")
-        viewModel.$errorMessage
-            .dropFirst() // Skip initial nil value
-            .sink { errorMessage in
-                XCTAssertEqual(errorMessage, expectedError.localizedDescription)
-                expectation.fulfill()
+        viewModel.$state
+            .dropFirst() // Skip initial state
+            .sink { state in
+                if case .error(let errorMessage) = state {
+                    XCTAssertEqual(errorMessage, expectedError.localizedDescription)
+                    expectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
         await fulfillment(of: [expectation], timeout: 1.0)
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertTrue(viewModel.movies.isEmpty)
     }
 
     func testSearchMoviesSuccess() async {
@@ -103,18 +103,18 @@ final class NowPlayingViewModelTests: XCTestCase {
 
         // Then
         let expectation = XCTestExpectation(description: "Search movies")
-        viewModel.$movies
-            .dropFirst() // Skip initial empty value
-            .sink { movies in
-                XCTAssertEqual(movies.count, searchResults.count)
-                XCTAssertEqual(movies.first?.id, searchResults.first?.id)
-                expectation.fulfill()
+        viewModel.$state
+            .dropFirst() // Skip initial state
+            .sink { state in
+                if case .searchResults(let movies) = state {
+                    XCTAssertEqual(movies.count, searchResults.count)
+                    XCTAssertEqual(movies.first?.id, searchResults.first?.id)
+                    expectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
         await fulfillment(of: [expectation], timeout: 1.0)
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertNil(viewModel.errorMessage)
     }
 
     func testFetchMoreContent() async {
@@ -134,10 +134,12 @@ final class NowPlayingViewModelTests: XCTestCase {
         viewModel.fetchNowPlayingMovies()
 
         let initialLoadExpectation = XCTestExpectation(description: "Initial load")
-        viewModel.$movies
+        viewModel.$state
             .dropFirst()
-            .sink { _ in
-                initialLoadExpectation.fulfill()
+            .sink { state in
+                if case .loaded = state {
+                    initialLoadExpectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
@@ -156,11 +158,13 @@ final class NowPlayingViewModelTests: XCTestCase {
 
         // Then
         let loadMoreExpectation = XCTestExpectation(description: "Load more")
-        viewModel.$movies
+        viewModel.$state
             .dropFirst()
-            .sink { movies in
-                XCTAssertEqual(movies.count, initialMovies.count + additionalMovies.count)
-                loadMoreExpectation.fulfill()
+            .sink { state in
+                if case .loaded(let movies) = state {
+                    XCTAssertEqual(movies.count, initialMovies.count + additionalMovies.count)
+                    loadMoreExpectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
@@ -184,10 +188,12 @@ final class NowPlayingViewModelTests: XCTestCase {
         viewModel.fetchNowPlayingMovies()
 
         let initialLoadExpectation = XCTestExpectation(description: "Initial load")
-        viewModel.$movies
+        viewModel.$state
             .dropFirst()
-            .sink { _ in
-                initialLoadExpectation.fulfill()
+            .sink { state in
+                if case .loaded = state {
+                    initialLoadExpectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
@@ -205,11 +211,13 @@ final class NowPlayingViewModelTests: XCTestCase {
         viewModel.searchQuery = "test"
 
         let searchExpectation = XCTestExpectation(description: "Search complete")
-        viewModel.$movies
+        viewModel.$state
             .dropFirst()
-            .sink { movies in
-                XCTAssertEqual(movies.count, searchResults.count)
-                searchExpectation.fulfill()
+            .sink { state in
+                if case .searchResults(let movies) = state {
+                    XCTAssertEqual(movies.count, searchResults.count)
+                    searchExpectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
@@ -220,15 +228,19 @@ final class NowPlayingViewModelTests: XCTestCase {
 
         // Then
         let clearSearchExpectation = XCTestExpectation(description: "Clear search")
-        viewModel.$movies
+        viewModel.$state
             .dropFirst()
-            .sink { movies in
-                XCTAssertEqual(movies.count, nowPlayingMovies.count)
-                XCTAssertEqual(movies.first?.id, nowPlayingMovies.first?.id)
-                clearSearchExpectation.fulfill()
+            .sink { state in
+                if case .loaded(let movies) = state {
+                    XCTAssertEqual(movies.count, nowPlayingMovies.count)
+                    XCTAssertEqual(movies.first?.id, nowPlayingMovies.first?.id)
+                    clearSearchExpectation.fulfill()
+                }
             }
             .store(in: &cancellables)
 
         await fulfillment(of: [clearSearchExpectation], timeout: 1.0)
     }
 }
+
+

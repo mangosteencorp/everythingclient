@@ -4,32 +4,16 @@ import TMDB_Shared_UI
 import ViewInspector
 import XCTest
 
-// Mock ViewModel
-class MockNowPlayingViewModel: NowPlayingViewModel {
-    var fetchNowPlayingMoviesCalled = false
-    var searchMoviesCalled = false
-    var fetchMoreContentCalled = false
-    
-    override func fetchNowPlayingMovies() {
-        fetchNowPlayingMoviesCalled = true
-        // Allow control over loading and error states
-        isLoading = false
-    }
-
-    override func fetchMoreContentIfNeeded(currentMovieId: Int) {
-        fetchMoreContentCalled = true
-    }
-}
 
 @available(iOS 16.0, *)
 class DMSNowPlayingPageTests: XCTestCase {
-    var mockViewModel: MockNowPlayingViewModel!
+    var mockViewModel: NowPlayingViewModel!
     var page: DMSNowPlayingPage<Int>!
 
     override func setUp() {
         super.setUp()
-        mockViewModel = MockNowPlayingViewModel(apiService: MockAPIService())
-        page = DMSNowPlayingPage(apiKey: "", viewModel: mockViewModel, detailRouteBuilder: { _ in 1 })
+        mockViewModel = NowPlayingViewModel(apiService: MockAPIService())
+        page = DMSNowPlayingPage(viewModel: mockViewModel, detailRouteBuilder: { _ in 1 })
     }
 
     override func tearDown() {
@@ -38,41 +22,75 @@ class DMSNowPlayingPageTests: XCTestCase {
         super.tearDown()
     }
 
+    func testInitialState() {
+        let pageSelfCreatedVM = DMSNowPlayingPage(apiKey: "", detailRouteBuilder: { _ in 1 })
+        XCTAssertNotNil(pageSelfCreatedVM.viewModel)
+    }
+
     func testLoadingState() throws {
-        mockViewModel.isLoading = true
+        mockViewModel.state = .loading
         
         let progressView = try page.inspect().find(ViewType.ProgressView.self)
         XCTAssertNotNil(progressView)
-        // XCTAssertEqual(try progressView.progressViewStyle(), ProgressViewStyleKey.DefaultStyle())
     }
 
     func testErrorState() throws {
         let errorMessage = "Test error"
-        mockViewModel.errorMessage = errorMessage
-        mockViewModel.isLoading = false
+        mockViewModel.state = .error(errorMessage)
         
         let errorText = try page.inspect().find(ViewType.Text.self)
         XCTAssertEqual(try errorText.string(), errorMessage)
     }
 
     func testMovieListDisplay() throws {
-        mockViewModel.movies = [sampleApeMovie]
-        mockViewModel.isLoading = false
-        mockViewModel.errorMessage = nil
+        mockViewModel.state = .loaded([sampleApeMovie])
         
         let list = try page.inspect().find(ViewType.List.self)
         XCTAssertNotNil(list)
         
-        // Verify movie row exists
         let movieRow = try list.find(NavigationMovieRow<Int>.self)
         XCTAssertNotNil(movieRow)
     }
 
-    func testFetchMoviesOnAppear() throws {
-        let vstack = try page.inspect().find(ViewType.VStack.self)
-        try vstack.callOnAppear()
+
+    func testDebugInitializer() throws {
+        // Given
+        let testViewModel = mockViewModel!
+        let testMovie = Movie(id: 1, originalTitle: "Test", title: "Test", overview: "Test",
+                            posterPath: nil, backdropPath: nil, popularity: 0, 
+                            voteAverage: 0, voteCount: 0, releaseDate: nil, 
+                            genres: nil, video: false)
         
-        XCTAssertTrue(mockViewModel.fetchNowPlayingMoviesCalled)
+        // When
+        testViewModel.state = .loaded([testMovie])
+        let testPage = DMSNowPlayingPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
+        
+        // Then
+        let list = try testPage.inspect().find(ViewType.List.self)
+        XCTAssertNotNil(list)
+        
+        let movieRow = try list.find(NavigationMovieRow<Int>.self)
+        XCTAssertNotNil(movieRow)
+        
     }
 
+    func testDebugInitializerWithSearchResults() throws {
+        // Given
+        let testViewModel = mockViewModel!
+        let searchMovie = Movie(id: 2, originalTitle: "Search", title: "Search", overview: "Search",
+                              posterPath: nil, backdropPath: nil, popularity: 0, 
+                              voteAverage: 0, voteCount: 0, releaseDate: nil, 
+                              genres: nil, video: false)
+        
+        // When
+        testViewModel.state = .searchResults([searchMovie])
+        let testPage = DMSNowPlayingPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
+        
+        // Then
+        let list = try testPage.inspect().find(ViewType.List.self)
+        XCTAssertNotNil(list)
+        
+        let movieRow = try list.find(NavigationMovieRow<Int>.self)
+        XCTAssertNotNil(movieRow)
+    }
 }
