@@ -22,14 +22,16 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // Content
             Group {
-                if viewModel.isLoading {
+                switch viewModel.state {
+                case .initial:
+                    EmptyView()
+                case .loading:
                     ProgressView(L10n.playingLoading)
-                } else if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                } else {
-                    List(viewModel.movies) { movie in
+                case .error(let message):
+                    Text(message)
+                case .loaded(let movies), .searchResults(let movies):
+                    List(movies) { movie in
                         NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
                     }.searchable(text: $viewModel.searchQuery)
                 }

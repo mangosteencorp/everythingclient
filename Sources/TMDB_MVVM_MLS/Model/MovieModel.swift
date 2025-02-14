@@ -24,7 +24,8 @@ public struct Movie: Codable, Identifiable {
 
     public let releaseDate: String?
     public var releaseDateFormatted: Date? {
-        return releaseDate != nil ? Movie.dateFormatter.date(from: releaseDate!) : Date()
+        guard let releaseDate = releaseDate else { return nil }
+        return Movie.dateFormatter.date(from: releaseDate)
     }
 
     public static let dateFormatter: DateFormatter = {
