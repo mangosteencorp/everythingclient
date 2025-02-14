@@ -16,4 +16,4 @@ jobs:
       - name: Run SwiftLint
         env:
           SWIFTLINT_ENABLE_WRITE_PACKAGE_DIRECTORY: "yes"
-        run: swift package plugin swiftlint --quiet
+        run: swift package plugin swiftlint --quiet --allow-writing-to-package-directory
