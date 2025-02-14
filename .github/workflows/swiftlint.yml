@@ -20,4 +20,4 @@ jobs:
 
     - name: SwiftLint
       run: |
-        pwd; ls -la; swiftlint --reporter github-actions-logging --quiet
+        pwd; ls -la; swiftlint lint --reporter github-actions-logging
