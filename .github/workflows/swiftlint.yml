@@ -8,12 +8,16 @@ on:
     branches: ['main']
 
 jobs:
-  SwiftLint:
+  build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/realm/swiftlint:5.5-latest
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Run SwiftLint
-        env:
-          SWIFTLINT_ENABLE_WRITE_PACKAGE_DIRECTORY: "yes"
-        run: swift package plugin swiftlint --quiet --allow-writing-to-package-directory
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+
+    - name: SwiftLint
+      run: |
+        pwd; ls -la; swiftlint --reporter github-actions-logging --quiet
