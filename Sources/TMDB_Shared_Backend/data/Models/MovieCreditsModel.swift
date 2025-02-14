@@ -1,5 +1,5 @@
 import Foundation
-//swiftlint:disable identifier_name
+// swiftlint:disable identifier_name
 public struct MovieCreditsModel: Codable {
     public let id: Int
     public let cast: [CastMember]
@@ -35,4 +35,4 @@ public struct CrewMember: Codable {
     public let job: String
 }
 
-//swiftlint:enable identifier_name
+// swiftlint:enable identifier_name

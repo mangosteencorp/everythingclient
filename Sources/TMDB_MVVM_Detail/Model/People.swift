@@ -61,7 +61,7 @@ struct MovieCredits: Decodable {
     let crew: [People]
 }
 
-//swiftlint:disable all
+// swiftlint:disable all
 #if DEBUG
 let examplePeoples = [
     People(
@@ -147,4 +147,4 @@ let examplePeoples = [
 ]
 let exampleMovieCredits = MovieCredits(id: 10, cast: examplePeoples, crew: examplePeoples)
 #endif
-//swiftlint:enable all
+// swiftlint:enable all

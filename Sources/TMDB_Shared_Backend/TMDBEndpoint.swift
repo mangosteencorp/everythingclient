@@ -45,7 +45,7 @@ public enum TMDBEndpoint {
 
     // Watchlist
     case getWatchlistTVShows(accountId: String)
-    //swiftlint:disable cyclomatic_complexity
+    // swiftlint:disable cyclomatic_complexity
     func path() -> String {
         switch self {
         // Movie Lists
@@ -118,7 +118,7 @@ public enum TMDBEndpoint {
         }
     }
 
-    //swiftlint:enable cyclomatic_complexity
+    // swiftlint:enable cyclomatic_complexity
     func needAuthentication() -> Bool {
         switch self {
         case .accountInfo, .setFavoriteMovie, .getFavoriteMovies, .getFavoriteTVShows, .getWatchlistTVShows, .logOut:

@@ -551,7 +551,7 @@ class SectionHeaderView: UICollectionReusableView {
     }
 }
 
-//swiftlint:disable all
+// swiftlint:disable all
 #if DEBUG
 let sampleSections: [Section<ProfileCollectionItem>] = [
     // Featured Section (Watchlist)
@@ -702,4 +702,4 @@ let sampleSections: [Section<ProfileCollectionItem>] = [
     }
 }
 #endif
-//swiftlint:enable all
+// swiftlint:enable all

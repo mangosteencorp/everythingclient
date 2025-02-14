@@ -12,7 +12,7 @@ public final class PokelistViewController: UIViewController {
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 8
         layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
-        //swiftlint:disable identifier_name
+        // swiftlint:disable identifier_name
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.translatesAutoresizingMaskIntoConstraints = false
         cv.backgroundColor = .black
@@ -20,7 +20,7 @@ public final class PokelistViewController: UIViewController {
         cv.dataSource = self
         cv.delegate = self
         return cv
-        //swiftlint:enable identifier_name
+        // swiftlint:enable identifier_name
     }()
 
     public init() {

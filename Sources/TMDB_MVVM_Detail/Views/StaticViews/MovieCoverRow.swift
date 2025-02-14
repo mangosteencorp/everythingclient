@@ -101,7 +101,7 @@ struct MovieInfoRow: View {
     }
 }
 
-//swiftlint:disable all
+// swiftlint:disable all
 #if DEBUG
 #Preview {
     Section {
@@ -117,4 +117,4 @@ struct MovieInfoRow: View {
     }
 }
 #endif
-//swiftlint:enable all
+// swiftlint:enable all

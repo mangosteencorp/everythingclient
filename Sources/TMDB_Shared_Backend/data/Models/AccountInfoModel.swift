@@ -1,4 +1,4 @@
-//swiftlint:disable identifier_name
+// swiftlint:disable identifier_name
 public struct AccountInfoModel: Codable {
     public let avatar: Avatar
     public let id: Int
@@ -22,4 +22,4 @@ public struct AccountInfoModel: Codable {
     }
 }
 
-//swiftlint:enable identifier_name
+// swiftlint:enable identifier_name

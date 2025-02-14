@@ -1,6 +1,6 @@
 import SwiftUI
 
-//swiftlint:disable all
+// swiftlint:disable all
 #if DEBUG
 #Preview {
     RootContentView(
@@ -9,4 +9,4 @@ import SwiftUI
     )
 }
 #endif
-//swiftlint:enable all
+// swiftlint:enable all
