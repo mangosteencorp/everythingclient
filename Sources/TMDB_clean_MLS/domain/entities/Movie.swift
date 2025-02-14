@@ -17,7 +17,7 @@ struct Movie: Equatable {
         return formatter
     }()
 
-// swiftlint:disable all
+//swiftlint:disable all
 #if DEBUG
     static let exampleMovies = [
         Movie(
@@ -69,7 +69,7 @@ struct Movie: Equatable {
 #endif
 }
 
-// swiftlint:enable all
+//swiftlint:enable all
 extension Movie {
     func toMovieRowEntity() -> MovieRowEntity {
         return MovieRowEntity(

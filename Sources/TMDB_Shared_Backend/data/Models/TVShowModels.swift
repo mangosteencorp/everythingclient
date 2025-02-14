@@ -1,4 +1,4 @@
-// swiftlint:disable identifier_name
+//swiftlint:disable identifier_name
 public struct TVShowListResultModel: Codable {
     public let page: Int
     public let results: [TVShow]
@@ -23,4 +23,4 @@ public struct TVShow: Codable {
     public let vote_count: Int
 }
 
-// swiftlint:enable identifier_name
+//swiftlint:enable identifier_name

@@ -65,7 +65,7 @@ public struct Movie: Codable, Identifiable {
 }
 
 #if DEBUG
-// swiftlint:disable all
+//swiftlint:disable all
 let sampleEmptyMovie = Movie(
     id: 0,
     originalTitle: "Test movie Test movie Test movie Test movie Test movie Test movie Test movie ",
@@ -95,5 +95,5 @@ let sampleApeMovie = Movie(
     genres: nil,
     video: false
 )
-// swiftlint:enable all
+//swiftlint:enable all
 #endif

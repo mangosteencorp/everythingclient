@@ -13,11 +13,11 @@ private struct UIImageColorsCounter {
 // MARK: -
 
 private extension Double {
-    // swiftlint:disable identifier_name
+    //swiftlint:disable identifier_name
     private var r: Double { fmod(floor(self / 1_000_000), 1_000_000) }
     private var g: Double { fmod(floor(self / 1000), 1000) }
     private var b: Double { fmod(self, 1000) }
-    // swiftlint:enable identifier_name
+    //swiftlint:enable identifier_name
 
     var uicolor: UIColor { UIColor(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: 1) }
     var isBlackOrWhite: Bool { (r > 232 && g > 232 && b > 232) || (r < 23 && g < 23 && b < 23) }

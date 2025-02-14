@@ -1,4 +1,4 @@
-// swiftlint:disable all
+//swiftlint:disable all
 #if DEBUG
 let exampleMovieDetail = Movie(
     id: 516_729,
@@ -64,4 +64,4 @@ let sampleApeMovie = Movie(
 )
 
 #endif
-// swiftlint:enable all
+//swiftlint:enable all

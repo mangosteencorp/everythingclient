@@ -1,6 +1,6 @@
 import Foundation
 import Swinject
-// swiftlint:disable:next type_name
+//swiftlint:disable:next type_name
 public class TMDB_Shared_Backend {
     static var container: Container?
 
@@ -10,7 +10,7 @@ public class TMDB_Shared_Backend {
         container.register(KeychainDataSource.self) { _ in
             KeychainDataSource()
         }.inObjectScope(.container)
-        // swiftlint:disable identifier_name
+        //swiftlint:disable identifier_name
         container.register(AuthRepository.self) { r in
             DefaultAuthRepository(keychainDataSource: r.resolve(KeychainDataSource.self)!)
         }.inObjectScope(.container)
@@ -46,6 +46,6 @@ public class TMDB_Shared_Backend {
                 webAuthService: r.resolve(WebAuthenticationService.self)!
             )
         }.inObjectScope(.container)
-        // swiftlint:enable identifier_name
+        //swiftlint:enable identifier_name
     }
 }

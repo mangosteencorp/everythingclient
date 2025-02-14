@@ -58,7 +58,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
 }
 
 #if DEBUG
-// swiftlint:disable all
+//swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
     DMSNowPlayingPage(apiKey: "1d9b898a212ea52e283351e521e17871",
@@ -73,5 +73,5 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
         Text("Second View").tag(1)
     }
 }
-// swiftlint:enable all
+//swiftlint:enable all
 #endif

@@ -72,7 +72,7 @@ public struct Movie: Codable, Identifiable {
     }
 
     static func placeholder(id: Int) -> Movie {
-        // swiftlint:disable line_length
+        //swiftlint:disable line_length
         return Movie(
             id: id,
             originalTitle: "",
@@ -89,7 +89,7 @@ public struct Movie: Codable, Identifiable {
             status: nil,
             video: false
         )
-        // swiftlint:enable line_length
+        //swiftlint:enable line_length
     }
 
     public init(

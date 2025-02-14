@@ -20,6 +20,4 @@ jobs:
 
     - name: SwiftLint
       run: |
-        pwd; ls -la;
-        swiftlint lint --reporter json | \
-        jq -r '.[] | "::error file=\(.file),line=\(.line),col=\(.character)::\(.rule): \(.reason)"'
+        pwd; ls -la; swiftlint lint --reporter github-actions-logging

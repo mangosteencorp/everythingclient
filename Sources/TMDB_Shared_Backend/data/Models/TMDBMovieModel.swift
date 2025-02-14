@@ -1,7 +1,7 @@
 // API Models
 import SwiftUI
 
-// swiftlint:disable identifier_name
+//swiftlint:disable identifier_name
 public struct TMDBMovieModel: Codable {
     public let id: Int
     public let title: String
@@ -12,4 +12,4 @@ public struct TMDBMovieModel: Codable {
     public let release_date: String?
 }
 
-// swiftlint:enable identifier_name
+//swiftlint:enable identifier_name
