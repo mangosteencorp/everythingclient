@@ -31,7 +31,7 @@ do
     echo "\nTesting $scheme..." >> $COVERAGE_REPORT
     xcodebuild test \
         -scheme "$scheme" \
-        -destination "id=$LAST_SIMULATOR_ID" \
+        -destination "id=$SIMULATOR_ID" \
         -enableCodeCoverage YES
     # Initialize ignore_schemes array with default ignores
     ignore_schemes=()
