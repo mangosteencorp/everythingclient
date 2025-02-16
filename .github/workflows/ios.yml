@@ -9,11 +9,17 @@ on:
 jobs:
   build:
     name: Build and Test default scheme using any available iPhone simulator
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Select latest Xcode
+        run: |
+          XCODE_LIST=$(ls -d /Applications/Xcode*.app)
+          LATEST_XCODE=$(echo "$XCODE_LIST" | sort -V | tail -n 1)
+          echo "Using Xcode: $LATEST_XCODE"
+          sudo xcode-select -switch "$LATEST_XCODE"
       - name: Check environment
         run: |
           swift --version
