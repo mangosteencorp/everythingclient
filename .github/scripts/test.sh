@@ -23,7 +23,6 @@ echo "Coverage Report Generated on $(date)" > $COVERAGE_REPORT
 echo "100% Coverage Report Generated on $(date)" > $COVERAGE_100_REPORT
 echo "----------------------------------------" >> $COVERAGE_REPORT
 echo "----------------------------------------" >> $COVERAGE_100_REPORT
-device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
 
 # Run tests and generate coverage for each scheme
 for scheme in "${TEST_SCHEMES[@]}"
@@ -32,7 +31,7 @@ do
     echo "\nTesting $scheme..." >> $COVERAGE_REPORT
     xcodebuild test \
         -scheme "$scheme" \
-        -destination "platform=iOS Simulator,name=$device,OS=latest" \
+        -destination "id=$LAST_SIMULATOR_ID" \
         -enableCodeCoverage YES
     # Initialize ignore_schemes array with default ignores
     ignore_schemes=()

@@ -43,13 +43,19 @@ jobs:
         run: |
           chmod +x ./.github/scripts/build.sh
           sh ./.github/scripts/build.sh
+
+      - name: Find Simulator
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
+        run: |
+          chmod +x ./.github/scripts/find_simulator.sh
+          sh ./.github/scripts/find_simulator.sh
       - name: Test with coverage
         env:
           scheme: ${{ 'default' }}
           platform: ${{ 'iOS Simulator' }}
         run: |
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          echo $device
           chmod +x ./.github/scripts/test.sh
           sh ./.github/scripts/test.sh
 

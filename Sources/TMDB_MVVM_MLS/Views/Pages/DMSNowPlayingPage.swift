@@ -29,8 +29,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
         self.detailRouteBuilder = detailRouteBuilder
     }
 #endif
-    
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             Group {
