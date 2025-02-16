@@ -9,15 +9,15 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/realm/swiftlint:5.5-latest
+    runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 1
 
+    - name: Install SwiftLint
+      run: brew install swiftlint
+
     - name: SwiftLint
-      run: |
-        pwd; ls -la; swiftlint lint --reporter github-actions-logging
+      run: swiftlint lint --config .swiftlint.yml --reporter github-actions-logging
