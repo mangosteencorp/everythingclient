@@ -1,4 +1,4 @@
-name: iOS starter workflow
+name: iOS Tests and Coverage
 
 on:
   push:
@@ -36,10 +36,24 @@ jobs:
         run: |
           chmod +x ./.github/scripts/set_scheme.sh
           sh ./.github/scripts/set_scheme.sh
-      - name: Build
+      - name: Find Simulator
         env:
           scheme: ${{ 'default' }}
           platform: ${{ 'iOS Simulator' }}
         run: |
-          chmod +x ./.github/scripts/build.sh
-          sh ./.github/scripts/build.sh
+          chmod +x ./.github/scripts/find_simulator.sh
+          sh ./.github/scripts/find_simulator.sh
+      - name: Test with coverage
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
+        run: |
+          chmod +x ./.github/scripts/test.sh
+          sh ./.github/scripts/test.sh
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: .output/coverage_report.txt
+          retention-days: 14
