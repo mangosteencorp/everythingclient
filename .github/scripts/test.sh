@@ -32,6 +32,7 @@ do
     xcodebuild test \
         -scheme "$scheme" \
         -destination "id=$SIMULATOR_ID" \
+        -quiet \
         -enableCodeCoverage YES
     # Initialize ignore_schemes array with default ignores
     ignore_schemes=()
@@ -86,7 +87,7 @@ do
                 echo "$line" >> $COVERAGE_100_REPORT
             else
                 echo "$line" >> $COVERAGE_REPORT
-                HAS_INCOMPLETE_COVERAGE=1
+                echo "1" > .incomplete_coverage_flag
             fi
         fi
     done
@@ -102,8 +103,9 @@ cat "$COVERAGE_100_REPORT"
 echo "Files with less than 100% coverage:"
 cat "$COVERAGE_REPORT"
 
-# Exit with error if we found any incomplete coverage
-if [ "$HAS_INCOMPLETE_COVERAGE" = "1" ]; then
+# Read the flag file and exit with error if incomplete coverage was found
+if [ -f .incomplete_coverage_flag ]; then
     echo "❌ Found files with less than 100% coverage"
+    rm .incomplete_coverage_flag
     exit 1
 fi

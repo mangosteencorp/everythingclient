@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# export default="YourSchemeName" && .github/scripts/find_simulator.sh
 # Get the simulator ID for testing
 xcodebuild -scheme "$default" -showdestinations
 # first simulator is usually just the placeholder
