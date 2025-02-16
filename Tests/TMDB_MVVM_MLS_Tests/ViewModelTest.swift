@@ -242,5 +242,3 @@ final class NowPlayingViewModelTests: XCTestCase {
         await fulfillment(of: [clearSearchExpectation], timeout: 1.0)
     }
 }
-
-
