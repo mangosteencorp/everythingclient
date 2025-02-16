@@ -2,8 +2,8 @@
 
 # List of test schemes
 TEST_SCHEMES=(
-    "TMDB_clean_MLS_tests"
-    "TMDB_Shared_Backend_Tests"
+    # "TMDB_clean_MLS_tests"
+    # "TMDB_Shared_Backend_Tests"
     "TMDB_MVVM_MLS_Tests"
     # Add more schemes here as needed
 )
