@@ -3,12 +3,12 @@ import TMDB_Shared_UI
 
 @available(iOS 16.0, *)
 struct MovieListContent<Route: Hashable>: View {
-    let movies: [Movie]
+    let tvShows: [TVShowEntity]
     let detailRouteBuilder: (Int) -> Route
     var body: some View {
-        List(movies, id: \.id) { movie in
-            NavigationLink(value: detailRouteBuilder(movie.id), label: {
-                MovieRow(movie: movie.toMovieRowEntity())
+        List(tvShows, id: \.id) { tvShow in
+            NavigationLink(value: detailRouteBuilder(tvShow.id), label: {
+                MovieRow(movie: tvShow.toTVShowRowEntity())
             })
         }.accessibilityIdentifier("MovieListContent.List")
     }
@@ -17,6 +17,6 @@ struct MovieListContent<Route: Hashable>: View {
 #if DEBUG
 @available(iOS 16.0, *)
 #Preview {
-    MovieListContent(movies: Movie.exampleMovies, detailRouteBuilder: { _ in 0 })
+    MovieListContent(tvShows: [], detailRouteBuilder: { _ in 0 })
 }
 #endif

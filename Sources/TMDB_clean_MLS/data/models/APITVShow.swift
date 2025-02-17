@@ -1,15 +1,12 @@
-// API Models
-import SwiftUI
-
+import Foundation
 // swiftlint:disable identifier_name
-public struct APIMovie: Codable {
+public struct APITVShow: Codable {
     let id: Int
-    let title: String
+    let name: String
     let overview: String
     let poster_path: String?
     let vote_average: Float
     let popularity: Float
-    let release_date: String?
-}
-
+    let first_air_date: String?
+} 
 // swiftlint:enable identifier_name

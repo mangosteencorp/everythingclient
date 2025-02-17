@@ -1,18 +1,18 @@
 import TMDB_Shared_Backend
 
 extension TMDBAPIService: APIServiceProtocol {
-    func fetchMovies(endpoint: MovieListType) async -> Result<MovieListResultModel, Error> {
+
+    func fetchTVShows(endpoint: TVShowListType) async -> Result<TVListResultModel, Error> {
         let listTypeEndpoint: TMDBEndpoint = {
             switch endpoint {
-            case .nowPlaying:
-                return .nowPlaying()
-            case .upcoming:
-                return .upcoming()
+            case .airingToday:
+                return .tvAiringToday()
+            case .onTheAir:
+                return .tvOnTheAir()
             }
         }()
-        let result: Result<MovieListResultModel, TMDBAPIError> = await request<MovieListResultModel>(listTypeEndpoint)
+        let result: Result<TVListResultModel, TMDBAPIError> = await request<TVListResultModel>(listTypeEndpoint)
 
-        // Map TMDBAPIError to Error
         switch result {
         case let .success(response):
             return .success(response)
