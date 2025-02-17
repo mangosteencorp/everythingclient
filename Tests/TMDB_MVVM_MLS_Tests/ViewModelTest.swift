@@ -6,7 +6,7 @@ class MockAPIService: APIServiceProtocol {
     var mockNowPlayingResult: Result<NowPlayingResponse, Error>?
     var mockSearchResult: Result<NowPlayingResponse, Error>?
 
-    func fetchNowPlayingMovies(page: Int?) async -> Result<NowPlayingResponse, Error> {
+    func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 

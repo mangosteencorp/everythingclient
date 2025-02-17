@@ -22,7 +22,7 @@ class DMSNowPlayingPageTests: XCTestCase {
     }
 
     func testInitialState() {
-        let pageSelfCreatedVM = DMSNowPlayingPage(apiKey: "", detailRouteBuilder: { _ in 1 })
+        let pageSelfCreatedVM = DMSNowPlayingPage(apiService: MockAPIService(), detailRouteBuilder: { _ in 1 })
         XCTAssertNotNil(pageSelfCreatedVM.viewModel)
     }
 
