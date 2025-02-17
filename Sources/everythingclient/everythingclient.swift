@@ -19,7 +19,7 @@ public struct RootContentView: View {
                 switch tab {
                 case .tmdb:
                     if #available(iOS 16, *) {
-                        TMDBAPITabView(tmdbKey: tmdbAPIKey)
+                        TMDBAPITabView(tmdbKey: tmdbAPIKey, navigationInterceptor: TabManager.shared)
                             .tabItem {
                                 Label(tab.label.0, systemImage: tab.label.1)
                             }

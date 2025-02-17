@@ -17,11 +17,16 @@ public struct TMDBAPITabView: View {
     @State private var isShowingTVShowDetail = false
     @State private var selectedMovieId: Int?
     @State private var selectedTVShowId: Int?
+    private let navigationInterceptor: TMDBNavigationInterceptor?
 
-    public init(tmdbKey: String) {
+    public init(tmdbKey: String, navigationInterceptor: TMDBNavigationInterceptor? = nil) {
         self.tmdbKey = tmdbKey
+        self.navigationInterceptor = navigationInterceptor
         let container = Container()
         TMDB_Shared_Backend.configure(container: container, apiKey: tmdbKey)
+        if let interceptor = self.navigationInterceptor {
+            container.register(TMDBNavigationInterceptor.self) { _ in interceptor }.inObjectScope(.container)
+        }
         self.container = container
 
         let tabList: [TabRoute] = [.nowPlaying, .upcoming, .profile]
@@ -47,7 +52,7 @@ public struct TMDBAPITabView: View {
         NavigationStack(path: coordinator.path(for: tab)) {
             switch tab {
             case .nowPlaying:
-                DMSNowPlayingPage(apiKey: tmdbKey) { movie in
+                DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!) { movie in
                     TMDBRoute.movieDetail(MovieRouteModel(
                         id: movie.id,
                         title: movie.title,

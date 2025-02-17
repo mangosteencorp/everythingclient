@@ -1,7 +1,7 @@
 import TMDB_Shared_Backend
 
 public struct AdditionalMovieListParams: Hashable {
-    let keywordId: Int?
+    public let keywordId: Int?
 
     public static func keyword(_ id: Int) -> AdditionalMovieListParams {
         AdditionalMovieListParams(keywordId: id)

@@ -10,20 +10,6 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
     let detailRouteBuilder: (Movie) -> Route
 
     public init(
-        apiKey: String,
-        additionalParams: AdditionalMovieListParams? = nil,
-        viewModel: NowPlayingViewModel? = nil,
-        detailRouteBuilder: @escaping (Movie) -> Route
-    ) {
-        APIKeys.tmdbKey = apiKey // TODO: remove APIKeys
-        _viewModel = StateObject(wrappedValue: viewModel ?? NowPlayingViewModel(
-            apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey),
-            additionalParams: additionalParams
-        ))
-        self.detailRouteBuilder = detailRouteBuilder
-    }
-
-    public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         detailRouteBuilder: @escaping (Movie) -> Route
@@ -75,7 +61,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
 // swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
-    DMSNowPlayingPage(apiKey: "1d9b898a212ea52e283351e521e17871",
+    DMSNowPlayingPage(apiService: TMDBAPIService(apiKey: previewTMDBAPIKey),
                       detailRouteBuilder: { _ in 1 })
 }
 
@@ -84,8 +70,10 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
     TabView {
         TabView {
             NavigationStack {
-                DMSNowPlayingPage(apiKey: "1d9b898a212ea52e283351e521e17871",
-                                  detailRouteBuilder: { _ in 1 })
+                DMSNowPlayingPage(
+                    apiService: TMDBAPIService(apiKey: previewTMDBAPIKey),
+                    detailRouteBuilder: { _ in 1 }
+                )
                 .tag(0)
                 .tabItem {
                     Label("First View", systemImage: "house")

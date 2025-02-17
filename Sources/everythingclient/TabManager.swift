@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import TMDB
 public class TabManager: ObservableObject {
     @Published public var availableTabs: Set<AppTab>
 
@@ -8,10 +9,6 @@ public class TabManager: ObservableObject {
 
     private init() {
         availableTabs = []
-    }
-
-    public func specialKeywordIdList() -> [Int] {
-        return specialKeywordMap.keys.sorted()
     }
 
     public func enableSpecialTab(specialKeywordId: Int) {
@@ -35,6 +32,14 @@ public enum AppTab: Int, CaseIterable, Identifiable {
             return ("TMDB", "movieclapper")
         case .pokedex:
             return ("Pokédex", "sparkles")
+        }
+    }
+}
+
+extension TabManager: TMDBNavigationInterceptor {
+    public func willNavigate(to route: TMDBRoute) {
+        if case .movieList(let additionalMovieListParams) = route, let kwId = additionalMovieListParams.keywordId {
+            enableSpecialTab(specialKeywordId: kwId)
         }
     }
 }
