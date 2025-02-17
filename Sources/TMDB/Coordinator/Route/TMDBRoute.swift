@@ -1,13 +1,16 @@
+import TMDB_MVVM_MLS
 public enum TMDBRoute: Route {
     case movieDetail(MovieRouteModel)
     case tvShowDetail(Int)
-
+    case movieList(AdditionalMovieListParams)
     public func hash(into hasher: inout Hasher) {
         switch self {
         case let .movieDetail(movie):
             hasher.combine(movie.id)
         case let .tvShowDetail(id):
             hasher.combine(id)
+        case let .movieList(params):
+            hasher.combine(params)
         }
     }
 

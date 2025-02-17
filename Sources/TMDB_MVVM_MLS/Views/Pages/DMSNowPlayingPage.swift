@@ -8,14 +8,29 @@ import TMDB_Shared_UI
 public struct DMSNowPlayingPage<Route: Hashable>: View {
     @StateObject var viewModel: NowPlayingViewModel
     let detailRouteBuilder: (Movie) -> Route
+
     public init(
         apiKey: String,
+        additionalParams: AdditionalMovieListParams? = nil,
         viewModel: NowPlayingViewModel? = nil,
         detailRouteBuilder: @escaping (Movie) -> Route
     ) {
-        APIKeys.tmdbKey = apiKey
+        APIKeys.tmdbKey = apiKey // TODO: remove APIKeys
         _viewModel = StateObject(wrappedValue: viewModel ?? NowPlayingViewModel(
-            apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey)
+            apiService: TMDBAPIService(apiKey: APIKeys.tmdbKey),
+            additionalParams: additionalParams
+        ))
+        self.detailRouteBuilder = detailRouteBuilder
+    }
+
+    public init(
+        apiService: APIServiceProtocol,
+        additionalParams: AdditionalMovieListParams? = nil,
+        detailRouteBuilder: @escaping (Movie) -> Route
+    ) {
+        _viewModel = StateObject(wrappedValue: NowPlayingViewModel(
+            apiService: apiService,
+            additionalParams: additionalParams
         ))
         self.detailRouteBuilder = detailRouteBuilder
     }
@@ -81,7 +96,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
                     Label("Second View", systemImage: "gear")
                 }
         }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+        //.tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
         .tag(0)
         .tabItem {
             Label("Outer First View", systemImage: "star")
@@ -91,7 +106,6 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
                 Label("Outer Second View", systemImage: "moon")
             }
     }
-    
 }
 // swiftlint:enable all
 #endif

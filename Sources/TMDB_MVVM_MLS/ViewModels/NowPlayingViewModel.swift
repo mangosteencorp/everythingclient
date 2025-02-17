@@ -10,9 +10,14 @@ public class NowPlayingViewModel: ObservableObject {
     private var currentPage: Int = 1
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
+    private let additionalParams: AdditionalMovieListParams?
 
-    public init(apiService: APIServiceProtocol) {
+    public init(
+        apiService: APIServiceProtocol,
+        additionalParams: AdditionalMovieListParams? = nil
+    ) {
         self.apiService = apiService
+        self.additionalParams = additionalParams
 
         $searchQuery
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
@@ -30,7 +35,10 @@ public class NowPlayingViewModel: ObservableObject {
         state = .loading
 
         Task {
-            let result = await self.apiService.fetchNowPlayingMovies(page: nil)
+            let result = await self.apiService.fetchNowPlayingMovies(
+                page: nil,
+                additionalParams: additionalParams
+            )
             await MainActor.run {
                 switch result {
                 case let .success(response):
@@ -60,12 +68,15 @@ public class NowPlayingViewModel: ObservableObject {
     }
 
     func fetchMoreContentIfNeeded(currentMovieId: Int) {
-        guard case .loaded = state, // Only fetch more for loaded state, not search results
+        guard case .loaded = state,
               currentMovieId == state.movies.last?.id,
               searchQuery.isEmpty else { return }
 
         Task {
-            let result = await self.apiService.fetchNowPlayingMovies(page: currentPage + 1)
+            let result = await self.apiService.fetchNowPlayingMovies(
+                page: currentPage + 1,
+                additionalParams: additionalParams
+            )
             await MainActor.run {
                 switch result {
                 case let .success(response):

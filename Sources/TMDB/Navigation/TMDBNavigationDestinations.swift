@@ -1,8 +1,8 @@
 import SwiftUI
 import Swinject
 import TMDB_MVVM_Detail
+import TMDB_MVVM_MLS
 import TMDB_Shared_Backend
-
 @available(iOS 16.0, *)
 public struct TMDBNavigationDestinations: ViewModifier {
     let container: Container
@@ -14,10 +14,18 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 case let .movieDetail(movie):
                     MovieDetailPage(
                         movieRoute: movie.toMovieDetailModel(),
-                        apiService: container.resolve(TMDBAPIService.self)!
-                    )
+                        apiService: container.resolve(TMDBAPIService.self)!,
+                        discoverMovieByKeywordRouteBuilder: {keywordId in
+                            TMDBRoute.movieList(.keyword(keywordId))
+                        }
+                    ).withTMDBNavigationDestinations(container: container)
                 case let .tvShowDetail(tvShowId):
                     Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
+                case let .movieList(params):
+                    DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params) { movie in
+                        TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
+                    }
+                    .withTMDBNavigationDestinations(container: container)
                 }
             }
     }

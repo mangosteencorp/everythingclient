@@ -1,4 +1,3 @@
-import AppCore
 import Pokedex
 import SwiftUI
 import TMDB

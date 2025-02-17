@@ -1,27 +1,34 @@
-import AppCore
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
-public struct MovieDetailPage: View {
+@available(iOS 16.0, *)
+public struct MovieDetailPage<Route: Hashable>: View {
     var movie: Movie
     @ObservedObject var movieDetailViewModel: MovieDetailViewModel
     @ObservedObject var creditsViewModel: MovieCastingViewModel
     let apiService: TMDBAPIService
+    let discoverMovieByKeywordRouteBuilder: (Int) -> Route
 
-    public init(movieRoute: Movie, apiService: TMDBAPIService) {
+    public init(movieRoute: Movie,
+                apiService: TMDBAPIService,
+                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route) {
         // Convert MovieRouteModel to Movie
         movie = movieRoute
         self.apiService = apiService
         movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+        self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
     }
 
-    public init(movieId: Int, apiService: TMDBAPIService) {
+    public init(movieId: Int,
+                apiService: TMDBAPIService,
+                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route) {
         movie = Movie.placeholder(id: movieId)
         self.apiService = apiService
         movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+        self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
     }
 
     public var body: some View {
@@ -38,10 +45,7 @@ public struct MovieDetailPage: View {
                     if let kwList = getMovie().keywords?.keywords, !kwList.isEmpty {
                         MovieKeywords(
                             keywords: kwList,
-                            specialKeywordIds: TabManager.shared.specialKeywordIdList(),
-                            onSpecialKeywordLongPress: { kwId in
-                                TabManager.shared.enableSpecialTab(specialKeywordId: kwId)
-                            }
+                            discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder
                         )
                     }
                     MovieCreditSection(movieId: movie.id, creditsViewModel: creditsViewModel)
@@ -63,11 +67,14 @@ public struct MovieDetailPage: View {
 }
 
 #if DEBUG
+
+@available(iOS 16.0, *)
 let exampleMovieDetailPage: MovieDetailPage = {
     let apiService = TMDBAPIService(apiKey: "dummy-key")
     var page = MovieDetailPage(
         movieRoute: exampleMovieDetail,
-        apiService: apiService
+        apiService: apiService,
+        discoverMovieByKeywordRouteBuilder: {_ in 1}
     )
 
     let movieDetailVM = MovieDetailViewModel(apiService: apiService)
@@ -82,6 +89,7 @@ let exampleMovieDetailPage: MovieDetailPage = {
     return page
 }()
 
+@available(iOS 16.0, *)
 #Preview {
     return NavigationView {
         exampleMovieDetailPage

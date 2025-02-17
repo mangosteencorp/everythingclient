@@ -38,7 +38,7 @@ public enum TMDBEndpoint {
 
     // Other
     case genres
-    case discover
+    case discoverMovie(keywords: Int? = nil, page: Int? = nil)
 
     // Additional Movie Lists
     case topRatedMovies
@@ -107,7 +107,7 @@ public enum TMDBEndpoint {
         // Other
         case .genres:
             return "genre/movie/list"
-        case .discover:
+        case .discoverMovie:
             return "discover/movie"
         // Additional Movie Lists
         case .topRatedMovies:
@@ -153,6 +153,15 @@ public enum TMDBEndpoint {
                 params["page"] = String(page)
             }
             return params
+        case let .discoverMovie(keywords, page):
+            var params: [String: String] = [:]
+            if let keywords = keywords {
+                params["with_keywords"] = String(keywords)
+            }
+            if let page = page {
+                params["page"] = String(page)
+            }
+            return params
         default:
             return nil
         }
@@ -180,6 +189,8 @@ public enum TMDBEndpoint {
         case .credits:
             return MovieCreditsModel.self
         case .searchMovie:
+            return MovieListResultModel.self
+        case .discoverMovie:
             return MovieListResultModel.self
         default:
             throw TMDBAPIError.unsupportedEndpoint

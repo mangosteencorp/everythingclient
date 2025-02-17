@@ -1,18 +1,15 @@
 import SwiftUI
 
-struct MovieKeywords: View {
+@available(iOS 16.0, *)
+struct MovieKeywords<Route: Hashable>: View {
     let keywords: [Keyword]
-    let specialKeywordIds: [Int]
-    let onSpecialKeywordLongPress: ((Int) -> Void)?
-
+    let discoverMovieByKeywordRouteBuilder: (Int) -> Route
     init(
         keywords: [Keyword],
-        specialKeywordIds: [Int] = [],
-        onSpecialKeywordLongPress: ((Int) -> Void)? = nil
+        discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route
     ) {
         self.keywords = keywords
-        self.specialKeywordIds = specialKeywordIds
-        self.onSpecialKeywordLongPress = onSpecialKeywordLongPress
+        self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
     }
 
     var body: some View {
@@ -23,16 +20,9 @@ struct MovieKeywords: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(keywords) { keyword in
-                        if specialKeywordIds.contains(keyword.id) {
-                            NavigationLink(destination: Button("Back") { self.onSpecialKeywordLongPress?(keyword.id)
-                            }) {
-                                RoundedBadge(text: keyword.name, color: .steamGold)
-                            }
-                        } else {
-                            NavigationLink(destination: EmptyView()) {
-                                RoundedBadge(text: keyword.name, color: .steamGold)
-                            }
-                        }
+                        NavigationLink(value: discoverMovieByKeywordRouteBuilder(keyword.id), label: {
+                            RoundedBadge(text: keyword.name, color: .steamGold)
+                        })
                     }
                 }.padding(.leading)
             }
@@ -43,6 +33,7 @@ struct MovieKeywords: View {
 }
 
 #if DEBUG
+@available(iOS 16.0, *)
 #Preview {
     MovieKeywords(keywords: [
         Keyword(id: 613, name: "new year's eve"),
@@ -67,6 +58,6 @@ struct MovieKeywords: View {
         Keyword(id: 295_902, name: "actress"),
         Keyword(id: 325_778, name: "bold"),
         Keyword(id: 325_801, name: "distressing"),
-    ])
+    ], discoverMovieByKeywordRouteBuilder: {_ in 1})
 }
 #endif
