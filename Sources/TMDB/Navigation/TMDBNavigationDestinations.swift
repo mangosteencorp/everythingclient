@@ -20,14 +20,13 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 discoverMovieByKeywordRouteBuilder: {keywordId in
                     TMDBRoute.movieList(.keyword(keywordId))
                 }
-            ).withTMDBNavigationDestinations(container: container)
+            )
         case let .tvShowDetail(tvShowId):
             Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
         case let .movieList(params):
             DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
             }
-            .withTMDBNavigationDestinations(container: container)
         }
     }
 
