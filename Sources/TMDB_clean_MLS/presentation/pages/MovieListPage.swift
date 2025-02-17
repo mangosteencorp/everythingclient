@@ -3,24 +3,24 @@ import Swinject
 import TMDB_Shared_UI
 @available(iOS 16.0, *)
 public struct MovieListPage<Route: Hashable>: View {
-    @StateObject var viewModel: TVShowsViewModel
-    let type: TVShowListType
+    @StateObject var viewModel: MoviesViewModel
+    let type: MovieListType
     let detailRouteBuilder: (Int) -> Route
     public init(
         container: Container,
         apiKey: String,
-        type: TVShowListType,
+        type: MovieListType,
         detailRouteBuilder: @escaping (Int) -> Route
     ) {
         APIKeys.tmdbKey = apiKey
-        let movieAssembly = TVShowAssembly()
+        let movieAssembly = MovieAssembly()
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
         switch type {
-        case .airingToday:
-            _viewModel = StateObject(wrappedValue: container.resolve(TVShowsViewModel.self, name: "airingToday")!)
-        case .onTheAir:
-            _viewModel = StateObject(wrappedValue: container.resolve(TVShowsViewModel.self, name: "onTheAir")!)
+        case .nowPlaying:
+            _viewModel = StateObject(wrappedValue: container.resolve(MoviesViewModel.self, name: "nowPlaying")!)
+        case .upcoming:
+            _viewModel = StateObject(wrappedValue: container.resolve(MoviesViewModel.self, name: "upcoming")!)
         }
 
         self.type = type
@@ -36,7 +36,7 @@ public struct MovieListPage<Route: Hashable>: View {
                     Text(errorMessage)
                         .id("errorView")
                 } else {
-                    MovieListContent(movies: viewModel.tvShows, detailRouteBuilder: detailRouteBuilder)
+                    MovieListContent(movies: viewModel.movies, detailRouteBuilder: detailRouteBuilder)
                         .id("movieListContent")
                 }
             }
@@ -47,30 +47,30 @@ public struct MovieListPage<Route: Hashable>: View {
 #endif
         .accessibilityIdentifier("movieListPage.group")
         .onFirstAppear {
-            viewModel.fetchTVShows()
+            viewModel.fetchMovies()
         }
     }
 }
 
-public enum TVShowListType {
-    case airingToday
-    case onTheAir
+public enum MovieListType {
+    case nowPlaying
+    case upcoming
 
     var title: String {
         switch self {
-        case .airingToday:
-            return "Airing Today"
-        case .onTheAir:
-            return "On The Air"
+        case .nowPlaying:
+            return "Now Playing"
+        case .upcoming:
+            return "Upcoming"
         }
     }
 
     var iconName: String {
         switch self {
-        case .airingToday:
+        case .nowPlaying:
             return "play.circle"
-        case .onTheAir:
-            return "tv"
+        case .upcoming:
+            return "calendar"
         }
     }
 }

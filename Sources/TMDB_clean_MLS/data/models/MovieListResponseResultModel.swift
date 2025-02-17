@@ -1,9 +1,9 @@
 import Foundation
 
-public struct TVListResultModel: Codable {
+public struct MovieListResultModel: Codable {
     let dates: Dates
     let page: Int
-    public let results: [APITVShow]
+    public let results: [APIMovie]
     let totalPages: Int
     let totalResults: Int
 
