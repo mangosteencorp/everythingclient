@@ -31,7 +31,7 @@ class TMDBAPIServiceProtocolTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil
             )!
-            XCTAssertTrue(request.url?.absoluteString.contains("now_playing") ?? false)
+            XCTAssertTrue(request.url?.absoluteString.contains("airing_today") ?? false)
             return (response, mockData)
         }
 

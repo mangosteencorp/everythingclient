@@ -73,8 +73,8 @@ public struct TMDBAPITabView: View {
                     container: container,
                     apiKey: tmdbKey,
                     type: .upcoming
-                ) { movieId in
-                    TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
+                ) { tvShowId in
+                    TMDBRoute.tvShowDetail(tvShowId)
                 }
                 .withTMDBNavigationDestinations(container: container)
 

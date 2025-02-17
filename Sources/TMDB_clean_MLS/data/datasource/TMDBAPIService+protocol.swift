@@ -5,9 +5,9 @@ extension TMDBAPIService: APIServiceProtocol {
         let listTypeEndpoint: TMDBEndpoint = {
             switch endpoint {
             case .nowPlaying:
-                return .nowPlaying()
+                return .tvAiringToday(page: nil)
             case .upcoming:
-                return .upcoming()
+                return .tvOnTheAir(page: nil)
             }
         }()
         let result: Result<MovieListResultModel, TMDBAPIError> = await request<MovieListResultModel>(listTypeEndpoint)
