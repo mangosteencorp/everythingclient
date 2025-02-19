@@ -8,7 +8,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS(.v14),
-        .macOS(.v11),
+        //.macOS(.v11),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -58,13 +58,14 @@ let package = Package(
         ),
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "everythingclient",
-            dependencies: ["TMDB", "Pokedex", "AppCore"]
+            dependencies: ["TMDB", "Pokedex"]
         ),
         .testTarget(
             name: "everythingclientTests",
@@ -93,7 +94,7 @@ let package = Package(
         .target(
             name: "TMDB_MVVM_Detail",
             dependencies: [
-                "TMDB_Shared_UI", "AppCore",
+                "TMDB_Shared_UI",
                 "Swinject",
                 "TMDB_Shared_Backend",
             ],
@@ -114,7 +115,7 @@ let package = Package(
             dependencies: ["TMDB_MVVM_MLS", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
         ),
-        // Movie list - clean architecture
+        // TV show feed - clean architecture
         .target(
             name: "TMDB_clean_MLS",
             dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend"],
@@ -178,12 +179,22 @@ let package = Package(
             name: "Tests_Shared_Helpers",
             path: "Tests/Tests_Shared_Helpers"
         ),
-
-        .target(
-            name: "AppCore"
-        ),
         .target(
             name: "Shared_UI_Support"
         ),
+        .target(
+            name: "Core_BaaS_Serverless",
+            dependencies: [
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+            ]
+        ),
     ]
 )
+for target in package.targets {
+  target.linkerSettings = target.linkerSettings ?? []
+  target.linkerSettings?.append(
+    .unsafeFlags([
+      "-ObjC",
+    ])
+  )
+}
