@@ -13,7 +13,8 @@ struct RebuildApp: App {
         WindowGroup {
             RootContentView(
                 TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
-                isAppStoreOrTestFlight: isAppStoreOrTestFlight
+                isAppStoreOrTestFlight: isAppStoreOrTestFlight,
+                options3rdPartySDKs: .init(firebase: false)
             )
         }
     }

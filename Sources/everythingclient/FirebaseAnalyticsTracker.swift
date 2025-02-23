@@ -1,9 +1,12 @@
 import CoreFeatures
 import FirebaseAnalytics
+import FirebaseCore
 import Foundation
 
 public class FirebaseAnalyticsTracker: AnalyticsTracker {
-    public init() {}
+    public init() {
+        FirebaseApp.configure()
+    }
 
     public func trackPageView(parameters: PageViewParameters) {
         var params: [String: Any] = [

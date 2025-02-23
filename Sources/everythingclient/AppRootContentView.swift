@@ -7,12 +7,12 @@ public struct RootContentView: View {
     @State private var selectedTab = 0
     let tmdbAPIKey: String
     private let isAppStoreOrTestFlight: Bool
-    private let analyticsTracker: AnalyticsTracker
+    private let analyticsTracker: AnalyticsTracker?
 
-    public init(TMDBApiKey: String, isAppStoreOrTestFlight: Bool = true) {
+    public init(TMDBApiKey: String, isAppStoreOrTestFlight: Bool = true, options3rdPartySDKs: ThirdPartyInitializationOptions = .init()) {
         tmdbAPIKey = TMDBApiKey
         self.isAppStoreOrTestFlight = isAppStoreOrTestFlight
-        analyticsTracker = FirebaseAnalyticsTracker()
+        analyticsTracker = options3rdPartySDKs.firebase ? FirebaseAnalyticsTracker() : nil
     }
 
     public var body: some View {

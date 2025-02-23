@@ -1,5 +1,5 @@
-import SwiftUI
 import CoreFeatures
+import SwiftUI
 
 class MoviesViewModel: ObservableObject {
     @Published var movies: [Movie] = []
@@ -10,7 +10,7 @@ class MoviesViewModel: ObservableObject {
     private let analyticsTracker: AnalyticsTracker?
     private let screenName: String
 
-    init(fetchMoviesUseCase: FetchMoviesUseCase, 
+    init(fetchMoviesUseCase: FetchMoviesUseCase,
          analyticsTracker: AnalyticsTracker? = nil,
          screenName: String) {
         self.fetchMoviesUseCase = fetchMoviesUseCase
