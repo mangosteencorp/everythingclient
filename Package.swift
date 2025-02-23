@@ -110,7 +110,11 @@ let package = Package(
         // Movie list
         .target(
             name: "TMDB_MVVM_MLS",
-            dependencies: ["TMDB_Shared_UI", "TMDB_Shared_Backend"],
+            dependencies: [
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
+                "CoreFeatures",
+            ],
             resources: [
                 .process("Resources"),
             ]

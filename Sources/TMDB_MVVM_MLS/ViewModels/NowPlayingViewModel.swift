@@ -1,7 +1,7 @@
 import Combine
 import SwiftUI
 import TMDB_Shared_Backend
-
+import CoreFeatures
 public class NowPlayingViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
@@ -11,15 +11,15 @@ public class NowPlayingViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?
-    let analyticTracker: MovieFeedAnalyticsTrackerProtocol?
+    let analyticsTracker: AnalyticsTracker?
     public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
-        analyticTracker: MovieFeedAnalyticsTrackerProtocol? = nil
+        analyticsTracker: AnalyticsTracker? = nil
     ) {
         self.apiService = apiService
         self.additionalParams = additionalParams
-        self.analyticTracker = analyticTracker
+        self.analyticsTracker = analyticsTracker
         $searchQuery
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .sink { [weak self] query in
@@ -43,7 +43,11 @@ public class NowPlayingViewModel: ObservableObject {
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    self.analyticTracker?.trackAnalyticEvent(.pageView)
+                    self.analyticsTracker?.trackPageView(parameters: PageViewParameters(
+                        screenName: "now_playing",
+                        screenClass: "NowPlayingPage",
+                        contentType: "movie_list"
+                    ))
                     self.nowPlayingMovies = response.results
                     self.state = .loaded(response.results)
                 case let .failure(error):
@@ -75,7 +79,14 @@ public class NowPlayingViewModel: ObservableObject {
               searchQuery.isEmpty else { return }
 
         Task {
-            self.analyticTracker?.trackAnalyticEvent(.loadMore)
+            self.analyticsTracker?.trackEvent(
+                name: "load_more",
+                parameters: EventParameters(
+                    method: "scroll",
+                    success: true,
+                    additionalParameters: ["page": currentPage + 1]
+                )
+            )
             let result = await self.apiService.fetchNowPlayingMovies(
                 page: currentPage + 1,
                 additionalParams: additionalParams
