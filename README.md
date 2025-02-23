@@ -3,11 +3,12 @@ iOS Best Practices Demo Project
 
 This repository serves its purpose as  comprehensive iOS project demonstrating current best practices and modern iOS development approaches. It tries to replicate as many best practices as possible across mulitple iOS architectures and free public APIs. Testflight: https://testflight.apple.com/join/FaXX2mUY
 
-Progress status is classified as:
-- ✅ Finished
-- 🚧 In Progress
-- 🔴 Not Started
-- 🔔 Finished but needs updates
+<details>
+<summary>TestFlight secrets</summary>
+
+Please search for a Pokemon film and click on "Pocket Monster" keyword from detail page to enable Pokedex tab.
+
+</details>
 
 - [iOS Best Practices Demo Project](#ios-best-practices-demo-project)
 - [Overview](#overview)
@@ -15,8 +16,9 @@ Progress status is classified as:
   - [Architecture \& Design](#architecture--design)
   - [Security](#security)
   - [Testing](#testing)
-  - [Development Tools \& Automation](#development-tools--automation)
+  - [Development Tools, Build tools \& Automation](#development-tools-build-tools--automation)
   - [UI/UX](#uiux)
+  - [Other app features](#other-app-features)
 - [Project Structure](#project-structure)
   - [CI/CD](#cicd)
   - [Collaboration](#collaboration)
@@ -44,13 +46,15 @@ TMDB_API_KEY=
 PRODUCT_BUNDLE_IDENTIFIER=
 ```
 
+Also adding a GoogleService-Info.plist file to the root of the project for Firebase Analytics. (Or setting the false flag in Rebuild/Rebuild/RebuildApp.swift to skip Firebase Analytics)
+
 </details>
 
 # Practices
 
 ## Architecture & Design
 
-Modularization:
+Feature based Modularization:
 - ✅ Using Swift Package Manager to manage dependencies and only leaving a thin app shell using Xcode project. This is way more Git friendly than using Xcode project. However, it's still debatable if this is better than using new XC16 buildable folders (Package.swift at root level is also difficult to setup on latest Xcode version.). 
     - Pros: Swift, readable & Git friendly 
     - Cons: code suggestions, previews not as smooth as using Xcode project, coverage report also not ignoring test files.
@@ -88,12 +92,20 @@ Swinject are used for dependency injection.
         - 🚧 Preview should be covering all states from view models.
     - 🚧 Demo implementations for all UI modules
 
+## Other app features
+
+Tracking:
+- ✅  Using Firebase Analytics for tracking events with abstraction to avoid direct dependency of each module.
+  - GoogleService-Info.plist is ignored by Git and should be set as a secret in GitHub.
 
 # Project Structure
 ## CI/CD
 
 Using GitHub Actions for CI/CD.
-- ✅ ios.yml and test.sh files can generate coverage report for modules with tests. 
+- ✅ ios.yml and test.sh files can generate coverage report for modules with tests. 3 actions workflow:
+  - SwiftLint run
+  - Build project
+  - Test pre-defined schemes on available simulators
 - 🔴 upload to TestFlight (or BrowserStack, Remote Testkit, etc.)
 
 ## Collaboration
@@ -101,3 +113,6 @@ Using GitHub Actions for CI/CD.
 Setup on GitHub for team collaboration:
 - ✅ automatically running unit tests and code coverage on newly opened pull requests. (Due to SwiftPM limitation mentioned above, test.sh using a custom command of `xcrun llvm-cov` instead of a normal xctestplan file) 
 - 🔴 Block merging pull requests unless certain conditions are met (e.g. code coverage is 100%, 2 approvals from other team members, etc.)
+
+
+Progress status is classified as: ✅ Finished 🚧 In Progress 🔴 Not Started 🔔 Finished but needs updates

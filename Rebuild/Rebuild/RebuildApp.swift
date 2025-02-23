@@ -14,7 +14,7 @@ struct RebuildApp: App {
             RootContentView(
                 TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
                 isAppStoreOrTestFlight: isAppStoreOrTestFlight,
-                options3rdPartySDKs: .init(firebase: false)
+                options3rdPartySDKs: .init(firebase: true) // mark this as false if you don't have GoogleService-Info.plist or not indending to use Firebase
             )
         }
     }

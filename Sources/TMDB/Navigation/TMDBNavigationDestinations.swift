@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import Swinject
 import TMDB_MVVM_Detail
@@ -8,6 +9,12 @@ public struct TMDBNavigationDestinations: ViewModifier {
     let container: Container
     private var navigationInterceptor: TMDBNavigationInterceptor? {
         container.resolve(TMDBNavigationInterceptor.self)
+    }
+
+    private var analyticsTracker: AnalyticsTracker? {
+        get {
+            return container.resolve(AnalyticsTracker.self)
+        }
     }
 
     @ViewBuilder
@@ -24,7 +31,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
         case let .tvShowDetail(tvShowId):
             Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
         case let .movieList(params):
-            DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params) { movie in
+            DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
             }
         }

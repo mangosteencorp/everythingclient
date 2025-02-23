@@ -64,7 +64,7 @@ public struct TMDBAPITabView: View {
         NavigationStack(path: coordinator.path(for: tab)) {
             switch tab {
             case .nowPlaying:
-                DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!) { movie in
+                DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
                     TMDBRoute.movieDetail(MovieRouteModel(
                         id: movie.id,
                         title: movie.title,
