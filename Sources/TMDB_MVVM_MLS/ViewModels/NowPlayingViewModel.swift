@@ -11,14 +11,15 @@ public class NowPlayingViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?
-
+    let analyticTracker: MovieFeedAnalyticsTrackerProtocol?
     public init(
         apiService: APIServiceProtocol,
-        additionalParams: AdditionalMovieListParams? = nil
+        additionalParams: AdditionalMovieListParams? = nil,
+        analyticTracker: MovieFeedAnalyticsTrackerProtocol? = nil
     ) {
         self.apiService = apiService
         self.additionalParams = additionalParams
-
+        self.analyticTracker = analyticTracker
         $searchQuery
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .sink { [weak self] query in
@@ -42,6 +43,7 @@ public class NowPlayingViewModel: ObservableObject {
             await MainActor.run {
                 switch result {
                 case let .success(response):
+                    self.analyticTracker?.trackAnalyticEvent(.pageView)
                     self.nowPlayingMovies = response.results
                     self.state = .loaded(response.results)
                 case let .failure(error):
@@ -73,6 +75,7 @@ public class NowPlayingViewModel: ObservableObject {
               searchQuery.isEmpty else { return }
 
         Task {
+            self.analyticTracker?.trackAnalyticEvent(.loadMore)
             let result = await self.apiService.fetchNowPlayingMovies(
                 page: currentPage + 1,
                 additionalParams: additionalParams

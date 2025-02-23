@@ -8,10 +8,11 @@ import TMDB_Shared_UI
 public struct DMSNowPlayingPage<Route: Hashable>: View {
     @StateObject var viewModel: NowPlayingViewModel
     let detailRouteBuilder: (Movie) -> Route
-
+    let analyticTracker: MovieFeedAnalyticsTrackerProtocol?
     public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
+        analyticTracker: MovieFeedAnalyticsTrackerProtocol? = nil,
         detailRouteBuilder: @escaping (Movie) -> Route
     ) {
         _viewModel = StateObject(wrappedValue: NowPlayingViewModel(
@@ -19,6 +20,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
             additionalParams: additionalParams
         ))
         self.detailRouteBuilder = detailRouteBuilder
+        self.analyticTracker = analyticTracker
     }
 
 #if DEBUG
@@ -28,6 +30,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.detailRouteBuilder = detailRouteBuilder
+        analyticTracker = nil
     }
 #endif
 

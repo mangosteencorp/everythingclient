@@ -1,16 +1,18 @@
 import Pokedex
 import SwiftUI
 import TMDB
-
+import CoreFeatures
 public struct RootContentView: View {
     @StateObject private var tabManager = TabManager.shared
     @State private var selectedTab = 0
     let tmdbAPIKey: String
     private let isAppStoreOrTestFlight: Bool
+    private let analyticsTracker: AnalyticsTracker
 
     public init(TMDBApiKey: String, isAppStoreOrTestFlight: Bool = true) {
         tmdbAPIKey = TMDBApiKey
         self.isAppStoreOrTestFlight = isAppStoreOrTestFlight
+        self.analyticsTracker = FirebaseAnalyticsTracker()
     }
 
     public var body: some View {
@@ -19,7 +21,9 @@ public struct RootContentView: View {
                 switch tab {
                 case .tmdb:
                     if #available(iOS 16, *) {
-                        TMDBAPITabView(tmdbKey: tmdbAPIKey, navigationInterceptor: TabManager.shared)
+                        TMDBAPITabView(tmdbKey: tmdbAPIKey, 
+                                     navigationInterceptor: TabManager.shared,
+                                     analyticsTracker: analyticsTracker)
                             .tabItem {
                                 Label(tab.label.0, systemImage: tab.label.1)
                             }

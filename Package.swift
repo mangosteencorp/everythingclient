@@ -65,7 +65,12 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "everythingclient",
-            dependencies: ["TMDB", "Pokedex"]
+            dependencies: [
+                "TMDB",
+                "Pokedex",
+                "CoreFeatures",
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+            ]
         ),
         .testTarget(
             name: "everythingclientTests",
@@ -183,10 +188,7 @@ let package = Package(
             name: "Shared_UI_Support"
         ),
         .target(
-            name: "Core_BaaS_Serverless",
-            dependencies: [
-                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
-            ]
+            name: "CoreFeatures"
         ),
     ]
 )

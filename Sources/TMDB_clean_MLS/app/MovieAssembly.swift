@@ -1,5 +1,6 @@
 import Swinject
 import TMDB_Shared_Backend
+import CoreFeatures
 
 public class MovieAssembly: Assembly {
     public init() {}
@@ -26,11 +27,19 @@ public class MovieAssembly: Assembly {
 
         // Register ViewModels
         container.register(MoviesViewModel.self, name: "nowPlaying") { resolver in
-            MoviesViewModel(fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!)
+            MoviesViewModel(
+                fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!,
+                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
+                screenName: "nowPlaying"
+            )
         }
 
         container.register(MoviesViewModel.self, name: "upcoming") { resolver in
-            MoviesViewModel(fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!)
+            MoviesViewModel(
+                fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!,
+                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
+                screenName: "upcoming"
+            )
         }
     }
 }

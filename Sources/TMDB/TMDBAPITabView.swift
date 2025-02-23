@@ -6,12 +6,14 @@ import TMDB_MVVM_Detail
 import TMDB_MVVM_MLS
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
+import CoreFeatures
 
 @available(iOS 16, *)
 public struct TMDBAPITabView: View {
     @StateObject private var coordinator: Coordinator
     private let container: Container
     private let tmdbKey: String
+    private let analyticsTracker: AnalyticsTracker?
 
     @State private var isShowingMovieDetail = false
     @State private var isShowingTVShowDetail = false
@@ -19,14 +21,24 @@ public struct TMDBAPITabView: View {
     @State private var selectedTVShowId: Int?
     private let navigationInterceptor: TMDBNavigationInterceptor?
 
-    public init(tmdbKey: String, navigationInterceptor: TMDBNavigationInterceptor? = nil) {
+    public init(tmdbKey: String, 
+                navigationInterceptor: TMDBNavigationInterceptor? = nil,
+                analyticsTracker: AnalyticsTracker? = nil) {
         self.tmdbKey = tmdbKey
         self.navigationInterceptor = navigationInterceptor
+        self.analyticsTracker = analyticsTracker
+        
         let container = Container()
         TMDB_Shared_Backend.configure(container: container, apiKey: tmdbKey)
         if let interceptor = self.navigationInterceptor {
             container.register(TMDBNavigationInterceptor.self) { _ in interceptor }.inObjectScope(.container)
         }
+        
+        // Register analytics tracker
+        if let tracker = analyticsTracker {
+            container.register(AnalyticsTracker.self) { _ in tracker }.inObjectScope(.container)
+        }
+        
         self.container = container
 
         let tabList: [TabRoute] = [.nowPlaying, .upcoming, .profile]
