@@ -3,26 +3,30 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 71;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B180F152C62C997008CD10B /* Build.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8B180F142C62C997008CD10B /* Build.xcconfig */; };
 		8BCECE3F2C163F0400700550 /* EverythingClient in Frameworks */ = {isa = PBXBuildFile; productRef = 8BCECE3E2C163F0400700550 /* EverythingClient */; };
-		8BEDAF982BD1442D000A62D2 /* RebuildApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */; };
-		8BEDAF9C2BD1442F000A62D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */; };
-		8BEDAFA02BD1442F000A62D2 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8BEDAF9F2BD1442F000A62D2 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8B180F142C62C997008CD10B /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
-		8B180F162C62CD91008CD10B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8BEDAF942BD1442D000A62D2 /* Rebuild.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rebuild.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RebuildApp.swift; sourceTree = "<group>"; };
-		8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8BEDAF9D2BD1442F000A62D2 /* Rebuild.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rebuild.entitlements; sourceTree = "<group>"; };
-		8BEDAF9F2BD1442F000A62D2 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8B508E832D6BD8E200577C13 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8BEDAF932BD1442D000A62D2 /* Rebuild */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		8B508E7D2D6BD8E200577C13 /* Rebuild */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (8B508E832D6BD8E200577C13 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Rebuild; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8BEDAF912BD1442D000A62D2 /* Frameworks */ = {
@@ -39,7 +43,7 @@
 		8BEDAF8B2BD1442D000A62D2 = {
 			isa = PBXGroup;
 			children = (
-				8BEDAF962BD1442D000A62D2 /* Rebuild */,
+				8B508E7D2D6BD8E200577C13 /* Rebuild */,
 				8BEDAF952BD1442D000A62D2 /* Products */,
 				8BEDAFA82BD147A8000A62D2 /* Frameworks */,
 			);
@@ -51,27 +55,6 @@
 				8BEDAF942BD1442D000A62D2 /* Rebuild.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		8BEDAF962BD1442D000A62D2 /* Rebuild */ = {
-			isa = PBXGroup;
-			children = (
-				8B180F162C62CD91008CD10B /* Info.plist */,
-				8BEDAF972BD1442D000A62D2 /* RebuildApp.swift */,
-				8BEDAF9B2BD1442F000A62D2 /* Assets.xcassets */,
-				8BEDAF9D2BD1442F000A62D2 /* Rebuild.entitlements */,
-				8BEDAF9E2BD1442F000A62D2 /* Preview Content */,
-				8B180F142C62C997008CD10B /* Build.xcconfig */,
-			);
-			path = Rebuild;
-			sourceTree = "<group>";
-		};
-		8BEDAF9E2BD1442F000A62D2 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				8BEDAF9F2BD1442F000A62D2 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		8BEDAFA82BD147A8000A62D2 /* Frameworks */ = {
@@ -96,6 +79,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8B508E7D2D6BD8E200577C13 /* Rebuild */,
 			);
 			name = Rebuild;
 			packageProductDependencies = (
@@ -143,9 +129,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BEDAFA02BD1442F000A62D2 /* Preview Assets.xcassets in Resources */,
-				8B180F152C62C997008CD10B /* Build.xcconfig in Resources */,
-				8BEDAF9C2BD1442F000A62D2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,7 +159,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BEDAF982BD1442D000A62D2 /* RebuildApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -185,7 +167,8 @@
 /* Begin XCBuildConfiguration section */
 		8BEDAFA12BD1442F000A62D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
+			baseConfigurationReferenceAnchor = 8B508E7D2D6BD8E200577C13 /* Rebuild */;
+			baseConfigurationReferenceRelativePath = Build.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -247,7 +230,8 @@
 		};
 		8BEDAFA22BD1442F000A62D2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
+			baseConfigurationReferenceAnchor = 8B508E7D2D6BD8E200577C13 /* Rebuild */;
+			baseConfigurationReferenceRelativePath = Build.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -301,7 +285,8 @@
 		};
 		8BEDAFA42BD1442F000A62D2 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
+			baseConfigurationReferenceAnchor = 8B508E7D2D6BD8E200577C13 /* Rebuild */;
+			baseConfigurationReferenceRelativePath = Build.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -339,7 +324,8 @@
 		};
 		8BEDAFA52BD1442F000A62D2 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8B180F142C62C997008CD10B /* Build.xcconfig */;
+			baseConfigurationReferenceAnchor = 8B508E7D2D6BD8E200577C13 /* Rebuild */;
+			baseConfigurationReferenceRelativePath = Build.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

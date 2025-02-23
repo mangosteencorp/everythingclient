@@ -1,6 +1,6 @@
+import CoreFeatures
 import Swinject
 import TMDB_Shared_Backend
-import CoreFeatures
 
 public class MovieAssembly: Assembly {
     public init() {}

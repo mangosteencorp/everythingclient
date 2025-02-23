@@ -1,7 +1,7 @@
 import Combine
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
-import CoreFeatures
 public class NowPlayingViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""

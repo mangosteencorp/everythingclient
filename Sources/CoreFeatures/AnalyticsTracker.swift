@@ -35,7 +35,7 @@ public struct PageViewParameters: AnalyticsParameters, ScreenParameters {
     public let screenClass: String?
     public let contentType: String?
     public let additionalParameters: [String: Any]?
-    
+
     public init(
         screenName: String,
         screenClass: String? = nil,
@@ -63,7 +63,7 @@ public struct EventParameters: AnalyticsParameters, ItemParameters, UserParamete
     public let success: Bool?
     public let level: Int?
     public let additionalParameters: [String: Any]?
-    
+
     public init(
         itemId: String? = nil,
         itemName: String? = nil,
@@ -98,7 +98,7 @@ public struct EventParameters: AnalyticsParameters, ItemParameters, UserParamete
 public protocol AnalyticsTracker {
     /// Tracks a page view with structured parameters
     func trackPageView(parameters: PageViewParameters)
-    
+
     /// Tracks a custom event with structured parameters
     func trackEvent(name: String, parameters: EventParameters?)
 }
