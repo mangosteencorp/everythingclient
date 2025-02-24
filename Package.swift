@@ -127,7 +127,7 @@ let package = Package(
         // TV show feed - clean architecture
         .target(
             name: "TMDB_clean_MLS",
-            dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend"],
+            dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend", "CoreFeatures"],
             swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
         ),
         .testTarget(

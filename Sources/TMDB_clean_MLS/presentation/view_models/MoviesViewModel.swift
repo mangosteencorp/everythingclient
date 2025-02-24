@@ -8,14 +8,11 @@ class MoviesViewModel: ObservableObject {
 
     private let fetchMoviesUseCase: FetchMoviesUseCase
     private let analyticsTracker: AnalyticsTracker?
-    private let screenName: String
 
     init(fetchMoviesUseCase: FetchMoviesUseCase,
-         analyticsTracker: AnalyticsTracker? = nil,
-         screenName: String) {
+         analyticsTracker: AnalyticsTracker? = nil) {
         self.fetchMoviesUseCase = fetchMoviesUseCase
         self.analyticsTracker = analyticsTracker
-        self.screenName = screenName
     }
 
     func fetchMovies() {
@@ -30,9 +27,8 @@ class MoviesViewModel: ObservableObject {
                 case let .success(movies):
                     self.movies = movies
                     analyticsTracker?.trackPageView(parameters: PageViewParameters(
-                        screenName: screenName,
-                        screenClass: "MovieListPage",
-                        contentType: "movieList"
+                        screenName: "ListTVShows",
+                        screenClass: "MovieListContent"
                     ))
                 case let .failure(error):
                     self.errorMessage = error.localizedDescription
