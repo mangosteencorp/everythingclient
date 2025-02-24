@@ -129,7 +129,7 @@ class DetailDesign1ViewController: UIViewController {
         stackView.spacing = 20
 
         let container = UIView()
-        container.backgroundColor = .white
+        container.backgroundColor = UIColor.systemBackground
         container.layer.cornerRadius = 12
         container.addSubview(stackView)
 
@@ -194,7 +194,7 @@ class DetailDesign1ViewController: UIViewController {
 
     private func createInfoBadge(title: String) -> UIView {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.layer.cornerRadius = 8
         view.layer.borderColor = UIColor.systemGray5.cgColor
         view.layer.borderWidth = 1
