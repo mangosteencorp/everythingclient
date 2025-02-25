@@ -1,5 +1,5 @@
 import SwiftUI
-
+import Shared_UI_Support
 private let formatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .medium

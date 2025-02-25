@@ -50,6 +50,9 @@ public enum TMDBEndpoint {
     case tvAiringToday(page: Int? = nil)
     case tvOnTheAir(page: Int? = nil)
 
+    // TV Show Details
+    case tvShowDetail(show: Int)
+
     // swiftlint:disable cyclomatic_complexity
     func path() -> String {
         switch self {
@@ -125,6 +128,9 @@ public enum TMDBEndpoint {
             return "tv/airing_today"
         case .tvOnTheAir:
             return "tv/on_the_air"
+        // TV Show Details
+        case let .tvShowDetail(show):
+            return "tv/\(show)"
         }
     }
 
@@ -209,6 +215,8 @@ public enum TMDBEndpoint {
             return MovieListResultModel.self
         case .tvAiringToday, .tvOnTheAir:
             return TVShowListResultModel.self
+        case .tvShowDetail:
+            return TVShowDetailModel.self
         default:
             throw TMDBAPIError.unsupportedEndpoint
         }

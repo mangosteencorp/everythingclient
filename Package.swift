@@ -87,6 +87,7 @@ let package = Package(
                 "TMDB_Clean_Profile",
                 "TMDB_Shared_UI",
                 "TMDB_MVVM_Detail",
+                "TMDB_TVShowDetail",
                 "Swinject",
             ]
         ),
@@ -94,7 +95,8 @@ let package = Package(
             name: "TMDB_Shared_Backend",
             dependencies: ["Swinject"]
         ),
-        .target(name: "TMDB_Shared_UI"),
+        .target(name: "TMDB_Shared_UI",
+                dependencies: ["Shared_UI_Support"]),
         // Detail page
         .target(
             name: "TMDB_MVVM_Detail",
@@ -105,6 +107,12 @@ let package = Package(
             ],
             resources: [
                 .process("Resources"),
+            ]
+        ),
+        .target(
+            name: "TMDB_TVShowDetail",
+            dependencies: [
+                "TMDB_Shared_Backend"
             ]
         ),
         // Movie list
@@ -173,6 +181,7 @@ let package = Package(
                 .product(name: "RxCocoa", package: "RxSwift"),
                 .product(name: "SnapKit", package: "SnapKit"),
                 "Shared_UI_Support",
+                "CoreFeatures",
             ]
         ),
         .target(
