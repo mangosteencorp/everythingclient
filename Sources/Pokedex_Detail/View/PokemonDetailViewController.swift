@@ -1,8 +1,8 @@
+import CoreFeatures
 import Pokedex_Shared_Backend
 import RxCocoa
 import RxSwift
 import Shared_UI_Support
-import CoreFeatures
 import SnapKit
 import UIKit
 

@@ -45,6 +45,7 @@ let package = Package(
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
         .library(name: "Pokedex_Detail", targets: ["Pokedex_Detail"]),
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
+        .library(name: "TMDB_TVShowDetail", targets: ["TMDB_TVShowDetail"]),
 
     ],
     dependencies: [
@@ -112,7 +113,7 @@ let package = Package(
         .target(
             name: "TMDB_TVShowDetail",
             dependencies: [
-                "TMDB_Shared_Backend"
+                "TMDB_Shared_Backend",
             ]
         ),
         // Movie list

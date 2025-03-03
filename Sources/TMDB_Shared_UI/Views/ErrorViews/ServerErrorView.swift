@@ -1,9 +1,12 @@
 import SwiftUI
 
-struct ServerErrorView: View {
+public struct ServerErrorView: View {
     var retryAction: () -> Void
+    public init(retryAction: @escaping () -> Void) {
+        self.retryAction = retryAction
+    }
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 70))
