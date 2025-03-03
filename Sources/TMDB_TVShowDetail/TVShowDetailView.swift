@@ -10,14 +10,18 @@ enum TVShowDetailViewState {
 }
 
 @available(iOS 15, *)
-struct TVShowDetailView: View {
+public struct TVShowDetailView: View {
     //@EnvironmentObject var themeManager: ThemeManager
     var apiService: TMDBAPIService
     let tvShowId: Int
 
     @State private var viewState: TVShowDetailViewState = .loading
+    public init(apiService: TMDBAPIService, tvShowId: Int) {
+        self.apiService = apiService
+        self.tvShowId = tvShowId
+    }
 
-    var body: some View {
+    public var body: some View {
         Group {
             switch viewState {
             case .loading:

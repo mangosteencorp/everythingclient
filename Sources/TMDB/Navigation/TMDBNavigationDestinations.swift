@@ -4,6 +4,7 @@ import Swinject
 import TMDB_MVVM_Detail
 import TMDB_MVVM_MLS
 import TMDB_Shared_Backend
+import TMDB_TVShowDetail
 @available(iOS 16.0, *)
 public struct TMDBNavigationDestinations: ViewModifier {
     let container: Container
@@ -29,7 +30,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 }
             )
         case let .tvShowDetail(tvShowId):
-            Text("TV Show Detail \(tvShowId)") // Replace with actual TV show detail view
+            TVShowDetailView(apiService: container.resolve(TMDBAPIService.self)!, tvShowId: tvShowId)
         case let .movieList(params):
             DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
