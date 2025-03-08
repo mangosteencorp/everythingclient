@@ -18,6 +18,7 @@ Please search for a Pokemon film and click on "Pocket Monster" keyword from deta
   - [Testing](#testing)
   - [Development Tools, Build tools \& Automation](#development-tools-build-tools--automation)
   - [UI/UX](#uiux)
+    - [Multiple themes](#multiple-themes)
   - [Other app features](#other-app-features)
 - [Project Structure](#project-structure)
   - [CI/CD](#cicd)
@@ -31,6 +32,7 @@ Clear separation of features into modules: There's 4 feature modules in this pro
 - **TMDB_Clean_MLS**: Display list of TV shows (from "up in the air" or "airing today" TMDB API) using **Clean Architecture** and **SwiftUI**.
 - **TMDB_MVVM_MLS**: same as TMDB_Clean_MLS but using **MVVM architecture**. Also supports endless loading
 - **TMDB_Clean_Profile**: Handling authentication and displaying user profile (including avatar, favourite movies & TV shows & watchlist). Using **Clean Architecture** and **UIKit** and **Combine** for concurrency.
+- **TMDB_TVShowDetail**: Showing details of a TV show including overview, cast, crew, TV seasons. Using **SwiftUI** and Data Store pattern. **Support multiple themes**.
 - **Pokedex_Pokelist**: loading a Pokemon list from Pokedex **GraphQL** API. Using **VIPER** architecture and **UIKit**
 - **Pokedex_Detail**: loading a Pokemon detail from Pokedex **GraphQL** API. Using RxSwift & RxCocoa for reactive programming. MVVM architecture.
 
@@ -92,6 +94,14 @@ Swinject are used for dependency injection.
         - 🚧 Preview should be covering all states from view models.
     - 🚧 Demo implementations for all UI modules
 
+### Multiple themes
+
+- ✅ Support multiple themes:
+    - ✅ Light theme
+    - ✅ Dark theme
+    - ✅ Sepia theme
+    - ✅ System theme
+
 ## Other app features
 
 Tracking:
@@ -112,7 +122,7 @@ Using GitHub Actions for CI/CD.
 
 Setup on GitHub for team collaboration:
 - ✅ automatically running unit tests and code coverage on newly opened pull requests. (Due to SwiftPM limitation mentioned above, test.sh using a custom command of `xcrun llvm-cov` instead of a normal xctestplan file) 
-- 🔴 Block merging pull requests unless certain conditions are met (e.g. code coverage is 100%, 2 approvals from other team members, etc.)
+- 🚧 Block merging pull requests unless certain conditions are met (e.g. code coverage is 100%, 2 approvals from other team members, etc.)
 
 
 Progress status is classified as: ✅ Finished 🚧 In Progress 🔴 Not Started 🔔 Finished but needs updates
