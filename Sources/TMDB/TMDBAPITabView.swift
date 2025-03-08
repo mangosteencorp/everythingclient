@@ -98,6 +98,6 @@ public struct TMDBAPITabView: View {
                 }
                 .withTMDBNavigationDestinations(container: container)
             }
-        }.debugBorder()
+        }
     }
 }

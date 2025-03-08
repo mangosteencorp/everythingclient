@@ -8,7 +8,7 @@ public class ThemeManager: ObservableObject {
     func setTheme(_ theme: ThemeProtocol) {
         currentTheme = theme
     }
-    
+
     func availableThemes() -> [ThemeProtocol] {
         [LightTheme(), DarkTheme(), SepiaTheme()]
     }

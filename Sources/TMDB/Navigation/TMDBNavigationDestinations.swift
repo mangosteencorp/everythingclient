@@ -30,7 +30,10 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 }
             )
         case let .tvShowDetail(tvShowId):
-            TVShowDetailView(apiService: container.resolve(TMDBAPIService.self)!, tvShowId: tvShowId)
+            TVShowDetailView(
+                apiService: container.resolve(TMDBAPIService.self)!,
+                tvShowId: tvShowId)
+                .environmentObject(ThemeManager.shared)
         case let .movieList(params):
             DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))

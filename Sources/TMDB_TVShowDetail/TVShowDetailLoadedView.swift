@@ -1,6 +1,6 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
-
 // Creator struct for creators' information
 fileprivate struct Creator {
     let name: String
@@ -44,10 +44,10 @@ fileprivate struct AppColors {
     static let background = Color(UIColor(red: 0.94, green: 0.94, blue: 0.94, alpha: 1)) // #f0f0f0
 }
 
-@available(iOS 15,*)
+@available(iOS 15, *)
 struct TVShowDetailLoadedView: View {
     let tvShow: TVShowDetailModel
-
+    @EnvironmentObject var themeManager: ThemeManager
     private var showData: ShowData {
         ShowData(
             title: tvShow.name,
@@ -235,6 +235,7 @@ struct SeasonView: View {
 @available(iOS 15,*)
 #Preview {
     TVShowDetailLoadedView(tvShow: TVShowDetailModel.example)
+        .environmentObject(ThemeManager.shared)
 }
 // swiftlint:enable all
 #endif

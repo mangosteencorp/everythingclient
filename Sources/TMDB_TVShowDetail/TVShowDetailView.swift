@@ -11,38 +11,25 @@ enum TVShowDetailViewState {
 
 @available(iOS 15, *)
 public struct TVShowDetailView: View {
-    //@EnvironmentObject var themeManager: ThemeManager
-    var apiService: TMDBAPIService
-    let tvShowId: Int
+    @StateObject private var store: TVShowDetailStore
 
-    @State private var viewState: TVShowDetailViewState = .loading
     public init(apiService: TMDBAPIService, tvShowId: Int) {
-        self.apiService = apiService
-        self.tvShowId = tvShowId
+        _store = StateObject(wrappedValue: TVShowDetailStore(apiService: apiService, tvShowId: tvShowId))
     }
 
     public var body: some View {
         Group {
-            switch viewState {
+            switch store.state {
             case .loading:
                 LoadingView()
             case .loaded(let tvShow):
                 TVShowDetailLoadedView(tvShow: tvShow)
-            case .error:
-                Text("Error")
+            case .error(let error):
+                Text("Error: \(error.localizedDescription)")
             }
         }
         .task {
-            await loadTVShowDetail()
-        }
-    }
-
-    private func loadTVShowDetail() async {
-        do {
-            let result: TVShowDetailModel = try await apiService.request(.tvShowDetail(show: tvShowId))
-            viewState = .loaded(result)
-        } catch {
-            viewState = .error(error)
+            await store.fetchTVShowDetail()
         }
     }
 }
@@ -58,14 +45,15 @@ struct LoadingView: View {
         }
     }
 }
+
 #if DEBUG
-@available(iOS 15,*)
+@available(iOS 15, *)
 #Preview {
     TVShowDetailView(apiService:
                         TMDBAPIService(apiKey:
                                         ""
                                       ),
                      tvShowId: 1399) // Game of Thrones ID
-        //.environmentObject(ThemeManager.shared)
+        .environmentObject(ThemeManager.shared)
 }
 #endif

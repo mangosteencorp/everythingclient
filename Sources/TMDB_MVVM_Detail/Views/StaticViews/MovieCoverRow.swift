@@ -105,7 +105,7 @@ struct MovieInfoRow: View {
 #if DEBUG
 #Preview {
     Section {
-        MovieCoverRow(movie: exampleMovieDetail).debugBorder(color: .purple)
+        MovieCoverRow(movie: exampleMovieDetail)
     }
 }
 
