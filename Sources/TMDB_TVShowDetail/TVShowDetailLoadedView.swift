@@ -1,13 +1,12 @@
 import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
-// Creator struct for creators' information
+
 fileprivate struct Creator {
     let name: String
     let imageURL: String
 }
 
-// Details struct for show details
 fileprivate struct Details {
     let numberOfSeasons: Int
     let numberOfEpisodes: Int
@@ -17,7 +16,6 @@ fileprivate struct Details {
     let averageVote: String
 }
 
-// Season struct, conforming to Identifiable
 fileprivate struct Season: Identifiable {
     let id: String
     let name: String
@@ -26,7 +24,6 @@ fileprivate struct Season: Identifiable {
     let airDate: String
 }
 
-// ShowData struct to hold all show information
 fileprivate struct ShowData {
     let title: String
     let tagline: String
@@ -38,16 +35,11 @@ fileprivate struct ShowData {
     let seasons: [Season]
 }
 
-fileprivate struct AppColors {
-    static let primaryText = Color(UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1))  // #333333
-    static let secondaryText = Color(UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1)) // #666666
-    static let background = Color(UIColor(red: 0.94, green: 0.94, blue: 0.94, alpha: 1)) // #f0f0f0
-}
-
 @available(iOS 15, *)
 struct TVShowDetailLoadedView: View {
     let tvShow: TVShowDetailModel
     @EnvironmentObject var themeManager: ThemeManager
+
     private var showData: ShowData {
         ShowData(
             title: tvShow.name,
@@ -81,22 +73,27 @@ struct TVShowDetailLoadedView: View {
         )
     }
 
+    // Function to cycle through themes
+    private func switchTheme() {
+        let availableThemes = themeManager.availableThemes()
+        guard let currentIndex = availableThemes.firstIndex(where: { $0.backgroundColor == themeManager.currentTheme.backgroundColor }) else { return }
+        let nextIndex = (currentIndex + 1) % availableThemes.count
+        themeManager.setTheme(availableThemes[nextIndex])
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Header
                 Text(showData.title)
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(AppColors.primaryText)
+                    .foregroundColor(themeManager.currentTheme.labelColor)
                 Text(showData.tagline)
                     .font(.title2)
                     .italic()
-                    .foregroundColor(AppColors.secondaryText)
+                    .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7)) // Secondary text effect
 
-                // Main section
                 HStack(alignment: .top, spacing: 20) {
-                    // Show poster
                     AsyncImage(url: URL(string: showData.posterURL)) { image in
                         image
                             .resizable()
@@ -106,25 +103,24 @@ struct TVShowDetailLoadedView: View {
                     }
                     .frame(width: 150)
 
-                    // Text information
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Overview")
                             .font(.headline)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text(showData.overview)
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
 
                         Text("Genres")
                             .font(.headline)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text(showData.genres)
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
 
                         Text("Created by")
                             .font(.headline)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         HStack(spacing: 20) {
                             ForEach(showData.creators, id: \.name) { creator in
                                 VStack {
@@ -139,50 +135,47 @@ struct TVShowDetailLoadedView: View {
                                     .clipShape(Circle())
                                     Text(creator.name)
                                         .font(.caption)
-                                        .foregroundColor(AppColors.primaryText)
+                                        .foregroundColor(themeManager.currentTheme.labelColor)
                                 }
                             }
                         }
 
                         Text("Details")
                             .font(.headline)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text("Number of seasons: \(showData.details.numberOfSeasons)")
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text("Number of episodes: \(showData.details.numberOfEpisodes)")
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text("First air date: \(showData.details.firstAirDate)")
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text("Last air date: \(showData.details.lastAirDate)")
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text("Status: \(showData.details.status)")
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                         Text("Average vote: \(showData.details.averageVote)")
                             .font(.body)
-                            .foregroundColor(AppColors.primaryText)
+                            .foregroundColor(themeManager.currentTheme.labelColor)
                     }
                 }
 
-                // Seasons section
                 Text("Seasons")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(AppColors.primaryText)
+                    .foregroundColor(themeManager.currentTheme.labelColor)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     VStack(spacing: 20) {
-                        // First row (Seasons 1-4)
                         HStack(spacing: 20) {
                             ForEach(showData.seasons.prefix(4)) { season in
                                 SeasonView(season: season)
                             }
                         }
-                        // Second row (Seasons 5-8)
                         HStack(spacing: 20) {
                             ForEach(showData.seasons.suffix(4)) { season in
                                 SeasonView(season: season)
@@ -192,13 +185,21 @@ struct TVShowDetailLoadedView: View {
                 }
             }
             .padding()
+            .background(themeManager.currentTheme.backgroundColor) // Apply background color to the entire view
         }
+        .navigationBarItems(trailing: Button(action: {
+            switchTheme()
+        }) {
+            Image(systemName: "arrow.trianglehead.swap")
+                .foregroundColor(themeManager.currentTheme.labelColor)
+        })
     }
 }
 
-@available(iOS 15,*)
+@available(iOS 15, *)
 struct SeasonView: View {
     fileprivate let season: Season
+    @EnvironmentObject var themeManager: ThemeManager
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -213,29 +214,27 @@ struct SeasonView: View {
 
             Text(season.name)
                 .font(.caption)
-                .foregroundColor(AppColors.primaryText)
+                .foregroundColor(themeManager.currentTheme.labelColor)
 
             Text("\(season.episodeCount) episodes")
                 .font(.caption2)
-                .foregroundColor(AppColors.secondaryText)
+                .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7)) // Secondary text effect
 
             Text("Air date: \(season.airDate)")
                 .font(.caption2)
-                .foregroundColor(AppColors.secondaryText)
+                .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7)) // Secondary text effect
         }
         .frame(width: 150)
         .padding(.bottom, 10)
-        .background(AppColors.background)
+        .background(themeManager.currentTheme.backgroundColor) // Use theme background
         .cornerRadius(10)
     }
 }
 
 #if DEBUG
-// swiftlint:disable all
-@available(iOS 15,*)
+@available(iOS 15, *)
 #Preview {
     TVShowDetailLoadedView(tvShow: TVShowDetailModel.example)
         .environmentObject(ThemeManager.shared)
 }
-// swiftlint:enable all
 #endif

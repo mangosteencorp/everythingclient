@@ -48,7 +48,7 @@ struct LoadingView: View {
 
 #if DEBUG
 @available(iOS 15, *)
-#Preview {
+#Preview { // FIXME: preview broken
     TVShowDetailView(apiService:
                         TMDBAPIService(apiKey:
                                         ""
