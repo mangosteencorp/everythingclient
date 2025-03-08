@@ -2,39 +2,6 @@ import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 
-fileprivate struct Creator {
-    let name: String
-    let imageURL: String
-}
-
-fileprivate struct Details {
-    let numberOfSeasons: Int
-    let numberOfEpisodes: Int
-    let firstAirDate: String
-    let lastAirDate: String
-    let status: String
-    let averageVote: String
-}
-
-fileprivate struct Season: Identifiable {
-    let id: String
-    let name: String
-    let posterURL: String
-    let episodeCount: Int
-    let airDate: String
-}
-
-fileprivate struct ShowData {
-    let title: String
-    let tagline: String
-    let posterURL: String
-    let overview: String
-    let genres: String
-    let creators: [Creator]
-    let details: Details
-    let seasons: [Season]
-}
-
 @available(iOS 15, *)
 struct TVShowDetailLoadedView: View {
     let tvShow: TVShowDetailModel
@@ -71,14 +38,6 @@ struct TVShowDetailLoadedView: View {
                 )
             }
         )
-    }
-
-    // Function to cycle through themes
-    private func switchTheme() {
-        let availableThemes = themeManager.availableThemes()
-        guard let currentIndex = availableThemes.firstIndex(where: { $0.backgroundColor == themeManager.currentTheme.backgroundColor }) else { return }
-        let nextIndex = (currentIndex + 1) % availableThemes.count
-        themeManager.setTheme(availableThemes[nextIndex])
     }
 
     var body: some View {
@@ -187,49 +146,10 @@ struct TVShowDetailLoadedView: View {
             .padding()
             .background(themeManager.currentTheme.backgroundColor) // Apply background color to the entire view
         }
-        .navigationBarItems(trailing: Button(action: {
-            switchTheme()
-        }) {
-            Image(systemName: "arrow.trianglehead.swap")
-                .foregroundColor(themeManager.currentTheme.labelColor)
-        })
+        .navigationBarItems(trailing: ThemeSwitchButton())
     }
 }
 
-@available(iOS 15, *)
-struct SeasonView: View {
-    fileprivate let season: Season
-    @EnvironmentObject var themeManager: ThemeManager
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            AsyncImage(url: URL(string: season.posterURL)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            } placeholder: {
-                ProgressView()
-            }
-            .frame(width: 150, height: 225)
-
-            Text(season.name)
-                .font(.caption)
-                .foregroundColor(themeManager.currentTheme.labelColor)
-
-            Text("\(season.episodeCount) episodes")
-                .font(.caption2)
-                .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7)) // Secondary text effect
-
-            Text("Air date: \(season.airDate)")
-                .font(.caption2)
-                .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7)) // Secondary text effect
-        }
-        .frame(width: 150)
-        .padding(.bottom, 10)
-        .background(themeManager.currentTheme.backgroundColor) // Use theme background
-        .cornerRadius(10)
-    }
-}
 
 #if DEBUG
 @available(iOS 15, *)
