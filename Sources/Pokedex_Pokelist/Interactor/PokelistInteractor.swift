@@ -4,11 +4,11 @@ import Pokedex_Shared_Backend
 public final class PokelistInteractor: PokelistInteractorProtocol {
     public weak var presenter: PokelistInteractorOutputProtocol?
     private let pokemonService: PokemonService
-    
+
     public init(pokemonService: PokemonService) {
         self.pokemonService = pokemonService
     }
-    
+
     public func fetchPokemons(limit: Int, offset: Int) {
         Task {
             do {
@@ -24,4 +24,4 @@ public final class PokelistInteractor: PokelistInteractorProtocol {
             }
         }
     }
-} 
+}

@@ -1,9 +1,11 @@
-import UIKit
-import RxSwift
-import RxCocoa
-import SnapKit
+import CoreFeatures
 import Pokedex_Shared_Backend
+import RxCocoa
+import RxSwift
 import Shared_UI_Support
+import SnapKit
+import UIKit
+
 public typealias PokemonDetailModel = PokemonDetail
 
 // Add protocol
@@ -14,38 +16,39 @@ protocol PokemonContentViewController: UIViewController {
 public class PokemonDetailViewController: UIViewController {
     private let viewModel: PokemonDetailViewModel
     private let disposeBag = DisposeBag()
-    
+
     private var loadingViewController: LoadingViewController?
     private var errorViewController: RobotErrorViewController?
-    
+
     // Replace individual content view controllers with array and current index
     private var contentViewControllers: [PokemonContentViewController.Type] = [
         DetailDesign1ViewController.self,
-        DetailDesign2ViewController.self
+        DetailDesign2ViewController.self,
     ]
     private var currentContentIndex = 0
     private var currentContentViewController: PokemonContentViewController?
-    
+
     private let containerView: UIView = {
         let view = UIView()
         return view
     }()
-    
+
     public init(viewModel: PokemonDetailViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
+
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    public override func viewDidLoad() {
+
+    override public func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupBindings()
     }
-    
+
     private func setupUI() {
         view.backgroundColor = .systemBackground
         view.addSubview(containerView)
@@ -53,7 +56,7 @@ public class PokemonDetailViewController: UIViewController {
             make.edges.equalToSuperview()
         }
     }
-    
+
     private func setupBindings() {
         // Bind loading state
         viewModel.isLoading
@@ -66,7 +69,7 @@ public class PokemonDetailViewController: UIViewController {
                 }
             })
             .disposed(by: disposeBag)
-        
+
         // Bind pokemon detail
         viewModel.pokemonDetail
             .compactMap { $0 }
@@ -76,29 +79,29 @@ public class PokemonDetailViewController: UIViewController {
                 self?.setupNavigationButton()
             })
             .disposed(by: disposeBag)
-        
+
         // Bind error
         viewModel.error
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] error in
+            .subscribe(onNext: { [weak self] _ in
                 self?.showErrorView()
             })
             .disposed(by: disposeBag)
     }
-    
+
     private func setupNavigationButton() {
         addSwitchDesignButton(action: #selector(switchDesignTapped))
     }
-    
+
     @objc private func switchDesignTapped() {
         guard let pokemon = viewModel.pokemonDetail.value else { return }
         currentContentIndex = (currentContentIndex + 1) % contentViewControllers.count
         showContentView(with: pokemon)
     }
-    
+
     private func showLoadingView() {
         removeCurrentChildViewController()
-        
+
         let loadingVC = LoadingViewController()
         addChild(loadingVC)
         containerView.addSubview(loadingVC.view)
@@ -106,20 +109,20 @@ public class PokemonDetailViewController: UIViewController {
             make.edges.equalToSuperview()
         }
         loadingVC.didMove(toParent: self)
-        
-        self.loadingViewController = loadingVC
+
+        loadingViewController = loadingVC
     }
-    
+
     private func hideLoadingView() {
         loadingViewController?.willMove(toParent: nil)
         loadingViewController?.view.removeFromSuperview()
         loadingViewController?.removeFromParent()
         loadingViewController = nil
     }
-    
+
     private func showContentView(with pokemon: PokemonDetailModel) {
         removeCurrentChildViewController()
-        
+
         let contentVC = contentViewControllers[currentContentIndex].init(pokemon: pokemon)
         addChild(contentVC)
         containerView.addSubview(contentVC.view)
@@ -127,13 +130,13 @@ public class PokemonDetailViewController: UIViewController {
             make.edges.equalToSuperview()
         }
         contentVC.didMove(toParent: self)
-        
-        self.currentContentViewController = contentVC
+
+        currentContentViewController = contentVC
     }
-    
+
     private func showErrorView() {
         removeCurrentChildViewController()
-        
+
         let errorVC = RobotErrorViewController()
         errorVC.delegate = self
         addChild(errorVC)
@@ -142,21 +145,21 @@ public class PokemonDetailViewController: UIViewController {
             make.edges.equalToSuperview()
         }
         errorVC.didMove(toParent: self)
-        
-        self.errorViewController = errorVC
+
+        errorViewController = errorVC
     }
-    
+
     private func removeCurrentChildViewController() {
         loadingViewController?.willMove(toParent: nil)
         loadingViewController?.view.removeFromSuperview()
         loadingViewController?.removeFromParent()
         loadingViewController = nil
-        
+
         currentContentViewController?.willMove(toParent: nil)
         currentContentViewController?.view.removeFromSuperview()
         currentContentViewController?.removeFromParent()
         currentContentViewController = nil
-        
+
         errorViewController?.willMove(toParent: nil)
         errorViewController?.view.removeFromSuperview()
         errorViewController?.removeFromParent()
@@ -178,15 +181,16 @@ extension DetailDesign2ViewController: PokemonContentViewController {}
 
 #if DEBUG
 import SwiftUI
+
 #Preview {
     UIViewControllerPreview {
         let viewModel = PokemonDetailViewModel(pokemonService: .shared)
         let detailVC = PokemonDetailViewController(viewModel: viewModel)
         viewModel.loadPokemon(id: 25)
         let navVC = UINavigationController(rootViewController: UIViewController())
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             navVC.pushViewController(detailVC, animated: false)
-        })
+        }
         return navVC
     }
 }

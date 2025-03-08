@@ -1,0 +1,59 @@
+name: iOS Tests and Coverage
+
+on:
+  push:
+    branches: [ "main", "dev", "cicd" ]
+  pull_request:
+    branches: [ "main", "dev", "cicd" ]
+  workflow_dispatch:
+jobs:
+  build:
+    name: Build and Test default scheme using any available iPhone simulator
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select latest Xcode
+        run: |
+          XCODE_LIST=$(ls -d /Applications/Xcode*.app)
+          LATEST_XCODE=$(echo "$XCODE_LIST" | sort -V | tail -n 1)
+          echo "Using Xcode: $LATEST_XCODE"
+          sudo xcode-select -switch "$LATEST_XCODE"
+      - name: Check environment
+        run: |
+          swift --version
+          xcodebuild -version
+          xcrun xctrace list devices 2>&1
+      - name: Configure Xcode DerivedData path
+        run: |
+          defaults write com.apple.dt.Xcode IDECustomDerivedDataLocation "./.DerivedData"
+      - name: Set up secrets in xcconfig
+        run: |
+          echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
+          echo "PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient" >> Rebuild/Rebuild/Build.xcconfig
+      - name: Set Default Scheme
+        run: |
+          chmod +x ./.github/scripts/set_scheme.sh
+          sh ./.github/scripts/set_scheme.sh
+      - name: Find Simulator
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
+        run: |
+          chmod +x ./.github/scripts/find_simulator.sh
+          sh ./.github/scripts/find_simulator.sh
+      - name: Test with coverage
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
+        run: |
+          chmod +x ./.github/scripts/test.sh
+          sh ./.github/scripts/test.sh
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: .output/coverage_report.txt
+          retention-days: 14

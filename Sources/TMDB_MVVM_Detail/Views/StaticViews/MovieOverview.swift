@@ -1,8 +1,9 @@
 import SwiftUI
-struct MovieOverview : View {
+
+struct MovieOverview: View {
     let movie: Movie
     @State var isOverviewExpanded: Bool = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.overviewTitle)
@@ -16,7 +17,7 @@ struct MovieOverview : View {
                     withAnimation {
                         self.isOverviewExpanded.toggle()
                     }
-            }
+                }
             Button(action: {
                 withAnimation {
                     self.isOverviewExpanded.toggle()

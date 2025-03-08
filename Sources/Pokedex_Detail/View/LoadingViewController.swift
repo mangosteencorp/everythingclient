@@ -2,7 +2,6 @@ import Shared_UI_Support
 import UIKit
 
 class LoadingViewController: UIViewController {
-
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     private let gradientLayer = CAGradientLayer()
 
@@ -27,7 +26,7 @@ class LoadingViewController: UIViewController {
         // Center the activity indicator
         NSLayoutConstraint.activate([
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
 
         // Start animating the activity indicator
@@ -47,8 +46,10 @@ class LoadingViewController: UIViewController {
         gradientLayer.add(animation, forKey: "gradientAnimation")
     }
 }
+
 #if DEBUG
 import SwiftUI
+
 #Preview {
     UIViewControllerPreview {
         LoadingViewController()

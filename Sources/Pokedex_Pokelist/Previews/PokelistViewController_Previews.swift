@@ -1,6 +1,6 @@
-import SwiftUI
 import Pokedex_Shared_Backend
 import Shared_UI_Support
+import SwiftUI
 
 #if DEBUG
 let pokemonService = PokemonService.shared
@@ -17,7 +17,7 @@ class ExamplePokelistRouter: PokelistRouterProtocol {
         interactor.presenter = presenter
         return view
     }
-    
+
     func navigateToPokemonDetail(from view: UIViewController?, with id: Int) {}
 }
 

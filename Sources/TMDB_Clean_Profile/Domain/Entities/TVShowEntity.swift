@@ -7,4 +7,4 @@ struct TVShowEntity {
     let posterPath: String?
     let firstAirDate: String
     let voteAverage: Double
-} 
+}

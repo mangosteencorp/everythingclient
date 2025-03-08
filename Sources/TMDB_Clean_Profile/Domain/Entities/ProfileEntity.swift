@@ -5,4 +5,4 @@ struct ProfileEntity {
     let favoriteMovies: [MovieEntity]?
     let favoriteTVShows: [TVShowEntity]?
     let watchlistTVShows: [TVShowEntity]?
-} 
+}

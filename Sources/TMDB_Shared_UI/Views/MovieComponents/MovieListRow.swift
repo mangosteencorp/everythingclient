@@ -1,14 +1,6 @@
-//
-//  MovieRowEntity.swift
-//  everythingclient
-//
-//  Created by Quang on 2025-01-11.
-//
-
-
+import Shared_UI_Support
 import SwiftUI
-
-fileprivate let formatter: DateFormatter = {
+private let formatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
     return formatter
@@ -21,7 +13,14 @@ public struct MovieRowEntity {
     public let voteAverage: Double
     public let releaseDate: Date?
     public let overview: String
-    public init(id: Int, posterPath: String?, title: String, voteAverage: Double, releaseDate: Date?, overview: String) {
+    public init(
+        id: Int,
+        posterPath: String?,
+        title: String,
+        voteAverage: Double,
+        releaseDate: Date?,
+        overview: String
+    ) {
         self.id = id
         self.posterPath = posterPath
         self.title = title
@@ -33,19 +32,24 @@ public struct MovieRowEntity {
 
 @available(iOS 14, macOS 11, *)
 public struct MovieRow: View {
+    @State private var appear = false
+
     let movie: MovieRowEntity
     var displayListImage = true
     public init(movie: MovieRowEntity, displayListImage: Bool = true) {
         self.movie = movie
         self.displayListImage = displayListImage
     }
+
     public var body: some View {
         HStack {
             ZStack(alignment: .topLeading) {
-                RemoteTMDBImage(posterPath: movie.posterPath ?? "",
-                               posterSize: .medium,
-                               image: .medium)
-                    .redacted(if: movie.posterPath == nil)
+                RemoteTMDBImage(
+                    posterPath: movie.posterPath ?? "",
+                    posterSize: .medium,
+                    image: .medium
+                )
+                .redacted(if: movie.posterPath == nil)
             }
             .fixedSize()
             .animation(.spring())
@@ -71,6 +75,12 @@ public struct MovieRow: View {
         .padding(.bottom, 8)
         .contextMenu { Text(self.movie.id.description) }
         .redacted(if: movie.id == 0)
+        .opacity(appear ? 1 : 0)
+        .offset(x: appear ? 0 : 50)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.3)) {
+                appear = true
+            }
+        }
     }
 }
-

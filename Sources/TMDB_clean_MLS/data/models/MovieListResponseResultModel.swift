@@ -1,7 +1,7 @@
 import Foundation
 
 public struct MovieListResultModel: Codable {
-    let dates: Dates
+    let dates: Dates?
     let page: Int
     public let results: [APIMovie]
     let totalPages: Int
@@ -18,4 +18,3 @@ struct Dates: Codable {
     let maximum: String
     let minimum: String
 }
-

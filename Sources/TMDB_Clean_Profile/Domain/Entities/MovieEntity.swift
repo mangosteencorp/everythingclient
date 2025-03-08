@@ -7,4 +7,4 @@ struct MovieEntity {
     let posterPath: String?
     let voteAverage: Float
     let releaseDate: String?
-} 
+}

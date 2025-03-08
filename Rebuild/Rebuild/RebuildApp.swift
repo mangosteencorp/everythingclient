@@ -1,31 +1,24 @@
-//
-//  RebuildApp.swift
-//  Rebuild
-//
-//  Created by Quang on 2024-04-18.
-//
-
-import SwiftUI
 import everythingclient
+import SwiftUI
 
 @main
 struct RebuildApp: App {
-    #if DEBUG
+#if DEBUG
     let isAppStoreOrTestFlight = false
-    #else
+#else
     let isAppStoreOrTestFlight = true
-    #endif
-    
+#endif
+
     var body: some Scene {
         WindowGroup {
             RootContentView(
                 TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
-                isAppStoreOrTestFlight: isAppStoreOrTestFlight
+                isAppStoreOrTestFlight: isAppStoreOrTestFlight,
+                options3rdPartySDKs: .init(firebase: true) // mark this as false if you don't have GoogleService-Info.plist or not indending to use Firebase
             )
         }
     }
 }
-
 
 enum Configuration {
     enum Error: Swift.Error {

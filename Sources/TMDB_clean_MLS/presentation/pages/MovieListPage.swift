@@ -1,26 +1,31 @@
 import SwiftUI
 import Swinject
-
+import TMDB_Shared_UI
 @available(iOS 16.0, *)
-public struct MovieListPage: View {
-    @ObservedObject private(set) var viewModel: MoviesViewModel
+public struct MovieListPage<Route: Hashable>: View {
+    @StateObject var viewModel: MoviesViewModel
     let type: MovieListType
-    
-    public init(container: Container, apiKey: String, type: MovieListType) {
+    let detailRouteBuilder: (Int) -> Route
+    public init(
+        container: Container,
+        apiKey: String,
+        type: MovieListType,
+        detailRouteBuilder: @escaping (Int) -> Route
+    ) {
         APIKeys.tmdbKey = apiKey
         let movieAssembly = MovieAssembly()
         movieAssembly.assemble(container: container)
-        
+        self.detailRouteBuilder = detailRouteBuilder
         switch type {
         case .nowPlaying:
-            self.viewModel = container.resolve(MoviesViewModel.self, name: "nowPlaying")!
+            _viewModel = StateObject(wrappedValue: container.resolve(MoviesViewModel.self, name: "nowPlaying")!)
         case .upcoming:
-            self.viewModel = container.resolve(MoviesViewModel.self, name: "upcoming")!
+            _viewModel = StateObject(wrappedValue: container.resolve(MoviesViewModel.self, name: "upcoming")!)
         }
-        
+
         self.type = type
     }
-    
+
     public var body: some View {
         NavigationView {
             Group {
@@ -31,25 +36,26 @@ public struct MovieListPage: View {
                     Text(errorMessage)
                         .id("errorView")
                 } else {
-                    MovieListContent(movies: viewModel.movies)
+                    MovieListContent(movies: viewModel.movies, detailRouteBuilder: detailRouteBuilder)
                         .id("movieListContent")
                 }
             }
             .navigationTitle(type.title)
-            .onAppear {
-                viewModel.fetchMovies()
-            }
-            .accessibilityIdentifier("movieListPage.group")
         }
-        #if os(iOS)
+#if os(iOS)
         .navigationViewStyle(StackNavigationViewStyle())
-        #endif
+#endif
+        .accessibilityIdentifier("movieListPage.group")
+        .onFirstAppear {
+            viewModel.fetchMovies()
+        }
     }
 }
+
 public enum MovieListType {
     case nowPlaying
     case upcoming
-    
+
     var title: String {
         switch self {
         case .nowPlaying:
@@ -58,7 +64,7 @@ public enum MovieListType {
             return "Upcoming"
         }
     }
-    
+
     var iconName: String {
         switch self {
         case .nowPlaying:
@@ -68,6 +74,7 @@ public enum MovieListType {
         }
     }
 }
-struct APIKeys {
+
+enum APIKeys {
     static var tmdbKey = ""
 }

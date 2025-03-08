@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Quang on 2024-07-15.
-//
-
 import Foundation
 import SwiftUI
 
@@ -37,7 +30,8 @@ extension LocalizedStringKey {
             }
 
             guard let format = mirror.descendant("storage", "formatStyleValue", "format") as? any FormatStyle,
-                  let input = mirror.descendant("storage", "formatStyleValue", "input") else {
+                  let input = mirror.descendant("storage", "formatStyleValue", "input")
+            else {
                 return nil
             }
 
@@ -46,21 +40,21 @@ extension LocalizedStringKey {
 
         let va = values.compactMap { arg -> CVarArg? in
             switch arg {
-            case let i as Int:      return i
-            case let i as Int64:    return i
-            case let i as Int8:     return i
-            case let i as Int16:    return i
-            case let i as Int32:    return i
-            case let u as UInt:     return u
-            case let u as UInt64:   return u
-            case let u as UInt8:    return u
-            case let u as UInt16:   return u
-            case let u as UInt32:   return u
-            case let f as Float:    return f
-            case let f as CGFloat:  return f
-            case let d as Double:   return d
+            case let i as Int: return i
+            case let i as Int64: return i
+            case let i as Int8: return i
+            case let i as Int16: return i
+            case let i as Int32: return i
+            case let u as UInt: return u
+            case let u as UInt64: return u
+            case let u as UInt8: return u
+            case let u as UInt16: return u
+            case let u as UInt32: return u
+            case let f as Float: return f
+            case let f as CGFloat: return f
+            case let d as Double: return d
             case let o as NSObject: return o
-            default:                return nil
+            default: return nil
             }
         }
 

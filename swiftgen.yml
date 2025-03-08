@@ -7,7 +7,7 @@ strings:
         params:
           publicAccess: true
           enumName: L10n
-        output: Sources/TMDB_MVVM_Detail/Generated/Strings.swift
+        output: Sources/TMDB_MVVM_Detail/generated/Strings.swift
   
   - inputs: Sources/TMDB_MVVM_MLS/Resources/en.lproj/Localizable.strings
     outputs:
@@ -15,4 +15,4 @@ strings:
         params:
           publicAccess: true
           enumName: L10n
-        output: Sources/TMDB_MVVM_MLS/Generated/Strings.swift
+        output: Sources/TMDB_MVVM_MLS/generated/Strings.swift

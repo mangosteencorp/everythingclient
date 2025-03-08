@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable identifier_name
 public struct MovieDetailModel: Codable {
     public let adult: Bool
     public let backdrop_path: String?
@@ -83,4 +84,6 @@ public struct MovieImage: Codable {
     public let vote_average: Double
     public let vote_count: Int
     public let width: Int
-} 
+}
+
+// swiftlint:enable identifier_name

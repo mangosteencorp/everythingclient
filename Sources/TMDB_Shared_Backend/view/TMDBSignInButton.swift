@@ -1,13 +1,15 @@
 import SwiftUI
+
 // MARK: - Simple Sign In Button View
+
 @available(iOS 15.0, *)
 public struct TMDBSignInButton: View {
     @ObservedObject private var viewModel: AuthenticationViewModel
-    
+
     public init(viewModel: AuthenticationViewModel? = nil) {
         self.viewModel = viewModel ?? TMDB_Shared_Backend.container!.resolve(AuthenticationViewModel.self)!
     }
-    
+
     public var body: some View {
         Button(action: {
             Task {

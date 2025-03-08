@@ -1,24 +1,27 @@
 import SwiftUI
 
-struct ServerErrorView: View {
+public struct ServerErrorView: View {
     var retryAction: () -> Void
-    
-    var body: some View {
+    public init(retryAction: @escaping () -> Void) {
+        self.retryAction = retryAction
+    }
+
+    public var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 70))
                 .foregroundColor(.orange)
-            
+
             Text("Oops! Something Went Wrong")
                 .font(.title2)
                 .fontWeight(.bold)
-            
+
             Text("We're having trouble connecting to our servers.\nPlease try again later.")
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal)
-            
+
             Button(action: retryAction) {
                 Text("Try Again")
                     .fontWeight(.semibold)
@@ -32,7 +35,8 @@ struct ServerErrorView: View {
             .padding(.top, 10)
         }
     }
-} 
-#Preview{
+}
+
+#Preview {
     ServerErrorView(retryAction: {})
 }

@@ -1,22 +1,36 @@
 import SwiftUI
-import TMDB_Shared_UI
 import TMDB_Shared_Backend
-import AppCore
+import TMDB_Shared_UI
 
-public struct MovieDetailPage: View {
+@available(iOS 16.0, *)
+public struct MovieDetailPage<Route: Hashable>: View {
     var movie: Movie
     @ObservedObject var movieDetailViewModel: MovieDetailViewModel
     @ObservedObject var creditsViewModel: MovieCastingViewModel
     let apiService: TMDBAPIService
-    
-    public init(movieRoute: MovieRouteModel, apiKey: String) {
+    let discoverMovieByKeywordRouteBuilder: (Int) -> Route
+
+    public init(movieRoute: Movie,
+                apiService: TMDBAPIService,
+                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route) {
         // Convert MovieRouteModel to Movie
-        self.movie = Movie(id: movieRoute.id, original_title: movieRoute.originalTitle ?? "", title: movieRoute.title, overview: movieRoute.overview, poster_path: movieRoute.posterPath, backdrop_path: movieRoute.backdropPath, popularity: movieRoute.popularity ?? 0.0, vote_average: movieRoute.voteAverage, vote_count: movieRoute.voteCount, release_date: movieRoute.releaseDate, genres: nil, runtime: nil, status: nil, video: false)
-        self.apiService = TMDBAPIService(apiKey: apiKey)
-        self.movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
-        self.creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+        movie = movieRoute
+        self.apiService = apiService
+        movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
+        creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+        self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
     }
-    
+
+    public init(movieId: Int,
+                apiService: TMDBAPIService,
+                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route) {
+        movie = Movie.placeholder(id: movieId)
+        self.apiService = apiService
+        movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
+        creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+        self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
+    }
+
     public var body: some View {
         ZStack(alignment: .bottom) {
             List {
@@ -28,63 +42,54 @@ public struct MovieDetailPage: View {
                     MovieOverview(movie: getMovie())
                 }
                 Section {
-                    if let kwList = getMovie().keywords?.keywords, kwList.count > 0 {
+                    if let kwList = getMovie().keywords?.keywords, !kwList.isEmpty {
                         MovieKeywords(
                             keywords: kwList,
-                            specialKeywordIds: TabManager.shared.specialKeywordIdList(),
-                            onSpecialKeywordLongPress: { kwId in
-                                TabManager.shared.enableSpecialTab(specialKeywordId: kwId)
-                            }
+                            discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder
                         )
-                        
                     }
                     MovieCreditSection(movieId: movie.id, creditsViewModel: creditsViewModel)
                 }
             }
             .listStyle(PlainListStyle())
-            .navigationBarTitle(Text(movie.userTitle), displayMode: .large)
+            .navigationBarTitle(Text(getMovie().userTitle), displayMode: .large)
         }.onFirstAppear {
             movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
         }
     }
-    
+
     func getMovie() -> Movie {
-        if case .success(let mv) = movieDetailViewModel.state {
-            return mv
+        if case let .success(mov) = movieDetailViewModel.state {
+            return mov
         }
         return movie
     }
 }
+
 #if DEBUG
+
+@available(iOS 16.0, *)
 let exampleMovieDetailPage: MovieDetailPage = {
-    var p = MovieDetailPage(
-        movieRoute: MovieRouteModel(
-            id: exampleMovieDetail.id,
-            title: exampleMovieDetail.title,
-            overview: exampleMovieDetail.original_title,
-            posterPath: exampleMovieDetail.overview,
-            backdropPath: exampleMovieDetail.backdrop_path,
-            voteAverage: exampleMovieDetail.vote_average,
-            voteCount: exampleMovieDetail.vote_count,
-            releaseDate: exampleMovieDetail.release_date,
-            popularity: exampleMovieDetail.popularity,
-            originalTitle: exampleMovieDetail.original_title
-        ),
-        apiKey: "dummy-key"
-    )
     let apiService = TMDBAPIService(apiKey: "dummy-key")
+    var page = MovieDetailPage(
+        movieRoute: exampleMovieDetail,
+        apiService: apiService,
+        discoverMovieByKeywordRouteBuilder: {_ in 1}
+    )
+
     let movieDetailVM = MovieDetailViewModel(apiService: apiService)
-    
+
     let creditVM = MovieCastingViewModel(apiService: apiService)
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         movieDetailVM.state = .success(exampleMovieDetail)
         creditVM.state = .success(exampleMovieCredits)
     }
-    p.creditsViewModel = creditVM
-    p.movieDetailViewModel = movieDetailVM
-    return p
+    page.creditsViewModel = creditVM
+    page.movieDetailViewModel = movieDetailVM
+    return page
 }()
 
+@available(iOS 16.0, *)
 #Preview {
     return NavigationView {
         exampleMovieDetailPage

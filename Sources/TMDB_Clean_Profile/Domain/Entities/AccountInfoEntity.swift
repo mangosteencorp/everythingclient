@@ -5,4 +5,4 @@ struct AccountInfoEntity {
     let name: String
     let username: String
     let avatarPath: String?
-} 
+}

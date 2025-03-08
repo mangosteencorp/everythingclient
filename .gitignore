@@ -1,7 +1,6 @@
 .DS_Store
 *.xcuserdatad
 .build
-.vscode/settings.json
 DerivedData
 .DerivedData
 .output
@@ -9,3 +8,4 @@ coverage_report.txt
 Sources/Pokedex_Shared_GraphQL/GraphQL
 apollo-ios-cli
 **/.DerivedData/
+Rebuild/Rebuild/GoogleService-Info.plist
