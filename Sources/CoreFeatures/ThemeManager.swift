@@ -25,7 +25,9 @@ public class ThemeManager: ObservableObject {
     }
 
     public func setTheme(_ theme: ThemeProtocol) {
-        currentTheme = theme
+        withAnimation(.easeInOut(duration: 0.3)) {
+            currentTheme = theme
+        }
     }
 
     public func availableThemes() -> [ThemeProtocol] {
@@ -36,7 +38,10 @@ public class ThemeManager: ObservableObject {
         let availableThemes = availableThemes()
         guard let currentIndex = availableThemes.firstIndex(where: { $0.backgroundColor == currentTheme.backgroundColor }) else { return }
         let nextIndex = (currentIndex + 1) % availableThemes.count
-        setTheme(availableThemes[nextIndex])
+
+        withAnimation(.easeInOut(duration: 0.3)) {
+            setTheme(availableThemes[nextIndex])
+        }
 
         // Save the user's theme preference after switching
         saveThemePreference()
