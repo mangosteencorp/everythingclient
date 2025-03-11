@@ -16,3 +16,12 @@ strings:
           publicAccess: true
           enumName: L10n
         output: Sources/TMDB_MVVM_MLS/generated/Strings.swift
+
+fonts:
+  - inputs: Sources/Shared_UI_Support/Resources/pixelmix.ttf
+    outputs:
+      - templateName: swift5
+        params:
+          publicAccess: true
+          enumName: FontFamily
+        output: Sources/Shared_UI_Support/generated/Fonts.swift
