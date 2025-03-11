@@ -63,7 +63,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
 // swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
-    DMSNowPlayingPage(apiService: TMDBAPIService(apiKey: previewTMDBAPIKey),
+    DMSNowPlayingPage(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
                       detailRouteBuilder: { _ in 1 })
 }
 
@@ -73,7 +73,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
         TabView {
             NavigationStack {
                 DMSNowPlayingPage(
-                    apiService: TMDBAPIService(apiKey: previewTMDBAPIKey),
+                    apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
                     detailRouteBuilder: { _ in 1 }
                 )
                 .tag(0)

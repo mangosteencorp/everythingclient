@@ -51,7 +51,7 @@ struct LoadingView: View {
 #Preview { // FIXME: preview broken
     TVShowDetailView(apiService:
                         TMDBAPIService(apiKey:
-                                        ""
+                                        debugTMDBAPIKey
                                       ),
                      tvShowId: 1399) // Game of Thrones ID
         .environmentObject(ThemeManager.shared)

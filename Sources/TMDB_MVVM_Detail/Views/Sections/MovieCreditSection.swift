@@ -29,12 +29,13 @@ struct MovieCreditSection: View {
         }
     }
 }
-
+#if DEBUG
 #Preview {
     MovieCreditSection(
         movieId: 939_243,
         creditsViewModel: MovieCastingViewModel(
-            apiService: TMDBAPIService(apiKey: "")
+            apiService: TMDBAPIService(apiKey: debugTMDBAPIKey)
         )
     )
 }
+#endif
