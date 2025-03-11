@@ -39,14 +39,32 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
                 switch viewModel.state {
                 case .initial:
                     EmptyView()
-                case .loading:
+                case .loading where viewModel.searchQuery.isEmpty:
                     ProgressView(L10n.playingLoading)
                 case .error(let message):
                     Text(message)
                 case .loaded(let movies), .searchResults(let movies):
                     List(movies) { movie in
                         NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                    }.searchable(text: $viewModel.searchQuery)
+                    }
+                    .searchable(text: $viewModel.searchQuery)
+                    .overlay {
+                        if case .loading = viewModel.state {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                .background(Color.black.opacity(0.1))
+                        }
+                    }
+                case .loading:
+                    List([] as [Movie]) { movie in
+                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                    }
+                    .searchable(text: $viewModel.searchQuery)
+                    .overlay {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            .background(Color.black.opacity(0.1))
+                    }
                 }
             }
         }

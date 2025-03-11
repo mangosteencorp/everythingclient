@@ -58,7 +58,9 @@ public class NowPlayingViewModel: ObservableObject {
     }
 
     private func searchMovies(query: String) {
-        state = .loading
+        if case .loaded(let movies) = state {
+            state = .searchResults(movies)
+        }
 
         Task {
             let result = await apiService.searchMovies(query: query, page: nil)
