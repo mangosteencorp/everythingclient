@@ -25,7 +25,7 @@ public struct TVShowDetailView: View {
             case .loaded(let tvShow):
                 TVShowDetailLoadedView(tvShow: tvShow)
             case .error(let error):
-                Text(localized: LocalizedStringResource.localizable.error(error.localizedDescription))
+                Text("Error: \(error.localizedDescription)")
             }
         }
         .task {
@@ -40,7 +40,7 @@ struct LoadingView: View {
             ProgressView()
                 .scaleEffect(1.5)
 
-            Text( LocalizedStringResource.localizable.loadingTvShowDetails)
+            Text("Loading TV Show Details...")
                 .foregroundColor(.gray)
         }
     }
