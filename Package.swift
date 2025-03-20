@@ -8,7 +8,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS(.v14),
-        //.macOS(.v11),
+        // .macOS(.v11),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -57,6 +57,8 @@ let package = Package(
             url: "https://github.com/apollographql/apollo-ios.git",
             .upToNextMajor(from: "1.0.0")
         ),
+        // .package(url: "https://github.com/liamnichols/xcstrings-tool-plugin.git", from: "0.1.0"),
+        // .package(path: "../../GitFork/xcstrings-tool"),
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
@@ -114,6 +116,9 @@ let package = Package(
             name: "TMDB_TVShowDetail",
             dependencies: [
                 "TMDB_Shared_Backend",
+            ],
+            resources: [
+                .process("Resources"),
             ]
         ),
         // Movie list
