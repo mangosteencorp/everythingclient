@@ -55,7 +55,7 @@ public struct TMDBAPITabView: View {
                     .tag(tab)
             }
         }
-        .tabViewStyle(PageTabViewStyle())
+        // .tabViewStyle(PageTabViewStyle())
         .environmentObject(coordinator)
     }
 
