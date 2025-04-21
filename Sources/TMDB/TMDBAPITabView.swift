@@ -93,54 +93,11 @@ public struct TMDBAPITabView: View {
             }
 
             // Floating tab bar at the bottom
-            FloatingTabBar(selection: $coordinator.selectedTab, isHidden: .constant(false), items: tabItems)
+            FloatingTabBar(selection: $coordinator.selectedTab, isHidden: Binding(
+                get: { coordinator.tabBarHiddenStates[coordinator.selectedTab] ?? false },
+                set: { _ in }
+            ), items: tabItems)
         }
         .environmentObject(coordinator)
-    }
-}
-
-struct FloatingTabItem<Selection: Hashable> {
-    let tag: Selection
-    let icon: Image
-    let title: String
-}
-
-// Define the floating tab bar view
-struct FloatingTabBar<Selection: Hashable>: View {
-    @Binding var selection: Selection
-    @Binding var isHidden: Bool
-    let items: [FloatingTabItem<Selection>]
-
-    var body: some View {
-        if !isHidden {
-            HStack {
-                ForEach(items, id: \.tag) { item in
-                    Button(action: {
-                        selection = item.tag
-                    }) {
-                        HStack {
-                            item.icon
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                            if item.tag == selection {
-                                Text(item.title).font(.caption)
-                            }
-                        }
-                        .foregroundColor(item.tag == selection ? .blue : .gray)
-                        .padding(.vertical, 8)
-                        
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .padding(.horizontal)
-            .background(Color.white)
-            .cornerRadius(10)
-            .shadow(radius: 5)
-            .padding(.horizontal)
-        } else {
-            EmptyView()
-        }
     }
 }
