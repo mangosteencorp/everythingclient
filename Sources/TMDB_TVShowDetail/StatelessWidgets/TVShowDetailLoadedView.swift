@@ -26,7 +26,7 @@ struct TVShowDetailLoadedView: View {
                 firstAirDate: tvShow.firstAirDate,
                 lastAirDate: tvShow.lastAirDate,
                 status: tvShow.status,
-                averageVote: String(format: "%.1f (%d votes)", tvShow.voteAverage, tvShow.voteCount)
+                averageVote: L10n.Tvshow.Detail.averageVote(Float(tvShow.voteAverage), tvShow.voteCount)
             ),
             seasons: tvShow.seasons.map { season in
                 Season(
@@ -34,7 +34,7 @@ struct TVShowDetailLoadedView: View {
                     name: season.name,
                     posterURL: season.posterPath.map { TMDBImageSize.small.buildImageUrl(path: $0).absoluteString } ?? "",
                     episodeCount: season.episodeCount,
-                    airDate: season.airDate ?? "TBA"
+                    airDate: season.airDate ?? L10n.Tvshow.Detail.tba
                 )
             }
         )
@@ -63,21 +63,21 @@ struct TVShowDetailLoadedView: View {
                     .frame(width: 150)
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Overview")
+                        Text(L10n.Tvshow.Detail.overview)
                             .font(.headline)
                             .foregroundColor(themeManager.currentTheme.labelColor)
                         Text(showData.overview)
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
 
-                        Text("Genres")
+                        Text(L10n.Tvshow.Detail.genres)
                             .font(.headline)
                             .foregroundColor(themeManager.currentTheme.labelColor)
                         Text(showData.genres)
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
 
-                        Text("Created by")
+                        Text(L10n.Tvshow.Detail.createdBy)
                             .font(.headline)
                             .foregroundColor(themeManager.currentTheme.labelColor)
                         HStack(spacing: 20) {
@@ -99,31 +99,31 @@ struct TVShowDetailLoadedView: View {
                             }
                         }
 
-                        Text("Details")
+                        Text(L10n.Tvshow.Detail.details)
                             .font(.headline)
                             .foregroundColor(themeManager.currentTheme.labelColor)
-                        Text("Number of seasons: \(showData.details.numberOfSeasons)")
+                        Text(L10n.Tvshow.Detail.numberOfSeasons(showData.details.numberOfSeasons))
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
-                        Text("Number of episodes: \(showData.details.numberOfEpisodes)")
+                        Text(L10n.Tvshow.Detail.numberOfEpisodes(showData.details.numberOfEpisodes))
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
-                        Text("First air date: \(showData.details.firstAirDate)")
+                        Text(L10n.Tvshow.Detail.firstAirDate(showData.details.firstAirDate))
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
-                        Text("Last air date: \(showData.details.lastAirDate)")
+                        Text(L10n.Tvshow.Detail.lastAirDate(showData.details.lastAirDate))
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
-                        Text("Status: \(showData.details.status)")
+                        Text(L10n.Tvshow.Detail.status(showData.details.status))
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
-                        Text("Average vote: \(showData.details.averageVote)")
+                        Text(showData.details.averageVote)
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
                     }
                 }
 
-                Text("Seasons")
+                Text(L10n.Tvshow.Detail.seasons)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(themeManager.currentTheme.labelColor)

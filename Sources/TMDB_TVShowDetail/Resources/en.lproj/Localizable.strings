@@ -1,0 +1,25 @@
+//
+//  Localizable.strings
+//  everythingclient
+//
+//  Created by Quang on 2025-06-04.
+//
+
+// TVShowDetailView
+"tvshow.detail.error" = "Error: %@";
+"tvshow.detail.loading" = "Loading TV Show Details...";
+
+// TVShowDetailLoadedView
+"tvshow.detail.overview" = "Overview";
+"tvshow.detail.genres" = "Genres";
+"tvshow.detail.created_by" = "Created by";
+"tvshow.detail.details" = "Details";
+"tvshow.detail.number_of_seasons" = "Number of seasons: %d";
+"tvshow.detail.number_of_episodes" = "Number of episodes: %d";
+"tvshow.detail.first_air_date" = "First air date: %@";
+"tvshow.detail.last_air_date" = "Last air date: %@";
+"tvshow.detail.status" = "Status: %@";
+"tvshow.detail.average_vote" = "%.1f (%d votes)";
+"tvshow.detail.seasons" = "Seasons";
+"tvshow.detail.tba" = "TBA";
+
