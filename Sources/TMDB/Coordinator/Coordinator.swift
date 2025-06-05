@@ -33,8 +33,8 @@ public class Coordinator: ObservableObject {
             set: { [weak self] newValue in
                 self?.navigationStates[tab]?.path = newValue
                 // Update visibility based on navigation depth
-                if let count = self?.navigationStates[tab]?.path.count {
-                    self?.tabBarHiddenStates[tab] = count > 0
+                if let path = self?.navigationStates[tab]?.path {
+                    self?.tabBarHiddenStates[tab] = !path.isEmpty
                 }
             }
         )
