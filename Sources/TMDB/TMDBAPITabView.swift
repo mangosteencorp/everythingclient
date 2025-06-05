@@ -7,7 +7,6 @@ import TMDB_MVVM_Detail
 import TMDB_MVVM_MLS
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
-
 @available(iOS 16, *)
 public struct TMDBAPITabView: View {
     @StateObject private var coordinator: Coordinator
@@ -34,7 +33,6 @@ public struct TMDBAPITabView: View {
             container.register(TMDBNavigationInterceptor.self) { _ in interceptor }.inObjectScope(.container)
         }
 
-        // Register analytics tracker
         if let tracker = analyticsTracker {
             container.register(AnalyticsTracker.self) { _ in tracker }.inObjectScope(.container)
         }
@@ -46,58 +44,60 @@ public struct TMDBAPITabView: View {
     }
 
     public var body: some View {
-        TabView(selection: $coordinator.selectedTab) {
-            ForEach(coordinator.tabList, id: \.self) { tab in
-                navigationStackForTab(tab)
-                    .tabItem {
-                        Image(systemName: tab.iconName)
-                    }
-                    .tag(tab)
-            }
+        // Create the tab items for the FloatingTabBar
+        let tabItems = coordinator.tabList.map { tab in
+            FloatingTabItem(tag: tab, icon: Image(systemName: tab.iconName), title: tab.title)
         }
-        // .tabViewStyle(PageTabViewStyle())
-        .environmentObject(coordinator)
-    }
 
-    @ViewBuilder
-    private func navigationStackForTab(_ tab: TabRoute) -> some View {
-        NavigationStack(path: coordinator.path(for: tab)) {
-            switch tab {
+        ZStack(alignment: .bottom) {
+            // Content area: Switch between NavigationStacks based on selected tab
+            switch coordinator.selectedTab {
             case .nowPlaying:
-                DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
-                    TMDBRoute.movieDetail(MovieRouteModel(
-                        id: movie.id,
-                        title: movie.title,
-                        overview: movie.overview,
-                        posterPath: movie.posterPath,
-                        backdropPath: movie.backdropPath,
-                        voteAverage: movie.voteAverage,
-                        voteCount: movie.voteCount,
-                        releaseDate: movie.releaseDate,
-                        popularity: movie.popularity,
-                        originalTitle: movie.originalTitle
-                    ))
+                NavigationStack(path: coordinator.path(for: .nowPlaying)) {
+                    DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
+                        TMDBRoute.movieDetail(MovieRouteModel(
+                            id: movie.id,
+                            title: movie.title,
+                            overview: movie.overview,
+                            posterPath: movie.posterPath,
+                            backdropPath: movie.backdropPath,
+                            voteAverage: movie.voteAverage,
+                            voteCount: movie.voteCount,
+                            releaseDate: movie.releaseDate,
+                            popularity: movie.popularity,
+                            originalTitle: movie.originalTitle
+                        ))
+                    }
+                    .withTMDBNavigationDestinations(container: container)
                 }
-                .withTMDBNavigationDestinations(container: container)
-
             case .upcoming:
-                TMDB_clean_MLS.MovieListPage(
-                    container: container,
-                    apiKey: tmdbKey,
-                    type: .upcoming
-                ) { tvShowId in
-                    TMDBRoute.tvShowDetail(tvShowId)
+                NavigationStack(path: coordinator.path(for: .upcoming)) {
+                    TMDB_clean_MLS.MovieListPage(
+                        container: container,
+                        apiKey: tmdbKey,
+                        type: .upcoming
+                    ) { tvShowId in
+                        TMDBRoute.tvShowDetail(tvShowId)
+                    }
+                    .withTMDBNavigationDestinations(container: container)
                 }
-                .withTMDBNavigationDestinations(container: container)
-
             case .profile:
-                ProfilePageVCView(container: container) { movieId in
-                    coordinator.navigate(to: .movieDetail(MovieRouteModel(id: movieId)), in: tab)
-                } onNavigateToTVShow: { tvShowId in
-                    coordinator.navigate(to: .tvShowDetail(tvShowId), in: tab)
+                NavigationStack(path: coordinator.path(for: .profile)) {
+                    ProfilePageVCView(container: container) { movieId in
+                        coordinator.navigate(to: .movieDetail(MovieRouteModel(id: movieId)), in: .profile)
+                    } onNavigateToTVShow: { tvShowId in
+                        coordinator.navigate(to: .tvShowDetail(tvShowId), in: .profile)
+                    }
+                    .withTMDBNavigationDestinations(container: container)
                 }
-                .withTMDBNavigationDestinations(container: container)
             }
+
+            // Floating tab bar at the bottom
+            FloatingTabBar(selection: $coordinator.selectedTab, isHidden: Binding(
+                get: { coordinator.tabBarHiddenStates[coordinator.selectedTab] ?? false },
+                set: { _ in }
+            ), items: tabItems)
         }
+        .environmentObject(coordinator)
     }
 }

@@ -1,5 +1,6 @@
 import Kingfisher
 import Pokedex_Shared_Backend
+import Shared_UI_Support
 import UIKit
 
 class PokemonCell: UICollectionViewCell {
@@ -17,7 +18,7 @@ class PokemonCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        label.font = FontFamily.Pixelmix.regular.font(size: 14)
         label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -26,7 +27,7 @@ class PokemonCell: UICollectionViewCell {
     private let idLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .right
-        label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        label.font = FontFamily.Pixelmix.regular.font(size: 12)
         label.textColor = .white.withAlphaComponent(0.8)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

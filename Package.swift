@@ -199,7 +199,8 @@ let package = Package(
             path: "Tests/Tests_Shared_Helpers"
         ),
         .target(
-            name: "Shared_UI_Support"
+            name: "Shared_UI_Support",
+            resources: [.process("Resources")]
         ),
         .target(
             name: "CoreFeatures"

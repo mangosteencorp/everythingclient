@@ -25,7 +25,7 @@ public struct TVShowDetailView: View {
             case .loaded(let tvShow):
                 TVShowDetailLoadedView(tvShow: tvShow)
             case .error(let error):
-                Text("Error: \(error.localizedDescription)")
+                Text(L10n.Tvshow.Detail.error(error))
             }
         }
         .task {
@@ -40,7 +40,7 @@ struct LoadingView: View {
             ProgressView()
                 .scaleEffect(1.5)
 
-            Text("Loading TV Show Details...")
+            Text(L10n.Tvshow.Detail.loading)
                 .foregroundColor(.gray)
         }
     }
@@ -51,7 +51,7 @@ struct LoadingView: View {
 #Preview { // FIXME: preview broken
     TVShowDetailView(apiService:
                         TMDBAPIService(apiKey:
-                                        ""
+                                        debugTMDBAPIKey
                                       ),
                      tvShowId: 1399) // Game of Thrones ID
         .environmentObject(ThemeManager.shared)

@@ -11,6 +11,8 @@ TEST_SCHEMES=(
 SHARED_SCHEMES=(
     "TMDB_Shared_Backend"
     "TMDB_Shared_UI"
+    "CoreFeatures"
+    "Shared_UI_Support"
 )
 
 # Create output directory if it doesn't exist
