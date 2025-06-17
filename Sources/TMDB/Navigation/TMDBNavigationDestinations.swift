@@ -35,7 +35,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 tvShowId: tvShowId)
                 .environmentObject(ThemeManager.shared)
         case let .movieList(params):
-            DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
+            MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
             }
         }

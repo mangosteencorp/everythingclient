@@ -1,15 +1,15 @@
 import SwiftUI
-
+import TMDB_Shared_Backend
 #if DEBUG
 @available(iOS 16, *)
 #Preview {
-    TMDBAPITabView(tmdbKey: "YOUR_API_KEY")
+    TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
 }
 
 @available(iOS 16, *)
 #Preview("Tab contain TMDBAPITabView") {
     TabView {
-        TMDBAPITabView(tmdbKey: "YOUR_API_KEY")
+        TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
             .tabItem {
                 Label("TMDB", systemImage: "film")
             }

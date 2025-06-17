@@ -5,8 +5,8 @@ import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 @available(iOS 16, macOS 10.15, *)
-public struct DMSNowPlayingPage<Route: Hashable>: View {
-    @StateObject var viewModel: NowPlayingViewModel
+public struct MovieFeedListPage<Route: Hashable>: View {
+    @StateObject var viewModel: MovieFeedViewModel
     let detailRouteBuilder: (Movie) -> Route
 
     public init(
@@ -15,7 +15,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
         analyticsTracker: AnalyticsTracker? = nil,
         detailRouteBuilder: @escaping (Movie) -> Route
     ) {
-        _viewModel = StateObject(wrappedValue: NowPlayingViewModel(
+        _viewModel = StateObject(wrappedValue: MovieFeedViewModel(
             apiService: apiService,
             additionalParams: additionalParams,
             analyticsTracker: analyticsTracker
@@ -25,7 +25,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
 
 #if DEBUG
     init(
-        viewModel: NowPlayingViewModel,
+        viewModel: MovieFeedViewModel,
         detailRouteBuilder: @escaping (Movie) -> Route
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -40,7 +40,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
                 case .initial:
                     EmptyView()
                 case .loading:
-                    ProgressView(L10n.playingLoading)
+                    ProgressView("Loading...")
                 case .error(let message):
                     Text(message)
                 case .loaded(let movies), .searchResults(let movies):
@@ -51,10 +51,19 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
             }
         }
         .accessibilityIdentifier("movielist1.group")
-        .navigationTitle(L10n.playingTitle)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Picker("", selection: $viewModel.feedType) {
+                    ForEach(MovieFeedType.allCases) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        }
         .navigationBarTitleDisplayMode(.inline)
-        .onFirstAppear {
-            viewModel.fetchNowPlayingMovies()
+        .onAppear {
+            viewModel.fetchMovies()
         }
     }
 }
@@ -63,7 +72,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
 // swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
-    DMSNowPlayingPage(apiService: TMDBAPIService(apiKey: previewTMDBAPIKey),
+    MovieFeedListPage(apiService: TMDBAPIService(apiKey: previewTMDBAPIKey),
                       detailRouteBuilder: { _ in 1 })
 }
 
@@ -72,7 +81,7 @@ public struct DMSNowPlayingPage<Route: Hashable>: View {
     TabView {
         TabView {
             NavigationStack {
-                DMSNowPlayingPage(
+                MovieFeedListPage(
                     apiService: TMDBAPIService(apiKey: previewTMDBAPIKey),
                     detailRouteBuilder: { _ in 1 }
                 )

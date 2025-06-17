@@ -3,11 +3,11 @@ import TMDB_Shared_UI
 
 @available(iOS 16.0, *)
 struct NavigationMovieRow<Route: Hashable>: View {
-    @ObservedObject var viewModel: NowPlayingViewModel
+    @ObservedObject var viewModel: MovieFeedViewModel
     let movie: Movie
     let routeBuilder: (Movie) -> Route
 
-    init(_ viewModel: NowPlayingViewModel, movie: Movie, routeBuilder: @escaping (Movie) -> Route) {
+    init(_ viewModel: MovieFeedViewModel, movie: Movie, routeBuilder: @escaping (Movie) -> Route) {
         self.viewModel = viewModel
         self.movie = movie
         self.routeBuilder = routeBuilder

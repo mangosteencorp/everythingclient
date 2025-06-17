@@ -16,7 +16,15 @@ public enum TMDBEndpoint {
     case review(movie: Int)
 
     // Search
-    case searchMovie(query: String, page: Int? = nil)
+    case searchMovie(
+        query: String,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        primaryReleaseYear: String? = nil,
+        page: Int? = nil,
+        region: String? = nil,
+        year: String? = nil
+    )
     case searchKeyword, searchPerson
 
     // Person
@@ -163,10 +171,25 @@ public enum TMDBEndpoint {
                 return ["page": String(page)]
             }
             return nil
-        case let .searchMovie(query, page):
+        case let .searchMovie(query, includeAdult, language, primaryReleaseYear, page, region, year):
             var params = ["query": query]
+            if let includeAdult = includeAdult {
+                params["include_adult"] = includeAdult ? "true" : "false"
+            }
+            if let language = language {
+                params["language"] = language
+            }
+            if let primaryReleaseYear = primaryReleaseYear {
+                params["primary_release_year"] = primaryReleaseYear
+            }
             if let page = page {
                 params["page"] = String(page)
+            }
+            if let region = region {
+                params["region"] = region
+            }
+            if let year = year {
+                params["year"] = year
             }
             return params
         case let .discoverMovie(keywords, page):
