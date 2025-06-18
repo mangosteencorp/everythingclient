@@ -4,12 +4,25 @@ import SwiftUI
 import TMDB_Shared_Backend
 
 public enum MovieFeedType: String, CaseIterable, Identifiable {
-    case nowPlaying = "Now Playing"
-    case popular = "Popular"
-    case topRated = "Top Rated"
-    case upcoming = "Upcoming"
+    case nowPlaying = "feed_now_playing"
+    case popular = "feed_popular"
+    case topRated = "feed_top_rated"
+    case upcoming = "feed_upcoming"
 
     public var id: String { rawValue }
+
+    public var localizedTitle: String {
+        switch self {
+        case .nowPlaying:
+            return L10n.feedNowPlaying
+        case .popular:
+            return L10n.feedPopular
+        case .topRated:
+            return L10n.feedTopRated
+        case .upcoming:
+            return L10n.feedUpcoming
+        }
+    }
 }
 
 public class MovieFeedViewModel: ObservableObject {

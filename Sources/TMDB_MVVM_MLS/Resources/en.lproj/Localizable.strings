@@ -8,3 +8,7 @@
 
 "playing_loading" = "Loading...";
 "playing_title" = "Now Playing";
+"feed_now_playing" = "Now Playing";
+"feed_popular" = "Popular";
+"feed_top_rated" = "Top Rated";
+"feed_upcoming" = "Upcoming";
