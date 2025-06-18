@@ -4,10 +4,10 @@ import SwiftUI
 import TMDB_Shared_Backend
 
 public enum MovieFeedType: String, CaseIterable, Identifiable {
-    case nowPlaying = "feed_now_playing"
-    case popular = "feed_popular"
-    case topRated = "feed_top_rated"
-    case upcoming = "feed_upcoming"
+    case nowPlaying
+    case popular
+    case topRated
+    case upcoming
 
     public var id: String { rawValue }
 
@@ -28,6 +28,7 @@ public enum MovieFeedType: String, CaseIterable, Identifiable {
 public class MovieFeedViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
+    @Published var searchFilters = SearchFilters()
     @Published var feedType: MovieFeedType = .nowPlaying {
         didSet { fetchMovies() }
     }
@@ -53,6 +54,15 @@ public class MovieFeedViewModel: ObservableObject {
                     self?.searchMovies(query: query)
                 } else if let self = self {
                     self.state = .loaded(self.movies)
+                }
+            }
+            .store(in: &cancellables)
+
+        $searchFilters
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                if let self = self, !self.searchQuery.isEmpty {
+                    self.searchMovies(query: self.searchQuery)
                 }
             }
             .store(in: &cancellables)
@@ -92,7 +102,7 @@ public class MovieFeedViewModel: ObservableObject {
     private func searchMovies(query: String) {
         state = .loading
         Task {
-            let result = await apiService.searchMovies(query: query, page: nil)
+            let result = await apiService.searchMovies(query: query, page: nil, filters: searchFilters.hasActiveFilters ? searchFilters : nil)
             await MainActor.run {
                 switch result {
                 case let .success(response):

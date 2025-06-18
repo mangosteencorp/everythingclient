@@ -12,3 +12,21 @@
 "feed_popular" = "Popular";
 "feed_top_rated" = "Top Rated";
 "feed_upcoming" = "Upcoming";
+
+// Filter strings
+"filter_include_adult" = "Include Adult";
+"filter_language" = "Language";
+"filter_primary_release_year" = "Release Year";
+"filter_region" = "Region";
+"filter_year" = "Year";
+"filter_clear_all" = "Clear All";
+"filter_include_adult_description" = "Include adult content in search results";
+"filter_language_description" = "Select language for search results";
+"filter_region_description" = "Select region for search results";
+"filter_year_description" = "Enter a 4-digit year (e.g., 2024)";
+"filter_any_language" = "Any Language";
+"filter_any_region" = "Any Region";
+"filter_enter_year" = "Enter year (e.g., 2024)";
+"filter_clear" = "Clear";
+"filter_cancel" = "Cancel";
+"filter_done" = "Done";

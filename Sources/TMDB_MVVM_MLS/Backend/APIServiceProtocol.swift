@@ -17,6 +17,7 @@ public protocol APIServiceProtocol {
     func fetchTopRatedMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error>
     func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error>
     func searchMovies(query: String, page: Int?) async -> Result<NowPlayingResponse, Error>
+    func searchMovies(query: String, page: Int?, filters: SearchFilters?) async -> Result<NowPlayingResponse, Error>
 }
 
 // Optional convenience methods
@@ -39,6 +40,10 @@ public extension APIServiceProtocol {
 
     func searchMovies(query: String) async -> Result<NowPlayingResponse, Error> {
         await searchMovies(query: query, page: nil)
+    }
+
+    func searchMovies(query: String, filters: SearchFilters?) async -> Result<NowPlayingResponse, Error> {
+        await searchMovies(query: query, page: nil, filters: filters)
     }
 }
 
@@ -106,6 +111,25 @@ extension TMDBAPIService: APIServiceProtocol {
 
     public func searchMovies(query: String, page: Int?) async -> Result<NowPlayingResponse, Error> {
         let result: Result<NowPlayingResponse, TMDBAPIError> = await request(.searchMovie(query: query, page: page))
+        // Map TMDBAPIError to Error
+        switch result {
+        case let .success(response):
+            return .success(response)
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
+
+    public func searchMovies(query: String, page: Int?, filters: SearchFilters?) async -> Result<NowPlayingResponse, Error> {
+        let result: Result<NowPlayingResponse, TMDBAPIError> = await request(.searchMovie(
+            query: query,
+            includeAdult: filters?.includeAdult,
+            language: filters?.language,
+            primaryReleaseYear: filters?.primaryReleaseYear,
+            page: page,
+            region: filters?.region,
+            year: filters?.year
+        ))
         // Map TMDBAPIError to Error
         switch result {
         case let .success(response):
