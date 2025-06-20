@@ -71,11 +71,6 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                     List(movies) { movie in
                         NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
                     }
-                    .onTapGesture {
-                        // Dismiss keyboard when tapping on the list
-                        viewModel.isSearchFocused = false
-                        hideKeyboard()
-                    }
                 }
             }
         }
