@@ -4,6 +4,7 @@ import Foundation
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
+
 @available(iOS 16, macOS 10.15, *)
 public struct MovieFeedListPage<Route: Hashable>: View {
     @StateObject var viewModel: MovieFeedViewModel
@@ -37,6 +38,27 @@ public struct MovieFeedListPage<Route: Hashable>: View {
 
     public var body: some View {
         VStack(spacing: 0) {
+            // Search bar and filter chips at the top
+            VStack(spacing: 0) {
+                // Search bar
+                SearchBar(
+                    text: $viewModel.searchQuery,
+                    isFocused: $viewModel.isSearchFocused
+                )
+
+                // Filter chips - show when search is focused or when there are active filters
+                if viewModel.isSearchFocused || viewModel.searchFilters.hasActiveFilters {
+                    FilterChipsView(
+                        filters: $viewModel.searchFilters,
+                        onFilterTap: { filterType in
+                            selectedFilterType = filterType
+                            showingFilterSheet = true
+                        }
+                    )
+                }
+            }
+
+            // Content area
             Group {
                 switch viewModel.state {
                 case .initial:
@@ -46,35 +68,29 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                 case .error(let message):
                     Text(message)
                 case .loaded(let movies), .searchResults(let movies):
-                    VStack(spacing: 0) {
-                        // Filter chips - only show when searching
-                        if !viewModel.searchQuery.isEmpty {
-                            FilterChipsView(
-                                filters: $viewModel.searchFilters,
-                                onFilterTap: { filterType in
-                                    selectedFilterType = filterType
-                                    showingFilterSheet = true
-                                }
-                            )
-                        }
-
-                        List(movies) { movie in
-                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                        }
-                        .searchable(text: $viewModel.searchQuery)
+                    List(movies) { movie in
+                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                    }
+                    .onTapGesture {
+                        // Dismiss keyboard when tapping on the list
+                        viewModel.isSearchFocused = false
+                        hideKeyboard()
                     }
                 }
             }
         }
         .accessibilityIdentifier("movielist1.group")
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                Picker("", selection: $viewModel.feedType) {
-                    ForEach(MovieFeedType.allCases) { type in
-                        Text(type.localizedTitle).tag(type)
+            // Only show the feed switcher when search is not active
+            if !viewModel.isSearchFocused && viewModel.searchQuery.isEmpty {
+                ToolbarItem(placement: .principal) {
+                    Picker("", selection: $viewModel.feedType) {
+                        ForEach(MovieFeedType.allCases) { type in
+                            Text(type.localizedTitle).tag(type)
+                        }
                     }
+                    .pickerStyle(.menu)
                 }
-                .pickerStyle(.menu)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -89,6 +105,50 @@ public struct MovieFeedListPage<Route: Hashable>: View {
         .onAppear {
             viewModel.fetchMovies()
         }
+    }
+
+    private func hideKeyboard() {
+        #if os(iOS)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
+    }
+}
+
+// Custom search bar component
+@available(iOS 16.0, *)
+struct SearchBar: View {
+    @Binding var text: String
+    @Binding var isFocused: Bool
+    @FocusState private var isTextFieldFocused: Bool
+
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+
+            TextField("Search movies...", text: $text)
+                .textFieldStyle(.plain)
+                .focused($isTextFieldFocused)
+                .onChange(of: isTextFieldFocused) { focused in
+                    isFocused = focused
+                }
+
+            if !text.isEmpty {
+                Button(action: {
+                    text = ""
+                    isTextFieldFocused = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(.systemGray6))
+        .cornerRadius(10)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 }
 

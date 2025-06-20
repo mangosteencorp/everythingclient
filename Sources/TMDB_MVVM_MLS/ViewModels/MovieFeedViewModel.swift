@@ -29,6 +29,7 @@ public class MovieFeedViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
     @Published var searchFilters = SearchFilters()
+    @Published var isSearchFocused = false
     @Published var feedType: MovieFeedType = .nowPlaying {
         didSet { fetchMovies() }
     }

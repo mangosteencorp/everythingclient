@@ -12,6 +12,9 @@
 // MovieKeywords
 "keywords_title" = "Keywords";
 
+// MovieLocations
+"locations_title" = "Locations";
+
 // MovieInfoRow
 "minutes_format" = "%@ minutes";
 "separator" = "•";

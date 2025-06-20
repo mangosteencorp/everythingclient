@@ -21,7 +21,7 @@ struct MovieKeywords<Route: Hashable>: View {
                 HStack {
                     ForEach(keywords) { keyword in
                         NavigationLink(value: discoverMovieByKeywordRouteBuilder(keyword.id), label: {
-                            RoundedBadge(text: keyword.name, color: .steamGold)
+                            RoundedBadge(text: keyword.name, color: .steamGold, useGradient: true)
                         })
                     }
                 }.padding(.leading)

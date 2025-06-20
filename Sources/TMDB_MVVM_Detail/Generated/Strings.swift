@@ -20,6 +20,8 @@ public enum L10n {
   }
   /// Keywords
   public static let keywordsTitle = L10n.tr("Localizable", "keywords_title", fallback: "Keywords")
+  /// Locations
+  public static let locationsTitle = L10n.tr("Localizable", "locations_title", fallback: "Locations")
   /// %@ minutes
   public static func minutesFormat(_ p1: Any) -> String {
     return L10n.tr("Localizable", "minutes_format", String(describing: p1), fallback: "%@ minutes")

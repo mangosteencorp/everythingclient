@@ -1,3 +1,4 @@
+import Shared_UI_Support
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
@@ -48,6 +49,9 @@ public struct MovieDetailPage<Route: Hashable>: View {
                             discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder
                         )
                     }
+                    if let locations = extractLocations(from: getMovie().overview), !locations.isEmpty {
+                        MovieLocations(locations: locations)
+                    }
                     MovieCreditSection(movieId: movie.id, creditsViewModel: creditsViewModel)
                 }
             }
@@ -63,6 +67,11 @@ public struct MovieDetailPage<Route: Hashable>: View {
             return mov
         }
         return movie
+    }
+
+    private func extractLocations(from overview: String) -> [String]? {
+        let locations = overview.detectGeographicalEntities(in: overview)
+        return locations.isEmpty ? nil : locations
     }
 }
 

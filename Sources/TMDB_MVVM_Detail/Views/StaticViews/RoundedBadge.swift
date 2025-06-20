@@ -3,10 +3,12 @@ import SwiftUI
 public struct RoundedBadge: View {
     public let text: String
     public let color: Color
+    public let useGradient: Bool
 
-    public init(text: String, color: Color) {
+    public init(text: String, color: Color, useGradient: Bool = false) {
         self.text = text
         self.color = color
+        self.useGradient = useGradient
     }
 
     public var body: some View {
@@ -24,14 +26,29 @@ public struct RoundedBadge: View {
                 .padding(.trailing, 10)
         }
         .background(
-            Rectangle()
-                .foregroundColor(color)
-                .cornerRadius(12)
+            Group {
+                if useGradient {
+                    LinearGradient(
+                        gradient: Gradient(colors: [color, color.opacity(0.6)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .cornerRadius(12)
+                } else {
+                    Rectangle()
+                        .foregroundColor(color)
+                        .cornerRadius(12)
+                }
+            }
         )
         .padding(.bottom, 4)
     }
 }
 
 #Preview {
-    RoundedBadge(text: "Hello, World!", color: .red)
+    VStack(spacing: 10) {
+        RoundedBadge(text: "Hello, World!", color: .red)
+        RoundedBadge(text: "Gradient Badge", color: .blue, useGradient: true)
+        RoundedBadge(text: "Another Badge", color: .green, useGradient: true)
+    }
 }
