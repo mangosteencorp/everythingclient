@@ -7,49 +7,23 @@ struct People: Codable, Identifiable {
     var department: String?
     let profilePath: String?
     let knownForDepartment: String?
-    var knownFor: [KnownFor]?
-    let alsoKnownAs: [String]?
-    let birthDay: String?
-    let deathDay: String?
-    let placeOfBirth: String?
-    let biography: String?
     let popularity: Double?
-    var images: [ImageData]?
 
     private enum CodingKeys: String, CodingKey {
         case id, name, character, department
-        case profilePath
-        case knownForDepartment
-        case knownFor
-        case alsoKnownAs
-        case birthDay, deathDay
-        case placeOfBirth
-        case biography, popularity, images
-    }
-
-    struct KnownFor: Codable, Identifiable {
-        let id: Int
-        let originalTitle: String?
-        let posterPath: String?
-
-        private enum CodingKeys: String, CodingKey {
-            case id
-            case originalTitle = "original_title"
-            case posterPath = "poster_path"
-        }
+        case profilePath = "profile_path"
+        case knownForDepartment = "known_for_department"
+        case popularity
     }
 
     static func redacted() -> People {
         return People(
             id: Int.random(in: 1 ... 100_000),
             name: "",
+            character: nil,
+            department: nil,
             profilePath: nil,
             knownForDepartment: "Acting",
-            alsoKnownAs: nil,
-            birthDay: nil,
-            deathDay: nil,
-            placeOfBirth: nil,
-            biography: nil,
             popularity: 57.714
         )
     }
@@ -71,14 +45,7 @@ let examplePeoples = [
         department: nil,
         profilePath: "/brENIHiNrGUpoBMPqIEQwFNdIsc.jpg",
         knownForDepartment: "Acting",
-        knownFor: nil,
-        alsoKnownAs: nil,
-        birthDay: nil,
-        deathDay: nil,
-        placeOfBirth: nil,
-        biography: nil,
-        popularity: 57.714,
-        images: nil
+        popularity: 57.714
     ),
     People(
         id: 6065,
@@ -87,14 +54,7 @@ let examplePeoples = [
         department: nil,
         profilePath: "/lMaDAJHzsKH7U3dln2B3kY3rOhE.jpg",
         knownForDepartment: "Acting",
-        knownFor: nil,
-        alsoKnownAs: nil,
-        birthDay: nil,
-        deathDay: nil,
-        placeOfBirth: nil,
-        biography: nil,
-        popularity: 51.034,
-        images: nil
+        popularity: 51.034
     ),
     People(
         id: 45849,
@@ -103,14 +63,7 @@ let examplePeoples = [
         department: nil,
         profilePath: "/cpEzQNW1EsRmK8SMj4y5xwevXwM.jpg",
         knownForDepartment: "Acting",
-        knownFor: nil,
-        alsoKnownAs: nil,
-        birthDay: nil,
-        deathDay: nil,
-        placeOfBirth: nil,
-        biography: nil,
-        popularity: 5.673,
-        images: nil
+        popularity: 5.673
     ),
     People(
         id: 73995,
@@ -119,14 +72,7 @@ let examplePeoples = [
         department: nil,
         profilePath: "/2pkBIL8OKXXWr1SERPsr7LVAsQX.jpg",
         knownForDepartment: "Acting",
-        knownFor: nil,
-        alsoKnownAs: nil,
-        birthDay: nil,
-        deathDay: nil,
-        placeOfBirth: nil,
-        biography: nil,
-        popularity: 0.882,
-        images: nil
+        popularity: 0.882
     ),
     People(
         id: 158_124,
@@ -135,14 +81,7 @@ let examplePeoples = [
         department: nil,
         profilePath: "/3fVAoIbfMO2XKtMsIOVpo5fkXVq.jpg",
         knownForDepartment: "Acting",
-        knownFor: nil,
-        alsoKnownAs: nil,
-        birthDay: nil,
-        deathDay: nil,
-        placeOfBirth: nil,
-        biography: nil,
-        popularity: 3.185,
-        images: nil
+        popularity: 3.185
     ),
 ]
 let exampleMovieCredits = MovieCredits(id: 10, cast: examplePeoples, crew: examplePeoples)
