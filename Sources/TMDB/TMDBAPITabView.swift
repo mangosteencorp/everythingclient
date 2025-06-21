@@ -3,8 +3,8 @@ import SwiftUI
 import Swinject
 import TMDB_clean_MLS
 import TMDB_Clean_Profile
+import TMDB_Movie_Feed
 import TMDB_MVVM_Detail
-import TMDB_MVVM_MLS
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 

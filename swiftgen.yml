@@ -9,10 +9,10 @@ strings:
           enumName: L10n
         output: Sources/TMDB_MVVM_Detail/generated/Strings.swift
   
-  - inputs: Sources/TMDB_MVVM_MLS/Resources/en.lproj/Localizable.strings
+  - inputs: Sources/TMDB_Movie_Feed/Resources/en.lproj/Localizable.strings
     outputs:
       - templateName: structured-swift5
         params:
           publicAccess: true
           enumName: L10n
-        output: Sources/TMDB_MVVM_MLS/generated/Strings.swift
+        output: Sources/TMDB_Movie_Feed/generated/Strings.swift

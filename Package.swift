@@ -23,8 +23,8 @@ let package = Package(
         ),
         // Now Playign
         .library(
-            name: "TMDB_MVVM_MLS",
-            targets: ["TMDB_MVVM_MLS"]
+            name: "TMDB_Movie_Feed",
+            targets: ["TMDB_Movie_Feed"]
         ),
         // Upcoming movies
         .library(
@@ -83,7 +83,7 @@ let package = Package(
         .target(
             name: "TMDB",
             dependencies: [
-                "TMDB_MVVM_MLS",
+                "TMDB_Movie_Feed",
                 "TMDB_clean_MLS",
                 "TMDB_Clean_Profile",
                 "TMDB_Shared_UI",
@@ -118,7 +118,7 @@ let package = Package(
         ),
         // Movie list
         .target(
-            name: "TMDB_MVVM_MLS",
+            name: "TMDB_Movie_Feed",
             dependencies: [
                 "TMDB_Shared_UI",
                 "TMDB_Shared_Backend",
@@ -129,8 +129,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "TMDB_MVVM_MLS_Tests",
-            dependencies: ["TMDB_MVVM_MLS", "ViewInspector", "Tests_Shared_Helpers"],
+            name: "TMDB_Movie_Feed_Tests",
+            dependencies: ["TMDB_Movie_Feed", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
         ),
         // TV show feed - clean architecture

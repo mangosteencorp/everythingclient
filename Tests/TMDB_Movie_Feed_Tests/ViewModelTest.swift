@@ -1,5 +1,5 @@
 import Combine
-@testable import TMDB_MVVM_MLS
+@testable import TMDB_Movie_Feed
 import XCTest
 
 class MockAPIService: APIServiceProtocol {

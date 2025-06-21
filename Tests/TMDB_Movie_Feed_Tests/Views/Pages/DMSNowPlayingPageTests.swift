@@ -1,5 +1,5 @@
 import SwiftUI
-@testable import TMDB_MVVM_MLS
+@testable import TMDB_Movie_Feed
 import TMDB_Shared_UI
 import ViewInspector
 import XCTest
