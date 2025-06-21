@@ -1,6 +1,6 @@
 import SwiftUI
-@testable import TMDB_clean_MLS
 import TMDB_Shared_UI
+@testable import TMDB_TVFeed
 import ViewInspector
 import XCTest
 

@@ -1,12 +1,12 @@
 import CoreFeatures
 import SwiftUI
 import Swinject
-import TMDB_clean_MLS
-import TMDB_Clean_Profile
 import TMDB_Movie_Feed
-import TMDB_MVVM_Detail
+import TMDB_MovieDetail
+import TMDB_Profile
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
+import TMDB_TVFeed
 
 @available(iOS 16, *)
 public struct TMDBAPITabView: View {
@@ -81,7 +81,7 @@ public struct TMDBAPITabView: View {
                 .withTMDBNavigationDestinations(container: container)
 
             case .upcoming:
-                TMDB_clean_MLS.MovieListPage(
+                TMDB_TVFeed.MovieListPage(
                     container: container,
                     apiKey: tmdbKey,
                     type: .upcoming

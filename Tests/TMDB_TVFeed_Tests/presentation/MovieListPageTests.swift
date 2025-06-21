@@ -1,6 +1,6 @@
 import SwiftUI
 import Swinject
-@testable import TMDB_clean_MLS
+@testable import TMDB_TVFeed
 import XCTest
 
 @available(iOS 16.0, *)

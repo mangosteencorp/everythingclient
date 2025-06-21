@@ -2,7 +2,7 @@ import CoreFeatures
 import SwiftUI
 import Swinject
 import TMDB_Movie_Feed
-import TMDB_MVVM_Detail
+import TMDB_MovieDetail
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
 @available(iOS 16.0, *)

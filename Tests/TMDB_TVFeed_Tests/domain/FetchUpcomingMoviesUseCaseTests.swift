@@ -1,22 +1,14 @@
-@testable import TMDB_clean_MLS
+@testable import TMDB_TVFeed
 import XCTest
 
-// MARK: - FetchMoviesUseCaseTests
-
-class FetchMoviesUseCaseTests: XCTestCase {
-    var useCase: FetchNowPlayingMoviesUseCase!
+class FetchUpcomingMoviesUseCaseTests: XCTestCase {
+    var useCase: FetchUpcomingMoviesUseCase!
     var mockRepository: MockMovieRepository!
 
     override func setUp() {
         super.setUp()
         mockRepository = MockMovieRepository()
-        useCase = FetchNowPlayingMoviesUseCase(movieRepository: mockRepository)
-    }
-
-    override func tearDown() {
-        useCase = nil
-        mockRepository = nil
-        super.tearDown()
+        useCase = FetchUpcomingMoviesUseCase(movieRepository: mockRepository)
     }
 
     func testExecuteSuccess() async {

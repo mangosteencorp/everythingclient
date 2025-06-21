@@ -1,5 +1,5 @@
 import Swinject
-@testable import TMDB_clean_MLS
+@testable import TMDB_TVFeed
 import XCTest
 
 class MovieAssemblyTests: XCTestCase {

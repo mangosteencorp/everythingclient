@@ -1,4 +1,4 @@
-@testable import TMDB_clean_MLS
+@testable import TMDB_TVFeed
 
 // MARK: - Mock Classes
 

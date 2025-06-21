@@ -28,17 +28,17 @@ let package = Package(
         ),
         // Upcoming movies
         .library(
-            name: "TMDB_clean_MLS",
-            targets: ["TMDB_clean_MLS"]
+            name: "TMDB_TVFeed",
+            targets: ["TMDB_TVFeed"]
         ),
         // Profile page
         .library(
-            name: "TMDB_Clean_Profile",
-            targets: ["TMDB_Clean_Profile"]
+            name: "TMDB_Profile",
+            targets: ["TMDB_Profile"]
         ),
         .library(
-            name: "TMDB_MVVM_Detail",
-            targets: ["TMDB_MVVM_Detail"]
+            name: "TMDB_MovieDetail",
+            targets: ["TMDB_MovieDetail"]
         ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
@@ -84,10 +84,10 @@ let package = Package(
             name: "TMDB",
             dependencies: [
                 "TMDB_Movie_Feed",
-                "TMDB_clean_MLS",
-                "TMDB_Clean_Profile",
+                "TMDB_TVFeed",
+                "TMDB_Profile",
                 "TMDB_Shared_UI",
-                "TMDB_MVVM_Detail",
+                "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
                 "Swinject",
             ]
@@ -100,7 +100,7 @@ let package = Package(
                 dependencies: ["Shared_UI_Support"]),
         // Detail page
         .target(
-            name: "TMDB_MVVM_Detail",
+            name: "TMDB_MovieDetail",
             dependencies: [
                 "TMDB_Shared_UI",
                 "Swinject",
@@ -135,17 +135,17 @@ let package = Package(
         ),
         // TV show feed - clean architecture
         .target(
-            name: "TMDB_clean_MLS",
+            name: "TMDB_TVFeed",
             dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend", "CoreFeatures"],
             swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
         ),
         .testTarget(
-            name: "TMDB_clean_MLS_tests",
-            dependencies: ["TMDB_clean_MLS", "Tests_Shared_Helpers", "ViewInspector"]
+            name: "TMDB_TVFeed_Tests",
+            dependencies: ["TMDB_TVFeed", "Tests_Shared_Helpers", "ViewInspector"]
         ),
 
         .target(
-            name: "TMDB_Clean_Profile",
+            name: "TMDB_Profile",
             dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support", "TMDB_Shared_UI"]
         ),
 

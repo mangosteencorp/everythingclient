@@ -1,5 +1,5 @@
-@testable import TMDB_clean_MLS
 import TMDB_Shared_Backend
+@testable import TMDB_TVFeed
 import XCTest
 
 class TMDBAPIServiceProtocolTests: XCTestCase {

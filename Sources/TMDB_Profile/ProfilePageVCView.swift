@@ -35,7 +35,7 @@ public struct ProfilePageVCView: UIViewControllerRepresentable {
         self.container = container
         self.onNavigateToMovie = onNavigateToMovie
         self.onNavigateToTVShow = onNavigateToTVShow
-        TMDB_Clean_Profile.configure(container)
+        TMDB_Profile.configure(container)
     }
 
     public func makeUIViewController(context: Context) -> ProfileViewController {
