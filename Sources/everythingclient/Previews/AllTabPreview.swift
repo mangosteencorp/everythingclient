@@ -1,11 +1,14 @@
 import SwiftUI
-
+import TMDB_Shared_Backend
 // swiftlint:disable all
 #if DEBUG
 #Preview {
-    RootContentView(
-        TMDBApiKey: "YOUR_API_KEY",
-        isAppStoreOrTestFlight: false
+    // Initialize TabManager.shared.availableTabs for preview
+    TabManager.shared.availableTabs = Set(AppTab.allCases)
+
+    return RootContentView(
+        TMDBApiKey: debugTMDBAPIKey,
+        isAppStoreOrTestFlight: true
     )
 }
 #endif
