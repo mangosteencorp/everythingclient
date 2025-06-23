@@ -28,13 +28,8 @@ public enum MovieFeedType: String, CaseIterable, Identifiable {
 public class MovieFeedViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
-    @Published var searchFilters = SearchFilters()
-    @Published var isSearchFocused = false
-    @Published var feedType: MovieFeedType = .nowPlaying {
-        didSet { fetchMovies() }
-    }
 
-    private var movies: [Movie] = []
+    private var nowPlayingMovies: [Movie] = []
     private var currentPage: Int = 1
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
@@ -54,44 +49,29 @@ public class MovieFeedViewModel: ObservableObject {
                 if !query.isEmpty {
                     self?.searchMovies(query: query)
                 } else if let self = self {
-                    self.state = .loaded(self.movies)
-                }
-            }
-            .store(in: &cancellables)
-
-        $searchFilters
-            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                if let self = self, !self.searchQuery.isEmpty {
-                    self.searchMovies(query: self.searchQuery)
+                    self.state = .loaded(self.nowPlayingMovies)
                 }
             }
             .store(in: &cancellables)
     }
 
-    func fetchMovies() {
+    func fetchNowPlayingMovies() {
         state = .loading
+
         Task {
-            let result: Result<NowPlayingResponse, Error>
-            switch feedType {
-            case .nowPlaying:
-                result = await apiService.fetchNowPlayingMovies(page: nil, additionalParams: additionalParams)
-            case .popular:
-                result = await apiService.fetchPopularMovies(page: nil, additionalParams: additionalParams)
-            case .topRated:
-                result = await apiService.fetchTopRatedMovies(page: nil, additionalParams: additionalParams)
-            case .upcoming:
-                result = await apiService.fetchUpcomingMovies(page: nil, additionalParams: additionalParams)
-            }
+            let result = await self.apiService.fetchNowPlayingMovies(
+                page: nil,
+                additionalParams: additionalParams
+            )
             await MainActor.run {
                 switch result {
                 case let .success(response):
                     self.analyticsTracker?.trackPageView(parameters: PageViewParameters(
-                        screenName: self.feedType.rawValue.lowercased().replacingOccurrences(of: " ", with: "_"),
-                        screenClass: "MovieFeedListPage",
+                        screenName: "now_playing",
+                        screenClass: "NowPlayingPage",
                         contentType: "movie_list"
                     ))
-                    self.movies = response.results
+                    self.nowPlayingMovies = response.results
                     self.state = .loaded(response.results)
                 case let .failure(error):
                     self.state = .error(error.localizedDescription)
@@ -101,9 +81,12 @@ public class MovieFeedViewModel: ObservableObject {
     }
 
     private func searchMovies(query: String) {
-        state = .loading
+        if case .loaded(let movies) = state {
+            state = .searchResults(movies)
+        }
+
         Task {
-            let result = await apiService.searchMovies(query: query, page: nil, filters: searchFilters.hasActiveFilters ? searchFilters : nil)
+            let result = await apiService.searchMovies(query: query, page: nil)
             await MainActor.run {
                 switch result {
                 case let .success(response):
@@ -119,6 +102,7 @@ public class MovieFeedViewModel: ObservableObject {
         guard case .loaded = state,
               currentMovieId == state.movies.last?.id,
               searchQuery.isEmpty else { return }
+
         Task {
             self.analyticsTracker?.trackEvent(
                 name: "load_more",
@@ -128,22 +112,15 @@ public class MovieFeedViewModel: ObservableObject {
                     additionalParameters: ["page": currentPage + 1]
                 )
             )
-            let result: Result<NowPlayingResponse, Error>
-            switch feedType {
-            case .nowPlaying:
-                result = await apiService.fetchNowPlayingMovies(page: currentPage + 1, additionalParams: additionalParams)
-            case .popular:
-                result = await apiService.fetchPopularMovies(page: currentPage + 1, additionalParams: additionalParams)
-            case .topRated:
-                result = await apiService.fetchTopRatedMovies(page: currentPage + 1, additionalParams: additionalParams)
-            case .upcoming:
-                result = await apiService.fetchUpcomingMovies(page: currentPage + 1, additionalParams: additionalParams)
-            }
+            let result = await self.apiService.fetchNowPlayingMovies(
+                page: currentPage + 1,
+                additionalParams: additionalParams
+            )
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    self.movies.append(contentsOf: response.results)
-                    self.state = .loaded(self.movies)
+                    self.nowPlayingMovies.append(contentsOf: response.results)
+                    self.state = .loaded(self.nowPlayingMovies)
                     self.currentPage += 1
                 case .failure:
                     break

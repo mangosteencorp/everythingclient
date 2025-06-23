@@ -55,7 +55,7 @@ public struct TMDBAPITabView: View {
             switch coordinator.selectedTab {
             case .nowPlaying:
                 NavigationStack(path: coordinator.path(for: .nowPlaying)) {
-                    DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
+                    MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
                         TMDBRoute.movieDetail(MovieRouteModel(
                             id: movie.id,
                             title: movie.title,
@@ -73,7 +73,7 @@ public struct TMDBAPITabView: View {
                 }
             case .upcoming:
                 NavigationStack(path: coordinator.path(for: .upcoming)) {
-                    TMDB_clean_MLS.MovieListPage(
+                    TMDB_TVFeed.MovieListPage(
                         container: container,
                         apiKey: tmdbKey,
                         type: .upcoming

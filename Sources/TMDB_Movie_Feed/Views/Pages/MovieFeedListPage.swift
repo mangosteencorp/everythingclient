@@ -8,8 +8,6 @@ import TMDB_Shared_UI
 @available(iOS 16, macOS 10.15, *)
 public struct MovieFeedListPage<Route: Hashable>: View {
     @StateObject var viewModel: MovieFeedViewModel
-    @State private var showingFilterSheet = false
-    @State private var selectedFilterType: FilterType?
     let detailRouteBuilder: (Movie) -> Route
 
     public init(
@@ -38,74 +36,45 @@ public struct MovieFeedListPage<Route: Hashable>: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // Search bar and filter chips at the top
-            VStack(spacing: 0) {
-                // Search bar
-                SearchBar(
-                    text: $viewModel.searchQuery,
-                    isFocused: $viewModel.isSearchFocused
-                )
-
-                // Filter chips - show when search is focused or when there are active filters
-                if viewModel.isSearchFocused || viewModel.searchFilters.hasActiveFilters {
-                    FilterChipsView(
-                        filters: $viewModel.searchFilters,
-                        onFilterTap: { filterType in
-                            selectedFilterType = filterType
-                            showingFilterSheet = true
-                        }
-                    )
-                }
-            }
-
-            // Content area
             Group {
                 switch viewModel.state {
                 case .initial:
                     EmptyView()
-                case .loading:
-                    ProgressView("Loading...")
+                case .loading where viewModel.searchQuery.isEmpty:
+                    ProgressView(L10n.playingLoading)
                 case .error(let message):
                     Text(message)
                 case .loaded(let movies), .searchResults(let movies):
                     List(movies) { movie in
                         NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
                     }
+                    .searchable(text: $viewModel.searchQuery)
+                    .overlay {
+                        if case .loading = viewModel.state {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                .background(Color.black.opacity(0.1))
+                        }
+                    }
+                case .loading:
+                    List([] as [Movie]) { movie in
+                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                    }
+                    .searchable(text: $viewModel.searchQuery)
+                    .overlay {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            .background(Color.black.opacity(0.1))
+                    }
                 }
             }
         }
         .accessibilityIdentifier("movielist1.group")
-        .toolbar {
-            // Only show the feed switcher when search is not active
-            if !viewModel.isSearchFocused && viewModel.searchQuery.isEmpty {
-                ToolbarItem(placement: .principal) {
-                    Picker("", selection: $viewModel.feedType) {
-                        ForEach(MovieFeedType.allCases) { type in
-                            Text(type.localizedTitle).tag(type)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                }
-            }
-        }
+        .navigationTitle(L10n.playingTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingFilterSheet) {
-            if let filterType = selectedFilterType {
-                FilterConfigurationView(
-                    filters: $viewModel.searchFilters,
-                    filterType: filterType
-                )
-            }
+        .onFirstAppear {
+            viewModel.fetchNowPlayingMovies()
         }
-        .onAppear {
-            viewModel.fetchMovies()
-        }
-    }
-
-    private func hideKeyboard() {
-        #if os(iOS)
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        #endif
     }
 }
 
