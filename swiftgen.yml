@@ -1,21 +1,21 @@
 # xcstrings is not supported yet by swiftgen, 
 # please wait for this to be merged https://github.com/SwiftGen/SwiftGen/pull/1124
 strings:
-  - inputs: Sources/TMDB_MVVM_Detail/Resources/en.lproj/Localizable.strings
+  - inputs: Sources/TMDB_MovieDetail/Resources/en.lproj/Localizable.strings
     outputs:
       - templateName: structured-swift5
         params:
           publicAccess: true
           enumName: L10n
-        output: Sources/TMDB_MVVM_Detail/generated/Strings.swift
+        output: Sources/TMDB_MovieDetail/generated/Strings.swift
   
-  - inputs: Sources/TMDB_MVVM_MLS/Resources/en.lproj/Localizable.strings
+  - inputs: Sources/TMDB_Movie_Feed/Resources/en.lproj/Localizable.strings
     outputs:
       - templateName: structured-swift5
         params:
           publicAccess: true
           enumName: L10n
-        output: Sources/TMDB_MVVM_MLS/generated/Strings.swift
+        output: Sources/TMDB_Movie_Feed/generated/Strings.swift
   - inputs: Sources/TMDB_TVShowDetail/Resources/en.lproj/Localizable.strings
     outputs:
       - templateName: structured-swift5

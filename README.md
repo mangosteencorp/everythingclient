@@ -84,7 +84,7 @@ Using Router Pattern, `NavigationStack` and Coordinator pattern
 ## Testing
 
 🚧 Testing: 
-- ✅ 100% code coverage for TMDB_Clean_MLS module. For testabbility purpose:
+- ✅ 100% code coverage for TMDB_TVFeed module. For testabbility purpose:
     - Data layer & domain layer should be wrapped in protocol for easy mocking. Mocking `URLProtocol` is for testing URLSession Task creation.
     - Using ViewInspector library for SwiftUI unit testing.
 
