@@ -26,6 +26,7 @@ Also adding a GoogleService-Info.plist file to the root of the project for Fireb
 
 - [iOS Best Practices Demo Project](#ios-best-practices-demo-project)
 - [Overview](#overview)
+  - [Screenshots](#screenshots)
 - [Practices](#practices)
   - [Architecture \& Design](#architecture--design)
     - [Feature based Modularization:](#feature-based-modularization)
@@ -49,6 +50,13 @@ What you'll find looking at this repo:
 - REST API & GraphQL networking & OAuth 
 - SwiftGen, SwiftLint, SwiftFormat
 - GitHub CI build & test
+
+## Screenshots
+
+| Feature | Demo |
+|---------|------|
+| Design Switching | ![Design Switch](.screenshots/switch-design.gif) |
+| Theme Switching | ![Theme Switch](.screenshots/switch-themes.gif) |
 
 # Practices
 
