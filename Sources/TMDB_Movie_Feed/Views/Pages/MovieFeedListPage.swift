@@ -70,8 +70,29 @@ public struct MovieFeedListPage<Route: Hashable>: View {
             }
         }
         .accessibilityIdentifier("movielist1.group")
-        .navigationTitle(L10n.playingTitle)
+        .navigationTitle(viewModel.currentFeedType.localizedTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    ForEach(MovieFeedType.allCases) { feedType in
+                        Button(action: {
+                            viewModel.switchFeedType(feedType)
+                        }) {
+                            HStack {
+                                Text(feedType.localizedTitle)
+                                if viewModel.currentFeedType == feedType {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .foregroundColor(.primary)
+                }
+            }
+        }
         .onFirstAppear {
             viewModel.fetchNowPlayingMovies()
         }

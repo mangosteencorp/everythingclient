@@ -9,7 +9,7 @@ import TMDB_Shared_Backend
 
     return RootContentView(
         TMDBApiKey: debugTMDBAPIKey,
-        isAppStoreOrTestFlight: true
+        isAppStoreOrTestFlight: false
     )
 }
 #endif

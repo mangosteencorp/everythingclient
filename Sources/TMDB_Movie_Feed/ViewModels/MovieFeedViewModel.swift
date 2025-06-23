@@ -28,13 +28,18 @@ public enum MovieFeedType: String, CaseIterable, Identifiable {
 public class MovieFeedViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
+    @Published var currentFeedType: MovieFeedType = .nowPlaying
 
     private var nowPlayingMovies: [Movie] = []
+    private var popularMovies: [Movie] = []
+    private var topRatedMovies: [Movie] = []
+    private var upcomingMovies: [Movie] = []
     private var currentPage: Int = 1
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?
     let analyticsTracker: AnalyticsTracker?
+    
     public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
@@ -49,35 +54,93 @@ public class MovieFeedViewModel: ObservableObject {
                 if !query.isEmpty {
                     self?.searchMovies(query: query)
                 } else if let self = self {
-                    self.state = .loaded(self.nowPlayingMovies)
+                    self.loadCurrentFeedMovies()
                 }
             }
             .store(in: &cancellables)
     }
 
     func fetchNowPlayingMovies() {
+        currentFeedType = .nowPlaying
+        fetchMoviesForCurrentFeedType()
+    }
+    
+    func switchFeedType(_ feedType: MovieFeedType) {
+        currentFeedType = feedType
+        fetchMoviesForCurrentFeedType()
+    }
+    
+    private func fetchMoviesForCurrentFeedType() {
         state = .loading
-
+        
         Task {
-            let result = await self.apiService.fetchNowPlayingMovies(
-                page: nil,
-                additionalParams: additionalParams
-            )
+            let result: Result<NowPlayingResponse, Error>
+            
+            switch currentFeedType {
+            case .nowPlaying:
+                result = await apiService.fetchNowPlayingMovies(
+                    page: nil,
+                    additionalParams: additionalParams
+                )
+            case .popular:
+                result = await apiService.fetchPopularMovies(
+                    page: nil,
+                    additionalParams: additionalParams
+                )
+            case .topRated:
+                result = await apiService.fetchTopRatedMovies(
+                    page: nil,
+                    additionalParams: additionalParams
+                )
+            case .upcoming:
+                result = await apiService.fetchUpcomingMovies(
+                    page: nil,
+                    additionalParams: additionalParams
+                )
+            }
+            
             await MainActor.run {
                 switch result {
                 case let .success(response):
                     self.analyticsTracker?.trackPageView(parameters: PageViewParameters(
-                        screenName: "now_playing",
-                        screenClass: "NowPlayingPage",
+                        screenName: currentFeedType.rawValue,
+                        screenClass: "MovieFeedPage",
                         contentType: "movie_list"
                     ))
-                    self.nowPlayingMovies = response.results
+                    
+                    // Store movies based on feed type
+                    switch currentFeedType {
+                    case .nowPlaying:
+                        self.nowPlayingMovies = response.results
+                    case .popular:
+                        self.popularMovies = response.results
+                    case .topRated:
+                        self.topRatedMovies = response.results
+                    case .upcoming:
+                        self.upcomingMovies = response.results
+                    }
+                    
                     self.state = .loaded(response.results)
                 case let .failure(error):
                     self.state = .error(error.localizedDescription)
                 }
             }
         }
+    }
+    
+    private func loadCurrentFeedMovies() {
+        let movies: [Movie]
+        switch currentFeedType {
+        case .nowPlaying:
+            movies = nowPlayingMovies
+        case .popular:
+            movies = popularMovies
+        case .topRated:
+            movies = topRatedMovies
+        case .upcoming:
+            movies = upcomingMovies
+        }
+        state = .loaded(movies)
     }
 
     private func searchMovies(query: String) {
@@ -112,15 +175,50 @@ public class MovieFeedViewModel: ObservableObject {
                     additionalParameters: ["page": currentPage + 1]
                 )
             )
-            let result = await self.apiService.fetchNowPlayingMovies(
-                page: currentPage + 1,
-                additionalParams: additionalParams
-            )
+            
+            let result: Result<NowPlayingResponse, Error>
+            
+            switch currentFeedType {
+            case .nowPlaying:
+                result = await apiService.fetchNowPlayingMovies(
+                    page: currentPage + 1,
+                    additionalParams: additionalParams
+                )
+            case .popular:
+                result = await apiService.fetchPopularMovies(
+                    page: currentPage + 1,
+                    additionalParams: additionalParams
+                )
+            case .topRated:
+                result = await apiService.fetchTopRatedMovies(
+                    page: currentPage + 1,
+                    additionalParams: additionalParams
+                )
+            case .upcoming:
+                result = await apiService.fetchUpcomingMovies(
+                    page: currentPage + 1,
+                    additionalParams: additionalParams
+                )
+            }
+            
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    self.nowPlayingMovies.append(contentsOf: response.results)
-                    self.state = .loaded(self.nowPlayingMovies)
+                    // Append to the appropriate array based on feed type
+                    switch currentFeedType {
+                    case .nowPlaying:
+                        self.nowPlayingMovies.append(contentsOf: response.results)
+                        self.state = .loaded(self.nowPlayingMovies)
+                    case .popular:
+                        self.popularMovies.append(contentsOf: response.results)
+                        self.state = .loaded(self.popularMovies)
+                    case .topRated:
+                        self.topRatedMovies.append(contentsOf: response.results)
+                        self.state = .loaded(self.topRatedMovies)
+                    case .upcoming:
+                        self.upcomingMovies.append(contentsOf: response.results)
+                        self.state = .loaded(self.upcomingMovies)
+                    }
                     self.currentPage += 1
                 case .failure:
                     break
