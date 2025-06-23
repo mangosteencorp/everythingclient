@@ -40,7 +40,7 @@ public struct TMDBAPITabView: View {
 
         self.container = container
 
-        let tabList: [TabRoute] = [.nowPlaying, .upcoming, .profile]
+        let tabList: [TabRoute] = [.movieFeed, .tvShowFeed, .profile]
         _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
 
@@ -53,8 +53,8 @@ public struct TMDBAPITabView: View {
         ZStack(alignment: .bottom) {
             // Content area: Switch between NavigationStacks based on selected tab
             switch coordinator.selectedTab {
-            case .nowPlaying:
-                NavigationStack(path: coordinator.path(for: .nowPlaying)) {
+            case .movieFeed:
+                NavigationStack(path: coordinator.path(for: .movieFeed)) {
                     MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
                         TMDBRoute.movieDetail(MovieRouteModel(
                             id: movie.id,
@@ -71,8 +71,8 @@ public struct TMDBAPITabView: View {
                     }
                     .withTMDBNavigationDestinations(container: container)
                 }
-            case .upcoming:
-                NavigationStack(path: coordinator.path(for: .upcoming)) {
+            case .tvShowFeed:
+                NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
                     TMDB_TVFeed.MovieListPage(
                         container: container,
                         apiKey: tmdbKey,
