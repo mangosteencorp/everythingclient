@@ -6,14 +6,14 @@ import XCTest
 @available(iOS 16.0, *)
 class MovieListPageTests: XCTestCase {
     var container: Container!
-    var mockViewModel: MoviesViewModel!
+    var mockViewModel: TVFeedViewModel!
 
     override func setUp() {
         super.setUp()
         container = Container()
         let assembly = MovieAssembly()
         assembly.assemble(container: container)
-        mockViewModel = MoviesViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
+        mockViewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
     }
 
     func testMovieListPageInitialization() {
@@ -21,23 +21,13 @@ class MovieListPageTests: XCTestCase {
         let apiKey = "test_api_key"
 
         // When
-        let nowPlayingPage = MovieListPage(container: container, apiKey: apiKey, type: .nowPlaying, detailRouteBuilder: {_ in 1})
-        let upcomingPage = MovieListPage(container: container, apiKey: apiKey, type: .upcoming, detailRouteBuilder: {_ in 1})
+        let nowPlayingPage = MovieListPage(container: container, apiKey: apiKey, type: .airingToday, detailRouteBuilder: {_ in 1})
+        let upcomingPage = MovieListPage(container: container, apiKey: apiKey, type: .onTheAir, detailRouteBuilder: {_ in 1})
 
         // Then
         XCTAssertNotNil(nowPlayingPage)
         XCTAssertNotNil(upcomingPage)
         XCTAssertEqual(APIKeys.tmdbKey, apiKey)
-    }
-
-    func testNavigationTitle() {
-        // Given
-        let nowPlayingPage = MovieListPage(container: container, apiKey: "test_key", type: .nowPlaying, detailRouteBuilder: {_ in 1})
-        let upcomingPage = MovieListPage(container: container, apiKey: "test_key", type: .upcoming, detailRouteBuilder: {_ in 1})
-
-        // Then
-        XCTAssertEqual(nowPlayingPage.type.title, "Now Playing")
-        XCTAssertEqual(upcomingPage.type.title, "Upcoming")
     }
 
     // Helper function to find a view with specific ID in the view hierarchy

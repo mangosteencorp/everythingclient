@@ -1,7 +1,7 @@
 import TMDB_Shared_Backend
 
 protocol APIServiceProtocol {
-    func fetchMovies(endpoint: MovieListType) async -> Result<MovieListResultModel, Error>
+    func fetchTVShows(endpoint: TVShowFeedType) async -> Result<TVShowListResultModel, Error>
 }
 
 class MovieRepositoryImpl: MovieRepository {
@@ -12,15 +12,15 @@ class MovieRepositoryImpl: MovieRepository {
     }
 
     func fetchNowPlayingMovies() async -> Result<[Movie], Error> {
-        return await fetchMovies(endpoint: .nowPlaying)
+        return await fetchMovies(endpoint: .airingToday)
     }
 
     func fetchUpcomingMovies() async -> Result<[Movie], Error> {
-        return await fetchMovies(endpoint: .upcoming)
+        return await fetchMovies(endpoint: .onTheAir)
     }
 
-    private func fetchMovies(endpoint: MovieListType) async -> Result<[Movie], Error> {
-        let result = await apiService.fetchMovies(endpoint: endpoint)
+    private func fetchMovies(endpoint: TVShowFeedType) async -> Result<[Movie], Error> {
+        let result = await apiService.fetchTVShows(endpoint: endpoint)
         switch result {
         case let .success(response):
             return .success(response.results.map { self.mapAPIMovieToEntity($0) })
@@ -29,7 +29,7 @@ class MovieRepositoryImpl: MovieRepository {
         }
     }
 
-    private func mapAPIMovieToEntity(_ apiMovie: APIMovie) -> Movie {
+    private func mapAPIMovieToEntity(_ apiMovie: APITVShow) -> Movie {
         // Map API model to domain entity (same as before)
         Movie(
             id: apiMovie.id,

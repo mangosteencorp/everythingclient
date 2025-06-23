@@ -76,7 +76,7 @@ public struct TMDBAPITabView: View {
                     TMDB_TVFeed.MovieListPage(
                         container: container,
                         apiKey: tmdbKey,
-                        type: .upcoming
+                        type: .onTheAir
                     ) { tvShowId in
                         TMDBRoute.tvShowDetail(tvShowId)
                     }

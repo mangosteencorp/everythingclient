@@ -21,7 +21,7 @@ class MovieListContentTests: XCTestCase {
         ]
 
         // When
-        let content = MovieListContent(movies: movies, detailRouteBuilder: {_ in 1})
+        let content = TVShowListContent(movies: movies, detailRouteBuilder: {_ in 1})
 
         // Then
         let mirror = Mirror(reflecting: content)
@@ -50,10 +50,10 @@ class MovieListContentTests: XCTestCase {
             popularity: 100.0,
             releaseDate: Movie.dateFormatter.date(from: "2024-01-01")
         )
-        let content = MovieListContent(movies: [movie], detailRouteBuilder: {_ in 1})
+        let content = TVShowListContent(movies: [movie], detailRouteBuilder: {_ in 1})
 
         // verify if there's a list and movie title displayed
-        let _ = try content.inspect().find(viewWithAccessibilityIdentifier: "MovieListContent.List")
+        let _ = try content.inspect().find(viewWithAccessibilityIdentifier: "TVShowListContent.List")
         let _ = try content.inspect().find(text: "Test Movie")
     }
 }

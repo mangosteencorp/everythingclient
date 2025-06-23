@@ -2,8 +2,8 @@ import Foundation
 @testable import TMDB_TVFeed
 
 enum MockData {
-    static let movies: [APIMovie] = [
-        APIMovie(
+    static let movies: [APITVShow] = [
+        APITVShow(
             id: 1,
             title: "Movie 1",
             overview: "Overview of Movie 1",
@@ -12,7 +12,7 @@ enum MockData {
             popularity: 95.2,
             release_date: "2021-01-01"
         ),
-        APIMovie(
+        APITVShow(
             id: 2,
             title: "Movie 2",
             overview: "Overview of Movie 2",
@@ -23,7 +23,7 @@ enum MockData {
         ),
     ]
 
-    static let movieListResultModel = MovieListResultModel(
+    static let movieListResultModel = TVShowListResultModel(
         dates: Dates(maximum: "2021-01-02", minimum: "2021-01-01"),
         page: 1,
         results: movies,

@@ -3,14 +3,14 @@ import Combine
 import XCTest
 
 class MoviesViewModelTests: XCTestCase {
-    var viewModel: MoviesViewModel!
+    var viewModel: TVFeedViewModel!
     var mockUseCase: MockFetchMoviesUseCase!
     var cancellables = Set<AnyCancellable>()
 
     override func setUp() {
         super.setUp()
         mockUseCase = MockFetchMoviesUseCase()
-        viewModel = MoviesViewModel(fetchMoviesUseCase: mockUseCase)
+        viewModel = TVFeedViewModel(fetchMoviesUseCase: mockUseCase)
     }
 
     func testFetchMoviesSuccess() {

@@ -30,7 +30,7 @@ class APIMovieTests: XCTestCase {
         """.utf8)
 
         // When
-        let apiMovie = try JSONDecoder().decode(APIMovie.self, from: json)
+        let apiMovie = try JSONDecoder().decode(APITVShow.self, from: json)
 
         // Then
         XCTAssertEqual(apiMovie.id, 257064)
@@ -101,7 +101,7 @@ class MovieListResultModelTests: XCTestCase {
         """.utf8)
         // swiftlint:enable line_length
         // When
-        let movieListResult = try JSONDecoder().decode(MovieListResultModel.self, from: json)
+        let movieListResult = try JSONDecoder().decode(TVShowListResultModel.self, from: json)
 
         // Then
         XCTAssertNil(movieListResult.dates)

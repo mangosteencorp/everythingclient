@@ -1,7 +1,7 @@
 import CoreFeatures
 import SwiftUI
 
-class MoviesViewModel: ObservableObject {
+class TVFeedViewModel: ObservableObject {
     @Published var movies: [Movie] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -28,7 +28,7 @@ class MoviesViewModel: ObservableObject {
                     self.movies = movies
                     analyticsTracker?.trackPageView(parameters: PageViewParameters(
                         screenName: "ListTVShows",
-                        screenClass: "MovieListContent"
+                        screenClass: "TVShowListContent"
                     ))
                 case let .failure(error):
                     self.errorMessage = error.localizedDescription

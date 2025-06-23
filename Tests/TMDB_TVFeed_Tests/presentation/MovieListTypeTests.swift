@@ -3,12 +3,12 @@ import XCTest
 
 class MovieListTypeTests: XCTestCase {
     func testMovieListTypeTitles() {
-        XCTAssertEqual(MovieListType.nowPlaying.title, "Now Playing")
-        XCTAssertEqual(MovieListType.upcoming.title, "Upcoming")
+        XCTAssertEqual(TVShowFeedType.airingToday.title, "Now Playing")
+        XCTAssertEqual(TVShowFeedType.onTheAir.title, "Upcoming")
     }
 
     func testMovieListTypeIcons() {
-        XCTAssertEqual(MovieListType.nowPlaying.iconName, "play.circle")
-        XCTAssertEqual(MovieListType.upcoming.iconName, "calendar")
+        XCTAssertEqual(TVShowFeedType.airingToday.iconName, "play.circle")
+        XCTAssertEqual(TVShowFeedType.onTheAir.iconName, "calendar")
     }
 }

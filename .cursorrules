@@ -13,3 +13,4 @@ scheme=EverythingClient bash .github/scripts/build.sh
 
 ## Development Guidelines
 - when working on a module, look at the structure of the module to see if whether it is mainly SwiftUI or RxSwift or UIKit, and what the architecture is (MVVM, Clean, ...) before start writing code
+- look at root level **Package.swift** first to know the dependencies before start implementation

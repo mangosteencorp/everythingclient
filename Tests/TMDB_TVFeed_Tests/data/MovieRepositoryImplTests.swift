@@ -36,9 +36,9 @@ class MovieRepositoryImplTests: XCTestCase {
 }
 
 class MockAPIService: APIServiceProtocol {
-    func fetchMovies(endpoint: MovieListType) async -> Result<MovieListResultModel, Error> {
+    func fetchTVShows(endpoint: TVShowFeedType) async -> Result<TVShowListResultModel, Error> {
         return resultToReturn ?? .failure(MockError.noResponse)
     }
 
-    var resultToReturn: Result<MovieListResultModel, Error>?
+    var resultToReturn: Result<TVShowListResultModel, Error>?
 }

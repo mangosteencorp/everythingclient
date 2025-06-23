@@ -36,7 +36,7 @@ class TMDBAPIServiceProtocolTests: XCTestCase {
         }
 
         // When
-        let result = await apiService.fetchMovies(endpoint: .nowPlaying)
+        let result = await apiService.fetchTVShows(endpoint: .airingToday)
 
         // Then
         switch result {
@@ -61,7 +61,7 @@ class TMDBAPIServiceProtocolTests: XCTestCase {
         }
 
         // When
-        let result = await apiService.fetchMovies(endpoint: .nowPlaying)
+        let result = await apiService.fetchTVShows(endpoint: .onTheAir)
 
         // Then
         switch result {

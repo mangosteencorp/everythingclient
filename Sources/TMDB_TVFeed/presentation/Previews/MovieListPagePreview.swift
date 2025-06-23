@@ -7,7 +7,7 @@ import TMDB_Shared_Backend
     MovieListPage(
         container: Container(),
         apiKey: debugTMDBAPIKey,
-        type: .nowPlaying,
+        type: .airingToday,
         detailRouteBuilder: { _ in 1 })
 }
 

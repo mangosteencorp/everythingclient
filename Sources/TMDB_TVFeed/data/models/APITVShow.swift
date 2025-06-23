@@ -2,7 +2,7 @@
 import SwiftUI
 
 // swiftlint:disable identifier_name
-public struct APIMovie: Codable { // TODO: changing name to TVShow
+public struct APITVShow: Codable { // TODO: changing name to TVShow
     let id: Int
     let title: String
     let overview: String

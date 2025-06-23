@@ -26,15 +26,15 @@ public class MovieAssembly: Assembly {
         }
 
         // Register ViewModels
-        container.register(MoviesViewModel.self, name: "nowPlaying") { resolver in
-            MoviesViewModel(
+        container.register(TVFeedViewModel.self, name: "nowPlaying") { resolver in
+            TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!,
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self)
             )
         }
 
-        container.register(MoviesViewModel.self, name: "upcoming") { resolver in
-            MoviesViewModel(
+        container.register(TVFeedViewModel.self, name: "upcoming") { resolver in
+            TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!,
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self)
             )
