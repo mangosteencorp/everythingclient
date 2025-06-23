@@ -29,6 +29,7 @@ public class MovieFeedViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
     @Published var currentFeedType: MovieFeedType = .nowPlaying
+    @Published var searchFilters = SearchFilters()
 
     private var nowPlayingMovies: [Movie] = []
     private var popularMovies: [Movie] = []
@@ -55,6 +56,15 @@ public class MovieFeedViewModel: ObservableObject {
                     self?.searchMovies(query: query)
                 } else if let self = self {
                     self.loadCurrentFeedMovies()
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Watch for filter changes and re-search if there's an active search
+        $searchFilters
+            .sink { [weak self] _ in
+                if let self = self, !self.searchQuery.isEmpty {
+                    self.searchMovies(query: self.searchQuery)
                 }
             }
             .store(in: &cancellables)
@@ -149,7 +159,7 @@ public class MovieFeedViewModel: ObservableObject {
         }
 
         Task {
-            let result = await apiService.searchMovies(query: query, page: nil)
+            let result = await apiService.searchMovies(query: query, page: nil, filters: searchFilters.hasActiveFilters ? searchFilters : nil)
             await MainActor.run {
                 switch result {
                 case let .success(response):

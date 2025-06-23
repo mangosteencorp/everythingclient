@@ -9,6 +9,8 @@ import TMDB_Shared_UI
 public struct MovieFeedListPage<Route: Hashable>: View {
     @StateObject var viewModel: MovieFeedViewModel
     let detailRouteBuilder: (Movie) -> Route
+    @State private var showingFilterSheet = false
+    @State private var selectedFilterType: FilterType?
 
     public init(
         apiService: APIServiceProtocol,
@@ -45,26 +47,52 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                 case .error(let message):
                     Text(message)
                 case .loaded(let movies), .searchResults(let movies):
-                    List(movies) { movie in
-                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                    VStack(spacing: 0) {
+                        // Show filter chips when searching
+                        if !viewModel.searchQuery.isEmpty {
+                            FilterChipsView(
+                                filters: $viewModel.searchFilters,
+                                onFilterTap: { filterType in
+                                    selectedFilterType = filterType
+                                    showingFilterSheet = true
+                                }
+                            )
+                        }
+                        
+                        List(movies) { movie in
+                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                        }
+                        .searchable(text: $viewModel.searchQuery)
+                        .overlay {
+                            if case .loading = viewModel.state {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                    .background(Color.black.opacity(0.1))
+                            }
+                        }
                     }
-                    .searchable(text: $viewModel.searchQuery)
-                    .overlay {
-                        if case .loading = viewModel.state {
+                case .loading:
+                    VStack(spacing: 0) {
+                        // Show filter chips when searching
+                        if !viewModel.searchQuery.isEmpty {
+                            FilterChipsView(
+                                filters: $viewModel.searchFilters,
+                                onFilterTap: { filterType in
+                                    selectedFilterType = filterType
+                                    showingFilterSheet = true
+                                }
+                            )
+                        }
+                        
+                        List([] as [Movie]) { movie in
+                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                        }
+                        .searchable(text: $viewModel.searchQuery)
+                        .overlay {
                             ProgressView()
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                                 .background(Color.black.opacity(0.1))
                         }
-                    }
-                case .loading:
-                    List([] as [Movie]) { movie in
-                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                    }
-                    .searchable(text: $viewModel.searchQuery)
-                    .overlay {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                            .background(Color.black.opacity(0.1))
                     }
                 }
             }
@@ -91,6 +119,14 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                         .foregroundColor(.primary)
                 }
+            }
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            if let filterType = selectedFilterType {
+                FilterConfigurationView(
+                    filters: $viewModel.searchFilters,
+                    filterType: filterType
+                )
             }
         }
         .onFirstAppear {
