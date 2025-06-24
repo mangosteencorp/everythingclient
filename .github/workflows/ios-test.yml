@@ -16,7 +16,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Select latest Xcode
         run: |
-          XCODE_LIST=$(ls -d /Applications/Xcode*.app)
+          XCODE_LIST_RAW=$(ls -d /Applications/Xcode*.app)
+          echo "Xcode List full: $XCODE_LIST_RAW"
+          XCODE_LIST=$(ls -d /Applications/Xcode*.app | grep -i -v beta)
+          echo "Xcode List: $XCODE_LIST"
           LATEST_XCODE=$(echo "$XCODE_LIST" | sort -V | tail -n 1)
           echo "Using Xcode: $LATEST_XCODE"
           sudo xcode-select -switch "$LATEST_XCODE"
