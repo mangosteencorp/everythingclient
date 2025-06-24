@@ -1,5 +1,5 @@
-import SwiftUI
-import TMDB_MVVM_Detail
+import Foundation
+import TMDB_MovieDetail
 
 public struct MovieRouteModel: Hashable {
     public let id: Int
@@ -51,8 +51,8 @@ public struct MovieRouteModel: Hashable {
         )
     }
 
-    func toMovieDetailModel() -> TMDB_MVVM_Detail.Movie {
-        return TMDB_MVVM_Detail.Movie(
+    func toMovieDetailModel() -> TMDB_MovieDetail.Movie {
+        return TMDB_MovieDetail.Movie(
             id: id,
             originalTitle: originalTitle ?? "",
             title: title,

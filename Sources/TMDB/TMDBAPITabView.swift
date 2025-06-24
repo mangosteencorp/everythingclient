@@ -1,12 +1,13 @@
 import CoreFeatures
 import SwiftUI
 import Swinject
-import TMDB_clean_MLS
-import TMDB_Clean_Profile
-import TMDB_MVVM_Detail
-import TMDB_MVVM_MLS
+import TMDB_Movie_Feed
+import TMDB_MovieDetail
+import TMDB_Profile
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
+import TMDB_TVFeed
+
 @available(iOS 16, *)
 public struct TMDBAPITabView: View {
     @StateObject private var coordinator: Coordinator
@@ -39,7 +40,7 @@ public struct TMDBAPITabView: View {
 
         self.container = container
 
-        let tabList: [TabRoute] = [.nowPlaying, .upcoming, .profile]
+        let tabList: [TabRoute] = [.movieFeed, .tvShowFeed, .profile]
         _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
 
@@ -52,9 +53,9 @@ public struct TMDBAPITabView: View {
         ZStack(alignment: .bottom) {
             // Content area: Switch between NavigationStacks based on selected tab
             switch coordinator.selectedTab {
-            case .nowPlaying:
-                NavigationStack(path: coordinator.path(for: .nowPlaying)) {
-                    DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
+            case .movieFeed:
+                NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                    MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
                         TMDBRoute.movieDetail(MovieRouteModel(
                             id: movie.id,
                             title: movie.title,
@@ -70,12 +71,12 @@ public struct TMDBAPITabView: View {
                     }
                     .withTMDBNavigationDestinations(container: container)
                 }
-            case .upcoming:
-                NavigationStack(path: coordinator.path(for: .upcoming)) {
-                    TMDB_clean_MLS.MovieListPage(
+            case .tvShowFeed:
+                NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
+                    TMDB_TVFeed.MovieListPage(
                         container: container,
                         apiKey: tmdbKey,
-                        type: .upcoming
+                        type: .onTheAir
                     ) { tvShowId in
                         TMDBRoute.tvShowDetail(tvShowId)
                     }

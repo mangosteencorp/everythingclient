@@ -1,10 +1,11 @@
 #!/bin/bash
+set -e
 
 # List of test schemes
 TEST_SCHEMES=(
-    "TMDB_clean_MLS_tests"
+    "TMDB_TVFeed_Tests"
     # "TMDB_Shared_Backend_Tests"
-    "TMDB_MVVM_MLS_Tests"
+    "TMDB_Movie_Feed_Tests"
     # Add more schemes here as needed
 )
 

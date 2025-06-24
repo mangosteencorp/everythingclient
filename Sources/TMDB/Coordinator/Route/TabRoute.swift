@@ -1,22 +1,22 @@
 import Foundation
 public enum TabRoute: Hashable {
-    case nowPlaying
-    case upcoming
+    case movieFeed
+    case tvShowFeed
     case profile
 
     public var title: String {
         switch self {
-        case .nowPlaying: return "Now Playing"
-        case .upcoming: return "Upcoming"
+        case .movieFeed: return "Movies"
+        case .tvShowFeed: return "TV Shows"
         case .profile: return "Profile"
         }
     }
 
     public var iconName: String {
         switch self {
-        case .nowPlaying: return "play.circle"
-        case .upcoming: return "magnifyingglass"
-        case .profile: return "list.bullet"
+        case .movieFeed: return "play.circle"
+        case .tvShowFeed: return "tv.and.mediabox"
+        case .profile: return "person.crop.circle"
         }
     }
 }

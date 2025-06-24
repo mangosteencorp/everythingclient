@@ -1,8 +1,8 @@
 import CoreFeatures
 import SwiftUI
 import Swinject
-import TMDB_MVVM_Detail
-import TMDB_MVVM_MLS
+import TMDB_Movie_Feed
+import TMDB_MovieDetail
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
 @available(iOS 16.0, *)
@@ -35,7 +35,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 tvShowId: tvShowId)
                 .environmentObject(ThemeManager.shared)
         case let .movieList(params):
-            DMSNowPlayingPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
+            MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
             }
         }

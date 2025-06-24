@@ -16,10 +16,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Select latest Xcode
         run: |
-          XCODE_LIST=$(ls -d /Applications/Xcode*.app)
-          LATEST_XCODE=$(echo "$XCODE_LIST" | sort -V | tail -n 1)
-          echo "Using Xcode: $LATEST_XCODE"
-          sudo xcode-select -switch "$LATEST_XCODE"
+          chmod +x ./.github/scripts/select_xcode.sh
+          ./.github/scripts/select_xcode.sh 16 4
       - name: Check environment
         run: |
           swift --version

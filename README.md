@@ -26,6 +26,9 @@ Also adding a GoogleService-Info.plist file to the root of the project for Fireb
 
 - [iOS Best Practices Demo Project](#ios-best-practices-demo-project)
 - [Overview](#overview)
+  - [Screenshots](#screenshots)
+    - [Screens](#screens)
+    - [Special Features](#special-features)
 - [Practices](#practices)
   - [Architecture \& Design](#architecture--design)
     - [Feature based Modularization:](#feature-based-modularization)
@@ -49,6 +52,26 @@ What you'll find looking at this repo:
 - REST API & GraphQL networking & OAuth 
 - SwiftGen, SwiftLint, SwiftFormat
 - GitHub CI build & test
+
+## Screenshots
+
+### Screens
+
+<div class="table-wrapper" markdown="block" style="overflow-x: auto; white-space: nowrap;">
+
+|TMDB| Movie List | TV list | search & filters | TV Detail | Profile | endless loading |
+|-|-|-|-|-|-|-|
+|-|![](.screenshots/moviefeed.gif)|![](.screenshots/tvfeed.png)|![](.screenshots/search-filter.gif)|![](.screenshots/tvdetail.png)|![](.screenshots/tmdb-profile.png)|![](.screenshots/moviefeed-endless.gif)|
+|Pokedex|Poke list|Pokemon detail|
+|-|![](.screenshots/pokemon-list.png)|![](.screenshots/pokemon-detail.png)|
+
+</div>
+
+### Special Features
+
+| Design Switching | Theme Switching |
+|---------|------|
+| ![Design Switch](.screenshots/switch-design.gif) | ![Theme Switch](.screenshots/switch-themes.gif) |
 
 # Practices
 
@@ -84,7 +107,7 @@ Using Router Pattern, `NavigationStack` and Coordinator pattern
 ## Testing
 
 🚧 Testing: 
-- ✅ 100% code coverage for TMDB_Clean_MLS module. For testabbility purpose:
+- ✅ 100% code coverage for TMDB_TVFeed module. For testabbility purpose:
     - Data layer & domain layer should be wrapped in protocol for easy mocking. Mocking `URLProtocol` is for testing URLSession Task creation.
     - Using ViewInspector library for SwiftUI unit testing.
 
