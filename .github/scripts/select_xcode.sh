@@ -22,7 +22,7 @@ for xcode_path in $XCODE_LIST; do
   if [[ "$xcode_name" == "Xcode" ]]; then
     # Handle Xcode without version suffix (likely Xcode 15 or earlier)
     FILTERED_XCODE_LIST="$FILTERED_XCODE_LIST $xcode_path"
-  elif [[ "$xcode_name" =~ ^Xcode([0-9]+)\.([0-9]+)$ ]]; then
+  elif [[ "$xcode_name" =~ ^Xcode_([0-9]+)\.([0-9]+)(\.[0-9]+)?$ ]]; then
     major_version="${BASH_REMATCH[1]}"
     minor_version="${BASH_REMATCH[2]}"
     if [[ "$major_version" -lt $MAX_MAJOR_VERSION ]] || [[ "$major_version" -eq $MAX_MAJOR_VERSION && "$minor_version" -le $MAX_MINOR_VERSION ]]; then
