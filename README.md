@@ -57,11 +57,15 @@ What you'll find looking at this repo:
 
 ### Screens
 
+<div class="table-wrapper" markdown="block" style="overflow-x: auto; white-space: nowrap;">
+
 |TMDB| Movie List | TV list | Movie detail | TV Detail | Profile | endless loading |
 |-|-|-|-|-|-|-|
 |-|![](.screenshots/moviefeed.gif)|-|-|-|-|![](.screenshots/moviefeed-endless.gif)|
 |Pokedex|Poke list|Pokemon detail|
 |-|-|-|
+
+</div>
 
 ### Special Features
 
