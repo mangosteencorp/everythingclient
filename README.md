@@ -59,9 +59,9 @@ What you'll find looking at this repo:
 
 <div class="table-wrapper" markdown="block" style="overflow-x: auto; white-space: nowrap;">
 
-|TMDB| Movie List | TV list | Movie detail | TV Detail | Profile | endless loading |
+|TMDB| Movie List | TV list | search & filters | TV Detail | Profile | endless loading |
 |-|-|-|-|-|-|-|
-|-|![](.screenshots/moviefeed.gif)|![](.screenshots/tvfeed.png)|-|![](.screenshots/tvdetail.png)|![](.screenshots/tmdb-profile.png)|![](.screenshots/moviefeed-endless.gif)|
+|-|![](.screenshots/moviefeed.gif)|![](.screenshots/tvfeed.png)|![](.screenshots/search-filter.gif)|![](.screenshots/tvdetail.png)|![](.screenshots/tmdb-profile.png)|![](.screenshots/moviefeed-endless.gif)|
 |Pokedex|Poke list|Pokemon detail|
 |-|![](.screenshots/pokemon-list.png)|![](.screenshots/pokemon-detail.png)|
 
