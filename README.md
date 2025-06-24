@@ -27,6 +27,8 @@ Also adding a GoogleService-Info.plist file to the root of the project for Fireb
 - [iOS Best Practices Demo Project](#ios-best-practices-demo-project)
 - [Overview](#overview)
   - [Screenshots](#screenshots)
+    - [Screens](#screens)
+    - [Special Features](#special-features)
 - [Practices](#practices)
   - [Architecture \& Design](#architecture--design)
     - [Feature based Modularization:](#feature-based-modularization)
@@ -53,10 +55,19 @@ What you'll find looking at this repo:
 
 ## Screenshots
 
-| Feature | Demo |
+### Screens
+
+|TMDB| Movie List | TV list | Movie detail | TV Detail | Profile | endless loading |
+|-|-|-|-|-|-|-|
+|-|![](.screenshots/moviefeed.gif)|-|-|-|-|![](.screenshots/moviefeed-endless.gif)|
+|Pokedex|Poke list|Pokemon detail|
+|-|-|-|
+
+### Special Features
+
+| Design Switching | Theme Switching |
 |---------|------|
-| Design Switching | ![Design Switch](.screenshots/switch-design.gif) |
-| Theme Switching | ![Theme Switch](.screenshots/switch-themes.gif) |
+| ![Design Switch](.screenshots/switch-design.gif) | ![Theme Switch](.screenshots/switch-themes.gif) |
 
 # Practices
 
