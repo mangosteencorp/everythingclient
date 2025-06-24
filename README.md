@@ -61,9 +61,9 @@ What you'll find looking at this repo:
 
 |TMDB| Movie List | TV list | Movie detail | TV Detail | Profile | endless loading |
 |-|-|-|-|-|-|-|
-|-|![](.screenshots/moviefeed.gif)|-|-|-|-|![](.screenshots/moviefeed-endless.gif)|
+|-|![](.screenshots/moviefeed.gif)|![](.screenshots/tvfeed.png)|-|![](.screenshots/tvdetail.png)|![](.screenshots/tmdb-profile.png)|![](.screenshots/moviefeed-endless.gif)|
 |Pokedex|Poke list|Pokemon detail|
-|-|-|-|
+|-|![](.screenshots/pokemon-list.png)|![](.screenshots/pokemon-detail.png)|
 
 </div>
 
