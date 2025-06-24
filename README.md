@@ -67,45 +67,6 @@ What you'll find looking at this repo:
 
 </div>
 
-<table>
-  <tr>
-    <th>TMDB</th>
-    <th>Movie List</th>
-    <th>TV list</th>
-    <th>Movie detail</th>
-    <th>TV Detail</th>
-    <th>Profile</th>
-    <th>endless loading</th>
-  </tr>
-  <tr>
-    <td>-</td>
-    <td><img src=".screenshots/moviefeed.gif" alt="Movie List"></td>
-    <td><img src=".screenshots/tvfeed.png" alt="TV list"></td>
-    <td>-</td>
-    <td><img src=".screenshots/tvdetail.png" alt="TV Detail"></td>
-    <td><img src=".screenshots/tmdb-profile.png" alt="Profile"></td>
-    <td><img src=".screenshots/moviefeed-endless.gif" alt="endless loading"></td>
-  </tr>
-  <tr>
-    <th>Pokedex</th>
-    <th>Poke list</th>
-    <th>Pokemon detail</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>-</td>
-    <td><img src=".screenshots/pokemon-list.png" alt="Poke list"></td>
-    <td><img src=".screenshots/pokemon-detail.png" alt="Pokemon detail"></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-</table>
-
 ### Special Features
 
 | Design Switching | Theme Switching |
