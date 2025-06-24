@@ -3,27 +3,44 @@ import Combine
 import XCTest
 
 class MockAPIService: APIServiceProtocol {
-    var mockNowPlayingResult: Result<NowPlayingResponse, Error>?
-    var mockSearchResult: Result<NowPlayingResponse, Error>?
+    
+    var mockNowPlayingResult: Result<MovieListResponse, Error>?
+    var mockSearchResult: Result<MovieListResponse, Error>?
 
-    func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error> {
+    func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
-    func searchMovies(query: String, page: Int?) async -> Result<NowPlayingResponse, Error> {
+    func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error> {
         return mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
+    }
+    
+    func searchMovies(query: String, page: Int?, filters: TMDB_Movie_Feed.SearchFilters?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+        return mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
+    }
+    
+    func fetchUpcomingMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+        return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
+    }
+    
+    func fetchTopRatedMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+        return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
+    }
+    
+    func fetchPopularMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+        return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 }
 
-final class NowPlayingViewModelTests: XCTestCase {
-    var viewModel: NowPlayingViewModel!
+final class MovieFeedViewModelTests: XCTestCase {
+    var viewModel: MovieFeedViewModel!
     var mockAPIService: MockAPIService!
     var cancellables: Set<AnyCancellable>!
 
     override func setUp() {
         super.setUp()
         mockAPIService = MockAPIService()
-        viewModel = NowPlayingViewModel(apiService: mockAPIService)
+        viewModel = MovieFeedViewModel(apiService: mockAPIService)
         cancellables = Set<AnyCancellable>()
     }
 
@@ -37,7 +54,7 @@ final class NowPlayingViewModelTests: XCTestCase {
     func testFetchNowPlayingMoviesSuccess() async {
         // Given
         let expectedMovies = [sampleApeMovie]
-        mockAPIService.mockNowPlayingResult = .success(NowPlayingResponse(
+        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
             dates: nil,
             page: 1,
             results: expectedMovies,
@@ -90,7 +107,7 @@ final class NowPlayingViewModelTests: XCTestCase {
     func testSearchMoviesSuccess() async {
         // Given
         let searchResults = [sampleEmptyMovie]
-        mockAPIService.mockSearchResult = .success(NowPlayingResponse(
+        mockAPIService.mockSearchResult = .success(MovieListResponse(
             dates: nil,
             page: 1,
             results: searchResults,
@@ -122,7 +139,7 @@ final class NowPlayingViewModelTests: XCTestCase {
         let initialMovies = [sampleApeMovie]
         let additionalMovies = [sampleEmptyMovie]
 
-        mockAPIService.mockNowPlayingResult = .success(NowPlayingResponse(
+        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
             dates: nil,
             page: 1,
             results: initialMovies,
@@ -146,7 +163,7 @@ final class NowPlayingViewModelTests: XCTestCase {
         await fulfillment(of: [initialLoadExpectation], timeout: 1.0)
 
         // When fetching more content
-        mockAPIService.mockNowPlayingResult = .success(NowPlayingResponse(
+        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
             dates: nil,
             page: 2,
             results: additionalMovies,
@@ -177,7 +194,7 @@ final class NowPlayingViewModelTests: XCTestCase {
         let searchResults = [sampleEmptyMovie]
 
         // Set up initial now playing movies
-        mockAPIService.mockNowPlayingResult = .success(NowPlayingResponse(
+        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
             dates: nil,
             page: 1,
             results: nowPlayingMovies,
@@ -200,7 +217,7 @@ final class NowPlayingViewModelTests: XCTestCase {
         await fulfillment(of: [initialLoadExpectation], timeout: 1.0)
 
         // Perform search
-        mockAPIService.mockSearchResult = .success(NowPlayingResponse(
+        mockAPIService.mockSearchResult = .success(MovieListResponse(
             dates: nil,
             page: 1,
             results: searchResults,

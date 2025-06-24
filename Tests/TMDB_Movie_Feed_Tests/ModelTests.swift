@@ -18,7 +18,7 @@ final class ModelTests: XCTestCase {
 
     func testNowPlayingResponseDecoding() throws {
         // When
-        let response = try JSONDecoder().decode(NowPlayingResponse.self, from: jsonData)
+        let response = try JSONDecoder().decode(MovieListResponse.self, from: jsonData)
 
         // Then
         XCTAssertEqual(response.page, 2)
@@ -34,7 +34,7 @@ final class ModelTests: XCTestCase {
 
     func testMovieModelDecoding() throws {
         // When
-        let response = try JSONDecoder().decode(NowPlayingResponse.self, from: jsonData)
+        let response = try JSONDecoder().decode(MovieListResponse.self, from: jsonData)
         let firstMovie = try XCTUnwrap(response.results.first)
 
         // Then
@@ -57,7 +57,7 @@ final class ModelTests: XCTestCase {
 
     func testMovieToMovieRowEntityConversion() throws {
         // Given
-        let response = try JSONDecoder().decode(NowPlayingResponse.self, from: jsonData)
+        let response = try JSONDecoder().decode(MovieListResponse.self, from: jsonData)
         let movie = try XCTUnwrap(response.results.first)
 
         // When
@@ -74,7 +74,7 @@ final class ModelTests: XCTestCase {
 
     func testMovieWithMissingOptionalFields() throws {
         // Find a movie in the JSON with null fields
-        let response = try JSONDecoder().decode(NowPlayingResponse.self, from: jsonData)
+        let response = try JSONDecoder().decode(MovieListResponse.self, from: jsonData)
         let movieWithNulls = try XCTUnwrap(response.results.first { $0.posterPath == nil })
 
         // Then

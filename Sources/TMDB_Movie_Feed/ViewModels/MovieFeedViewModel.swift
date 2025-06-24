@@ -40,7 +40,7 @@ public class MovieFeedViewModel: ObservableObject {
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?
     let analyticsTracker: AnalyticsTracker?
-    
+
     public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
@@ -59,7 +59,7 @@ public class MovieFeedViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-        
+
         // Watch for filter changes and re-search if there's an active search
         $searchFilters
             .sink { [weak self] _ in
@@ -74,18 +74,18 @@ public class MovieFeedViewModel: ObservableObject {
         currentFeedType = .nowPlaying
         fetchMoviesForCurrentFeedType()
     }
-    
+
     func switchFeedType(_ feedType: MovieFeedType) {
         currentFeedType = feedType
         fetchMoviesForCurrentFeedType()
     }
-    
+
     private func fetchMoviesForCurrentFeedType() {
         state = .loading
-        
+
         Task {
-            let result: Result<NowPlayingResponse, Error>
-            
+            let result: Result<MovieListResponse, Error>
+
             switch currentFeedType {
             case .nowPlaying:
                 result = await apiService.fetchNowPlayingMovies(
@@ -108,7 +108,7 @@ public class MovieFeedViewModel: ObservableObject {
                     additionalParams: additionalParams
                 )
             }
-            
+
             await MainActor.run {
                 switch result {
                 case let .success(response):
@@ -117,7 +117,7 @@ public class MovieFeedViewModel: ObservableObject {
                         screenClass: "MovieFeedPage",
                         contentType: "movie_list"
                     ))
-                    
+
                     // Store movies based on feed type
                     switch currentFeedType {
                     case .nowPlaying:
@@ -129,7 +129,7 @@ public class MovieFeedViewModel: ObservableObject {
                     case .upcoming:
                         self.upcomingMovies = response.results
                     }
-                    
+
                     self.state = .loaded(response.results)
                 case let .failure(error):
                     self.state = .error(error.localizedDescription)
@@ -137,7 +137,7 @@ public class MovieFeedViewModel: ObservableObject {
             }
         }
     }
-    
+
     private func loadCurrentFeedMovies() {
         let movies: [Movie]
         switch currentFeedType {
@@ -185,9 +185,9 @@ public class MovieFeedViewModel: ObservableObject {
                     additionalParameters: ["page": currentPage + 1]
                 )
             )
-            
-            let result: Result<NowPlayingResponse, Error>
-            
+
+            let result: Result<MovieListResponse, Error>
+
             switch currentFeedType {
             case .nowPlaying:
                 result = await apiService.fetchNowPlayingMovies(
@@ -210,7 +210,7 @@ public class MovieFeedViewModel: ObservableObject {
                     additionalParams: additionalParams
                 )
             }
-            
+
             await MainActor.run {
                 switch result {
                 case let .success(response):

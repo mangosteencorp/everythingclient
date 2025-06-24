@@ -5,14 +5,14 @@ import ViewInspector
 import XCTest
 
 @available(iOS 16.0, *)
-class DMSNowPlayingPageTests: XCTestCase {
-    var mockViewModel: NowPlayingViewModel!
-    var page: DMSNowPlayingPage<Int>!
+class MovieFeedListPageTests: XCTestCase {
+    var mockViewModel: MovieFeedViewModel!
+    var page: MovieFeedListPage<Int>!
 
     override func setUp() {
         super.setUp()
-        mockViewModel = NowPlayingViewModel(apiService: MockAPIService())
-        page = DMSNowPlayingPage(viewModel: mockViewModel, detailRouteBuilder: { _ in 1 })
+        mockViewModel = MovieFeedViewModel(apiService: MockAPIService())
+        page = MovieFeedListPage(viewModel: mockViewModel, detailRouteBuilder: { _ in 1 })
     }
 
     override func tearDown() {
@@ -22,7 +22,7 @@ class DMSNowPlayingPageTests: XCTestCase {
     }
 
     func testInitialState() {
-        let pageSelfCreatedVM = DMSNowPlayingPage(apiService: MockAPIService(), detailRouteBuilder: { _ in 1 })
+        let pageSelfCreatedVM = MovieFeedListPage(apiService: MockAPIService(), detailRouteBuilder: { _ in 1 })
         XCTAssertNotNil(pageSelfCreatedVM.viewModel)
     }
 
@@ -61,7 +61,7 @@ class DMSNowPlayingPageTests: XCTestCase {
 
         // When
         testViewModel.state = .loaded([testMovie])
-        let testPage = DMSNowPlayingPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
+        let testPage = MovieFeedListPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
 
         // Then
         let list = try testPage.inspect().find(ViewType.List.self)
@@ -81,7 +81,7 @@ class DMSNowPlayingPageTests: XCTestCase {
 
         // When
         testViewModel.state = .searchResults([searchMovie])
-        let testPage = DMSNowPlayingPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
+        let testPage = MovieFeedListPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
 
         // Then
         let list = try testPage.inspect().find(ViewType.List.self)

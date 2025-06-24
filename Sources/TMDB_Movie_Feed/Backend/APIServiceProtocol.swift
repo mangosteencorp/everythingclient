@@ -12,44 +12,44 @@ public struct AdditionalMovieListParams: Hashable {
 
 public protocol APIServiceProtocol {
     // Required methods with all parameters
-    func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error>
-    func fetchPopularMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error>
-    func fetchTopRatedMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error>
-    func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<NowPlayingResponse, Error>
-    func searchMovies(query: String, page: Int?) async -> Result<NowPlayingResponse, Error>
-    func searchMovies(query: String, page: Int?, filters: SearchFilters?) async -> Result<NowPlayingResponse, Error>
+    func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error>
+    func fetchPopularMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error>
+    func fetchTopRatedMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error>
+    func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error>
+    func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error>
+    func searchMovies(query: String, page: Int?, filters: SearchFilters?) async -> Result<MovieListResponse, Error>
 }
 
 // Optional convenience methods
 public extension APIServiceProtocol {
-    func fetchNowPlayingMovies() async -> Result<NowPlayingResponse, Error> {
+    func fetchNowPlayingMovies() async -> Result<MovieListResponse, Error> {
         await fetchNowPlayingMovies(page: nil, additionalParams: nil)
     }
 
-    func fetchPopularMovies() async -> Result<NowPlayingResponse, Error> {
+    func fetchPopularMovies() async -> Result<MovieListResponse, Error> {
         await fetchPopularMovies(page: nil, additionalParams: nil)
     }
 
-    func fetchTopRatedMovies() async -> Result<NowPlayingResponse, Error> {
+    func fetchTopRatedMovies() async -> Result<MovieListResponse, Error> {
         await fetchTopRatedMovies(page: nil, additionalParams: nil)
     }
 
-    func fetchUpcomingMovies() async -> Result<NowPlayingResponse, Error> {
+    func fetchUpcomingMovies() async -> Result<MovieListResponse, Error> {
         await fetchUpcomingMovies(page: nil, additionalParams: nil)
     }
 
-    func searchMovies(query: String) async -> Result<NowPlayingResponse, Error> {
+    func searchMovies(query: String) async -> Result<MovieListResponse, Error> {
         await searchMovies(query: query, page: nil)
     }
 
-    func searchMovies(query: String, filters: SearchFilters?) async -> Result<NowPlayingResponse, Error> {
+    func searchMovies(query: String, filters: SearchFilters?) async -> Result<MovieListResponse, Error> {
         await searchMovies(query: query, page: nil, filters: filters)
     }
 }
 
 extension TMDBAPIService: APIServiceProtocol {
-    public func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<NowPlayingResponse, any Error> {
-        let result: Result<NowPlayingResponse, TMDBAPIError> = await {
+    public func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<MovieListResponse, any Error> {
+        let result: Result<MovieListResponse, TMDBAPIError> = await {
             if let params = additionalParams, let keywordId = params.keywordId {
                 return await request(.discoverMovie(keywords: keywordId, page: page))
             }
@@ -64,8 +64,8 @@ extension TMDBAPIService: APIServiceProtocol {
         }
     }
 
-    public func fetchPopularMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<NowPlayingResponse, any Error> {
-        let result: Result<NowPlayingResponse, TMDBAPIError> = await {
+    public func fetchPopularMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<MovieListResponse, any Error> {
+        let result: Result<MovieListResponse, TMDBAPIError> = await {
             if let params = additionalParams, let keywordId = params.keywordId {
                 return await request(.discoverMovie(keywords: keywordId, page: page))
             }
@@ -79,8 +79,8 @@ extension TMDBAPIService: APIServiceProtocol {
         }
     }
 
-    public func fetchTopRatedMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<NowPlayingResponse, any Error> {
-        let result: Result<NowPlayingResponse, TMDBAPIError> = await {
+    public func fetchTopRatedMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<MovieListResponse, any Error> {
+        let result: Result<MovieListResponse, TMDBAPIError> = await {
             if let params = additionalParams, let keywordId = params.keywordId {
                 return await request(.discoverMovie(keywords: keywordId, page: page))
             }
@@ -94,8 +94,8 @@ extension TMDBAPIService: APIServiceProtocol {
         }
     }
 
-    public func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<NowPlayingResponse, any Error> {
-        let result: Result<NowPlayingResponse, TMDBAPIError> = await {
+    public func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<MovieListResponse, any Error> {
+        let result: Result<MovieListResponse, TMDBAPIError> = await {
             if let params = additionalParams, let keywordId = params.keywordId {
                 return await request(.discoverMovie(keywords: keywordId, page: page))
             }
@@ -109,8 +109,8 @@ extension TMDBAPIService: APIServiceProtocol {
         }
     }
 
-    public func searchMovies(query: String, page: Int?) async -> Result<NowPlayingResponse, Error> {
-        let result: Result<NowPlayingResponse, TMDBAPIError> = await request(.searchMovie(query: query, page: page))
+    public func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error> {
+        let result: Result<MovieListResponse, TMDBAPIError> = await request(.searchMovie(query: query, page: page))
         // Map TMDBAPIError to Error
         switch result {
         case let .success(response):
@@ -120,8 +120,8 @@ extension TMDBAPIService: APIServiceProtocol {
         }
     }
 
-    public func searchMovies(query: String, page: Int?, filters: SearchFilters?) async -> Result<NowPlayingResponse, Error> {
-        let result: Result<NowPlayingResponse, TMDBAPIError> = await request(.searchMovie(
+    public func searchMovies(query: String, page: Int?, filters: SearchFilters?) async -> Result<MovieListResponse, Error> {
+        let result: Result<MovieListResponse, TMDBAPIError> = await request(.searchMovie(
             query: query,
             includeAdult: filters?.includeAdult,
             language: filters?.language,

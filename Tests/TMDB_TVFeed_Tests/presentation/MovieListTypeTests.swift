@@ -3,8 +3,8 @@ import XCTest
 
 class MovieListTypeTests: XCTestCase {
     func testMovieListTypeTitles() {
-        XCTAssertEqual(TVShowFeedType.airingToday.title, "Now Playing")
-        XCTAssertEqual(TVShowFeedType.onTheAir.title, "Upcoming")
+        XCTAssertEqual(TVShowFeedType.airingToday.title, "Airing Today")
+        XCTAssertEqual(TVShowFeedType.onTheAir.title, "On the air")
     }
 
     func testMovieListTypeIcons() {

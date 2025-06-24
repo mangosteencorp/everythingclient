@@ -1,6 +1,6 @@
 import Foundation
 
-public struct NowPlayingResponse: Decodable {
+public struct MovieListResponse: Decodable {
     let dates: Dates?
     let page: Int
     public let results: [Movie]
