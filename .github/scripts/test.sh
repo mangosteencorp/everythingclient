@@ -112,6 +112,3 @@ if [ -f .incomplete_coverage_flag ]; then
     rm .incomplete_coverage_flag
     exit 1
 fi
-
-# Run tests for specific targets
-swift test --filter "TMDB_Movie_Feed_Tests"
