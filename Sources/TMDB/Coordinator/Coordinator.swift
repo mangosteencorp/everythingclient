@@ -2,6 +2,7 @@ import Combine
 import SwiftUI
 
 // MARK: - Coordinator.swift
+
 @available(iOS 16.0, *)
 @MainActor
 public class Coordinator: ObservableObject {

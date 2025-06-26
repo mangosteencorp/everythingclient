@@ -2,7 +2,7 @@ import SwiftUI
 import Swinject
 import TMDB_Shared_UI
 @available(iOS 16.0, *)
-public struct MovieListPage<Route: Hashable>: View {
+public struct TVShowListPage<Route: Hashable>: View {
     @StateObject var viewModel: TVFeedViewModel
     let type: TVShowFeedType
     let detailRouteBuilder: (Int) -> Route
@@ -27,31 +27,25 @@ public struct MovieListPage<Route: Hashable>: View {
     }
 
     public var body: some View {
-        NavigationView {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading...")
-                        .id("loadingView")
-                } else if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .id("errorView")
-                } else {
-                    TVShowListContent(movies: viewModel.movies, detailRouteBuilder: detailRouteBuilder)
-                        .id("movieListContent")
-                }
+        Group {
+            if viewModel.isLoading {
+                ProgressView("Loading...")
+                    .id("loadingView")
+            } else if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .id("errorView")
+            } else {
+                TVShowListContent(movies: viewModel.movies, detailRouteBuilder: detailRouteBuilder)
+                    .id("movieListContent")
             }
-            .navigationTitle(type.title)
         }
-#if os(iOS)
-        .navigationViewStyle(StackNavigationViewStyle())
-#endif
+        .navigationTitle(type.title)
         .accessibilityIdentifier("movieListPage.group")
         .onFirstAppear {
             viewModel.fetchMovies()
         }
     }
 }
-
 
 enum APIKeys {
     static var tmdbKey = ""

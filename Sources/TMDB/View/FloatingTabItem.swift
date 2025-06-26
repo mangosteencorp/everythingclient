@@ -11,7 +11,7 @@ struct FloatingTabBar<Selection: Hashable>: View {
     @Binding var selection: Selection
     @Binding var isHidden: Bool
     let items: [FloatingTabItem<Selection>]
-    
+
     var body: some View {
         ZStack {
             HStack(spacing: 0) {

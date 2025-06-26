@@ -12,6 +12,7 @@ import TMDB_TVFeed
 public enum TabStyle {
     case normal
     case floating
+    case page
 }
 
 @available(iOS 16, *)
@@ -59,6 +60,8 @@ public struct TMDBAPITabView: View {
             normalTabView
         case .floating:
             floatingTabView
+        case .page:
+            pageTabView
         }
     }
 
@@ -66,7 +69,7 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildMovieFeedPage() -> some View {
-        MovieFeedListPage(
+        let movieFeedContent = MovieFeedListPage(
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker
         ) { movie in
@@ -84,11 +87,22 @@ public struct TMDBAPITabView: View {
             ))
         }
         .withTMDBNavigationDestinations(container: container)
+
+        if tabStyle == .page {
+            NavigationView {
+                movieFeedContent
+            }
+#if os(iOS)
+            .navigationViewStyle(StackNavigationViewStyle())
+#endif
+        } else {
+            movieFeedContent
+        }
     }
 
     @ViewBuilder
     private func buildTVShowFeedPage() -> some View {
-        TMDB_TVFeed.MovieListPage(
+        let tvShowContent = TMDB_TVFeed.TVShowListPage(
             container: container,
             apiKey: tmdbKey,
             type: .onTheAir
@@ -96,6 +110,17 @@ public struct TMDBAPITabView: View {
             TMDBRoute.tvShowDetail(tvShowId)
         }
         .withTMDBNavigationDestinations(container: container)
+
+        if tabStyle == .page {
+            NavigationView {
+                tvShowContent
+            }
+#if os(iOS)
+            .navigationViewStyle(StackNavigationViewStyle())
+#endif
+        } else {
+            tvShowContent
+        }
     }
 
     @ViewBuilder
@@ -143,6 +168,31 @@ public struct TMDBAPITabView: View {
             }
             .tag(TabRoute.profile)
         }
+        .environmentObject(coordinator)
+    }
+
+    @ViewBuilder
+    private var pageTabView: some View {
+        TabView(selection: $coordinator.selectedTab) {
+            // Movie Feed Page
+            NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                buildMovieFeedPage()
+            }
+            .tag(TabRoute.movieFeed)
+
+            // TV Show Feed Page
+            NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
+                buildTVShowFeedPage()
+            }
+            .tag(TabRoute.tvShowFeed)
+
+            // Profile Page
+            NavigationStack(path: coordinator.path(for: .profile)) {
+                buildProfilePage()
+            }
+            .tag(TabRoute.profile)
+        }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
         .environmentObject(coordinator)
     }
 

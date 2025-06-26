@@ -3,7 +3,6 @@ import Combine
 import XCTest
 
 class MockAPIService: APIServiceProtocol {
-    
     var mockNowPlayingResult: Result<MovieListResponse, Error>?
     var mockSearchResult: Result<MovieListResponse, Error>?
 
@@ -14,19 +13,19 @@ class MockAPIService: APIServiceProtocol {
     func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error> {
         return mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
     }
-    
+
     func searchMovies(query: String, page: Int?, filters: TMDB_Movie_Feed.SearchFilters?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
         return mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
     }
-    
+
     func fetchUpcomingMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
-    
+
     func fetchTopRatedMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
-    
+
     func fetchPopularMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }

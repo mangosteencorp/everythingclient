@@ -1,18 +1,15 @@
 import SwiftUI
-import Swinject
 import TMDB_Shared_Backend
 #if DEBUG
-
 @available(iOS 16, macOS 10.15, *)
-#Preview("airing today page within nested tab view") {
+#Preview {
     TabView {
         TabView {
             NavigationStack {
-                TVShowListPage(
-                    container: Container(),
-                    apiKey: debugTMDBAPIKey,
-                    type: .airingToday,
-                    detailRouteBuilder: { _ in 1 })
+                MovieFeedListPage(
+                    apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
+                    detailRouteBuilder: { _ in 1 }
+                )
                 .tag(0)
                 .tabItem {
                     Label("First View", systemImage: "house")
@@ -23,7 +20,7 @@ import TMDB_Shared_Backend
                     Label("Second View", systemImage: "gear")
                 }
         }
-        //.tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
         .tag(0)
         .tabItem {
             Label("Outer First View", systemImage: "star")

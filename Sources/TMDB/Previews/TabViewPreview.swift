@@ -8,6 +8,11 @@ import TMDB_Shared_Backend
 }
 
 @available(iOS 16, *)
+#Preview("page style") {
+    TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .page)
+}
+
+@available(iOS 16, *)
 #Preview("Tab contain TMDBAPITabView") {
     TabView {
         TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
