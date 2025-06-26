@@ -9,7 +9,7 @@ import TMDB_Shared_UI
 import TMDB_TVFeed
 
 @available(iOS 16, *)
-public enum TabStyle {
+public enum TabStyle: CaseIterable {
     case normal
     case floating
     case page
@@ -21,7 +21,7 @@ public struct TMDBAPITabView: View {
     private let container: Container
     private let tmdbKey: String
     private let analyticsTracker: AnalyticsTracker?
-    private let tabStyle: TabStyle
+    @State private(set) var tabStyle: TabStyle
 
     @State private var isShowingMovieDetail = false
     @State private var isShowingTVShowDetail = false
@@ -55,14 +55,20 @@ public struct TMDBAPITabView: View {
     }
 
     public var body: some View {
-        switch tabStyle {
-        case .normal:
-            normalTabView
-        case .floating:
-            floatingTabView
-        case .page:
-            pageTabView
-        }
+        Group {
+            switch tabStyle {
+            case .normal:
+                normalTabView
+            case .floating:
+                floatingTabView
+            case .page:
+                pageTabView
+            }
+        }.onFirstAppear(perform: {}, onSubsequentAppear: { count in
+            if count % 10 == 0 { // change tab view design every 10 times
+                tabStyle = TabStyle.allCases.randomElement() ?? tabStyle
+            }
+        })
     }
 
     // MARK: - Builders
