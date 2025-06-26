@@ -9,11 +9,18 @@ import TMDB_Shared_UI
 import TMDB_TVFeed
 
 @available(iOS 16, *)
+public enum TabStyle {
+    case normal
+    case floating
+}
+
+@available(iOS 16, *)
 public struct TMDBAPITabView: View {
     @StateObject private var coordinator: Coordinator
     private let container: Container
     private let tmdbKey: String
     private let analyticsTracker: AnalyticsTracker?
+    private let tabStyle: TabStyle
 
     @State private var isShowingMovieDetail = false
     @State private var isShowingTVShowDetail = false
@@ -22,9 +29,11 @@ public struct TMDBAPITabView: View {
     private let navigationInterceptor: TMDBNavigationInterceptor?
 
     public init(tmdbKey: String,
+                tabStyle: TabStyle = .floating,
                 navigationInterceptor: TMDBNavigationInterceptor? = nil,
                 analyticsTracker: AnalyticsTracker? = nil) {
         self.tmdbKey = tmdbKey
+        self.tabStyle = tabStyle
         self.navigationInterceptor = navigationInterceptor
         self.analyticsTracker = analyticsTracker
 
@@ -45,6 +54,78 @@ public struct TMDBAPITabView: View {
     }
 
     public var body: some View {
+        switch tabStyle {
+        case .normal:
+            normalTabView
+        case .floating:
+            floatingTabView
+        }
+    }
+
+    @ViewBuilder
+    private var normalTabView: some View {
+        TabView(selection: $coordinator.selectedTab) {
+            // Movie Feed Tab
+            NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, analyticsTracker: self.analyticsTracker) { movie in
+                    TMDBRoute.movieDetail(MovieRouteModel(
+                        id: movie.id,
+                        title: movie.title,
+                        overview: movie.overview,
+                        posterPath: movie.posterPath,
+                        backdropPath: movie.backdropPath,
+                        voteAverage: movie.voteAverage,
+                        voteCount: movie.voteCount,
+                        releaseDate: movie.releaseDate,
+                        popularity: movie.popularity,
+                        originalTitle: movie.originalTitle
+                    ))
+                }
+                .withTMDBNavigationDestinations(container: container)
+            }
+            .tabItem {
+                Image(systemName: TabRoute.movieFeed.iconName)
+                Text(TabRoute.movieFeed.title)
+            }
+            .tag(TabRoute.movieFeed)
+
+            // TV Show Feed Tab
+            NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
+                TMDB_TVFeed.MovieListPage(
+                    container: container,
+                    apiKey: tmdbKey,
+                    type: .onTheAir
+                ) { tvShowId in
+                    TMDBRoute.tvShowDetail(tvShowId)
+                }
+                .withTMDBNavigationDestinations(container: container)
+            }
+            .tabItem {
+                Image(systemName: TabRoute.tvShowFeed.iconName)
+                Text(TabRoute.tvShowFeed.title)
+            }
+            .tag(TabRoute.tvShowFeed)
+
+            // Profile Tab
+            NavigationStack(path: coordinator.path(for: .profile)) {
+                ProfilePageVCView(container: container) { movieId in
+                    coordinator.navigate(to: .movieDetail(MovieRouteModel(id: movieId)), in: .profile)
+                } onNavigateToTVShow: { tvShowId in
+                    coordinator.navigate(to: .tvShowDetail(tvShowId), in: .profile)
+                }
+                .withTMDBNavigationDestinations(container: container)
+            }
+            .tabItem {
+                Image(systemName: TabRoute.profile.iconName)
+                Text(TabRoute.profile.title)
+            }
+            .tag(TabRoute.profile)
+        }
+        .environmentObject(coordinator)
+    }
+
+    @ViewBuilder
+    private var floatingTabView: some View {
         // Create the tab items for the FloatingTabBar
         let tabItems = coordinator.tabList.map { tab in
             FloatingTabItem(tag: tab, icon: Image(systemName: tab.iconName), title: tab.title)

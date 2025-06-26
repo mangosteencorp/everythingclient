@@ -4,7 +4,7 @@ import TMDB_Shared_Backend
 import TMDB_Shared_Backend
 @available(iOS 16, *)
 #Preview {
-    TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
+    TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .normal)
 }
 
 @available(iOS 16, *)
