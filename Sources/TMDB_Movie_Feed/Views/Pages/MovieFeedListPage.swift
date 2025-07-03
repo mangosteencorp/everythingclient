@@ -116,7 +116,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                         }
                     }
                 } label: {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
+                    Image(systemName: "chevron.up.chevron.down.square")
                         .foregroundColor(.primary)
                 }
             }
