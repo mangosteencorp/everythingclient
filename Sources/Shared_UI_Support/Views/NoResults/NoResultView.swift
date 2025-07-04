@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct NoResultView: View {
+    let configuration: NoResultViewConfiguration
+
     // State variables for animations
     @State private var iconScale: CGFloat = 0
     @State private var mainTextOffset: CGFloat = 50
@@ -9,7 +11,13 @@ struct NoResultView: View {
     @State private var subTextOpacity: Double = 0
     @State private var buttonOffset: CGFloat = 50
     @State private var buttonOpacity: Double = 0
-    
+    @State private var secondaryButtonOffset: CGFloat = 50
+    @State private var secondaryButtonOpacity: Double = 0
+
+    init(configuration: NoResultViewConfiguration = NoResultViewConfiguration()) {
+        self.configuration = configuration
+    }
+
     var body: some View {
         ZStack {
             // Radial gradient background
@@ -20,7 +28,7 @@ struct NoResultView: View {
                 endRadius: 200
             )
             .edgesIgnoringSafeArea(.all)
-            
+
             // Card-like container
             VStack(spacing: 20) {
                 // Animated emoji icon
@@ -28,29 +36,27 @@ struct NoResultView: View {
                     .font(.system(size: 100))
                     .scaleEffect(iconScale)
                     .shadow(color: .gray.opacity(0.5), radius: 5, x: 0, y: 5)
-                
+
                 // Main text with slide-up and fade-in
-                Text("No Results Found")
+                Text(configuration.headline)
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.black)
                     .offset(y: mainTextOffset)
                     .opacity(mainTextOpacity)
                     .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 3)
-                
+
                 // Subtext with slide-up and fade-in
-                Text("Try adjusting your search or filters")
+                Text(configuration.subheadline)
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .offset(y: subTextOffset)
                     .opacity(subTextOpacity)
                     .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 3)
-                
-                // Fancy button with gradient and slide-up animation
-                Button(action: {
-                    // Add your retry or navigation action here
-                }) {
-                    Text("Try Again")
+
+                // Primary button with gradient and slide-up animation
+                Button(action: configuration.primaryButtonAction) {
+                    Text(configuration.primaryButtonText)
                         .font(.headline)
                         .padding()
                         .background(
@@ -66,6 +72,20 @@ struct NoResultView: View {
                 }
                 .offset(y: buttonOffset)
                 .opacity(buttonOpacity)
+
+                // Secondary button with outline and slide-up animation
+                Button(action: configuration.secondaryButtonAction) {
+                    Text(configuration.secondaryButtonText)
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.blue, lineWidth: 2)
+                        )
+                }
+                .offset(y: secondaryButtonOffset)
+                .opacity(secondaryButtonOpacity)
             }
             .padding(30)
             .background(Color.white)
@@ -89,12 +109,16 @@ struct NoResultView: View {
                 buttonOffset = 0
                 buttonOpacity = 1
             }
+            withAnimation(.easeInOut(duration: 0.5).delay(1.2)) {
+                secondaryButtonOffset = 0
+                secondaryButtonOpacity = 1
+            }
         }
     }
 }
 
-struct NoResultView_Previews: PreviewProvider {
-    static var previews: some View {
-        NoResultView()
-    }
+#if DEBUG
+#Preview {
+    NoResultView()
 }
+#endif

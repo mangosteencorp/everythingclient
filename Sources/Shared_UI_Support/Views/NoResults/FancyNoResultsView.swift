@@ -1,14 +1,19 @@
-
 import SwiftUI
 @available(iOS 17, *)
 struct FancyNoResultsView: View {
+    let configuration: NoResultViewConfiguration
+
     @State private var isAnimating = false
     @State private var pulseAnimation = false
     @State private var floatingOffset: CGFloat = 0
     @State private var rotationAngle: Double = 0
     @State private var sparkleOpacity: Double = 0
     @State private var searchPulse = false
-    
+
+    init(configuration: NoResultViewConfiguration = NoResultViewConfiguration()) {
+        self.configuration = configuration
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -17,15 +22,15 @@ struct FancyNoResultsView: View {
                     colors: [
                         Color.purple.opacity(0.3),
                         Color.blue.opacity(0.2),
-                        Color.cyan.opacity(0.1)
+                        Color.cyan.opacity(0.1),
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
-                
+
                 // Floating particles background
-                ForEach(0..<15, id: \.self) { i in
+                ForEach(0..<15, id: \.self) { _ in
                     Circle()
                         .fill(
                             LinearGradient(
@@ -47,7 +52,7 @@ struct FancyNoResultsView: View {
                             value: sparkleOpacity
                         )
                 }
-                
+
                 VStack(spacing: 32) {
                     // Main icon container with glassmorphism
                     ZStack {
@@ -68,7 +73,7 @@ struct FancyNoResultsView: View {
                             )
                             .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
                             .scaleEffect(pulseAnimation ? 1.05 : 1.0)
-                        
+
                         // Animated search icon
                         ZStack {
                             // Search circle
@@ -84,7 +89,7 @@ struct FancyNoResultsView: View {
                                 .frame(width: 40, height: 40)
                                 .scaleEffect(searchPulse ? 1.2 : 1.0)
                                 .opacity(searchPulse ? 0.6 : 1.0)
-                            
+
                             // Search handle
                             Rectangle()
                                 .fill(
@@ -97,7 +102,7 @@ struct FancyNoResultsView: View {
                                 .frame(width: 4, height: 20)
                                 .offset(x: 20, y: 20)
                                 .rotationEffect(.degrees(45))
-                            
+
                             // Animated question mark
                             Text("?")
                                 .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -114,11 +119,11 @@ struct FancyNoResultsView: View {
                         .offset(y: floatingOffset * 0.5)
                     }
                     .rotationEffect(.degrees(isAnimating ? 360 : 0))
-                    
+
                     // Text content with animated appearance
                     VStack(spacing: 16) {
                         // Main title
-                        Text("No Results Found")
+                        Text(configuration.headline)
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundStyle(
                                 LinearGradient(
@@ -129,9 +134,9 @@ struct FancyNoResultsView: View {
                             )
                             .opacity(isAnimating ? 1 : 0)
                             .offset(y: isAnimating ? 0 : 20)
-                        
+
                         // Subtitle
-                        Text("We couldn't find what you're looking for.\nTry adjusting your search terms.")
+                        Text(configuration.subheadline)
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -140,17 +145,15 @@ struct FancyNoResultsView: View {
                             .offset(y: isAnimating ? 0 : 20)
                     }
                     .padding(.horizontal, 32)
-                    
+
                     // Action buttons
                     VStack(spacing: 16) {
                         // Primary action button
-                        Button(action: {
-                            // Handle retry action
-                        }) {
+                        Button(action: configuration.primaryButtonAction) {
                             HStack(spacing: 12) {
                                 Image(systemName: "arrow.clockwise")
                                     .font(.system(size: 16, weight: .semibold))
-                                Text("Try Again")
+                                Text(configuration.primaryButtonText)
                                     .font(.system(size: 16, weight: .semibold))
                             }
                             .foregroundColor(.white)
@@ -169,15 +172,13 @@ struct FancyNoResultsView: View {
                         .scaleEffect(pulseAnimation ? 1.05 : 1.0)
                         .opacity(isAnimating ? 1 : 0)
                         .offset(y: isAnimating ? 0 : 20)
-                        
+
                         // Secondary action button
-                        Button(action: {
-                            // Handle clear/reset action
-                        }) {
+                        Button(action: configuration.secondaryButtonAction) {
                             HStack(spacing: 8) {
                                 Image(systemName: "xmark.circle.fill")
                                     .font(.system(size: 14))
-                                Text("Clear Search")
+                                Text(configuration.secondaryButtonText)
                                     .font(.system(size: 14, weight: .medium))
                             }
                             .foregroundColor(.secondary)
@@ -197,33 +198,33 @@ struct FancyNoResultsView: View {
             startAnimations()
         }
     }
-    
+
     private func startAnimations() {
         // Main entrance animation
         withAnimation(.easeOut(duration: 0.8)) {
             isAnimating = true
         }
-        
+
         // Floating animation
         withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
             floatingOffset = -8
         }
-        
+
         // Pulse animation
         withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
             pulseAnimation = true
         }
-        
+
         // Rotation animation
         withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
             rotationAngle = 360
         }
-        
+
         // Sparkle animation
         withAnimation(.easeInOut(duration: 1).delay(0.5)) {
             sparkleOpacity = 1
         }
-        
+
         // Search pulse animation
         withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true).delay(1)) {
             searchPulse = true
@@ -235,6 +236,6 @@ struct FancyNoResultsView: View {
 struct FancyNoResultsView_Previews: PreviewProvider {
     static var previews: some View {
         FancyNoResultsView()
-            .preferredColorScheme(.dark)
+            .preferredColorScheme(ColorScheme.dark)
     }
 }
