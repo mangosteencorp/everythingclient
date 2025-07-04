@@ -73,10 +73,8 @@ public class MovieFeedViewModel: ObservableObject {
     }
 
     @MainActor func updateSelectedFilterToShow(_ filterType: FilterType) {
-        DispatchQueue.main.async {
-            self.selectedFilterType = filterType
-            self.showingFilterSheet = true
-        }
+        selectedFilterType = filterType
+        showingFilterSheet = true
     }
 
     func fetchNowPlayingMovies() {
