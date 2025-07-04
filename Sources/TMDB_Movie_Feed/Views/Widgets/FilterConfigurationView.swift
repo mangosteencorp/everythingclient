@@ -141,7 +141,107 @@ public struct FilterConfigurationView: View {
 #Preview {
     FilterConfigurationView(
         filters: .constant(SearchFilters()),
-        filterType: .language
+        filterType: .includeAdult
     )
 }
+
+@available(iOS 16.0, *)
+struct FilterConfigurationView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            // Include Adult Filter - Disabled
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(includeAdult: false)),
+                filterType: .includeAdult
+            )
+            .previewDisplayName("Include Adult - Disabled")
+
+            // Include Adult Filter - Enabled
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(includeAdult: true)),
+                filterType: .includeAdult
+            )
+            .previewDisplayName("Include Adult - Enabled")
+
+            // Language Filter - No Selection
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(language: nil)),
+                filterType: .language
+            )
+            .previewDisplayName("Language - No Selection")
+
+            // Language Filter - With Selection
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(language: "en-US")),
+                filterType: .language
+            )
+            .previewDisplayName("Language - English US")
+
+            // Primary Release Year Filter - Empty
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(primaryReleaseYear: nil)),
+                filterType: .primaryReleaseYear
+            )
+            .previewDisplayName("Primary Release Year - Empty")
+
+            // Primary Release Year Filter - With Value
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(primaryReleaseYear: "2024")),
+                filterType: .primaryReleaseYear
+            )
+            .previewDisplayName("Primary Release Year - 2024")
+
+            // Region Filter - No Selection
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(region: nil)),
+                filterType: .region
+            )
+            .previewDisplayName("Region - No Selection")
+
+            // Region Filter - With Selection
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(region: "US")),
+                filterType: .region
+            )
+            .previewDisplayName("Region - United States")
+
+            // Year Filter - Empty
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(year: nil)),
+                filterType: .year
+            )
+            .previewDisplayName("Year - Empty")
+
+            // Year Filter - With Value
+            FilterConfigurationView(
+                filters: .constant(SearchFilters(year: "2023")),
+                filterType: .year
+            )
+            .previewDisplayName("Year - 2023")
+        }
+    }
+}
+
+// Alternative preview using the new macro syntax for iOS 17+
+@available(iOS 17.0, *)
+#Preview("All Filter Types") {
+    ScrollView {
+        LazyVStack(spacing: 20) {
+            ForEach(FilterType.allCases) { filterType in
+                VStack(alignment: .leading) {
+                    Text("\(filterType.displayName) Filter")
+                        .font(.headline)
+                        .padding(.horizontal)
+
+                    FilterConfigurationView(
+                        filters: .constant(SearchFilters()),
+                        filterType: filterType
+                    )
+                    .frame(height: 400)
+                }
+            }
+        }
+    }
+}
+
 #endif

@@ -30,6 +30,8 @@ public class MovieFeedViewModel: ObservableObject {
     @Published var searchQuery = ""
     @Published var currentFeedType: MovieFeedType = .nowPlaying
     @Published var searchFilters = SearchFilters()
+    @Published var showingFilterSheet = false
+    @Published var selectedFilterType: FilterType?
 
     private var nowPlayingMovies: [Movie] = []
     private var popularMovies: [Movie] = []
@@ -68,6 +70,13 @@ public class MovieFeedViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+    }
+
+    @MainActor func updateSelectedFilterToShow(_ filterType: FilterType) {
+        DispatchQueue.main.async {
+            self.selectedFilterType = filterType
+            self.showingFilterSheet = true
+        }
     }
 
     func fetchNowPlayingMovies() {

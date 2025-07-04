@@ -9,9 +9,7 @@ import TMDB_Shared_UI
 public struct MovieFeedListPage<Route: Hashable>: View {
     @StateObject var viewModel: MovieFeedViewModel
     let detailRouteBuilder: (Movie) -> Route
-    @State private var showingFilterSheet = false
-    @State private var selectedFilterType: FilterType?
-
+    private var cancellables = Set<AnyCancellable>()
     public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
@@ -53,8 +51,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                             FilterChipsView(
                                 filters: $viewModel.searchFilters,
                                 onFilterTap: { filterType in
-                                    selectedFilterType = filterType
-                                    showingFilterSheet = true
+                                    viewModel.updateSelectedFilterToShow(filterType)
                                 }
                             )
                         }
@@ -78,8 +75,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                             FilterChipsView(
                                 filters: $viewModel.searchFilters,
                                 onFilterTap: { filterType in
-                                    selectedFilterType = filterType
-                                    showingFilterSheet = true
+                                    viewModel.updateSelectedFilterToShow(filterType)
                                 }
                             )
                         }
@@ -121,8 +117,8 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                 }
             }
         }
-        .sheet(isPresented: $showingFilterSheet) {
-            if let filterType = selectedFilterType {
+        .sheet(isPresented: $viewModel.showingFilterSheet) {
+            if let filterType = viewModel.selectedFilterType {
                 FilterConfigurationView(
                     filters: $viewModel.searchFilters,
                     filterType: filterType
