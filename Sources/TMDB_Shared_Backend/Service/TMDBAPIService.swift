@@ -66,6 +66,7 @@ public struct TMDBAPIService {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
+            debugPrint(String(data: data, encoding: .utf8))
             throw TMDBAPIError.jsonDecodingError(error: error)
         }
     }

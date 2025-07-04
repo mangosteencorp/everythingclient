@@ -85,8 +85,8 @@ public struct TMDBAPITabView: View {
                 overview: movie.overview,
                 posterPath: movie.posterPath,
                 backdropPath: movie.backdropPath,
-                voteAverage: movie.voteAverage,
-                voteCount: movie.voteCount,
+                voteAverage: movie.voteAverage ?? 0.0,
+                voteCount: movie.voteCount ?? 0,
                 releaseDate: movie.releaseDate,
                 popularity: movie.popularity,
                 originalTitle: movie.originalTitle

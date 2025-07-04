@@ -1,6 +1,6 @@
 import Foundation
+import TMDB_Shared_Backend
 import TMDB_Shared_UI
-
 public struct Genre: Codable, Identifiable {
     public let id: Int
     let name: String
@@ -18,9 +18,9 @@ public struct Movie: Codable, Identifiable {
     public let overview: String
     public let posterPath: String?
     public let backdropPath: String?
-    public let popularity: Float
-    public let voteAverage: Float
-    public let voteCount: Int
+    public let popularity: Float?
+    public let voteAverage: Float?
+    public let voteCount: Int?
 
     public let releaseDate: String?
     public var releaseDateFormatted: Date? {
@@ -35,7 +35,7 @@ public struct Movie: Codable, Identifiable {
     }()
 
     public let genres: [Genre]?
-    public let video: Bool
+    public let video: Bool?
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -57,7 +57,7 @@ public struct Movie: Codable, Identifiable {
             id: id,
             posterPath: posterPath,
             title: userTitle,
-            voteAverage: Double(voteAverage),
+            voteAverage: Double(voteAverage ?? 0.0),
             releaseDate: releaseDateFormatted,
             overview: overview
         )

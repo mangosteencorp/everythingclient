@@ -48,7 +48,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(firstMovie.voteAverage, 5.65)
         XCTAssertEqual(firstMovie.voteCount, 10)
         XCTAssertEqual(firstMovie.releaseDate, "2025-01-24")
-        XCTAssertFalse(firstMovie.video)
+        XCTAssertFalse(try XCTUnwrap(firstMovie.video))
 
         // Test date formatting
         let expectedDate = Movie.dateFormatter.date(from: "2025-01-24")
@@ -67,7 +67,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(entity.id, movie.id)
         XCTAssertEqual(entity.posterPath, movie.posterPath)
         XCTAssertEqual(entity.title, movie.userTitle)
-        XCTAssertEqual(entity.voteAverage, Double(movie.voteAverage))
+        XCTAssertEqual(entity.voteAverage, Double(try XCTUnwrap(movie.voteAverage)))
         XCTAssertEqual(entity.releaseDate, movie.releaseDateFormatted)
         XCTAssertEqual(entity.overview, movie.overview)
     }
@@ -93,5 +93,10 @@ final class ModelTests: XCTestCase {
         // Then
         XCTAssertNotNil(date)
         XCTAssertEqual(dateString, backToString)
+    }
+
+    func testFail1Model() throws {
+        let failData = try XCTUnwrap(Data(contentsOf: try XCTUnwrap(Bundle.module.url(forResource: "fail1", withExtension: "json"))))
+        let response = try JSONDecoder().decode(MovieListResponse.self, from: failData)
     }
 }

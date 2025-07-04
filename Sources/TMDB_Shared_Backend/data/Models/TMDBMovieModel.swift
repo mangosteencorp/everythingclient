@@ -8,7 +8,7 @@ public struct TMDBMovieModel: Codable {
     public let overview: String
     public let poster_path: String?
     public let vote_average: Float
-    public let popularity: Float
+    public let popularity: Float?
     public let release_date: String?
 }
 
