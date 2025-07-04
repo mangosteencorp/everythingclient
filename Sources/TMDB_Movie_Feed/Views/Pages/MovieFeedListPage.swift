@@ -1,15 +1,16 @@
 import Combine
 import CoreFeatures
 import Foundation
+import Shared_UI_Support
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
-
 @available(iOS 16, macOS 10.15, *)
 public struct MovieFeedListPage<Route: Hashable>: View {
     @StateObject var viewModel: MovieFeedViewModel
     let detailRouteBuilder: (Movie) -> Route
     private var cancellables = Set<AnyCancellable>()
+    @State private var useFancyDesign: Bool = true
     public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
@@ -55,16 +56,23 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                                 }
                             )
                         }
-
-                        List(movies) { movie in
-                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                        }
-                        .searchable(text: $viewModel.searchQuery)
-                        .overlay {
-                            if case .loading = viewModel.state {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                    .background(Color.black.opacity(0.1))
+                        if (movies.isEmpty) {
+                            CommonNoResultView(useFancyDesign: $useFancyDesign).toolbar {
+                                SwitchDesignToolbarItem(action: {
+                                    useFancyDesign.toggle()
+                                })
+                            }
+                        } else {
+                            List(movies) { movie in
+                                NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                            }
+                            .searchable(text: $viewModel.searchQuery)
+                            .overlay {
+                                if case .loading = viewModel.state {
+                                    ProgressView()
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                        .background(Color.black.opacity(0.1))
+                                }
                             }
                         }
                     }
@@ -131,50 +139,26 @@ public struct MovieFeedListPage<Route: Hashable>: View {
     }
 }
 
-// Custom search bar component
-@available(iOS 16.0, *)
-struct SearchBar: View {
-    @Binding var text: String
-    @Binding var isFocused: Bool
-    @FocusState private var isTextFieldFocused: Bool
-
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-
-            TextField("Search movies...", text: $text)
-                .textFieldStyle(.plain)
-                .focused($isTextFieldFocused)
-                .onChange(of: isTextFieldFocused) { focused in
-                    isFocused = focused
-                }
-
-            if !text.isEmpty {
-                Button(action: {
-                    text = ""
-                    isTextFieldFocused = false
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
-                }
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-    }
-}
-
 #if DEBUG
 // swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
     MovieFeedListPage(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
                       detailRouteBuilder: { _ in 1 })
+}
+
+@available(iOS 16, macOS 10.15, *)
+struct MovieFeedListPage_Previews : PreviewProvider {
+    static var previews: some View {
+        let viewModel = MovieFeedViewModel.init(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            viewModel.state = .searchResults([])
+        }
+        return NavigationView {
+            MovieFeedListPage(viewModel: viewModel,
+                              detailRouteBuilder: { _ in 1 })
+        }
+    }
 }
 
 // swiftlint:enable all

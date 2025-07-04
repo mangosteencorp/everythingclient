@@ -1,7 +1,7 @@
 import SwiftUI
 
 // Common interface for NoResultView parameters
-struct NoResultViewConfiguration {
+public struct NoResultViewConfiguration {
     let primaryButtonAction: () -> Void
     let primaryButtonText: String
     let secondaryButtonAction: () -> Void
@@ -9,7 +9,7 @@ struct NoResultViewConfiguration {
     let headline: String
     let subheadline: String
 
-    init(
+    public init(
         primaryButtonAction: @escaping () -> Void = {},
         primaryButtonText: String = "Try Again",
         secondaryButtonAction: @escaping () -> Void = {},

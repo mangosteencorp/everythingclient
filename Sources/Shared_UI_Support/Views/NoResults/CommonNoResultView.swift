@@ -1,15 +1,15 @@
 import SwiftUI
 
-struct CommonNoResultView: View {
+public struct CommonNoResultView: View {
     let configuration: NoResultViewConfiguration
     @Binding var useFancyDesign: Bool
 
-    init(configuration: NoResultViewConfiguration = NoResultViewConfiguration(), useFancyDesign: Binding<Bool>) {
+    public init(configuration: NoResultViewConfiguration = NoResultViewConfiguration(), useFancyDesign: Binding<Bool>) {
         self.configuration = configuration
         _useFancyDesign = useFancyDesign
     }
 
-    var body: some View {
+    public var body: some View {
         Group {
             if #available(iOS 17, *) {
                 Group {
