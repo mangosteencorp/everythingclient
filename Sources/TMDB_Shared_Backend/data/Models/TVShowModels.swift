@@ -6,7 +6,7 @@ public struct TVShowListResultModel: Codable {
     public let total_results: Int
 }
 
-public struct TVShow: Codable {
+public struct TVShow: Codable, Identifiable {
     public let adult: Bool
     public let backdrop_path: String?
     public let genre_ids: [Int]
