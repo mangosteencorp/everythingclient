@@ -56,7 +56,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                                 }
                             )
                         }
-                        if (movies.isEmpty) {
+                        if movies.isEmpty {
                             CommonNoResultView(useFancyDesign: $useFancyDesign).toolbar {
                                 SwitchDesignToolbarItem(action: {
                                     useFancyDesign.toggle()

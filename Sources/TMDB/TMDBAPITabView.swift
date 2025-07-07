@@ -16,13 +16,24 @@ public enum TabStyle: CaseIterable {
 }
 
 @available(iOS 16, *)
+public enum NavigationWrapStyle: Int, CaseIterable {
+    case navigationView
+    case plain
+
+    func next() -> NavigationWrapStyle {
+        let nextRawValue = (rawValue + 1) % NavigationWrapStyle.allCases.count
+        return NavigationWrapStyle(rawValue: nextRawValue)!
+    }
+}
+
+@available(iOS 16, *)
 public struct TMDBAPITabView: View {
     @StateObject private var coordinator: Coordinator
     private let container: Container
     private let tmdbKey: String
     private let analyticsTracker: AnalyticsTracker?
     @State private(set) var tabStyle: TabStyle
-
+    @State private(set) var navigationWrapStyle: NavigationWrapStyle = .plain
     @State private var isShowingMovieDetail = false
     @State private var isShowingTVShowDetail = false
     @State private var selectedMovieId: Int?
@@ -30,14 +41,13 @@ public struct TMDBAPITabView: View {
     private let navigationInterceptor: TMDBNavigationInterceptor?
 
     public init(tmdbKey: String,
-                tabStyle: TabStyle = .floating,
+                tabStyle: TabStyle? = nil,
                 navigationInterceptor: TMDBNavigationInterceptor? = nil,
                 analyticsTracker: AnalyticsTracker? = nil) {
         self.tmdbKey = tmdbKey
-        self.tabStyle = tabStyle
+        self.tabStyle = tabStyle ?? (UIDevice.current.userInterfaceIdiom == .pad ? .normal : .floating)
         self.navigationInterceptor = navigationInterceptor
         self.analyticsTracker = analyticsTracker
-
         let container = Container()
         TMDB_Shared_Backend.configure(container: container, apiKey: tmdbKey)
         if let interceptor = self.navigationInterceptor {
@@ -64,11 +74,7 @@ public struct TMDBAPITabView: View {
             case .page:
                 pageTabView
             }
-        }.onFirstAppear(perform: {}, onSubsequentAppear: { count in
-            if count % 10 == 0 { // change tab view design every 10 times
-                tabStyle = TabStyle.allCases.randomElement() ?? tabStyle
-            }
-        })
+        }
     }
 
     // MARK: - Builders
@@ -93,16 +99,31 @@ public struct TMDBAPITabView: View {
             ))
         }
         .withTMDBNavigationDestinations(container: container)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    navigationWrapStyle = navigationWrapStyle.next()
+                }, label: { Image(systemName: "figure.jumprope") })
+            }
+        }
 
         if tabStyle == .page {
-            NavigationView {
-                movieFeedContent
-            }
-#if os(iOS)
-            .navigationViewStyle(StackNavigationViewStyle())
-#endif
+            NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                    movieFeedContent
+            }.navigationSplitViewStyle(BalancedNavigationSplitViewStyle())
         } else {
-            movieFeedContent
+            switch navigationWrapStyle {
+            case .navigationView where UIDevice.current.userInterfaceIdiom == .pad:
+                NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                    NavigationView {
+                        movieFeedContent
+                    }
+                }
+            default:
+                NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                    movieFeedContent
+                }
+            }
         }
     }
 
@@ -145,10 +166,8 @@ public struct TMDBAPITabView: View {
     private var normalTabView: some View {
         TabView(selection: $coordinator.selectedTab) {
             // Movie Feed Tab
-            NavigationStack(path: coordinator.path(for: .movieFeed)) {
-                buildMovieFeedPage()
-            }
-            .tabItem {
+            buildMovieFeedPage()
+                .tabItem {
                 Image(systemName: TabRoute.movieFeed.iconName)
                 Text(TabRoute.movieFeed.title)
             }
@@ -181,9 +200,7 @@ public struct TMDBAPITabView: View {
     private var pageTabView: some View {
         TabView(selection: $coordinator.selectedTab) {
             // Movie Feed Page
-            NavigationStack(path: coordinator.path(for: .movieFeed)) {
-                buildMovieFeedPage()
-            }
+            buildMovieFeedPage()
             .tag(TabRoute.movieFeed)
 
             // TV Show Feed Page
@@ -213,9 +230,7 @@ public struct TMDBAPITabView: View {
             // Content area: Switch between NavigationStacks based on selected tab
             switch coordinator.selectedTab {
             case .movieFeed:
-                NavigationStack(path: coordinator.path(for: .movieFeed)) {
-                    buildMovieFeedPage()
-                }
+                buildMovieFeedPage()
             case .tvShowFeed:
                 NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
                     buildTVShowFeedPage()

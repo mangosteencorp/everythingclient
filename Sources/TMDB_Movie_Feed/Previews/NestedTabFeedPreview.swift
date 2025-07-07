@@ -5,17 +5,27 @@ import TMDB_Shared_Backend
 #Preview {
     TabView {
         TabView {
-            NavigationStack {
+            NavigationSplitView {
                 MovieFeedListPage(
                     apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
                     detailRouteBuilder: { _ in 1 }
                 )
+                .navigationTitle("Movies")
                 .tag(0)
                 .tabItem {
                     Label("First View", systemImage: "house")
                 }
+
+            } detail: {
+                Text("Select a movie to see details")
+                    .navigationTitle("Detail")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            Text("Second View").tag(1)
+            .navigationSplitViewStyle(.balanced)
+            .preferredColorScheme(.dark)
+
+            Text("Second View")
+                .tag(1)
                 .tabItem {
                     Label("Second View", systemImage: "gear")
                 }
@@ -30,5 +40,22 @@ import TMDB_Shared_Backend
                 Label("Outer Second View", systemImage: "moon")
             }
     }
+}
+
+@available(iOS 16, macOS 10.15, *)
+#Preview("Simple Navigation") {
+    NavigationSplitView {
+        MovieFeedListPage(
+            apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
+            detailRouteBuilder: { _ in 1 }
+        )
+        .navigationTitle("Movies")
+
+    } detail: {
+        Text("Select a movie to see details")
+            .navigationTitle("Detail")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    .navigationSplitViewStyle(.balanced)
 }
 #endif

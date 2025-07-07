@@ -48,6 +48,7 @@ public struct RootContentView: View {
                     case .tmdb:
                         if #available(iOS 16, *) {
                             TMDBAPITabView(tmdbKey: tmdbAPIKey,
+                                           tabStyle: .normal,
                                          navigationInterceptor: TabManager.shared,
                                          analyticsTracker: analyticsTracker)
                         }
