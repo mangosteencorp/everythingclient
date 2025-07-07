@@ -8,7 +8,8 @@ import TMDB_Shared_Backend
             NavigationSplitView {
                 MovieFeedListPage(
                     apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
-                    detailRouteBuilder: { _ in 1 }
+                    detailRouteBuilder: { _ in 1 },
+                    tvShowDetailRouteBuilder: { _ in 1 }
                 )
                 .navigationTitle("Movies")
                 .tag(0)
@@ -47,7 +48,7 @@ import TMDB_Shared_Backend
     NavigationSplitView {
         MovieFeedListPage(
             apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
-            detailRouteBuilder: { _ in 1 }
+            detailRouteBuilder: { _ in 1 }, tvShowDetailRouteBuilder: { _ in 1 }
         )
         .navigationTitle("Movies")
 

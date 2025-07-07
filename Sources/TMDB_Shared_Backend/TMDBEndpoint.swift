@@ -25,6 +25,15 @@ public enum TMDBEndpoint {
         region: String? = nil,
         year: String? = nil
     )
+    case searchTVShows(
+        query: String,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        firstAirDateYear: String? = nil,
+        page: Int? = nil,
+        region: String? = nil,
+        year: String? = nil
+    )
     case searchKeyword, searchPerson
 
     // Person
@@ -57,6 +66,8 @@ public enum TMDBEndpoint {
     // TV Shows
     case tvAiringToday(page: Int? = nil)
     case tvOnTheAir(page: Int? = nil)
+    case airingTodayTVShows(page: Int? = nil)
+    case onTheAirTVShows(page: Int? = nil)
 
     // TV Show Details
     case tvShowDetail(show: Int)
@@ -100,6 +111,8 @@ public enum TMDBEndpoint {
         // Search
         case .searchMovie:
             return "search/movie"
+        case .searchTVShows:
+            return "search/tv"
         case .searchKeyword:
             return "search/keyword"
         case .searchPerson:
@@ -132,9 +145,9 @@ public enum TMDBEndpoint {
         case let .getWatchlistTVShows(accountId):
             return "account/\(accountId)/watchlist/tv"
         // TV Shows
-        case .tvAiringToday:
+        case .tvAiringToday, .airingTodayTVShows:
             return "tv/airing_today"
-        case .tvOnTheAir:
+        case .tvOnTheAir, .onTheAirTVShows:
             return "tv/on_the_air"
         // TV Show Details
         case let .tvShowDetail(show):
@@ -172,36 +185,28 @@ public enum TMDBEndpoint {
             }
             return nil
         case let .searchMovie(query, includeAdult, language, primaryReleaseYear, page, region, year):
-            var params = ["query": query]
-            if let includeAdult = includeAdult {
-                params["include_adult"] = includeAdult ? "true" : "false"
-            }
-            if let language = language {
-                params["language"] = language
-            }
-            if let primaryReleaseYear = primaryReleaseYear {
-                params["primary_release_year"] = primaryReleaseYear
-            }
-            if let page = page {
-                params["page"] = String(page)
-            }
-            if let region = region {
-                params["region"] = region
-            }
-            if let year = year {
-                params["year"] = year
-            }
-            return params
+            return buildSearchMovieParams(
+                query: query,
+                includeAdult: includeAdult,
+                language: language,
+                primaryReleaseYear: primaryReleaseYear,
+                page: page,
+                region: region,
+                year: year
+            )
+        case let .searchTVShows(query, includeAdult, language, firstAirDateYear, page, region, year):
+            return buildSearchTVShowsParams(
+                query: query,
+                includeAdult: includeAdult,
+                language: language,
+                firstAirDateYear: firstAirDateYear,
+                page: page,
+                region: region,
+                year: year
+            )
         case let .discoverMovie(keywords, page):
-            var params: [String: String] = [:]
-            if let keywords = keywords {
-                params["with_keywords"] = String(keywords)
-            }
-            if let page = page {
-                params["page"] = String(page)
-            }
-            return params
-        case let .tvAiringToday(page), let .tvOnTheAir(page):
+            return buildDiscoverMovieParams(keywords: keywords, page: page)
+        case let .tvAiringToday(page), let .tvOnTheAir(page), let .airingTodayTVShows(page), let .onTheAirTVShows(page):
             if let page = page {
                 return ["page": String(page)]
             }
@@ -209,6 +214,87 @@ public enum TMDBEndpoint {
         default:
             return nil
         }
+    }
+
+    // MARK: - Private Helper Methods
+
+    private func buildSearchMovieParams(
+        query: String,
+        includeAdult: Bool?,
+        language: String?,
+        primaryReleaseYear: String?,
+        page: Int?,
+        region: String?,
+        year: String?
+    ) -> [String: String] {
+        var params = ["query": query]
+
+        if let includeAdult = includeAdult {
+            params["include_adult"] = includeAdult ? "true" : "false"
+        }
+        if let language = language {
+            params["language"] = language
+        }
+        if let primaryReleaseYear = primaryReleaseYear {
+            params["primary_release_year"] = primaryReleaseYear
+        }
+        if let page = page {
+            params["page"] = String(page)
+        }
+        if let region = region {
+            params["region"] = region
+        }
+        if let year = year {
+            params["year"] = year
+        }
+
+        return params
+    }
+
+    private func buildSearchTVShowsParams(
+        query: String,
+        includeAdult: Bool?,
+        language: String?,
+        firstAirDateYear: String?,
+        page: Int?,
+        region: String?,
+        year: String?
+    ) -> [String: String] {
+        var params = ["query": query]
+
+        if let includeAdult = includeAdult {
+            params["include_adult"] = includeAdult ? "true" : "false"
+        }
+        if let language = language {
+            params["language"] = language
+        }
+        if let firstAirDateYear = firstAirDateYear {
+            params["first_air_date_year"] = firstAirDateYear
+        }
+        if let page = page {
+            params["page"] = String(page)
+        }
+        if let region = region {
+            params["region"] = region
+        }
+        if let year = year {
+            params["year"] = year
+        }
+
+        return params
+    }
+
+    private func buildDiscoverMovieParams(keywords: Int?, page: Int?) -> [String: String] {
+        var params: [String: String] = [:]
+
+        if let keywords = keywords {
+            params["with_keywords"] = String(keywords)
+        }
+        if let page = page {
+            params["page"] = String(page)
+        }
+
+        return params
     }
 
     func httpMethod() -> HTTPMethod {
@@ -234,9 +320,11 @@ public enum TMDBEndpoint {
             return MovieCreditsModel.self
         case .searchMovie:
             return MovieListResultModel.self
+        case .searchTVShows:
+            return TVShowListResultModel.self
         case .discoverMovie:
             return MovieListResultModel.self
-        case .tvAiringToday, .tvOnTheAir:
+        case .tvAiringToday, .tvOnTheAir, .airingTodayTVShows, .onTheAirTVShows:
             return TVShowListResultModel.self
         case .tvShowDetail:
             return TVShowDetailModel.self

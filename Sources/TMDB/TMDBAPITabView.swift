@@ -97,6 +97,8 @@ public struct TMDBAPITabView: View {
                 popularity: movie.popularity,
                 originalTitle: movie.originalTitle
             ))
+        } tvShowDetailRouteBuilder: { tvShow in
+            TMDBRoute.tvShowDetail(tvShow.id)
         }
         .withTMDBNavigationDestinations(container: container)
         .toolbar {

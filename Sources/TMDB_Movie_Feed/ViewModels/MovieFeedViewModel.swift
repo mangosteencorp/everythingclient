@@ -25,6 +25,38 @@ public enum MovieFeedType: String, CaseIterable, Identifiable {
     }
 }
 
+public enum TVShowFeedType: String, CaseIterable, Identifiable {
+    case airingToday
+    case onTheAir
+
+    public var id: String { rawValue }
+
+    public var localizedTitle: String {
+        switch self {
+        case .airingToday:
+            return "Airing Today"
+        case .onTheAir:
+            return "On the Air"
+        }
+    }
+}
+
+public enum ContentFeedType: String, CaseIterable, Identifiable {
+    case movies
+    case tvShows
+
+    public var id: String { rawValue }
+
+    public var localizedTitle: String {
+        switch self {
+        case .movies:
+            return "Movies"
+        case .tvShows:
+            return "TV Shows"
+        }
+    }
+}
+
 public class MovieFeedViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""

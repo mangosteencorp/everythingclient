@@ -18,6 +18,12 @@ public protocol APIServiceProtocol {
     func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error>
     func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error>
     func searchMovies(query: String, page: Int?, filters: SearchFilters?) async -> Result<MovieListResponse, Error>
+
+    // TV Show methods
+    func fetchAiringTodayTVShows(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<TVShowListResponse, Error>
+    func fetchOnTheAirTVShows(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<TVShowListResponse, Error>
+    func searchTVShows(query: String, page: Int?) async -> Result<TVShowListResponse, Error>
+    func searchTVShows(query: String, page: Int?, filters: SearchFilters?) async -> Result<TVShowListResponse, Error>
 }
 
 // Optional convenience methods
@@ -44,6 +50,18 @@ public extension APIServiceProtocol {
 
     func searchMovies(query: String, filters: SearchFilters?) async -> Result<MovieListResponse, Error> {
         await searchMovies(query: query, page: nil, filters: filters)
+    }
+
+    func fetchAiringTodayTVShows(page: Int? = nil) async -> Result<TVShowListResponse, Error> {
+        return await fetchAiringTodayTVShows(page: page, additionalParams: nil)
+    }
+
+    func fetchOnTheAirTVShows(page: Int? = nil) async -> Result<TVShowListResponse, Error> {
+        return await fetchOnTheAirTVShows(page: page, additionalParams: nil)
+    }
+
+    func searchTVShows(query: String) async -> Result<TVShowListResponse, Error> {
+        return await searchTVShows(query: query, page: nil)
     }
 }
 
@@ -126,6 +144,58 @@ extension TMDBAPIService: APIServiceProtocol {
             includeAdult: filters?.includeAdult,
             language: filters?.language,
             primaryReleaseYear: filters?.primaryReleaseYear,
+            page: page,
+            region: filters?.region,
+            year: filters?.year
+        ))
+        // Map TMDBAPIError to Error
+        switch result {
+        case let .success(response):
+            return .success(response)
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
+
+    public func fetchAiringTodayTVShows(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<TVShowListResponse, Error> {
+        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.tvAiringToday(page: page))
+        // Map TMDBAPIError to Error
+        switch result {
+        case let .success(response):
+            return .success(response)
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
+
+    public func fetchOnTheAirTVShows(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<TVShowListResponse, Error> {
+        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.tvOnTheAir(page: page))
+        // Map TMDBAPIError to Error
+        switch result {
+        case let .success(response):
+            return .success(response)
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
+
+    public func searchTVShows(query: String, page: Int?) async -> Result<TVShowListResponse, Error> {
+        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.searchTVShows(query: query, page: page))
+        // Map TMDBAPIError to Error
+        switch result {
+        case let .success(response):
+            return .success(response)
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
+
+    public func searchTVShows(query: String, page: Int?, filters: SearchFilters?) async -> Result<TVShowListResponse, Error> {
+        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.searchTVShows(
+            query: query,
+            includeAdult: filters?.includeAdult,
+            language: filters?.language,
+            firstAirDateYear: filters?.primaryReleaseYear,
             page: page,
             region: filters?.region,
             year: filters?.year

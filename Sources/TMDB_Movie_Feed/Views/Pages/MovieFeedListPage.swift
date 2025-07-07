@@ -5,116 +5,112 @@ import Shared_UI_Support
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
+
 @available(iOS 16, macOS 10.15, *)
 public struct MovieFeedListPage<Route: Hashable>: View {
-    @StateObject var viewModel: MovieFeedViewModel
+    @StateObject var movieViewModel: MovieFeedViewModel
+    @StateObject var tvShowViewModel: TVShowFeedViewModel
+    @State private var selectedContentType: ContentFeedType = .movies
     let detailRouteBuilder: (Movie) -> Route
+    let tvShowDetailRouteBuilder: (TVShow) -> Route
     private var cancellables = Set<AnyCancellable>()
     @State private var useFancyDesign: Bool = true
+
     public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         analyticsTracker: AnalyticsTracker? = nil,
-        detailRouteBuilder: @escaping (Movie) -> Route
+        detailRouteBuilder: @escaping (Movie) -> Route,
+        tvShowDetailRouteBuilder: @escaping (TVShow) -> Route
     ) {
-        _viewModel = StateObject(wrappedValue: MovieFeedViewModel(
+        _movieViewModel = StateObject(wrappedValue: MovieFeedViewModel(
+            apiService: apiService,
+            additionalParams: additionalParams,
+            analyticsTracker: analyticsTracker
+        ))
+        _tvShowViewModel = StateObject(wrappedValue: TVShowFeedViewModel(
             apiService: apiService,
             additionalParams: additionalParams,
             analyticsTracker: analyticsTracker
         ))
         self.detailRouteBuilder = detailRouteBuilder
+        self.tvShowDetailRouteBuilder = tvShowDetailRouteBuilder
     }
 
 #if DEBUG
     init(
-        viewModel: MovieFeedViewModel,
-        detailRouteBuilder: @escaping (Movie) -> Route
+        movieViewModel: MovieFeedViewModel,
+        tvShowViewModel: TVShowFeedViewModel,
+        detailRouteBuilder: @escaping (Movie) -> Route,
+        tvShowDetailRouteBuilder: @escaping (TVShow) -> Route
     ) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+        _movieViewModel = StateObject(wrappedValue: movieViewModel)
+        _tvShowViewModel = StateObject(wrappedValue: tvShowViewModel)
         self.detailRouteBuilder = detailRouteBuilder
+        self.tvShowDetailRouteBuilder = tvShowDetailRouteBuilder
     }
 #endif
 
     public var body: some View {
         VStack(spacing: 0) {
-            Group {
-                switch viewModel.state {
-                case .initial:
-                    EmptyView()
-                case .loading where viewModel.searchQuery.isEmpty:
-                    ProgressView(L10n.playingLoading)
-                case .error(let message):
-                    Text(message)
-                case .loaded(let movies), .searchResults(let movies):
-                    VStack(spacing: 0) {
-                        // Show filter chips when searching
-                        if !viewModel.searchQuery.isEmpty {
-                            FilterChipsView(
-                                filters: $viewModel.searchFilters,
-                                onFilterTap: { filterType in
-                                    viewModel.updateSelectedFilterToShow(filterType)
-                                }
-                            )
-                        }
-                        if movies.isEmpty {
-                            CommonNoResultView(useFancyDesign: $useFancyDesign).toolbar {
-                                SwitchDesignToolbarItem(action: {
-                                    useFancyDesign.toggle()
-                                })
-                            }
-                        } else {
-                            List(movies) { movie in
-                                NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                            }
-                            .searchable(text: $viewModel.searchQuery)
-                            .overlay {
-                                if case .loading = viewModel.state {
-                                    ProgressView()
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                        .background(Color.black.opacity(0.1))
-                                }
-                            }
-                        }
-                    }
-                case .loading:
-                    VStack(spacing: 0) {
-                        // Show filter chips when searching
-                        if !viewModel.searchQuery.isEmpty {
-                            FilterChipsView(
-                                filters: $viewModel.searchFilters,
-                                onFilterTap: { filterType in
-                                    viewModel.updateSelectedFilterToShow(filterType)
-                                }
-                            )
-                        }
+            // Segmented Control
+            Picker("Content Type", selection: $selectedContentType) {
+                ForEach(ContentFeedType.allCases) { contentType in
+                    Text(contentType.localizedTitle).tag(contentType)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(.horizontal)
+            .padding(.top, 8)
 
-                        List([] as [Movie]) { movie in
-                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                        }
-                        .searchable(text: $viewModel.searchQuery)
-                        .overlay {
-                            ProgressView()
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                .background(Color.black.opacity(0.1))
-                        }
-                    }
+            // Content based on selected type
+            Group {
+                switch selectedContentType {
+                case .movies:
+                    MovieContentView(
+                        viewModel: movieViewModel,
+                        detailRouteBuilder: detailRouteBuilder,
+                        useFancyDesign: $useFancyDesign
+                    )
+                case .tvShows:
+                    TVShowContentView(
+                        viewModel: tvShowViewModel,
+                        detailRouteBuilder: tvShowDetailRouteBuilder,
+                        useFancyDesign: $useFancyDesign
+                    )
                 }
             }
         }
         .accessibilityIdentifier("movielist1.group")
-        .navigationTitle(viewModel.currentFeedType.localizedTitle)
+        .navigationTitle(currentFeedTypeTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
-                    ForEach(MovieFeedType.allCases) { feedType in
-                        Button(action: {
-                            viewModel.switchFeedType(feedType)
-                        }) {
-                            HStack {
-                                Text(feedType.localizedTitle)
-                                if viewModel.currentFeedType == feedType {
-                                    Image(systemName: "checkmark")
+                    switch selectedContentType {
+                    case .movies:
+                        ForEach(MovieFeedType.allCases) { feedType in
+                            Button(action: {
+                                movieViewModel.switchFeedType(feedType)
+                            }) {
+                                HStack {
+                                    Text(feedType.localizedTitle)
+                                    if movieViewModel.currentFeedType == feedType {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        }
+                    case .tvShows:
+                        ForEach(TVShowFeedType.allCases) { feedType in
+                            Button(action: {
+                                tvShowViewModel.switchFeedType(feedType)
+                            }) {
+                                HStack {
+                                    Text(feedType.localizedTitle)
+                                    if tvShowViewModel.currentFeedType == feedType {
+                                        Image(systemName: "checkmark")
+                                    }
                                 }
                             }
                         }
@@ -125,17 +121,100 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                 }
             }
         }
-        .sheet(isPresented: $viewModel.showingFilterSheet) {
-            if let filterType = viewModel.selectedFilterType {
+        .sheet(isPresented: Binding(
+            get: { currentViewModel.showingFilterSheet },
+            set: { newValue in
+                switch selectedContentType {
+                case .movies:
+                    movieViewModel.showingFilterSheet = newValue
+                case .tvShows:
+                    tvShowViewModel.showingFilterSheet = newValue
+                }
+            }
+        )) {
+            if let filterType = currentViewModel.selectedFilterType {
                 FilterConfigurationView(
-                    filters: $viewModel.searchFilters,
+                    filters: currentViewModel.searchFiltersBinding,
                     filterType: filterType
                 )
             }
         }
         .onFirstAppear {
-            viewModel.fetchNowPlayingMovies()
+            loadInitialContent()
         }
+        .onChange(of: selectedContentType) { _ in
+            loadInitialContent()
+        }
+    }
+
+    private var currentViewModel: (showingFilterSheet: Bool, selectedFilterType: FilterType?, searchFiltersBinding: Binding<SearchFilters>) {
+        switch selectedContentType {
+        case .movies:
+            return (
+                showingFilterSheet: movieViewModel.showingFilterSheet,
+                selectedFilterType: movieViewModel.selectedFilterType,
+                searchFiltersBinding: movieViewModel.searchFiltersBinding
+            )
+        case .tvShows:
+            return (
+                showingFilterSheet: tvShowViewModel.showingFilterSheet,
+                selectedFilterType: tvShowViewModel.selectedFilterType,
+                searchFiltersBinding: tvShowViewModel.searchFiltersBinding
+            )
+        }
+    }
+
+    private var currentFeedTypeTitle: String {
+        switch selectedContentType {
+        case .movies:
+            return movieViewModel.currentFeedType.localizedTitle
+        case .tvShows:
+            return tvShowViewModel.currentFeedType.localizedTitle
+        }
+    }
+
+    private func loadInitialContent() {
+        switch selectedContentType {
+        case .movies:
+            movieViewModel.fetchNowPlayingMovies()
+        case .tvShows:
+            tvShowViewModel.fetchAiringTodayTVShows()
+        }
+    }
+}
+
+// MARK: - TV Show Row Entity
+
+extension TVShow {
+    func toMovieRowEntity() -> MovieRowEntity {
+        return MovieRowEntity(
+            id: id,
+            posterPath: poster_path,
+            title: name,
+            voteAverage: Double(vote_average),
+            releaseDate: nil, // TV shows don't have release dates like movies
+            overview: overview
+        )
+    }
+}
+
+// MARK: - Extensions for View Models
+
+extension MovieFeedViewModel {
+    var searchFiltersBinding: Binding<SearchFilters> {
+        Binding(
+            get: { self.searchFilters },
+            set: { self.searchFilters = $0 }
+        )
+    }
+}
+
+extension TVShowFeedViewModel {
+    var searchFiltersBinding: Binding<SearchFilters> {
+        Binding(
+            get: { self.searchFilters },
+            set: { self.searchFilters = $0 }
+        )
     }
 }
 
@@ -143,20 +222,31 @@ public struct MovieFeedListPage<Route: Hashable>: View {
 // swiftlint:disable all
 @available(iOS 16, macOS 10.15, *)
 #Preview {
-    MovieFeedListPage(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
-                      detailRouteBuilder: { _ in 1 })
+    MovieFeedListPage(
+        apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
+        detailRouteBuilder: { _ in 1 },
+        tvShowDetailRouteBuilder: { _ in 2 }
+    )
 }
 
 @available(iOS 16, macOS 10.15, *)
 struct MovieFeedListPage_Previews : PreviewProvider {
     static var previews: some View {
-        let viewModel = MovieFeedViewModel.init(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
+        let movieViewModel = MovieFeedViewModel.init(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
+        let tvShowViewModel = TVShowFeedViewModel.init(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            viewModel.state = .searchResults([])
+            movieViewModel.state = .searchResults([])
+            tvShowViewModel.state = .searchResults([])
         }
+
         return NavigationView {
-            MovieFeedListPage(viewModel: viewModel,
-                              detailRouteBuilder: { _ in 1 })
+            MovieFeedListPage(
+                movieViewModel: movieViewModel,
+                tvShowViewModel: tvShowViewModel,
+                detailRouteBuilder: { _ in 1 },
+                tvShowDetailRouteBuilder: { _ in 2 }
+            )
         }
     }
 }

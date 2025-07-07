@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
 @available(iOS 16.0, *)
@@ -21,6 +22,26 @@ struct NavigationMovieRow<Route: Hashable>: View {
         .onAppear {
             debugPrint("onAppear \(movie.id):\(movie.title)")
             viewModel.fetchMoreContentIfNeeded(currentMovieId: movie.id)
+        }
+    }
+}
+
+// MARK: - Navigation TV Show Row
+
+@available(iOS 16.0, *)
+struct NavigationTVShowRow<Route: Hashable>: View {
+    @ObservedObject var viewModel: TVShowFeedViewModel
+    let show: TVShow
+    let routeBuilder: (TVShow) -> Route
+
+    var body: some View {
+        NavigationLink(value: routeBuilder(show), label: {
+            MovieRow(movie: show.toMovieRowEntity())
+        })
+        .accessibilityIdentifier("tvshowlist1.tvshowrow\(show.id)")
+        .onAppear {
+            debugPrint("onAppear \(show.id):\(show.name)")
+            viewModel.fetchMoreContentIfNeeded(currentShowId: show.id)
         }
     }
 }

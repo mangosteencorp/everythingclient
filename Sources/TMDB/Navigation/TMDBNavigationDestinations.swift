@@ -37,6 +37,8 @@ public struct TMDBNavigationDestinations: ViewModifier {
         case let .movieList(params):
             MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
+            } tvShowDetailRouteBuilder: { tvShow in
+                TMDBRoute.tvShowDetail(tvShow.id)
             }
         }
     }
