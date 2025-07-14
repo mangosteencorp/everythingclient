@@ -1,5 +1,6 @@
 // Entities
 import Foundation
+import Shared_UI_Support
 import TMDB_Shared_UI
 
 struct Movie: Equatable {
@@ -80,5 +81,44 @@ extension Movie {
             releaseDate: releaseDate,
             overview: overview
         )
+    }
+}
+
+// Extension to make Movie conform to ItemDisplayable for use with MovieItemCell
+extension Movie: ItemDisplayable {
+    func getId() -> String? {
+        return String(id)
+    }
+
+    func getTitle() -> String {
+        return title
+    }
+
+    func getDescription() -> String {
+        return overview
+    }
+
+    func getReleaseDate() -> String? {
+        guard let releaseDate = releaseDate else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: releaseDate)
+    }
+
+    func getRating() -> Float? {
+        return voteAverage
+    }
+
+    func getImageURL() -> String? {
+        guard let posterPath = posterPath else { return nil }
+        return "https://image.tmdb.org/t/p/w500\(posterPath)"
+    }
+
+    func isFavorited() -> Bool {
+        return false // Default implementation, can be enhanced later
+    }
+
+    func setFavorited(_ favorited: Bool) {
+        // No-op for now, can be enhanced later
     }
 }
