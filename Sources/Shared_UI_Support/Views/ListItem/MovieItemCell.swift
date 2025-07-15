@@ -1,3 +1,4 @@
+import Kingfisher
 import SnapKit
 import UIKit
 
@@ -13,6 +14,119 @@ public protocol ItemDisplayable {
     func setFavorited(_ favorited: Bool)
 }
 
+class RatingView: UIView {
+    var label: UILabel!
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+
+        label = UILabel()
+        label.textColor = ThemeService.PRIMARY_COLOR
+        label.text = "N/A"
+        label.font = ThemeService.H2_FONT_BOLD
+        label.textAlignment = .center
+
+        addSubview(label)
+
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.edges.equalToSuperview()
+        }
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        setNeedsDisplay()
+    }
+
+    override func draw(_ rect: CGRect) {
+        if let context = UIGraphicsGetCurrentContext() {
+            context.setLineWidth(5.0)
+            ThemeService.YELLOW.set()
+            let center = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2)
+            let diameter = min(rect.height, rect.width)
+            context.addArc(center: center, radius: diameter / 2, startAngle: 0.0, endAngle: .pi * 2.0, clockwise: true)
+            context.fillPath()
+        }
+    }
+
+    func setRating(_ rating: Float) {
+        if rating < 0.5 {
+            label.text = "N/A"
+        } else {
+            label.text = String(format: "%.1f", rating)
+        }
+    }
+}
+
+class FavButton: UIView {
+    var item: ItemDisplayable?
+    var label: UILabel!
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .lightGray
+        layer.cornerRadius = 4
+        clipsToBounds = true
+
+        label = UILabel()
+        label.textColor = ThemeService.WHITE
+        label.font = ThemeService.H2_FONT_BOLD
+        label.textAlignment = .center
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.5
+        label.baselineAdjustment = .alignCenters
+        label.text = "Favorite?"
+
+        addSubview(label)
+
+        label.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(4)
+            make.center.equalToSuperview()
+        }
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapGesture))
+        addGestureRecognizer(tap)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func setupWith(item: ItemDisplayable) {
+        self.item = item
+        setNeedsLayout()
+    }
+
+    override func layoutSubviews() {
+        updateDisplay()
+    }
+
+    @objc func didTapGesture() {
+        guard var mutableItem = item else { return }
+        mutableItem.setFavorited(!mutableItem.isFavorited())
+        item = mutableItem
+        updateDisplay()
+    }
+
+    func updateDisplay(force: Bool? = nil) {
+        guard let item = item else { return }
+        if item.isFavorited() || force == true {
+            backgroundColor = ThemeService.LIGHT_GREY
+            label.text = "Favorite"
+            label.textColor = ThemeService.DARK_GREY
+        } else {
+            backgroundColor = .orange
+            label.text = "+ Favorite"
+            label.textColor = .white
+        }
+    }
+}
+
 public class MovieItemCell: UICollectionViewCell {
     // Constants
     private let padding: CGFloat = 16.0
@@ -24,10 +138,10 @@ public class MovieItemCell: UICollectionViewCell {
     private let posterView: UIImageView = UIImageView()
     private let dateLabel: UILabel = UILabel()
     private let titleLabel: UILabel = UILabel()
-    private let descLabel: UILabel = UILabel()
-    private let ratingView: UILabel = UILabel() // Simplified rating display
-    private let favoriteButton: UIButton = UIButton(type: .system)
     private let separator: UIView = UIView()
+    private let descLabel: UILabel = UILabel()
+    private let ratingDisplay: RatingView = RatingView()
+    private let favButton: FavButton = FavButton()
 
     // Model
     private var item: ItemDisplayable? {
@@ -50,9 +164,7 @@ public class MovieItemCell: UICollectionViewCell {
         dateLabel.text = ""
         titleLabel.text = ""
         descLabel.text = ""
-        ratingView.text = ""
-        favoriteButton.setTitle("+ Favorite", for: .normal)
-        favoriteButton.backgroundColor = .orange
+        ratingDisplay.setRating(0)
     }
 
     // Public method to configure the cell
@@ -62,43 +174,30 @@ public class MovieItemCell: UICollectionViewCell {
 
     // Private setup methods
     private func setupViews() {
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = ThemeService.MID_GREY
         contentView.layer.cornerRadius = 2
+        contentView.layer.borderColor = ThemeService.MID_GREY.cgColor
         contentView.layer.borderWidth = 1
-        contentView.layer.borderColor = UIColor.lightGray.cgColor
 
-        imageContainer.backgroundColor = .lightGray
+        imageContainer.backgroundColor = ThemeService.DARK_GREY
         descContainer.backgroundColor = .clear
 
         posterView.contentMode = .scaleAspectFill
         posterView.clipsToBounds = true
 
-        dateLabel.textColor = .darkGray
-        dateLabel.font = .systemFont(ofSize: 14)
+        dateLabel.textColor = ThemeService.SECONDARY_COLOR
+        dateLabel.font = ThemeService.H2_FONT
 
-        titleLabel.textColor = .black
-        titleLabel.font = .boldSystemFont(ofSize: 18)
+        titleLabel.textColor = ThemeService.PRIMARY_COLOR
+        titleLabel.font = ThemeService.H1_FONT
         titleLabel.adjustsFontSizeToFitWidth = true
         titleLabel.minimumScaleFactor = 0.5
 
-        descLabel.textColor = .darkGray
-        descLabel.font = .systemFont(ofSize: 14)
+        descLabel.textColor = ThemeService.SECONDARY_COLOR
+        descLabel.font = ThemeService.DEFAULT_FONT
         descLabel.numberOfLines = 2
 
-        separator.backgroundColor = .lightGray
-
-        ratingView.textColor = .black
-        ratingView.font = .boldSystemFont(ofSize: 16)
-        ratingView.textAlignment = .center
-        ratingView.layer.cornerRadius = 15
-        ratingView.clipsToBounds = true
-        ratingView.backgroundColor = .yellow
-
-        favoriteButton.setTitleColor(.white, for: .normal)
-        favoriteButton.titleLabel?.font = .boldSystemFont(ofSize: 14)
-        favoriteButton.backgroundColor = .orange
-        favoriteButton.layer.cornerRadius = 4
-        favoriteButton.addTarget(self, action: #selector(toggleFavorite), for: .touchUpInside)
+        separator.backgroundColor = ThemeService.DARK_GREY
 
         contentView.addSubview(imageContainer)
         contentView.addSubview(descContainer)
@@ -107,16 +206,16 @@ public class MovieItemCell: UICollectionViewCell {
         descContainer.addSubview(titleLabel)
         descContainer.addSubview(separator)
         descContainer.addSubview(descLabel)
-        descContainer.addSubview(ratingView)
-        descContainer.addSubview(favoriteButton)
+        descContainer.addSubview(ratingDisplay)
+        descContainer.addSubview(favButton)
     }
 
     private func setupConstraints() {
         imageContainer.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(padding)
-            make.width.equalToSuperview().multipliedBy(imageWidthRatio).inset(padding)
-            make.top.equalToSuperview().offset(padding)
-            make.bottom.equalToSuperview().inset(padding)
+            make.left.equalTo(contentView.snp.left).offset(padding)
+            make.width.equalTo(contentView.snp.width).multipliedBy(0.4).offset(-padding)
+            make.top.equalTo(contentView.snp.top).offset(padding)
+            make.bottom.equalTo(contentView.snp.bottom).offset(-padding)
         }
 
         posterView.snp.makeConstraints { make in
@@ -125,46 +224,50 @@ public class MovieItemCell: UICollectionViewCell {
 
         descContainer.snp.makeConstraints { make in
             make.left.equalTo(imageContainer.snp.right).offset(padding)
-            make.width.equalToSuperview().multipliedBy(1 - imageWidthRatio).inset(padding / 2)
-            make.top.equalToSuperview().offset(padding)
-            make.bottom.equalToSuperview().inset(padding)
+            make.right.equalTo(contentView.snp.right).offset(-padding)
+            make.top.equalTo(contentView.snp.top).offset(padding)
+            make.bottom.equalTo(contentView.snp.bottom).offset(-padding)
         }
 
         dateLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.width.equalToSuperview()
+            make.top.equalTo(descContainer.snp.top)
+            make.left.equalTo(descContainer.snp.left)
+            make.right.equalTo(descContainer.snp.right)
             make.height.equalTo(20)
         }
 
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(dateLabel.snp.bottom)
-            make.width.equalToSuperview()
+            make.left.equalTo(descContainer.snp.left)
+            make.right.equalTo(descContainer.snp.right)
             make.height.equalTo(30)
         }
 
         separator.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(padding / 2)
+            make.left.equalTo(descContainer.snp.left)
             make.width.equalTo(100)
             make.height.equalTo(2)
         }
 
         descLabel.snp.makeConstraints { make in
             make.top.equalTo(separator.snp.bottom).offset(padding / 2)
-            make.width.equalToSuperview()
-            make.height.greaterThanOrEqualTo(60)
+            make.left.equalTo(descContainer.snp.left)
+            make.right.equalTo(descContainer.snp.right)
+            make.bottom.lessThanOrEqualTo(ratingDisplay.snp.top).offset(-padding)
         }
 
-        ratingView.snp.makeConstraints { make in
-            make.top.equalTo(descLabel.snp.bottom)
-            make.left.equalToSuperview()
-            make.width.equalToSuperview().dividedBy(4)
+        ratingDisplay.snp.makeConstraints { make in
+            make.bottom.equalTo(descContainer.snp.bottom).offset(-padding)
+            make.left.equalTo(descContainer.snp.left)
+            make.width.equalTo(60)
             make.height.equalTo(30)
         }
 
-        favoriteButton.snp.makeConstraints { make in
-            make.left.equalTo(ratingView.snp.right).offset(padding)
-            make.right.equalToSuperview().inset(padding)
-            make.top.equalTo(descLabel.snp.bottom)
+        favButton.snp.makeConstraints { make in
+            make.bottom.equalTo(descContainer.snp.bottom).offset(-padding)
+            make.right.equalTo(descContainer.snp.right)
+            make.width.equalTo(100)
             make.height.equalTo(30)
         }
     }
@@ -172,40 +275,121 @@ public class MovieItemCell: UICollectionViewCell {
     private func updateContent() {
         guard let item = item else { return }
 
+        favButton.setupWith(item: item)
+
         dateLabel.text = item.getReleaseDate()
         titleLabel.text = item.getTitle()
         descLabel.text = item.getDescription()
-        ratingView.text = item.getRating().map { String(format: "%.1f", $0) } ?? "N/A"
-//        ratingView.snp.updateConstraints { make in
-//            make.width.equalTo(ratingView.text?.isEmpty ?? true ? 0 : 30)
-//        }
-        updateFavoriteButton()
 
-        // Placeholder for image loading (replace with your image loading library, e.g., SDWebImage or AlamofireImage)
+        if let rating = item.getRating() {
+            ratingDisplay.setRating(rating)
+        }
+
         if let urlString = item.getImageURL(), let url = URL(string: urlString) {
-            // Example: Use URLSession or a library to load the image
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let data = data, let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
-                        self.posterView.image = image
-                    }
+            posterView.kf.setImage(with: url, placeholder: nil, options: [.transition(.fade(0.5))]) { [weak self] result in
+                switch result {
+                case .success(let value):
+                    self?.updatePalette(withImage: value.image)
+                case .failure(let error):
+                    print("Error loading image: \(error)")
                 }
-            }.resume()
+            }
         }
     }
 
-    @objc private func toggleFavorite() {
-        guard let item = item else { return }
-        let currentFavorited = item.isFavorited()
-        item.setFavorited(!currentFavorited)
-        updateFavoriteButton()
-        // Add your favorite toggle logic here (e.g., notify a delegate or update a state manager)
+    private func updatePalette(withImage image: UIImage?) {
+        contentView.backgroundColor = ThemeService.MID_GREY
+        dateLabel.textColor = ThemeService.BLACK
+        titleLabel.textColor = ThemeService.BLACK
+        descLabel.textColor = ThemeService.BLACK
+
+        guard let image = image else { return }
+
+        DispatchQueue.global(qos: .background).async {
+            let scaledImage = image.kf.resize(to: CGSize(width: 50, height: 50))
+            let avgColor = scaledImage.averageColor() ?? .gray
+            let textColor = avgColor.contrastingColor()
+
+            DispatchQueue.main.async {
+                self.contentView.backgroundColor = avgColor
+                self.dateLabel.textColor = textColor
+                self.titleLabel.textColor = textColor
+                self.descLabel.textColor = textColor
+            }
+        }
+    }
+}
+
+// MARK: - Theme Service
+
+public class ThemeService: NSObject {
+    public static let PADDING = 20
+    public static let CELLS_HEIGHT = 222
+    public static let FONT_FAMILY = "HelveticaNeue"
+
+    public static let H1_FONT = UIFont(name: "\(FONT_FAMILY)-Bold", size: 22)
+    public static let H2_FONT_BOLD = UIFont(name: "\(FONT_FAMILY)-Bold", size: 16)
+    public static let H2_FONT = UIFont(name: "\(FONT_FAMILY)-Light", size: 16)
+    public static let H3_FONT = UIFont(name: FONT_FAMILY, size: 12)
+    public static let DEFAULT_FONT = UIFont(name: FONT_FAMILY, size: 14)
+
+    public static let LIGHT_GREY = UIColor(red: 235, green: 235, blue: 235)
+    public static let MID_GREY = UIColor(red: 200, green: 200, blue: 200)
+    public static let DARK_GREY = UIColor(red: 130, green: 130, blue: 130)
+    public static let WHITE = UIColor.white
+    public static let YELLOW = UIColor(red: 250, green: 200, blue: 50)
+    public static let BLACK = UIColor(red: 40, green: 40, blue: 40)
+
+    public static let PRIMARY_COLOR = BLACK
+    public static let SECONDARY_COLOR = DARK_GREY
+}
+
+extension UIImage {
+    func averageColor() -> UIColor? {
+        guard let inputImage = CIImage(image: self) else { return nil }
+        let extentVector = CIVector(x: inputImage.extent.origin.x,
+                                    y: inputImage.extent.origin.y,
+                                    z: inputImage.extent.size.width,
+                                    w: inputImage.extent.size.height)
+
+        guard let filter = CIFilter(name: "CIAreaAverage",
+                                    parameters: [kCIInputImageKey: inputImage,
+                                                 kCIInputExtentKey: extentVector]) else { return nil }
+        guard let outputImage = filter.outputImage else { return nil }
+
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        let context = CIContext(options: [.workingColorSpace: kCFNull as Any])
+        context.render(outputImage,
+                       toBitmap: &bitmap,
+                       rowBytes: 4,
+                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                       format: .RGBA8,
+                       colorSpace: nil)
+
+        return UIColor(red: CGFloat(bitmap[0]) / 255,
+                       green: CGFloat(bitmap[1]) / 255,
+                       blue: CGFloat(bitmap[2]) / 255,
+                       alpha: CGFloat(bitmap[3]) / 255)
+    }
+}
+
+extension UIColor {
+    convenience init(red: Int, green: Int, blue: Int) {
+        let newRed = CGFloat(red) / 255
+        let newGreen = CGFloat(green) / 255
+        let newBlue = CGFloat(blue) / 255
+        self.init(red: newRed, green: newGreen, blue: newBlue, alpha: 1.0)
     }
 
-    private func updateFavoriteButton() {
-        let isFavorited = item?.isFavorited() ?? false
-        favoriteButton.setTitle(isFavorited ? "Favorite" : "+ Favorite", for: .normal)
-        favoriteButton.backgroundColor = isFavorited ? .lightGray : .orange
+    func contrastingColor() -> UIColor {
+        guard let components = cgColor.components else { return .white }
+        let brightness: CGFloat
+        if components.count >= 3 {
+            brightness = ((components[0] * 299) + (components[1] * 587) + (components[2] * 114)) / 1000
+        } else {
+            brightness = ((components[0] * 299) + (components[0] * 587) + (components[0] * 114)) / 1000
+        }
+        return brightness > 0.5 ? .black : .white
     }
 }
 

@@ -1,11 +1,15 @@
+import CoreFeatures
 import SwiftUI
 import Swinject
 import TMDB_Shared_UI
+
 @available(iOS 16.0, *)
 public struct TVShowListPage<Route: Hashable>: View {
     @StateObject var viewModel: TVFeedViewModel
+    @State private var useUIKitView = false
     let type: TVShowFeedType
     let detailRouteBuilder: (Int) -> Route
+
     public init(
         container: Container,
         apiKey: String,
@@ -28,22 +32,36 @@ public struct TVShowListPage<Route: Hashable>: View {
 
     public var body: some View {
         Group {
-            if viewModel.isLoading {
-                ProgressView("Loading...")
-                    .id("loadingView")
-            } else if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-                    .id("errorView")
+            if useUIKitView {
+                TVShowListViewControllerRepresentable(viewModel: viewModel)
             } else {
-                TVShowListContent(movies: viewModel.movies, detailRouteBuilder: detailRouteBuilder)
-                    .id("movieListContent")
+                TVShowListPageContent(
+                    viewModel: viewModel,
+                    type: type,
+                    detailRouteBuilder: detailRouteBuilder
+                )
             }
         }
         .navigationTitle(type.title)
         .accessibilityIdentifier("movieListPage.group")
-        .onFirstAppear {
-            viewModel.fetchMovies()
+        .toolbar {
+            SwitchDesignToolbarItem {
+                useUIKitView.toggle()
+            }
         }
+    }
+}
+
+@available(iOS 16.0, *)
+struct TVShowListViewControllerRepresentable: UIViewControllerRepresentable {
+    let viewModel: TVFeedViewModel
+
+    func makeUIViewController(context: Context) -> TVShowListViewController {
+        return TVShowListViewController(viewModel: viewModel)
+    }
+
+    func updateUIViewController(_ uiViewController: TVShowListViewController, context: Context) {
+        // Updates handled by the view model
     }
 }
 

@@ -114,6 +114,7 @@ let package = Package(
             name: "TMDB_TVShowDetail",
             dependencies: [
                 "TMDB_Shared_Backend",
+                "TMDB_Shared_UI",
             ]
         ),
         // Movie list
@@ -136,7 +137,15 @@ let package = Package(
         // TV show feed - clean architecture
         .target(
             name: "TMDB_TVFeed",
-            dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend", "CoreFeatures"],
+            dependencies: [
+                "Swinject",
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
+                "CoreFeatures",
+                "Shared_UI_Support",
+                .product(name: "SnapKit", package: "SnapKit"),
+
+            ],
             swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
         ),
         .testTarget(
@@ -200,6 +209,10 @@ let package = Package(
         ),
         .target(
             name: "Shared_UI_Support",
+            dependencies: [
+                .product(name: "SnapKit", package: "SnapKit"),
+                .product(name: "Kingfisher", package: "Kingfisher"),
+            ],
             resources: [.process("Resources")]
         ),
         .target(

@@ -4,47 +4,21 @@ import UIKit
 import Combine
 import CoreFeatures
 import Shared_UI_Support
+import SnapKit
 
-class TVShowListViewController: UIViewController {
+class TVShowListViewController: UIViewController, UISearchBarDelegate {
     // MARK: - Properties
 
     private let viewModel: TVFeedViewModel
     private var movies: [Movie] = []
-
-    // MARK: - UI Components
-
-    private lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 16
-        layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
-
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
-        collectionView.register(MovieItemCell.self, forCellWithReuseIdentifier: "MovieItemCell")
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
-
-    private lazy var loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .large)
-        indicator.hidesWhenStopped = true
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        return indicator
-    }()
-
-    private lazy var errorLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.textColor = .systemRed
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    private var filteredMovies: [Movie] = []
+    private var searchBar: UISearchBar!
+    private var refreshControl: UIRefreshControl!
+    private var collectionView: UICollectionView!
+    private let padding: Int = 8
+    private let searchBarHeight: Int = 60
+    private var searchString: String?
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
@@ -61,35 +35,91 @@ class TVShowListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        setupNavigationBar()
+        setupSearchBar()
+        setupCollectionView()
+        setupPullToRefresh()
         setupBindings()
         viewModel.fetchMovies()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.title = "TV Shows"
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        navigationController?.hidesBarsOnSwipe = true
+        navigationController?.navigationBar.tintColor = ThemeService.BLACK
+        navigationController?.navigationBar.titleTextAttributes = nil
+    }
+
     // MARK: - Setup
 
-    private func setupUI() {
-        view.backgroundColor = .systemBackground
-        title = "TV Shows"
+    private func setupNavigationBar() {
+        navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = ThemeService.LIGHT_GREY
+    }
+
+    private func setupSearchBar() {
+        searchBar = UISearchBar()
+        searchBar.searchBarStyle = .prominent
+        searchBar.tintColor = .white
+        searchBar.barTintColor = .white
+        searchBar.delegate = self
+        searchBar.placeholder = "Filter..."
+        searchBar.isTranslucent = true
+        searchBar.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.75)
+        searchBar.backgroundImage = UIImage()
+
+        if #available(iOS 13.0, *) {
+            searchBar.searchTextField.backgroundColor = .clear
+        } else {
+            if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+                textField.backgroundColor = .clear
+            }
+        }
+
+        view.addSubview(searchBar)
+
+        searchBar.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(searchBarHeight)
+        }
+    }
+
+    private func setupCollectionView() {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = CGFloat(padding)
+        layout.minimumInteritemSpacing = 0
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(MovieItemCell.self, forCellWithReuseIdentifier: "MovieItemCell")
+
+        let top = CGFloat(searchBarHeight + padding)
+        collectionView.contentInset = UIEdgeInsets(top: top, left: 0, bottom: 0, right: 0)
 
         view.addSubview(collectionView)
-        view.addSubview(loadingIndicator)
-        view.addSubview(errorLabel)
 
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        collectionView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
 
-            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+    private func setupPullToRefresh() {
+        refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView.addSubview(refreshControl)
+    }
 
-            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            errorLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-        ])
+    @objc private func handleRefresh() {
+        viewModel.fetchMovies()
     }
 
     private func setupBindings() {
@@ -98,18 +128,17 @@ class TVShowListViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] movies in
                 self?.movies = movies
+                self?.filteredMovies = movies
                 self?.collectionView.reloadData()
+                self?.refreshControl.endRefreshing()
             }
             .store(in: &cancellables)
 
         viewModel.$isLoading
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoading in
-                if isLoading {
-                    self?.loadingIndicator.startAnimating()
-                    self?.errorLabel.isHidden = true
-                } else {
-                    self?.loadingIndicator.stopAnimating()
+                if !isLoading {
+                    self?.refreshControl.endRefreshing()
                 }
             }
             .store(in: &cancellables)
@@ -118,25 +147,63 @@ class TVShowListViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] errorMessage in
                 if let errorMessage = errorMessage {
-                    self?.errorLabel.text = errorMessage
-                    self?.errorLabel.isHidden = false
-                } else {
-                    self?.errorLabel.isHidden = true
+                    // Handle error display if needed
+                    print("Error: \(errorMessage)")
                 }
             }
             .store(in: &cancellables)
     }
 
-    // MARK: - Private Properties
+    // MARK: - Search Bar Delegate
 
-    private var cancellables = Set<AnyCancellable>()
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            cancelSearching()
+            view.endEditing(true)
+        }
+        searchString = searchText
+        applyFilter()
+        collectionView.reloadData()
+        scrollToTop()
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        view.endEditing(true)
+    }
+
+    private func applyFilter() {
+        guard let searchString = searchString, !searchString.isEmpty else {
+            filteredMovies = movies
+            return
+        }
+        filteredMovies = movies.filter { movie in
+            movie.title.lowercased().contains(searchString.lowercased()) ||
+            movie.overview.lowercased().contains(searchString.lowercased())
+        }
+    }
+
+    private func cancelSearching() {
+        DispatchQueue.main.async {
+            self.searchBar.resignFirstResponder()
+            self.searchBar.text = ""
+            self.searchString = nil
+            self.filteredMovies = self.movies
+            self.collectionView.reloadData()
+        }
+    }
+
+    private func scrollToTop() {
+        if filteredMovies.count > 0 {
+            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+        }
+    }
 }
 
 // MARK: - UICollectionViewDataSource
 
 extension TVShowListViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return movies.count
+        return filteredMovies.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -147,7 +214,7 @@ extension TVShowListViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
 
-        let movie = movies[indexPath.item]
+        let movie = filteredMovies[indexPath.item]
         cell.configure(with: movie)
         return cell
     }
@@ -161,13 +228,9 @@ extension TVShowListViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        let padding: CGFloat = 16 * 2
-        let spacing: CGFloat = 16
-        let availableWidth = collectionView.bounds.width - padding - spacing
-        let cellWidth = availableWidth
-        let cellHeight: CGFloat = 120 // Fixed height for the cell
-
-        return CGSize(width: cellWidth, height: cellHeight)
+        let width = Int(collectionView.bounds.size.width) - (padding * 2)
+        let height = ThemeService.CELLS_HEIGHT
+        return CGSize(width: width, height: height)
     }
 }
 
@@ -175,8 +238,30 @@ extension TVShowListViewController: UICollectionViewDelegateFlowLayout {
 
 extension TVShowListViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let movie = movies[indexPath.item]
+        let movie = filteredMovies[indexPath.item]
         // Handle movie selection - you can add navigation logic here
         print("Selected movie: \(movie.title)")
+    }
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        // Implement pagination if needed
+        // if indexPath.item == filteredMovies.count - 1 {
+        //     // Load more data
+        // }
+    }
+}
+
+@available(iOS 17, *)
+#Preview {
+    let viewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
+    let nav = UINavigationController(rootViewController: TVShowListViewController(viewModel: viewModel))
+    return nav
+}
+
+// MARK: - Mock Use Case for Preview
+
+private class MockFetchMoviesUseCase: FetchMoviesUseCase {
+    func execute() async -> Result<[Movie], Error> {
+        return .success(Movie.exampleMovies)
     }
 }
