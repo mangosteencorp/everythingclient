@@ -22,9 +22,9 @@ class RatingView: UIView {
         backgroundColor = .clear
 
         label = UILabel()
-        label.textColor = ThemeService.PRIMARY_COLOR
+        label.textColor = ThemeService.primaryColor
         label.text = "N/A"
-        label.font = ThemeService.H2_FONT_BOLD
+        label.font = ThemeService.h2FontBold
         label.textAlignment = .center
 
         addSubview(label)
@@ -46,7 +46,7 @@ class RatingView: UIView {
     override func draw(_ rect: CGRect) {
         if let context = UIGraphicsGetCurrentContext() {
             context.setLineWidth(5.0)
-            ThemeService.YELLOW.set()
+            ThemeService.yellow.set()
             let center = CGPoint(x: frame.size.width / 2, y: frame.size.height / 2)
             let diameter = min(rect.height, rect.width)
             context.addArc(center: center, radius: diameter / 2, startAngle: 0.0, endAngle: .pi * 2.0, clockwise: true)
@@ -74,8 +74,8 @@ class FavButton: UIView {
         clipsToBounds = true
 
         label = UILabel()
-        label.textColor = ThemeService.WHITE
-        label.font = ThemeService.H2_FONT_BOLD
+        label.textColor = ThemeService.white
+        label.font = ThemeService.h2FontBold
         label.textAlignment = .center
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.5
@@ -116,9 +116,9 @@ class FavButton: UIView {
     func updateDisplay(force: Bool? = nil) {
         guard let item = item else { return }
         if item.isFavorited() || force == true {
-            backgroundColor = ThemeService.LIGHT_GREY
+            backgroundColor = ThemeService.lightGrey
             label.text = "Favorite"
-            label.textColor = ThemeService.DARK_GREY
+            label.textColor = ThemeService.darkGrey
         } else {
             backgroundColor = .orange
             label.text = "+ Favorite"
@@ -174,30 +174,30 @@ public class MovieItemCell: UICollectionViewCell {
 
     // Private setup methods
     private func setupViews() {
-        contentView.backgroundColor = ThemeService.MID_GREY
+        contentView.backgroundColor = ThemeService.midGrey
         contentView.layer.cornerRadius = 2
-        contentView.layer.borderColor = ThemeService.MID_GREY.cgColor
+        contentView.layer.borderColor = ThemeService.midGrey.cgColor
         contentView.layer.borderWidth = 1
 
-        imageContainer.backgroundColor = ThemeService.DARK_GREY
+        imageContainer.backgroundColor = ThemeService.darkGrey
         descContainer.backgroundColor = .clear
 
         posterView.contentMode = .scaleAspectFill
         posterView.clipsToBounds = true
 
-        dateLabel.textColor = ThemeService.SECONDARY_COLOR
-        dateLabel.font = ThemeService.H2_FONT
+        dateLabel.textColor = ThemeService.secondaryColor
+        dateLabel.font = ThemeService.h2Font
 
-        titleLabel.textColor = ThemeService.PRIMARY_COLOR
-        titleLabel.font = ThemeService.H1_FONT
+        titleLabel.textColor = ThemeService.primaryColor
+        titleLabel.font = ThemeService.h1Font
         titleLabel.adjustsFontSizeToFitWidth = true
         titleLabel.minimumScaleFactor = 0.5
 
-        descLabel.textColor = ThemeService.SECONDARY_COLOR
-        descLabel.font = ThemeService.DEFAULT_FONT
+        descLabel.textColor = ThemeService.secondaryColor
+        descLabel.font = ThemeService.defaultFont
         descLabel.numberOfLines = 2
 
-        separator.backgroundColor = ThemeService.DARK_GREY
+        separator.backgroundColor = ThemeService.darkGrey
 
         contentView.addSubview(imageContainer)
         contentView.addSubview(descContainer)
@@ -298,10 +298,10 @@ public class MovieItemCell: UICollectionViewCell {
     }
 
     private func updatePalette(withImage image: UIImage?) {
-        contentView.backgroundColor = ThemeService.MID_GREY
-        dateLabel.textColor = ThemeService.BLACK
-        titleLabel.textColor = ThemeService.BLACK
-        descLabel.textColor = ThemeService.BLACK
+        contentView.backgroundColor = ThemeService.midGrey
+        dateLabel.textColor = ThemeService.black
+        titleLabel.textColor = ThemeService.black
+        descLabel.textColor = ThemeService.black
 
         guard let image = image else { return }
 
@@ -323,25 +323,25 @@ public class MovieItemCell: UICollectionViewCell {
 // MARK: - Theme Service
 
 public class ThemeService: NSObject {
-    public static let PADDING = 20
-    public static let CELLS_HEIGHT = 222
-    public static let FONT_FAMILY = "HelveticaNeue"
+    public static let padding = 20
+    public static let cellsHeight = 222
+    public static let fontFamily = "HelveticaNeue"
 
-    public static let H1_FONT = UIFont(name: "\(FONT_FAMILY)-Bold", size: 22)
-    public static let H2_FONT_BOLD = UIFont(name: "\(FONT_FAMILY)-Bold", size: 16)
-    public static let H2_FONT = UIFont(name: "\(FONT_FAMILY)-Light", size: 16)
-    public static let H3_FONT = UIFont(name: FONT_FAMILY, size: 12)
-    public static let DEFAULT_FONT = UIFont(name: FONT_FAMILY, size: 14)
+    public static let h1Font = UIFont(name: "\(fontFamily)-Bold", size: 22)
+    public static let h2FontBold = UIFont(name: "\(fontFamily)-Bold", size: 16)
+    public static let h2Font = UIFont(name: "\(fontFamily)-Light", size: 16)
+    public static let h3Font = UIFont(name: fontFamily, size: 12)
+    public static let defaultFont = UIFont(name: fontFamily, size: 14)
 
-    public static let LIGHT_GREY = UIColor(red: 235, green: 235, blue: 235)
-    public static let MID_GREY = UIColor(red: 200, green: 200, blue: 200)
-    public static let DARK_GREY = UIColor(red: 130, green: 130, blue: 130)
-    public static let WHITE = UIColor.white
-    public static let YELLOW = UIColor(red: 250, green: 200, blue: 50)
-    public static let BLACK = UIColor(red: 40, green: 40, blue: 40)
+    public static let lightGrey = UIColor(red: 235, green: 235, blue: 235)
+    public static let midGrey = UIColor(red: 200, green: 200, blue: 200)
+    public static let darkGrey = UIColor(red: 130, green: 130, blue: 130)
+    public static let white = UIColor.white
+    public static let yellow = UIColor(red: 250, green: 200, blue: 50)
+    public static let black = UIColor(red: 40, green: 40, blue: 40)
 
-    public static let PRIMARY_COLOR = BLACK
-    public static let SECONDARY_COLOR = DARK_GREY
+    public static let primaryColor = black
+    public static let secondaryColor = darkGrey
 }
 
 extension UIImage {

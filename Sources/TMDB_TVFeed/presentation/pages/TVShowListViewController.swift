@@ -51,7 +51,7 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         navigationController?.hidesBarsOnSwipe = true
-        navigationController?.navigationBar.tintColor = ThemeService.BLACK
+        navigationController?.navigationBar.tintColor = ThemeService.black
         navigationController?.navigationBar.titleTextAttributes = nil
     }
 
@@ -59,7 +59,7 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
 
     private func setupNavigationBar() {
         navigationController?.navigationBar.prefersLargeTitles = true
-        view.backgroundColor = ThemeService.LIGHT_GREY
+        view.backgroundColor = ThemeService.lightGrey
     }
 
     private func setupSearchBar() {
@@ -193,7 +193,7 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
     }
 
     private func scrollToTop() {
-        if filteredMovies.count > 0 {
+        if !filteredMovies.isEmpty {
             collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
         }
     }
@@ -229,7 +229,7 @@ extension TVShowListViewController: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         let width = Int(collectionView.bounds.size.width) - (padding * 2)
-        let height = ThemeService.CELLS_HEIGHT
+        let height = ThemeService.cellsHeight
         return CGSize(width: width, height: height)
     }
 }
