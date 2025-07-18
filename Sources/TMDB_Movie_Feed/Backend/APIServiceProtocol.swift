@@ -158,40 +158,58 @@ extension TMDBAPIService: APIServiceProtocol {
     }
 
     public func fetchAiringTodayTVShows(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<TVShowListResponse, Error> {
-        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.tvAiringToday(page: page))
-        // Map TMDBAPIError to Error
+        let result: Result<TVShowListResultModel, TMDBAPIError> = await request(.tvAiringToday(page: page))
+        // Map TMDBAPIError to Error and convert response type
         switch result {
         case let .success(response):
-            return .success(response)
+            let tvShowResponse = TVShowListResponse(
+                page: response.page,
+                results: response.results,
+                totalPages: response.total_pages,
+                totalResults: response.total_results
+            )
+            return .success(tvShowResponse)
         case let .failure(error):
             return .failure(error as Error)
         }
     }
 
     public func fetchOnTheAirTVShows(page: Int?, additionalParams: AdditionalMovieListParams? = nil) async -> Result<TVShowListResponse, Error> {
-        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.tvOnTheAir(page: page))
-        // Map TMDBAPIError to Error
+        let result: Result<TVShowListResultModel, TMDBAPIError> = await request(.tvOnTheAir(page: page))
+        // Map TMDBAPIError to Error and convert response type
         switch result {
         case let .success(response):
-            return .success(response)
+            let tvShowResponse = TVShowListResponse(
+                page: response.page,
+                results: response.results,
+                totalPages: response.total_pages,
+                totalResults: response.total_results
+            )
+            return .success(tvShowResponse)
         case let .failure(error):
             return .failure(error as Error)
         }
     }
 
     public func searchTVShows(query: String, page: Int?) async -> Result<TVShowListResponse, Error> {
-        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.searchTVShows(query: query, page: page))
-        // Map TMDBAPIError to Error
+        let result: Result<TVShowListResultModel, TMDBAPIError> = await request(.searchTVShows(query: query, page: page))
+        // Map TMDBAPIError to Error and convert response type
         switch result {
         case let .success(response):
-            return .success(response)
+            let tvShowResponse = TVShowListResponse(
+                page: response.page,
+                results: response.results,
+                totalPages: response.total_pages,
+                totalResults: response.total_results
+            )
+            return .success(tvShowResponse)
         case let .failure(error):
             return .failure(error as Error)
         }
     }
 
     public func searchTVShows(query: String, page: Int?, filters: SearchFilters?) async -> Result<TVShowListResponse, Error> {
-        let result: Result<TVShowListResponse, TMDBAPIError> = await request(.searchTVShows(
+        let result: Result<TVShowListResultModel, TMDBAPIError> = await request(.searchTVShows(
             query: query,
             includeAdult: filters?.includeAdult,
             language: filters?.language,
@@ -200,10 +218,16 @@ extension TMDBAPIService: APIServiceProtocol {
             region: filters?.region,
             year: filters?.year
         ))
-        // Map TMDBAPIError to Error
+        // Map TMDBAPIError to Error and convert response type
         switch result {
         case let .success(response):
-            return .success(response)
+            let tvShowResponse = TVShowListResponse(
+                page: response.page,
+                results: response.results,
+                totalPages: response.total_pages,
+                totalResults: response.total_results
+            )
+            return .success(tvShowResponse)
         case let .failure(error):
             return .failure(error as Error)
         }

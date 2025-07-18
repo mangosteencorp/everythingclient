@@ -70,6 +70,12 @@ public class MovieFeedViewModel: ObservableObject {
     private var topRatedMovies: [Movie] = []
     private var upcomingMovies: [Movie] = []
     private var currentPage: Int = 1
+
+    // Computed property to check if we have any cached movies
+    var hasCachedMovies: Bool {
+        return !nowPlayingMovies.isEmpty || !popularMovies.isEmpty || !topRatedMovies.isEmpty || !upcomingMovies.isEmpty
+    }
+
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?

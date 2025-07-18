@@ -14,6 +14,12 @@ public class TVShowFeedViewModel: ObservableObject {
     private var airingTodayShows: [TVShow] = []
     private var onTheAirShows: [TVShow] = []
     private var currentPage: Int = 1
+
+    // Computed property to check if we have any cached TV shows
+    var hasCachedShows: Bool {
+        return !airingTodayShows.isEmpty || !onTheAirShows.isEmpty
+    }
+
     private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?

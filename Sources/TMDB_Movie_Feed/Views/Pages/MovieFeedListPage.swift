@@ -179,13 +179,19 @@ public struct MovieFeedListPage<Route: Hashable>: View {
             // Only fetch if we don't have any movies loaded for the current feed type
             if case .initial = movieViewModel.state {
                 movieViewModel.fetchNowPlayingMovies()
+            } else if !movieViewModel.hasCachedMovies {
+                // If we have no cached data, fetch it
+                movieViewModel.fetchNowPlayingMovies()
             } else {
                 // If we have data but it's not for the current feed type, load the cached data
                 movieViewModel.loadCurrentFeedMovies()
             }
         case .tvShows:
-            // Only fetch if we don't have any TV shows loaded for the current feed type
+            // Always fetch TV shows if we're in initial state or if we don't have any shows loaded
             if case .initial = tvShowViewModel.state {
+                tvShowViewModel.fetchAiringTodayTVShows()
+            } else if !tvShowViewModel.hasCachedShows {
+                // If we have no cached data, fetch it
                 tvShowViewModel.fetchAiringTodayTVShows()
             } else {
                 // If we have data but it's not for the current feed type, load the cached data
