@@ -251,6 +251,7 @@ extension TVShowListViewController: UICollectionViewDelegate {
     }
 }
 
+#if DEBUG
 @available(iOS 17, *)
 #Preview {
     let viewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
@@ -265,3 +266,4 @@ private class MockFetchMoviesUseCase: FetchMoviesUseCase {
         return .success(Movie.exampleMovies)
     }
 }
+#endif

@@ -107,7 +107,7 @@ public class TVShowFeedViewModel: ObservableObject {
         }
     }
 
-    private func loadCurrentFeedTVShows() {
+    func loadCurrentFeedTVShows() {
         let shows: [TVShow]
         switch currentFeedType {
         case .airingToday:

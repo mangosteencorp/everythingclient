@@ -177,7 +177,7 @@ public class MovieFeedViewModel: ObservableObject {
         }
     }
 
-    private func loadCurrentFeedMovies() {
+    func loadCurrentFeedMovies() {
         let movies: [Movie]
         switch currentFeedType {
         case .nowPlaying:

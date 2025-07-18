@@ -176,9 +176,21 @@ public struct MovieFeedListPage<Route: Hashable>: View {
     private func loadInitialContent() {
         switch selectedContentType {
         case .movies:
-            movieViewModel.fetchNowPlayingMovies()
+            // Only fetch if we don't have any movies loaded for the current feed type
+            if case .initial = movieViewModel.state {
+                movieViewModel.fetchNowPlayingMovies()
+            } else {
+                // If we have data but it's not for the current feed type, load the cached data
+                movieViewModel.loadCurrentFeedMovies()
+            }
         case .tvShows:
-            tvShowViewModel.fetchAiringTodayTVShows()
+            // Only fetch if we don't have any TV shows loaded for the current feed type
+            if case .initial = tvShowViewModel.state {
+                tvShowViewModel.fetchAiringTodayTVShows()
+            } else {
+                // If we have data but it's not for the current feed type, load the cached data
+                tvShowViewModel.loadCurrentFeedTVShows()
+            }
         }
     }
 }
