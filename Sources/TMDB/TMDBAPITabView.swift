@@ -24,7 +24,7 @@ public enum NavigationWrapStyle: Int, CaseIterable {
         let nextRawValue = (rawValue + 1) % NavigationWrapStyle.allCases.count
         return NavigationWrapStyle(rawValue: nextRawValue)!
     }
-    
+
     var displayName: String {
         switch self {
         case .navigationView:
@@ -41,7 +41,7 @@ public enum TabNavCombination: CaseIterable {
     case normalTabNavigationViewNav
     case floatingTabPlainNav
     case floatingTabNavigationViewNav
-    
+
     var tabStyle: TabStyle {
         switch self {
         case .normalTabPlainNav, .normalTabNavigationViewNav:
@@ -50,7 +50,7 @@ public enum TabNavCombination: CaseIterable {
             return .floating
         }
     }
-    
+
     var navigationStyle: NavigationWrapStyle {
         switch self {
         case .normalTabPlainNav, .floatingTabPlainNav:
@@ -59,7 +59,7 @@ public enum TabNavCombination: CaseIterable {
             return .navigationView
         }
     }
-    
+
     var displayName: String {
         switch self {
         case .normalTabPlainNav:
@@ -72,7 +72,7 @@ public enum TabNavCombination: CaseIterable {
             return "Floating Tab + Navigation View"
         }
     }
-    
+
     var isValid: Bool {
         // NavigationView is only valid on iPad for split view purposes
         if navigationStyle == .navigationView && UIDevice.current.userInterfaceIdiom != .pad {
@@ -80,7 +80,7 @@ public enum TabNavCombination: CaseIterable {
         }
         return true
     }
-    
+
     static var validCases: [TabNavCombination] {
         return allCases.filter { $0.isValid }
     }
@@ -106,7 +106,7 @@ public struct TMDBAPITabView: View {
         self.tmdbKey = tmdbKey
         let defaultTabStyle = tabStyle ?? (UIDevice.current.userInterfaceIdiom == .pad ? .normal : .floating)
         let defaultCombination: TabNavCombination = defaultTabStyle == .normal ? .normalTabPlainNav : .floatingTabPlainNav
-        self.tabNavCombination = defaultCombination
+        tabNavCombination = defaultCombination
         self.navigationInterceptor = navigationInterceptor
         self.analyticsTracker = analyticsTracker
         let container = Container()
@@ -168,24 +168,8 @@ public struct TMDBAPITabView: View {
             }
         }
 
-        if tabNavCombination.tabStyle == .page {
-            NavigationStack(path: coordinator.path(for: .movieFeed)) {
-                    movieFeedContent
-            }.navigationSplitViewStyle(BalancedNavigationSplitViewStyle())
-        } else {
-            switch tabNavCombination.navigationStyle {
-            case .navigationView where UIDevice.current.userInterfaceIdiom == .pad:
-                NavigationStack(path: coordinator.path(for: .movieFeed)) {
-                    NavigationView {
-                        movieFeedContent
-                    }
-                }
-            default:
-                NavigationStack(path: coordinator.path(for: .movieFeed)) {
-                    movieFeedContent
-                }
-            }
-        }
+        movieFeedContent
+            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .movieFeed)
     }
 
     @ViewBuilder
@@ -199,16 +183,8 @@ public struct TMDBAPITabView: View {
         }
         .withTMDBNavigationDestinations(container: container)
 
-        if tabNavCombination.tabStyle == .page {
-            NavigationView {
-                tvShowContent
-            }
-#if os(iOS)
-            .navigationViewStyle(StackNavigationViewStyle())
-#endif
-        } else {
-            tvShowContent
-        }
+        tvShowContent
+            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .tvShowFeed)
     }
 
     @ViewBuilder
@@ -317,7 +293,7 @@ public struct TMDBAPITabView: View {
 @available(iOS 16, *)
 private struct SwitchTabNavDesignToolbarItem: View {
     @Binding var tabNavCombination: TabNavCombination
-    
+
     var body: some View {
         Menu {
             ForEach(TabNavCombination.validCases, id: \.self) { combination in
@@ -335,5 +311,36 @@ private struct SwitchTabNavDesignToolbarItem: View {
         } label: {
             Image(systemName: "figure.jumprope")
         }
+    }
+}
+
+// MARK: - ViewModifiers
+
+@available(iOS 16, *)
+private struct TabNavCombinationModifier: ViewModifier {
+    let tabNavCombination: TabNavCombination
+    let coordinator: Coordinator
+    let tabRoute: TabRoute
+
+    func body(content: Content) -> some View {
+        switch tabNavCombination {
+        case .normalTabPlainNav, .floatingTabPlainNav:
+            NavigationStack(path: coordinator.path(for: tabRoute)) {
+                content
+            }
+        case .normalTabNavigationViewNav, .floatingTabNavigationViewNav:
+            NavigationStack(path: coordinator.path(for: tabRoute)) {
+                NavigationView {
+                    content
+                }
+            }
+        }
+    }
+}
+
+@available(iOS 16, *)
+private extension View {
+    func withTabNavCombination(_ combination: TabNavCombination, coordinator: Coordinator, tabRoute: TabRoute) -> some View {
+        modifier(TabNavCombinationModifier(tabNavCombination: combination, coordinator: coordinator, tabRoute: tabRoute))
     }
 }
