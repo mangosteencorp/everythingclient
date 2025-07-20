@@ -24,6 +24,66 @@ public enum NavigationWrapStyle: Int, CaseIterable {
         let nextRawValue = (rawValue + 1) % NavigationWrapStyle.allCases.count
         return NavigationWrapStyle(rawValue: nextRawValue)!
     }
+    
+    var displayName: String {
+        switch self {
+        case .navigationView:
+            return "Navigation View"
+        case .plain:
+            return "Plain"
+        }
+    }
+}
+
+@available(iOS 16, *)
+public enum TabNavCombination: CaseIterable {
+    case normalTabPlainNav
+    case normalTabNavigationViewNav
+    case floatingTabPlainNav
+    case floatingTabNavigationViewNav
+    
+    var tabStyle: TabStyle {
+        switch self {
+        case .normalTabPlainNav, .normalTabNavigationViewNav:
+            return .normal
+        case .floatingTabPlainNav, .floatingTabNavigationViewNav:
+            return .floating
+        }
+    }
+    
+    var navigationStyle: NavigationWrapStyle {
+        switch self {
+        case .normalTabPlainNav, .floatingTabPlainNav:
+            return .plain
+        case .normalTabNavigationViewNav, .floatingTabNavigationViewNav:
+            return .navigationView
+        }
+    }
+    
+    var displayName: String {
+        switch self {
+        case .normalTabPlainNav:
+            return "Normal Tab + Plain Nav"
+        case .normalTabNavigationViewNav:
+            return "Normal Tab + Navigation View"
+        case .floatingTabPlainNav:
+            return "Floating Tab + Plain Nav"
+        case .floatingTabNavigationViewNav:
+            return "Floating Tab + Navigation View"
+        }
+    }
+    
+    var isValid: Bool {
+        // NavigationView is only valid on iPad for split view purposes
+        if navigationStyle == .navigationView && UIDevice.current.userInterfaceIdiom != .pad {
+            return false
+        }
+        return true
+    }
+    
+    static var validCases: [TabNavCombination] {
+        return allCases.filter { $0.isValid }
+    }
 }
 
 @available(iOS 16, *)
@@ -32,8 +92,7 @@ public struct TMDBAPITabView: View {
     private let container: Container
     private let tmdbKey: String
     private let analyticsTracker: AnalyticsTracker?
-    @State private(set) var tabStyle: TabStyle
-    @State private(set) var navigationWrapStyle: NavigationWrapStyle = .plain
+    @State private(set) var tabNavCombination: TabNavCombination
     @State private var isShowingMovieDetail = false
     @State private var isShowingTVShowDetail = false
     @State private var selectedMovieId: Int?
@@ -45,7 +104,9 @@ public struct TMDBAPITabView: View {
                 navigationInterceptor: TMDBNavigationInterceptor? = nil,
                 analyticsTracker: AnalyticsTracker? = nil) {
         self.tmdbKey = tmdbKey
-        self.tabStyle = tabStyle ?? (UIDevice.current.userInterfaceIdiom == .pad ? .normal : .floating)
+        let defaultTabStyle = tabStyle ?? (UIDevice.current.userInterfaceIdiom == .pad ? .normal : .floating)
+        let defaultCombination: TabNavCombination = defaultTabStyle == .normal ? .normalTabPlainNav : .floatingTabPlainNav
+        self.tabNavCombination = defaultCombination
         self.navigationInterceptor = navigationInterceptor
         self.analyticsTracker = analyticsTracker
         let container = Container()
@@ -66,7 +127,7 @@ public struct TMDBAPITabView: View {
 
     public var body: some View {
         Group {
-            switch tabStyle {
+            switch tabNavCombination.tabStyle {
             case .normal:
                 normalTabView
             case .floating:
@@ -103,18 +164,16 @@ public struct TMDBAPITabView: View {
         .withTMDBNavigationDestinations(container: container)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button(action: {
-                    navigationWrapStyle = navigationWrapStyle.next()
-                }, label: { Image(systemName: "figure.jumprope") })
+                SwitchTabNavDesignToolbarItem(tabNavCombination: $tabNavCombination)
             }
         }
 
-        if tabStyle == .page {
+        if tabNavCombination.tabStyle == .page {
             NavigationStack(path: coordinator.path(for: .movieFeed)) {
                     movieFeedContent
             }.navigationSplitViewStyle(BalancedNavigationSplitViewStyle())
         } else {
-            switch navigationWrapStyle {
+            switch tabNavCombination.navigationStyle {
             case .navigationView where UIDevice.current.userInterfaceIdiom == .pad:
                 NavigationStack(path: coordinator.path(for: .movieFeed)) {
                     NavigationView {
@@ -140,7 +199,7 @@ public struct TMDBAPITabView: View {
         }
         .withTMDBNavigationDestinations(container: container)
 
-        if tabStyle == .page {
+        if tabNavCombination.tabStyle == .page {
             NavigationView {
                 tvShowContent
             }
@@ -250,5 +309,31 @@ public struct TMDBAPITabView: View {
             ), items: tabItems)
         }
         .environmentObject(coordinator)
+    }
+}
+
+// MARK: - Toolbar Items
+
+@available(iOS 16, *)
+private struct SwitchTabNavDesignToolbarItem: View {
+    @Binding var tabNavCombination: TabNavCombination
+    
+    var body: some View {
+        Menu {
+            ForEach(TabNavCombination.validCases, id: \.self) { combination in
+                Button(action: {
+                    tabNavCombination = combination
+                }) {
+                    HStack {
+                        Text(combination.displayName)
+                        if tabNavCombination == combination {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "figure.jumprope")
+        }
     }
 }
