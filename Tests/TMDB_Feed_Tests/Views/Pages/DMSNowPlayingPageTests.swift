@@ -1,5 +1,5 @@
 import SwiftUI
-@testable import TMDB_Movie_Feed
+@testable import TMDB_Feed
 import TMDB_Shared_UI
 import ViewInspector
 import XCTest
@@ -12,7 +12,13 @@ class MovieFeedListPageTests: XCTestCase {
     override func setUp() {
         super.setUp()
         mockViewModel = MovieFeedViewModel(apiService: MockAPIService())
-        page = MovieFeedListPage(viewModel: mockViewModel, detailRouteBuilder: { _ in 1 })
+        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
+        page = MovieFeedListPage(
+            movieViewModel: mockViewModel,
+            tvShowViewModel: mockTVShowViewModel,
+            detailRouteBuilder: { _ in 1 },
+            tvShowDetailRouteBuilder: { _ in 1 }
+        )
     }
 
     override func tearDown() {
@@ -22,8 +28,14 @@ class MovieFeedListPageTests: XCTestCase {
     }
 
     func testInitialState() {
-        let pageSelfCreatedVM = MovieFeedListPage(apiService: MockAPIService(), detailRouteBuilder: { _ in 1 })
-        XCTAssertNotNil(pageSelfCreatedVM.viewModel)
+        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
+        let pageSelfCreatedVM = MovieFeedListPage(
+            movieViewModel: MovieFeedViewModel(apiService: MockAPIService()),
+            tvShowViewModel: mockTVShowViewModel,
+            detailRouteBuilder: { _ in 1 },
+            tvShowDetailRouteBuilder: { _ in 1 }
+        )
+        XCTAssertNotNil(pageSelfCreatedVM)
     }
 
     func testLoadingState() throws {
@@ -61,7 +73,13 @@ class MovieFeedListPageTests: XCTestCase {
 
         // When
         testViewModel.state = .loaded([testMovie])
-        let testPage = MovieFeedListPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
+        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
+        let testPage = MovieFeedListPage(
+            movieViewModel: testViewModel,
+            tvShowViewModel: mockTVShowViewModel,
+            detailRouteBuilder: { _ in 1 },
+            tvShowDetailRouteBuilder: { _ in 1 }
+        )
 
         // Then
         let list = try testPage.inspect().find(ViewType.List.self)
@@ -81,7 +99,13 @@ class MovieFeedListPageTests: XCTestCase {
 
         // When
         testViewModel.state = .searchResults([searchMovie])
-        let testPage = MovieFeedListPage(viewModel: testViewModel, detailRouteBuilder: { _ in 1 })
+        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
+        let testPage = MovieFeedListPage(
+            movieViewModel: testViewModel,
+            tvShowViewModel: mockTVShowViewModel,
+            detailRouteBuilder: { _ in 1 },
+            tvShowDetailRouteBuilder: { _ in 1 }
+        )
 
         // Then
         let list = try testPage.inspect().find(ViewType.List.self)

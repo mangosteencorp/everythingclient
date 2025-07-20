@@ -1,5 +1,5 @@
 import SwiftUI
-@testable import TMDB_Movie_Feed
+@testable import TMDB_Feed
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 import XCTest

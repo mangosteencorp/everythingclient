@@ -1,4 +1,4 @@
-@testable import TMDB_TVFeed
+@testable import TMDB_Discover
 
 // MARK: - Mock Classes
 

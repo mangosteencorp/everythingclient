@@ -1,12 +1,12 @@
 import CoreFeatures
 import SwiftUI
 import Swinject
-import TMDB_Movie_Feed
+import TMDB_Discover
+import TMDB_Feed
 import TMDB_MovieDetail
 import TMDB_Profile
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
-import TMDB_TVFeed
 
 @available(iOS 16, *)
 public enum TabStyle: CaseIterable {
@@ -174,7 +174,7 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildTVShowFeedPage() -> some View {
-        let tvShowContent = TMDB_TVFeed.TVShowListPage(
+        let tvShowContent = TMDB_Discover.TVShowListPage(
             container: container,
             apiKey: tmdbKey,
             type: .onTheAir

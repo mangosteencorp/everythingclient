@@ -1,5 +1,5 @@
 import Foundation
-@testable import TMDB_TVFeed
+@testable import TMDB_Discover
 
 enum MockData {
     static let movies: [APITVShow] = [

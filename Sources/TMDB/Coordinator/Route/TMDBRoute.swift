@@ -1,4 +1,4 @@
-import TMDB_Movie_Feed
+import TMDB_Feed
 public enum TMDBRoute: Route {
     case movieDetail(MovieRouteModel)
     case tvShowDetail(Int)

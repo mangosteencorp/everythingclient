@@ -1,4 +1,4 @@
-@testable import TMDB_Movie_Feed
+@testable import TMDB_Feed
 import XCTest
 
 final class ModelTests: XCTestCase {

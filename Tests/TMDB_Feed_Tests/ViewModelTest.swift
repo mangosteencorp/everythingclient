@@ -1,5 +1,5 @@
 import Combine
-@testable import TMDB_Movie_Feed
+@testable import TMDB_Feed
 import XCTest
 
 class MockAPIService: APIServiceProtocol {
@@ -14,20 +14,37 @@ class MockAPIService: APIServiceProtocol {
         return mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
-    func searchMovies(query: String, page: Int?, filters: TMDB_Movie_Feed.SearchFilters?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+    func searchMovies(query: String, page: Int?, filters: TMDB_Feed.SearchFilters?) async -> Result<TMDB_Feed.MovieListResponse, any Error> {
         return mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
-    func fetchUpcomingMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+    func fetchUpcomingMovies(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.MovieListResponse, any Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
-    func fetchTopRatedMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+    func fetchTopRatedMovies(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.MovieListResponse, any Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
-    func fetchPopularMovies(page: Int?, additionalParams: TMDB_Movie_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Movie_Feed.MovieListResponse, any Error> {
+    func fetchPopularMovies(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.MovieListResponse, any Error> {
         return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
+    }
+
+    // TV Show methods
+    func fetchAiringTodayTVShows(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
+        return .failure(NSError(domain: "Test", code: -1))
+    }
+
+    func fetchOnTheAirTVShows(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
+        return .failure(NSError(domain: "Test", code: -1))
+    }
+
+    func searchTVShows(query: String, page: Int?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
+        return .failure(NSError(domain: "Test", code: -1))
+    }
+
+    func searchTVShows(query: String, page: Int?, filters: TMDB_Feed.SearchFilters?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
+        return .failure(NSError(domain: "Test", code: -1))
     }
 }
 

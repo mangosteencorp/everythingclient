@@ -87,8 +87,8 @@ Swinject are used for dependency injection.
 
 Details of packages:
 - **TMDB_MVVM_Detail**: Showing details of a movie including overview, cast, crew, keywords, etc. Using **SwiftUI** and **MVVM architecture**. 
-- **TMDB_Clean_MLS**: Display list of TV shows (from "up in the air" or "airing today" TMDB API) using **Clean Architecture** and **SwiftUI**.
-- **TMDB_MVVM_MLS**: same as TMDB_Clean_MLS but using **MVVM architecture**. Also supports endless loading
+- **TMDB_Discover**: Display list of TV shows (from "up in the air" or "airing today" TMDB API) using **Clean Architecture** and **SwiftUI**.
+- **TMDB_Feed**: same as TMDB_Discover but using **MVVM architecture**. Also supports endless loading
 - **TMDB_Clean_Profile**: Handling authentication and displaying user profile (including avatar, favourite movies & TV shows & watchlist). Using **Clean Architecture** and **UIKit** and **Combine** for concurrency.
 - **TMDB_TVShowDetail**: Showing details of a TV show including overview, cast, crew, TV seasons. Using **SwiftUI** and Data Store pattern. **Support multiple themes**.
 - **Pokedex_Pokelist**: loading a Pokemon list from Pokedex **GraphQL** API. Using **VIPER** architecture and **UIKit**
@@ -107,7 +107,7 @@ Using Router Pattern, `NavigationStack` and Coordinator pattern
 ## Testing
 
 🚧 Testing: 
-- ✅ 100% code coverage for TMDB_TVFeed module. For testabbility purpose:
+- ✅ 100% code coverage for TMDB_Discover module. For testabbility purpose:
     - Data layer & domain layer should be wrapped in protocol for easy mocking. Mocking `URLProtocol` is for testing URLSession Task creation.
     - Using ViewInspector library for SwiftUI unit testing.
 
