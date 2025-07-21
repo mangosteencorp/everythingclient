@@ -5,7 +5,7 @@ public enum TMDBEndpoint {
     case popular(page: Int? = nil), topRated(page: Int? = nil), upcoming(page: Int? = nil), nowPlaying(
         page: Int? = nil
     ),
-        trending(page: Int? = nil)
+        trending(page: Int? = nil), trendingAll(page: Int? = nil)
 
     // Movie Details
     case movieDetail(movie: Int)
@@ -86,6 +86,8 @@ public enum TMDBEndpoint {
             return "movie/now_playing"
         case .trending:
             return "trending/movie/day"
+        case .trendingAll:
+            return "trending/all/day"
         // Movie Details
         case let .movieDetail(movie):
             return "movie/\(movie)"
@@ -179,7 +181,7 @@ public enum TMDBEndpoint {
                 "include_image_language": languages,
                 "append_to_response": "keywords,images",
             ]
-        case let .popular(page), let .topRated(page), let .upcoming(page), let .nowPlaying(page), let .trending(page):
+        case let .popular(page), let .topRated(page), let .upcoming(page), let .nowPlaying(page), let .trending(page), let .trendingAll(page):
             if let page = page {
                 return ["page": String(page)]
             }
@@ -328,6 +330,12 @@ public enum TMDBEndpoint {
             return TVShowListResultModel.self
         case .tvShowDetail:
             return TVShowDetailModel.self
+        case .genres:
+            return GenreListModel.self
+        case .popularPersons:
+            return PersonListResultModel.self
+        case .trendingAll:
+            return TrendingAllResultModel.self
         default:
             throw TMDBAPIError.unsupportedEndpoint
         }
