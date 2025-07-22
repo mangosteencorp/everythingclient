@@ -24,6 +24,19 @@ public class MovieAssembly: Assembly {
         container.register(FetchUpcomingMoviesUseCase.self) { resolver in
             FetchUpcomingMoviesUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
         }
+        
+        // Register Discover Use Cases
+        container.register(FetchGenresUseCase.self) { resolver in
+            DefaultFetchGenresUseCase(repository: resolver.resolve(MovieRepository.self)!)
+        }
+        
+        container.register(FetchPopularPeopleUseCase.self) { resolver in
+            DefaultFetchPopularPeopleUseCase(repository: resolver.resolve(MovieRepository.self)!)
+        }
+        
+        container.register(FetchTrendingItemsUseCase.self) { resolver in
+            DefaultFetchTrendingItemsUseCase(repository: resolver.resolve(MovieRepository.self)!)
+        }
 
         // Register ViewModels
         container.register(TVFeedViewModel.self, name: "nowPlaying") { resolver in
@@ -36,6 +49,16 @@ public class MovieAssembly: Assembly {
         container.register(TVFeedViewModel.self, name: "upcoming") { resolver in
             TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!,
+                analyticsTracker: resolver.resolve(AnalyticsTracker.self)
+            )
+        }
+        
+        // Register HomeDiscoverViewModel
+        container.register(HomeDiscoverViewModel.self) { resolver in
+            HomeDiscoverViewModel(
+                fetchGenresUseCase: resolver.resolve(FetchGenresUseCase.self)!,
+                fetchPopularPeopleUseCase: resolver.resolve(FetchPopularPeopleUseCase.self)!,
+                fetchTrendingItemsUseCase: resolver.resolve(FetchTrendingItemsUseCase.self)!,
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self)
             )
         }

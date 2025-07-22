@@ -6,7 +6,7 @@ public struct MovieDetailModel: Codable {
     public let backdrop_path: String?
     public let belongs_to_collection: Collection?
     public let budget: Int
-    public let genres: [Genre]
+    public let genres: [GenreModel]
     public let homepage: String?
     public let id: Int
     public let imdb_id: String?
@@ -31,7 +31,7 @@ public struct MovieDetailModel: Codable {
     public let images: ImageResponse
 }
 
-public struct Genre: Codable {
+public struct GenreModel: Codable {
     public let id: Int
     public let name: String
 }
