@@ -24,16 +24,16 @@ public class MovieAssembly: Assembly {
         container.register(FetchUpcomingMoviesUseCase.self) { resolver in
             FetchUpcomingMoviesUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
         }
-        
+
         // Register Discover Use Cases
         container.register(FetchGenresUseCase.self) { resolver in
             DefaultFetchGenresUseCase(repository: resolver.resolve(MovieRepository.self)!)
         }
-        
+
         container.register(FetchPopularPeopleUseCase.self) { resolver in
             DefaultFetchPopularPeopleUseCase(repository: resolver.resolve(MovieRepository.self)!)
         }
-        
+
         container.register(FetchTrendingItemsUseCase.self) { resolver in
             DefaultFetchTrendingItemsUseCase(repository: resolver.resolve(MovieRepository.self)!)
         }
@@ -52,7 +52,7 @@ public class MovieAssembly: Assembly {
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self)
             )
         }
-        
+
         // Register HomeDiscoverViewModel
         container.register(HomeDiscoverViewModel.self) { resolver in
             HomeDiscoverViewModel(

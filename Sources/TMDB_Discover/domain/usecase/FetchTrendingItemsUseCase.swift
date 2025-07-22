@@ -6,11 +6,11 @@ protocol FetchTrendingItemsUseCase {
 
 class DefaultFetchTrendingItemsUseCase: FetchTrendingItemsUseCase {
     private let repository: MovieRepository
-    
+
     init(repository: MovieRepository) {
         self.repository = repository
     }
-    
+
     func execute() async -> Result<[TrendingItem], Error> {
         return await repository.fetchTrendingItems()
     }

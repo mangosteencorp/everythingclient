@@ -21,7 +21,7 @@ class MovieRepositoryImpl: MovieRepository {
     func fetchUpcomingMovies() async -> Result<[Movie], Error> {
         return await fetchMovies(endpoint: .onTheAir)
     }
-    
+
     func fetchGenres() async -> Result<[Genre], Error> {
         let result = await apiService.fetchGenres()
         switch result {
@@ -31,7 +31,7 @@ class MovieRepositoryImpl: MovieRepository {
             return .failure(error)
         }
     }
-    
+
     func fetchPopularPeople() async -> Result<[PopularPerson], Error> {
         let result = await apiService.fetchPopularPeople()
         switch result {
@@ -41,7 +41,7 @@ class MovieRepositoryImpl: MovieRepository {
             return .failure(error)
         }
     }
-    
+
     func fetchTrendingItems() async -> Result<[TrendingItem], Error> {
         let result = await apiService.fetchTrendingItems()
         switch result {
@@ -74,14 +74,14 @@ class MovieRepositoryImpl: MovieRepository {
             releaseDate: Movie.dateFormatter.date(from: apiMovie.release_date ?? "")
         )
     }
-    
+
     private func mapAPIGenreToEntity(_ apiGenre: GenreModel) -> Genre {
         Genre(
             id: apiGenre.id,
             name: apiGenre.name
         )
     }
-    
+
     private func mapAPIPersonToEntity(_ apiPerson: PersonModel) -> PopularPerson {
         PopularPerson(
             id: apiPerson.id,
@@ -91,7 +91,7 @@ class MovieRepositoryImpl: MovieRepository {
             popularity: apiPerson.popularity
         )
     }
-    
+
     private func mapAPITrendingToEntity(_ apiTrending: TrendingAllItem) -> TrendingItem {
         TrendingItem(
             id: apiTrending.id,

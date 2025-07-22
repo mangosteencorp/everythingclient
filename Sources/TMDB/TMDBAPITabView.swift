@@ -121,7 +121,7 @@ public struct TMDBAPITabView: View {
 
         self.container = container
 
-        let tabList: [TabRoute] = [.movieFeed, .tvShowFeed, .profile]
+        let tabList: [TabRoute] = [.movieFeed, .tvShowFeed, .marketplace, .profile]
         _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
 
@@ -188,6 +188,19 @@ public struct TMDBAPITabView: View {
     }
 
     @ViewBuilder
+    private func buildMarketplacePage() -> some View {
+        let marketplaceContent = TMDB_Discover.GrkMarketplaceView(
+            container: container,
+            apiKey: tmdbKey
+        ) { movieId in
+            TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
+        }
+
+        marketplaceContent
+            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .marketplace)
+    }
+
+    @ViewBuilder
     private func buildProfilePage() -> some View {
         ProfilePageVCView(container: container) { movieId in
             coordinator.navigate(to: .movieDetail(MovieRouteModel(id: movieId)), in: .profile)
@@ -220,6 +233,16 @@ public struct TMDBAPITabView: View {
             }
             .tag(TabRoute.tvShowFeed)
 
+            // Marketplace Tab
+            NavigationStack(path: coordinator.path(for: .marketplace)) {
+                buildMarketplacePage()
+            }
+            .tabItem {
+                Image(systemName: TabRoute.marketplace.iconName)
+                Text(TabRoute.marketplace.title)
+            }
+            .tag(TabRoute.marketplace)
+
             // Profile Tab
             NavigationStack(path: coordinator.path(for: .profile)) {
                 buildProfilePage()
@@ -246,6 +269,12 @@ public struct TMDBAPITabView: View {
             }
             .tag(TabRoute.tvShowFeed)
 
+            // Marketplace Page
+            NavigationStack(path: coordinator.path(for: .marketplace)) {
+                buildMarketplacePage()
+            }
+            .tag(TabRoute.marketplace)
+
             // Profile Page
             NavigationStack(path: coordinator.path(for: .profile)) {
                 buildProfilePage()
@@ -271,6 +300,10 @@ public struct TMDBAPITabView: View {
             case .tvShowFeed:
                 NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
                     buildTVShowFeedPage()
+                }
+            case .marketplace:
+                NavigationStack(path: coordinator.path(for: .marketplace)) {
+                    buildMarketplacePage()
                 }
             case .profile:
                 NavigationStack(path: coordinator.path(for: .profile)) {

@@ -10,7 +10,7 @@ public struct TrendingItem {
     public let mediaType: String
     public let popularity: Double
     public let voteAverage: Double?
-    
+
     public init(
         id: Int,
         title: String?,
@@ -32,7 +32,7 @@ public struct TrendingItem {
         self.popularity = popularity
         self.voteAverage = voteAverage
     }
-    
+
     public var displayTitle: String {
         return title ?? name ?? "Unknown"
     }
