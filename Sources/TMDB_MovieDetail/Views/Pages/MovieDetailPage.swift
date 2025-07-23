@@ -8,6 +8,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
     var movie: Movie
     @ObservedObject var movieDetailViewModel: MovieDetailViewModel
     @ObservedObject var creditsViewModel: MovieCastingViewModel
+    @ObservedObject var watchProvidersViewModel: MovieWatchProvidersViewModel
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
 
@@ -19,6 +20,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         self.apiService = apiService
         movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+        watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
     }
 
@@ -29,6 +31,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         self.apiService = apiService
         movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
+        watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
     }
 
@@ -54,11 +57,15 @@ public struct MovieDetailPage<Route: Hashable>: View {
                     }
                     MovieCreditSection(movieId: movie.id, creditsViewModel: creditsViewModel)
                 }
+                Section {
+                    MovieWatchProvidersSection(movieId: movie.id, watchProvidersViewModel: watchProvidersViewModel)
+                }
             }
             .listStyle(PlainListStyle())
             .navigationBarTitle(Text(getMovie().userTitle), displayMode: .large)
         }.onFirstAppear {
             movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
+            watchProvidersViewModel.fetchWatchProviders(movieId: movie.id)
         }
     }
 
@@ -79,7 +86,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
 
 @available(iOS 16.0, *)
 let exampleMovieDetailPage: MovieDetailPage = {
-    let apiService = TMDBAPIService(apiKey: "dummy-key")
+    let apiService = TMDBAPIService(apiKey: debugTMDBAPIKey)
     var page = MovieDetailPage(
         movieRoute: exampleMovieDetail,
         apiService: apiService,
