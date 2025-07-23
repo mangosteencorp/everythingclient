@@ -171,6 +171,8 @@ public class MovieItemCell: UICollectionViewCell {
         titleLabel.text = ""
         descLabel.text = ""
         ratingDisplay.setRating(0)
+        delegate = nil
+        favButton.delegate = nil
     }
 
     // Public method to configure the cell

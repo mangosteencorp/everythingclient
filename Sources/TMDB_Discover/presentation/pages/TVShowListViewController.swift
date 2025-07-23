@@ -302,8 +302,8 @@ extension TVShowListViewController: UICollectionViewDataSource {
         }
 
         let movie = filteredMovies[indexPath.item]
-        cell.configure(with: movie)
         cell.delegate = self
+        cell.configure(with: movie)
         return cell
     }
 }

@@ -44,7 +44,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
         case let .tvShowList(type):
             TMDB_Discover.TVShowListPage(
                 container: container,
-                apiKey: container.resolve(String.self, name: "1d9b898a212ea52e283351e521e17871")!,
+                apiKey: container.resolve(String.self, name: "tmdbApiKey")!,
                 type: type
             ) { tvShowId in
                 TMDBRoute.tvShowDetail(tvShowId)
