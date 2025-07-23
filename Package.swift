@@ -155,7 +155,15 @@ let package = Package(
 
         .target(
             name: "TMDB_Profile",
-            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support", "TMDB_Shared_UI"]
+            dependencies: [
+                "TMDB_Shared_Backend",
+                "Swinject",
+                "Kingfisher",
+                "Shared_UI_Support",
+                "TMDB_Shared_UI",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"),
+            ]
         ),
 
         .testTarget(

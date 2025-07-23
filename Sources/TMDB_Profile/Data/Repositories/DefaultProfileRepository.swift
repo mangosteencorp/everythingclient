@@ -1,5 +1,5 @@
-import Combine
 import Foundation
+import RxSwift
 import TMDB_Shared_Backend
 
 class DefaultProfileRepository: ProfileRepositoryProtocol {
@@ -11,9 +11,13 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
         self.authRepository = authRepository
     }
 
-    func getAccountInfo() -> AnyPublisher<AccountInfoEntity, Error> {
-        Future { [weak self] promise in
-            guard let self = self else { return }
+    func getAccountInfo() -> Single<AccountInfoEntity> {
+        Single.create { [weak self] observer in
+            guard let self = self else {
+                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
+                return Disposables.create()
+            }
+
             Task {
                 do {
                     let accountInfo: AccountInfoModel = try await self.apiService.request(.accountInfo)
@@ -23,17 +27,23 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
                         username: accountInfo.username,
                         avatarPath: accountInfo.avatar.tmdb.avatar_path
                     )
-                    promise(.success(entity))
+                    observer(.success(entity))
                 } catch {
-                    promise(.failure(error))
+                    observer(.failure(error))
                 }
             }
-        }.eraseToAnyPublisher()
+
+            return Disposables.create()
+        }
     }
 
-    func getFavoriteMovies(accountId: String) -> AnyPublisher<[MovieEntity], Error> {
-        Future { [weak self] promise in
-            guard let self = self else { return }
+    func getFavoriteMovies(accountId: String) -> Single<[MovieEntity]> {
+        Single.create { [weak self] observer in
+            guard let self = self else {
+                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
+                return Disposables.create()
+            }
+
             Task {
                 do {
                     let response: MovieListResultModel = try await self.apiService
@@ -48,17 +58,23 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
                             releaseDate: movie.release_date
                         )
                     }
-                    promise(.success(entities))
+                    observer(.success(entities))
                 } catch {
-                    promise(.failure(error))
+                    observer(.failure(error))
                 }
             }
-        }.eraseToAnyPublisher()
+
+            return Disposables.create()
+        }
     }
 
-    func getFavoriteTVShows(accountId: String) -> AnyPublisher<[TVShowEntity], Error> {
-        Future { [weak self] promise in
-            guard let self = self else { return }
+    func getFavoriteTVShows(accountId: String) -> Single<[TVShowEntity]> {
+        Single.create { [weak self] observer in
+            guard let self = self else {
+                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
+                return Disposables.create()
+            }
+
             Task {
                 do {
                     let response: TVShowListResultModel = try await self.apiService
@@ -73,17 +89,23 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
                             voteAverage: show.vote_average
                         )
                     }
-                    promise(.success(entities))
+                    observer(.success(entities))
                 } catch {
-                    promise(.failure(error))
+                    observer(.failure(error))
                 }
             }
-        }.eraseToAnyPublisher()
+
+            return Disposables.create()
+        }
     }
 
-    func getWatchlistTVShows(accountId: String) -> AnyPublisher<[TVShowEntity], Error> {
-        Future { [weak self] promise in
-            guard let self = self else { return }
+    func getWatchlistTVShows(accountId: String) -> Single<[TVShowEntity]> {
+        Single.create { [weak self] observer in
+            guard let self = self else {
+                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
+                return Disposables.create()
+            }
+
             Task {
                 do {
                     let response: TVShowListResultModel = try await self.apiService
@@ -98,11 +120,13 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
                             voteAverage: show.vote_average
                         )
                     }
-                    promise(.success(entities))
+                    observer(.success(entities))
                 } catch {
-                    promise(.failure(error))
+                    observer(.failure(error))
                 }
             }
-        }.eraseToAnyPublisher()
+
+            return Disposables.create()
+        }
     }
 }

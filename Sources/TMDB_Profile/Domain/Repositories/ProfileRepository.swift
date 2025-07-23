@@ -1,10 +1,10 @@
-import Combine
 import Foundation
+import RxSwift
 import TMDB_Shared_Backend
 
 protocol ProfileRepositoryProtocol {
-    func getAccountInfo() -> AnyPublisher<AccountInfoEntity, Error>
-    func getFavoriteMovies(accountId: String) -> AnyPublisher<[MovieEntity], Error>
-    func getFavoriteTVShows(accountId: String) -> AnyPublisher<[TVShowEntity], Error>
-    func getWatchlistTVShows(accountId: String) -> AnyPublisher<[TVShowEntity], Error>
+    func getAccountInfo() -> Single<AccountInfoEntity>
+    func getFavoriteMovies(accountId: String) -> Single<[MovieEntity]>
+    func getFavoriteTVShows(accountId: String) -> Single<[TVShowEntity]>
+    func getWatchlistTVShows(accountId: String) -> Single<[TVShowEntity]>
 }

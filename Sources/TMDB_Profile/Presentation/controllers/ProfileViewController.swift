@@ -1,9 +1,10 @@
-import Combine
+import RxCocoa
+import RxSwift
 import UIKit
 
 public class ProfileViewController: UIViewController, ProfileContentViewControllerDelegate {
     private let viewModel: ProfileViewModel
-    private var cancellables = Set<AnyCancellable>()
+    private let disposeBag = DisposeBag()
     private var coordinator: ProfilePageVCView.Coordinator?
 
     // Child View Controllers
@@ -66,12 +67,12 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
     }
 
     private func bindViewModel() {
-        viewModel.$state
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
+        viewModel.state
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] state in
                 self?.updateUI(for: state)
-            }
-            .store(in: &cancellables)
+            })
+            .disposed(by: disposeBag)
     }
 
     private func updateUI(for state: ProfileViewState) {
