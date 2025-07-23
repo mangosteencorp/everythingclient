@@ -12,6 +12,9 @@ class MockFetchMoviesUseCase: FetchMoviesUseCase {
 
 class MockMovieRepository: MovieRepository {
     var result: Result<[Movie], Error>!
+    var genresResult: Result<[Genre], Error>!
+    var popularPeopleResult: Result<[PopularPerson], Error>!
+    var trendingItemsResult: Result<[TrendingItem], Error>!
 
     func fetchNowPlayingMovies() async -> Result<[Movie], Error> {
         return result
@@ -19,6 +22,18 @@ class MockMovieRepository: MovieRepository {
 
     func fetchUpcomingMovies() async -> Result<[Movie], Error> {
         return result
+    }
+
+    func fetchGenres() async -> Result<[Genre], Error> {
+        return genresResult ?? .failure(MockError.noResponse)
+    }
+
+    func fetchPopularPeople() async -> Result<[PopularPerson], Error> {
+        return popularPeopleResult ?? .failure(MockError.noResponse)
+    }
+
+    func fetchTrendingItems() async -> Result<[TrendingItem], Error> {
+        return trendingItemsResult ?? .failure(MockError.noResponse)
     }
 }
 
