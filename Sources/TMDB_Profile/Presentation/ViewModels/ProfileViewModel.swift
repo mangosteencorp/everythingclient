@@ -1,51 +1,55 @@
 import Combine
 import Foundation
+import RxCocoa
+import RxSwift
 import TMDB_Shared_Backend
 
-class ProfileViewModel: ObservableObject {
-    @Published var state: ProfileViewState = .loading
-    private var cancellables = Set<AnyCancellable>()
+class ProfileViewModel {
+    private let stateRelay = BehaviorRelay<ProfileViewState>(value: .loading)
+    var state: Observable<ProfileViewState> { return stateRelay.asObservable() }
+
+    private let disposeBag = DisposeBag()
     private let getProfileUseCase: GetProfileUseCaseProtocol
     private let authViewModel: any AuthenticationViewModelProtocol
+    private var cancellables = Set<AnyCancellable>()
 
     init(getProfileUseCase: GetProfileUseCaseProtocol, authViewModel: any AuthenticationViewModelProtocol) {
         self.getProfileUseCase = getProfileUseCase
         self.authViewModel = authViewModel
 
-        // Observe authentication state changes using the publisher
+        // Observe authentication state changes using Combine publisher
         authViewModel.isAuthenticatedPublisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] (isAuthenticated: Bool) in
                 if isAuthenticated {
                     self?.fetchProfile()
                 } else {
-                    self?.state = .unauthorized
+                    self?.stateRelay.accept(.unauthorized)
                 }
             }
             .store(in: &cancellables)
     }
 
     func fetchProfile() {
-        state = .loading
+        stateRelay.accept(.loading)
 
         getProfileUseCase.execute()
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { [weak self] completion in
-                    if case let .failure(error) = completion {
-                        self?.state = .error(error)
-                    }
+            .observe(on: MainScheduler.instance)
+            .subscribe(
+                onSuccess: { [weak self] profile in
+                    self?.stateRelay.accept(.loaded(profile))
                 },
-                receiveValue: { [weak self] profile in
-                    self?.state = .loaded(profile)
+                onFailure: { [weak self] error in
+                    self?.stateRelay.accept(.error(error))
                 }
             )
-            .store(in: &cancellables)
+            .disposed(by: disposeBag)
     }
 
     func signOut() {
         Task {
             await authViewModel.signOut()
-            state = .unauthorized
+            stateRelay.accept(.unauthorized)
         }
     }
 

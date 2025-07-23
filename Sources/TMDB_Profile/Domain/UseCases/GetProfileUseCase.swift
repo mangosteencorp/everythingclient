@@ -1,8 +1,8 @@
-import Combine
 import Foundation
+import RxSwift
 
 protocol GetProfileUseCaseProtocol {
-    func execute() -> AnyPublisher<ProfileEntity, Error>
+    func execute() -> Single<ProfileEntity>
 }
 
 class DefaultGetProfileUseCase: GetProfileUseCaseProtocol {
@@ -12,12 +12,12 @@ class DefaultGetProfileUseCase: GetProfileUseCaseProtocol {
         self.repository = repository
     }
 
-    func execute() -> AnyPublisher<ProfileEntity, Error> {
+    func execute() -> Single<ProfileEntity> {
         repository.getAccountInfo()
-            .flatMap { accountInfo -> AnyPublisher<ProfileEntity, Error> in
+            .flatMap { accountInfo -> Single<ProfileEntity> in
                 let accountId = String(accountInfo.id)
 
-                return Publishers.CombineLatest3(
+                return Single.zip(
                     self.repository.getFavoriteMovies(accountId: accountId),
                     self.repository.getFavoriteTVShows(accountId: accountId),
                     self.repository.getWatchlistTVShows(accountId: accountId)
@@ -30,8 +30,6 @@ class DefaultGetProfileUseCase: GetProfileUseCaseProtocol {
                         watchlistTVShows: watchlist
                     )
                 }
-                .eraseToAnyPublisher()
             }
-            .eraseToAnyPublisher()
     }
 }

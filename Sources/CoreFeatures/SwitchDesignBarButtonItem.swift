@@ -21,3 +21,32 @@ public extension UIViewController {
         navigationItem.rightBarButtonItem = switchButton
     }
 }
+
+#if canImport(SwiftUI)
+import SwiftUI
+
+public struct SwitchDesignToolbarItem: ToolbarContent {
+    private let action: () -> Void
+
+    public init(action: @escaping () -> Void) {
+        self.action = action
+    }
+
+    public var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: action) {
+                Image(systemName: "arrow.left.arrow.right")
+            }
+        }
+    }
+}
+
+public extension View {
+    func addSwitchDesignToolbar(action: @escaping () -> Void) -> some View {
+        toolbar {
+            SwitchDesignToolbarItem(action: action)
+        }
+    }
+}
+
+#endif

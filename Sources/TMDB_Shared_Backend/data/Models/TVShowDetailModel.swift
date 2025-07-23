@@ -16,7 +16,7 @@ public struct TVShowDetailModel: Codable {
     public let posterPath: String?
     public let backdropPath: String?
     public let createdBy: [Creator]
-    public let genres: [Genre]
+    public let genres: [GenreModel]
     public let networks: [Network]
     public let seasons: [Season]
 
@@ -127,9 +127,9 @@ extension TVShowDetailModel {
             ),
         ],
         genres: [
-            Genre(id: 10765, name: "Sci-Fi & Fantasy"),
-            Genre(id: 18, name: "Drama"),
-            Genre(id: 10759, name: "Action & Adventure"),
+            GenreModel(id: 10765, name: "Sci-Fi & Fantasy"),
+            GenreModel(id: 18, name: "Drama"),
+            GenreModel(id: 10759, name: "Action & Adventure"),
         ],
         networks: [
             Network(

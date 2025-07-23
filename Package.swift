@@ -21,15 +21,15 @@ let package = Package(
             name: "TMDB",
             targets: ["TMDB"]
         ),
-        // Now Playign
+        // Now Playing
         .library(
-            name: "TMDB_Movie_Feed",
-            targets: ["TMDB_Movie_Feed"]
+            name: "TMDB_Feed",
+            targets: ["TMDB_Feed"]
         ),
-        // Upcoming movies
+        // Discover movies
         .library(
-            name: "TMDB_TVFeed",
-            targets: ["TMDB_TVFeed"]
+            name: "TMDB_Discover",
+            targets: ["TMDB_Discover"]
         ),
         // Profile page
         .library(
@@ -83,8 +83,8 @@ let package = Package(
         .target(
             name: "TMDB",
             dependencies: [
-                "TMDB_Movie_Feed",
-                "TMDB_TVFeed",
+                "TMDB_Feed",
+                "TMDB_Discover",
                 "TMDB_Profile",
                 "TMDB_Shared_UI",
                 "TMDB_MovieDetail",
@@ -114,11 +114,12 @@ let package = Package(
             name: "TMDB_TVShowDetail",
             dependencies: [
                 "TMDB_Shared_Backend",
+                "TMDB_Shared_UI",
             ]
         ),
         // Movie list
         .target(
-            name: "TMDB_Movie_Feed",
+            name: "TMDB_Feed",
             dependencies: [
                 "TMDB_Shared_UI",
                 "TMDB_Shared_Backend",
@@ -129,24 +130,40 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "TMDB_Movie_Feed_Tests",
-            dependencies: ["TMDB_Movie_Feed", "ViewInspector", "Tests_Shared_Helpers"],
+            name: "TMDB_Feed_Tests",
+            dependencies: ["TMDB_Feed", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
         ),
-        // TV show feed - clean architecture
+        // Discover feed - clean architecture
         .target(
-            name: "TMDB_TVFeed",
-            dependencies: ["Swinject", "TMDB_Shared_UI", "TMDB_Shared_Backend", "CoreFeatures"],
+            name: "TMDB_Discover",
+            dependencies: [
+                "Swinject",
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
+                "CoreFeatures",
+                "Shared_UI_Support",
+                .product(name: "SnapKit", package: "SnapKit"),
+
+            ],
             swiftSettings: [.define("DEBUG", .when(configuration: .debug))]
         ),
         .testTarget(
-            name: "TMDB_TVFeed_Tests",
-            dependencies: ["TMDB_TVFeed", "Tests_Shared_Helpers", "ViewInspector"]
+            name: "TMDB_Discover_Tests",
+            dependencies: ["TMDB_Discover", "Tests_Shared_Helpers", "ViewInspector"]
         ),
 
         .target(
             name: "TMDB_Profile",
-            dependencies: ["TMDB_Shared_Backend", "Swinject", "Kingfisher", "Shared_UI_Support", "TMDB_Shared_UI"]
+            dependencies: [
+                "TMDB_Shared_Backend",
+                "Swinject",
+                "Kingfisher",
+                "Shared_UI_Support",
+                "TMDB_Shared_UI",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"),
+            ]
         ),
 
         .testTarget(
@@ -200,6 +217,10 @@ let package = Package(
         ),
         .target(
             name: "Shared_UI_Support",
+            dependencies: [
+                .product(name: "SnapKit", package: "SnapKit"),
+                .product(name: "Kingfisher", package: "Kingfisher"),
+            ],
             resources: [.process("Resources")]
         ),
         .target(

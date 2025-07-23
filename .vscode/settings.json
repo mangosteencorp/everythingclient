@@ -3,6 +3,7 @@
     "files.exclude": {
         "**/.build": true,
         "**/.DerivedData": true,
+        "**/DerivedData": true,
         "**/.output": true,
         "**/.swiftpm": true,
         // "**/.generated": true,

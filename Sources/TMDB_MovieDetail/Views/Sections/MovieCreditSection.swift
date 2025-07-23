@@ -29,6 +29,7 @@ struct MovieCreditSection: View {
         }
     }
 }
+
 #if DEBUG
 #Preview {
     MovieCreditSection(
