@@ -11,6 +11,7 @@ struct Movie: Equatable {
     let voteAverage: Float
     let popularity: Float
     let releaseDate: Date?
+    var isFavorite: Bool = false
 
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -115,10 +116,11 @@ extension Movie: ItemDisplayable {
     }
 
     func isFavorited() -> Bool {
-        return false // Default implementation, can be enhanced later
+        return isFavorite
     }
 
     func setFavorited(_ favorited: Bool) {
-        // No-op for now, can be enhanced later
+        // This will be handled by the view controller
+        // The actual mutation will happen there
     }
 }

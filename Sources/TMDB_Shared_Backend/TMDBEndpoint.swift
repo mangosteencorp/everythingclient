@@ -49,7 +49,8 @@ public enum TMDBEndpoint {
     case accountInfo
 
     // Favorites
-    case setFavoriteMovie(accountId: String)
+    case setFavoriteMovie(accountId: String, movieId: Int, favorite: Bool)
+    case setFavoriteTVShow(accountId: String, tvShowId: Int, favorite: Bool)
     case getFavoriteMovies(accountId: String)
     case getFavoriteTVShows(accountId: String)
 
@@ -129,7 +130,9 @@ public enum TMDBEndpoint {
         case .accountInfo:
             return "account"
         // Favorites
-        case let .setFavoriteMovie(accountId):
+        case let .setFavoriteMovie(accountId, _, _):
+            return "account/\(accountId)/favorite"
+        case let .setFavoriteTVShow(accountId, _, _):
             return "account/\(accountId)/favorite"
         case let .getFavoriteMovies(accountId):
             return "account/\(accountId)/favorite/movies"
@@ -160,7 +163,7 @@ public enum TMDBEndpoint {
     // swiftlint:enable cyclomatic_complexity
     func needAuthentication() -> Bool {
         switch self {
-        case .accountInfo, .setFavoriteMovie, .getFavoriteMovies, .getFavoriteTVShows, .getWatchlistTVShows, .logOut:
+        case .accountInfo, .setFavoriteMovie, .setFavoriteTVShow, .getFavoriteMovies, .getFavoriteTVShows, .getWatchlistTVShows, .logOut:
             return true
         default:
             return false
@@ -168,7 +171,24 @@ public enum TMDBEndpoint {
     }
 
     func body() -> Data? {
-        return nil
+        switch self {
+        case let .setFavoriteMovie(_, movieId, favorite):
+            let body = [
+                "media_type": "movie",
+                "media_id": movieId,
+                "favorite": favorite,
+            ] as [String: Any]
+            return try? JSONSerialization.data(withJSONObject: body)
+        case let .setFavoriteTVShow(_, tvShowId, favorite):
+            let body = [
+                "media_type": "tv",
+                "media_id": tvShowId,
+                "favorite": favorite,
+            ] as [String: Any]
+            return try? JSONSerialization.data(withJSONObject: body)
+        default:
+            return nil
+        }
     }
 
     func extraQuery() -> [String: String]? {
@@ -301,7 +321,7 @@ public enum TMDBEndpoint {
 
     func httpMethod() -> HTTPMethod {
         switch self {
-        case .authNewSession:
+        case .authNewSession, .setFavoriteMovie, .setFavoriteTVShow:
             return .post
         default:
             return .get
@@ -314,6 +334,8 @@ public enum TMDBEndpoint {
             return MovieListResultModel.self
         case .accountInfo:
             return AccountInfoModel.self
+        case .setFavoriteMovie, .setFavoriteTVShow:
+            return FavoriteResponse.self
         case .getFavoriteTVShows, .getWatchlistTVShows:
             return TVShowListResultModel.self
         case .movieDetail:

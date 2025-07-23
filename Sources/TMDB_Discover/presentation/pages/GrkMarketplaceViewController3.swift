@@ -140,7 +140,7 @@ fileprivate class BannerCell: UICollectionViewCell {
     }
 }
 
-fileprivate class HorizontalCollectionCell: UICollectionViewCell, UICollectionViewDataSource {
+fileprivate class HorizontalCollectionCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate {
     static let reuseIdentifier: String = "HorizontalCollectionCell"
 
     enum SectionType {
@@ -151,6 +151,7 @@ fileprivate class HorizontalCollectionCell: UICollectionViewCell, UICollectionVi
 
     var sectionType: SectionType?
     var data: [Any] = []
+    var onItemTapped: (() -> Void)?
 
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -158,6 +159,7 @@ fileprivate class HorizontalCollectionCell: UICollectionViewCell, UICollectionVi
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .black
         cv.dataSource = self
+        cv.delegate = self
         return cv
     }()
 
@@ -232,6 +234,10 @@ fileprivate class HorizontalCollectionCell: UICollectionViewCell, UICollectionVi
         default:
             return UICollectionViewCell()
         }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        onItemTapped?()
     }
 }
 
@@ -441,6 +447,9 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
     private var sectionLayouts: [SectionLayout] = []
     private var viewModel: HomeDiscoverViewModel?
     private var cancellables = Set<AnyCancellable>()
+
+    // Navigation closure
+    public var onItemTapped: (() -> Void)?
 
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -664,6 +673,7 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
             }
 
             cell.data = layout.data
+            cell.onItemTapped = onItemTapped
             cell.collectionView.reloadData()
             return cell
         }
@@ -702,6 +712,13 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
     }
+
+    // MARK: - UICollectionViewDelegate
+
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // Call the navigation closure when any cell is tapped
+        onItemTapped?()
+    }
 }
 
 #if DEBUG
@@ -727,16 +744,19 @@ import Swinject
 public struct GrkMarketplaceView<Route: Hashable>: View {
     @StateObject var viewModel: HomeDiscoverViewModel
     let detailRouteBuilder: (Int) -> Route
+    let onItemTapped: () -> Void
 
     public init(
         container: Container,
         apiKey: String,
-        detailRouteBuilder: @escaping (Int) -> Route
+        detailRouteBuilder: @escaping (Int) -> Route,
+        onItemTapped: @escaping () -> Void = {}
     ) {
         APIKeys.tmdbKey = apiKey
         let movieAssembly = MovieAssembly()
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
+        self.onItemTapped = onItemTapped
 
         _viewModel = StateObject(wrappedValue: HomeDiscoverViewModel(
             fetchGenresUseCase: DefaultFetchGenresUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
@@ -746,16 +766,19 @@ public struct GrkMarketplaceView<Route: Hashable>: View {
     }
 
     public var body: some View {
-        GrkMarketplaceViewControllerRepresentable(viewModel: viewModel)
+        GrkMarketplaceViewControllerRepresentable(viewModel: viewModel, onItemTapped: onItemTapped)
     }
 }
 
 @available(iOS 16, *)
 struct GrkMarketplaceViewControllerRepresentable: UIViewControllerRepresentable {
     let viewModel: HomeDiscoverViewModel
+    let onItemTapped: () -> Void
 
     func makeUIViewController(context: Context) -> GrkMarketplaceViewController3 {
-        return GrkMarketplaceViewController3(viewModel: viewModel)
+        let viewController = GrkMarketplaceViewController3(viewModel: viewModel)
+        viewController.onItemTapped = onItemTapped
+        return viewController
     }
 
     func updateUIViewController(_ uiViewController: GrkMarketplaceViewController3, context: Context) {

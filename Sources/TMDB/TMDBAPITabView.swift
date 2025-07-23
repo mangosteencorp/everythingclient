@@ -174,7 +174,7 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildTVShowFeedPage() -> some View {
-        let tvShowContent = TMDB_Discover.TVShowListPage(
+        TMDB_Discover.TVShowListPage(
             container: container,
             apiKey: tmdbKey,
             type: .onTheAir
@@ -182,9 +182,6 @@ public struct TMDBAPITabView: View {
             TMDBRoute.tvShowDetail(tvShowId)
         }
         .withTMDBNavigationDestinations(container: container)
-
-        tvShowContent
-            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .tvShowFeed)
     }
 
     @ViewBuilder
@@ -194,10 +191,12 @@ public struct TMDBAPITabView: View {
             apiKey: tmdbKey
         ) { movieId in
             TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
+        } onItemTapped: {
+            coordinator.navigate(to: .tvShowList(.onTheAir), in: .marketplace)
         }
 
         marketplaceContent
-            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .marketplace)
+            .withTMDBNavigationDestinations(container: container)
     }
 
     @ViewBuilder

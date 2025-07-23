@@ -63,9 +63,14 @@ class RatingView: UIView {
     }
 }
 
+public protocol FavButtonDelegate: AnyObject {
+    func favButtonTapped(for item: ItemDisplayable)
+}
+
 class FavButton: UIView {
     var item: ItemDisplayable?
     var label: UILabel!
+    weak var delegate: FavButtonDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -107,10 +112,8 @@ class FavButton: UIView {
     }
 
     @objc func didTapGesture() {
-        guard var mutableItem = item else { return }
-        mutableItem.setFavorited(!mutableItem.isFavorited())
-        item = mutableItem
-        updateDisplay()
+        guard let item = item else { return }
+        delegate?.favButtonTapped(for: item)
     }
 
     func updateDisplay(force: Bool? = nil) {
@@ -142,6 +145,9 @@ public class MovieItemCell: UICollectionViewCell {
     private let descLabel: UILabel = UILabel()
     private let ratingDisplay: RatingView = RatingView()
     private let favButton: FavButton = FavButton()
+
+    // Delegate
+    public weak var delegate: FavButtonDelegate?
 
     // Model
     private var item: ItemDisplayable? {
@@ -276,6 +282,7 @@ public class MovieItemCell: UICollectionViewCell {
         guard let item = item else { return }
 
         favButton.setupWith(item: item)
+        favButton.delegate = delegate
 
         dateLabel.text = item.getReleaseDate()
         titleLabel.text = item.getTitle()

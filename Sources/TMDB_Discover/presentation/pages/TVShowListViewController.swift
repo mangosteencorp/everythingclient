@@ -5,8 +5,9 @@ import Combine
 import CoreFeatures
 import Shared_UI_Support
 import SnapKit
+import TMDB_Shared_Backend
 
-class TVShowListViewController: UIViewController, UISearchBarDelegate {
+class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButtonDelegate {
     // MARK: - Properties
 
     private let viewModel: TVFeedViewModel
@@ -20,11 +21,17 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
     private var searchString: String?
     private var cancellables = Set<AnyCancellable>()
 
+    // Authentication and favorites
+    private var authViewModel: AuthenticationViewModel?
+    private var favoriteService: FavoriteService?
+    private var apiService: TMDBAPIService?
+
     // MARK: - Initialization
 
     init(viewModel: TVFeedViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        setupAuthenticationServices()
     }
 
     required init?(coder: NSCoder) {
@@ -197,6 +204,86 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
             collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
         }
     }
+
+    // MARK: - FavButtonDelegate
+
+    func favButtonTapped(for item: ItemDisplayable) {
+        guard let movie = item as? Movie else { return }
+
+        Task {
+            await handleFavoriteToggle(for: movie)
+        }
+    }
+
+    private func handleFavoriteToggle(for movie: Movie) async {
+        guard let authViewModel = authViewModel else { return }
+
+        // Check if user is authenticated
+        if !authViewModel.isAuthenticated {
+            await authViewModel.signIn()
+
+            // If still not authenticated after sign in attempt, return
+            if !authViewModel.isAuthenticated {
+                return
+            }
+        }
+
+        // Get account info to get the account ID
+        guard let apiService = apiService else { return }
+
+        do {
+            let accountInfo: AccountInfoModel = try await apiService.request(.accountInfo)
+            let accountId = String(accountInfo.id)
+
+            // Toggle favorite status
+            let newFavoriteStatus = !movie.isFavorite
+            let _: FavoriteResponse = try await apiService.request(
+                .setFavoriteMovie(accountId: accountId, movieId: movie.id, favorite: newFavoriteStatus)
+            )
+
+            // Update the movie in our arrays
+            await MainActor.run {
+                updateMovieFavoriteStatus(movieId: movie.id, isFavorite: newFavoriteStatus)
+            }
+
+        } catch {
+            print("Error toggling favorite: \(error)")
+        }
+    }
+
+    private func updateMovieFavoriteStatus(movieId: Int, isFavorite: Bool) {
+        // Update in movies array
+        for ind in 0..<movies.count {
+            if movies[ind].id == movieId {
+                movies[ind].isFavorite = isFavorite
+                break
+            }
+        }
+
+        // Update in filteredMovies array
+        for inf in 0..<filteredMovies.count {
+            if filteredMovies[inf].id == movieId {
+                filteredMovies[inf].isFavorite = isFavorite
+                break
+            }
+        }
+
+        // Reload the collection view
+        collectionView.reloadData()
+    }
+
+    // MARK: - Authentication Setup
+
+    private func setupAuthenticationServices() {
+        let authRepository = DefaultAuthRepository()
+        apiService = TMDBAPIService(apiKey: debugTMDBAPIKey, authRepository: authRepository)
+
+        if let apiService = apiService {
+            let authService = AuthenticationService(apiService: apiService, authRepository: authRepository)
+            authViewModel = AuthenticationViewModel(authService: authService)
+            favoriteService = FavoriteService(apiService: apiService)
+        }
+    }
 }
 
 // MARK: - UICollectionViewDataSource
@@ -216,6 +303,7 @@ extension TVShowListViewController: UICollectionViewDataSource {
 
         let movie = filteredMovies[indexPath.item]
         cell.configure(with: movie)
+        cell.delegate = self
         return cell
     }
 }

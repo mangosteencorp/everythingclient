@@ -1,90 +1,58 @@
 # everythingclient Guidelines
 
+Be brutally honest, don't be a yes man. 
+If I am wrong, point it out bluntly. 
+I need honest feedback on my code.
 
 ## Architecture & Reactive Models by Module
 
+- This is an iOS project using Xcode workspace, feature based modularization
+- Each module has a different architecture (such as MVVM, Clean architecture, ...)
+- Main scheme: EverythingClient
+
+Common module folder structure:
+- Previews: SwiftUI preview for the main view in folder, using real api key
+
+### Build Commands
+When building for testing, use the Xcode build script instead of `swift build`, replace `EverythingClient` with the target I'm currently working on:
+```bash
+scheme=EverythingClient bash .github/scripts/build.sh
+```
+
+### Project Structure
+- This is an iOS project using Xcode workspace, feature based modularization
+- Each module has a different architecture (such as MVVM, Clean architecture, ...)
+- Main scheme: EverythingClient
+
+### Development Guidelines
+- when working on a module, look at the structure of the module to see if whether it is mainly SwiftUI or RxSwift or UIKit, and what the architecture is (MVVM, Clean, ...) before start writing code
+- look at root level **Package.swift** first to know the dependencies before start implementation
+
 ### TMDB Modules
 
-#### TMDB_Discover
-- **Architecture**: Clean Architecture
-- **Reactive Model**: Combine (ObservableObject, @Published)
-- **Structure**:
-  - `app/`: Dependency injection (Swinject)
-  - `data/`: Data layer (API services, repositories, models)
-  - `domain/`: Business logic (entities, use cases, repositories)
-  - `presentation/`: UI layer (views, view models)
+when calling TMDBAPIService from TMDB_Shared_Backend, remember to use `typealias` to 
 
-#### TMDB_Feed
-- **Architecture**: MVVM
-- **Reactive Model**: Combine (ObservableObject, @Published)
-- **Structure**:
-  - `ViewModels/`: MVVM view models
-  - `Views/`: Views and pages
-  - `Model/`: Data models
-  - `Backend/`: API service protocols
-
-#### TMDB_Profile
-- **Architecture**: Clean Architecture
-- **Reactive Model**: Combine (ObservableObject, @Published)
-- **Structure**:
-  - `Data/`: Data layer (repositories, models)
-  - `Domain/`: Business logic (entities, use cases)
-  - `Presentation/`: UI layer (view controllers, view models)
-  - `DI/`: Dependency injection
-
-#### TMDB_MovieDetail
-- **Architecture**: MVVM
-- **Reactive Model**: Combine (ObservableObject, @Published)
-- **Structure**:
-  - `ViewModels/`: MVVM view models
-  - `Views/`: Views and pages
-  - `Model/`: Data models
-
-#### TMDB_TVShowDetail
-- **Architecture**: Data Store pattern
-- **Reactive Model**: Combine (ObservableObject, @Published)
-- **Structure**:
-  - `View/`: Views
-  - `StatelessWidgets/`: Reusable components
-  - `Entities/`: Data models
+| Module | Architecture | Reactive Model |
+|--------|-------------|----------------|
+| TMDB_Discover | Clean Architecture | Combine   |
+| TMDB_Feed | MVVM | Combine   |
+| TMDB_Profile | Clean Architecture | Combine   |
+| TMDB_MovieDetail | MVVM | Combine   |
+| TMDB_TVShowDetail | Data Store pattern | Combine   |
 
 ### Pokedex Modules
 
-#### Pokedex_Pokelist
-- **Architecture**: VIPER
-- **Reactive Model**: Traditional delegate pattern
-- **Structure**:
-  - `View/`: View controllers
-  - `Presenter/`: Business logic and view updates
-  - `Interactor/`: Data operations
-  - `Entities/`: Data models
-  - `Protocols/`: VIPER protocols
-  - `Router/`: Navigation logic
-
-#### Pokedex_Detail
-- **Architecture**: MVVM
-- **Reactive Model**: RxSwift (BehaviorRelay, PublishRelay)
-- **Structure**:
-  - `View/`: View controllers
-  - `ViewModel/`: MVVM view models with RxSwift
+| Module | Architecture | Reactive Model |
+|--------|-------------|----------------|
+| Pokedex_Pokelist | VIPER | Traditional delegate pattern |
+| Pokedex_Detail | MVVM | RxSwift (BehaviorRelay, PublishRelay) |
 
 ### Shared Modules
 
-#### TMDB_Shared_Backend
-- **Architecture**: Service layer pattern
-- **Reactive Model**: Combine for authentication state
-- **Structure**:
-  - `Service/`: API services
-  - `data/`: Data models and repositories
-  - `domain/`: Domain entities
-  - `presentation/`: Shared view models
-
-#### TMDB_Shared_UI
-- **Architecture**: Component-based architecture
-- **Reactive Model**: SwiftUI native reactive
-- **Structure**:
-  - `Views/`: Reusable components
-  - `ViewModifier/`: Custom view modifiers
+| Module | Architecture | Reactive Model |
+|--------|-------------|----------------|
+| TMDB_Shared_Backend | Service layer pattern | Combine for authentication state |
+| TMDB_Shared_UI | Component-based architecture | SwiftUI native reactive |
 
 ## Routing
 

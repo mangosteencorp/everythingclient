@@ -1,5 +1,5 @@
 import Foundation
-public enum TVShowFeedType {
+public enum TVShowFeedType: Hashable, Codable {
     case airingToday
     case onTheAir
 
