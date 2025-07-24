@@ -5,6 +5,7 @@ import UIKit
 
 protocol ProfileContentViewControllerDelegate: AnyObject {
     func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController)
+    func profileContentViewControllerDidRefresh(_ viewController: ProfileContentViewController)
 }
 
 enum ProfileContentSection: Int {
@@ -55,8 +56,11 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         return button
     }()
 
+    private var currentProfile: ProfileEntity
+
     init(profile: ProfileEntity) {
         self.profile = profile
+        currentProfile = profile
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -208,6 +212,104 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         multiSectionVC.didMove(toParent: self)
 
         multiSectionViewController = multiSectionVC
+
+        // Setup pull-to-refresh
+        setupPullToRefresh()
+    }
+
+    private func setupPullToRefresh() {
+        guard let multiSectionVC = multiSectionViewController else { return }
+        multiSectionVC.setupRefreshControl { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileContentViewControllerDidRefresh(self)
+        }
+    }
+
+    func updateProfile(_ newProfile: ProfileEntity) {
+        currentProfile = newProfile
+        nameLabel.text = newProfile.accountInfo.name
+        usernameLabel.text = "@\(newProfile.accountInfo.username)"
+
+        if let avatarPath = newProfile.accountInfo.avatarPath {
+            avatarImageView.kf.setImage(with: TMDBImageSize.original.buildImageUrl(path: avatarPath))
+        }
+
+        updateSections(with: newProfile)
+        multiSectionViewController?.endRefreshing()
+    }
+
+    private func updateSections(with profile: ProfileEntity) {
+        var sections: [Section<ProfileCollectionItem>] = []
+        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
+
+        // Add watchlist section (featured)
+        if let watchlist = profile.watchlistTVShows {
+            let watchlistItems = watchlist.map { show in
+                let imageUrl = show.posterPath != nil ? TMDBImageSize.medium
+                    .buildImageUrl(path: show.posterPath!) : placeholderImageUrl
+                return ProfileCollectionItem(
+                    id: show.id,
+                    imageURL: imageUrl,
+                    name: show.name,
+                    tagline: "TV Show",
+                    subheading: "First aired: \(show.firstAirDate)"
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.watchlistTV.rawValue,
+                type: .featured,
+                title: "Watchlist",
+                subtitle: "Shows you want to watch",
+                items: watchlistItems
+            ))
+        }
+
+        // Add favorite TV shows section (mediumTable)
+        if let favoriteTVShows = profile.favoriteTVShows {
+            let tvShowItems = favoriteTVShows.map { show in
+                ProfileCollectionItem(
+                    id: show.id,
+                    imageURL: show.posterPath != nil ? TMDBImageSize.small
+                        .buildImageUrl(path: show.posterPath!) : placeholderImageUrl,
+                    name: show.name,
+                    tagline: String(format: "%.1f★", show.voteAverage),
+                    subheading: show.overview
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.favoriteTV.rawValue,
+                type: .mediumTable,
+                title: "Favorite TV Shows",
+                subtitle: "Your top picks",
+                items: tvShowItems
+            ))
+        }
+
+        // Add favorite movies section (mediumTable)
+        if let favoriteMovies = profile.favoriteMovies {
+            let movieItems = favoriteMovies.map { movie in
+                ProfileCollectionItem(
+                    id: movie.id,
+                    imageURL: movie.posterPath != nil ? TMDBImageSize.small
+                        .buildImageUrl(path: movie.posterPath!) : placeholderImageUrl,
+                    name: movie.title,
+                    tagline: String(format: "%.1f★", movie.voteAverage),
+                    subheading: movie.overview
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.favoriteMovie.rawValue,
+                type: .mediumTable,
+                title: "Favorite Movies",
+                subtitle: "Your movie collection",
+                items: movieItems
+            ))
+        }
+
+        multiSectionViewController?.updateSections(sections)
     }
 
     @objc private func signOutTapped() {

@@ -238,7 +238,7 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
             // Toggle favorite status
             let newFavoriteStatus = !movie.isFavorite
             let _: FavoriteResponse = try await apiService.request(
-                .setFavoriteMovie(accountId: accountId, movieId: movie.id, favorite: newFavoriteStatus)
+                .setFavoriteTVShow(accountId: accountId, tvShowId: movie.id, favorite: newFavoriteStatus)
             )
 
             // Update the movie in our arrays
