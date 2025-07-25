@@ -113,6 +113,7 @@ let package = Package(
         .target(
             name: "TMDB_TVShowDetail",
             dependencies: [
+                "CoreFeatures",
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
             ]
