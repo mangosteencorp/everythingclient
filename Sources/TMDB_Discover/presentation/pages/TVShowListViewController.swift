@@ -21,7 +21,6 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
     private var searchString: String?
     private var cancellables = Set<AnyCancellable>()
 
-
     // MARK: - Initialization
 
     init(viewModel: TVFeedViewModel) {

@@ -1,5 +1,6 @@
 import CoreFeatures
 import SwiftUI
+import TMDB_Shared_Backend
 
 class TVFeedViewModel: ObservableObject {
     @Published var movies: [Movie] = []
@@ -9,13 +10,16 @@ class TVFeedViewModel: ObservableObject {
     private let fetchMoviesUseCase: FetchMoviesUseCase
     private let toggleTVShowFavoriteUseCase: ToggleTVShowFavoriteUseCase?
     private let analyticsTracker: AnalyticsTracker?
+    private let authViewModel: (any AuthenticationViewModelProtocol)?
 
     init(fetchMoviesUseCase: FetchMoviesUseCase,
          toggleTVShowFavoriteUseCase: ToggleTVShowFavoriteUseCase? = nil,
-         analyticsTracker: AnalyticsTracker? = nil) {
+         analyticsTracker: AnalyticsTracker? = nil,
+         authViewModel: (any AuthenticationViewModelProtocol)? = nil) {
         self.fetchMoviesUseCase = fetchMoviesUseCase
         self.toggleTVShowFavoriteUseCase = toggleTVShowFavoriteUseCase
         self.analyticsTracker = analyticsTracker
+        self.authViewModel = authViewModel
     }
 
     func fetchMovies() {
@@ -39,7 +43,7 @@ class TVFeedViewModel: ObservableObject {
             }
         }
     }
-    
+
     func toggleFavorite(for movieId: Int) async {
         guard let toggleUseCase = toggleTVShowFavoriteUseCase else {
             await MainActor.run {
@@ -47,20 +51,26 @@ class TVFeedViewModel: ObservableObject {
             }
             return
         }
-        
+
+        // Check if authentication is required
+        if toggleUseCase.requiresAuthentication() {
+            await launchAuthentication()
+            return
+        }
+
         // Find the movie and toggle its favorite status
         guard let movieIndex = movies.firstIndex(where: { $0.id == movieId }) else { return }
         let currentFavoriteStatus = movies[movieIndex].isFavorite
         let newFavoriteStatus = !currentFavoriteStatus
-        
+
         // Optimistically update UI
         await MainActor.run {
             self.movies[movieIndex].isFavorite = newFavoriteStatus
         }
-        
+
         // Make API call
         let result = await toggleUseCase.execute(tvShowId: movieId, isFavorite: newFavoriteStatus)
-        
+
         switch result {
         case .success:
             // Success - UI already updated optimistically
@@ -69,8 +79,23 @@ class TVFeedViewModel: ObservableObject {
             // Revert UI change on failure
             await MainActor.run {
                 self.movies[movieIndex].isFavorite = currentFavoriteStatus
-                self.errorMessage = "Failed to update favorite: \(error.localizedDescription)"
+                if case FavoriteError.authenticationRequired = error {
+                    self.errorMessage = "Please sign in to favorite movies"
+                } else {
+                    self.errorMessage = "Failed to update favorite: \(error.localizedDescription)"
+                }
             }
         }
+    }
+
+    private func launchAuthentication() async {
+        guard let authViewModel = authViewModel else {
+            await MainActor.run {
+                self.errorMessage = "Authentication not available"
+            }
+            return
+        }
+
+        await authViewModel.signIn()
     }
 }

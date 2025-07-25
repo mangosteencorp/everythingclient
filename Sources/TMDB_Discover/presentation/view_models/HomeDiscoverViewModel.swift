@@ -31,7 +31,7 @@ public class HomeDiscoverViewModel: ObservableObject {
                 self.isLoading = true
                 self.errorMessage = nil
             }
-            
+
             async let genresResult = fetchGenresUseCase.execute()
             async let peopleResult = fetchPopularPeopleUseCase.execute()
             async let trendingResult = fetchTrendingItemsUseCase.execute()

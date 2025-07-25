@@ -52,7 +52,7 @@ class MovieRepositoryImpl: MovieRepository {
             return .failure(error)
         }
     }
-    
+
     func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error> {
         let result = await apiService.toggleTVShowFavorite(tvShowId: tvShowId, isFavorite: isFavorite)
         switch result {

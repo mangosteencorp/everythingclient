@@ -7,11 +7,14 @@ public class DiscoverAssembly: Assembly {
 
     public func assemble(container: Container) {
         // Register API Service
-        container.register(APIServiceProtocol.self) { _ in
+        container.register(APIServiceProtocol.self) { resolver in
+            if let apiService = resolver.resolve(TMDBAPIService.self) {
+                return apiService
+            }
             #if DEBUG
-            TMDBAPIService(apiKey: debugTMDBAPIKey)
+            return TMDBAPIService(apiKey: debugTMDBAPIKey)
             #else
-            TMDBAPIService(apiKey: APIKeys.tmdbKey)
+            return TMDBAPIService(apiKey: APIKeys.tmdbKey)
             #endif
         }.inObjectScope(.container)
 
@@ -41,9 +44,12 @@ public class DiscoverAssembly: Assembly {
         container.register(FetchTrendingItemsUseCase.self) { resolver in
             DefaultFetchTrendingItemsUseCase(repository: resolver.resolve(MovieRepository.self)!)
         }
-        
+
         container.register(ToggleTVShowFavoriteUseCase.self) { resolver in
-            DefaultToggleTVShowFavoriteUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
+            DefaultToggleTVShowFavoriteUseCase(
+                movieRepository: resolver.resolve(MovieRepository.self)!,
+                authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)!
+            )
         }
 
         // Register ViewModels
@@ -51,7 +57,8 @@ public class DiscoverAssembly: Assembly {
             TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!,
                 toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
-                analyticsTracker: resolver.resolve(AnalyticsTracker.self)
+                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
+                authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)
             )
         }
 
@@ -59,7 +66,8 @@ public class DiscoverAssembly: Assembly {
             TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!,
                 toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
-                analyticsTracker: resolver.resolve(AnalyticsTracker.self)
+                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
+                authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)
             )
         }
 
