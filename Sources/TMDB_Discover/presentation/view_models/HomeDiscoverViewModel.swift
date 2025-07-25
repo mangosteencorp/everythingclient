@@ -26,10 +26,12 @@ public class HomeDiscoverViewModel: ObservableObject {
     }
 
     func fetchAllData() {
-        isLoading = true
-        errorMessage = nil
-
         Task {
+            await MainActor.run {
+                self.isLoading = true
+                self.errorMessage = nil
+            }
+            
             async let genresResult = fetchGenresUseCase.execute()
             async let peopleResult = fetchPopularPeopleUseCase.execute()
             async let trendingResult = fetchTrendingItemsUseCase.execute()

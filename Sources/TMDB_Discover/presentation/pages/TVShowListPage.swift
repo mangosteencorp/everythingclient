@@ -17,7 +17,7 @@ public struct TVShowListPage<Route: Hashable>: View {
         detailRouteBuilder: @escaping (Int) -> Route
     ) {
         APIKeys.tmdbKey = apiKey
-        let movieAssembly = MovieAssembly()
+        let movieAssembly = DiscoverAssembly()
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
         switch type {

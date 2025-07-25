@@ -50,4 +50,26 @@ extension TMDBAPIService: APIServiceProtocol {
             return .failure(error as Error)
         }
     }
+    
+    func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error> {
+        // First get account info
+        let accountResult: Result<AccountInfoModel, TMDBAPIError> = await request(.accountInfo)
+        
+        switch accountResult {
+        case let .success(accountInfo):
+            let accountId = String(accountInfo.id)
+            let favoriteResult: Result<FavoriteResponse, TMDBAPIError> = await request(
+                .setFavoriteTVShow(accountId: accountId, tvShowId: tvShowId, favorite: isFavorite)
+            )
+            
+            switch favoriteResult {
+            case let .success(response):
+                return .success(response.success)
+            case let .failure(error):
+                return .failure(error as Error)
+            }
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
 }

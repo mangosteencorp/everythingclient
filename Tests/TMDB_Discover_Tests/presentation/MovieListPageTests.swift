@@ -11,7 +11,7 @@ class MovieListPageTests: XCTestCase {
     override func setUp() {
         super.setUp()
         container = Container()
-        let assembly = MovieAssembly()
+        let assembly = DiscoverAssembly()
         assembly.assemble(container: container)
         mockViewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
     }

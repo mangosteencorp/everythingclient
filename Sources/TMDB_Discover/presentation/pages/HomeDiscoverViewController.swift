@@ -441,7 +441,7 @@ fileprivate class SectionHeaderView: UICollectionReusableView {
 
 // MARK: - Main View Controller
 
-public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+public class HomeDiscoverViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     // MARK: - Properties
 
     private var sectionLayouts: [SectionLayout] = []
@@ -726,7 +726,7 @@ fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAP
 /// Grok: https://grok.com/chat/a4c29db6-3c12-4221-b134-490e4015d4d4
 @available(iOS 17, *)
 #Preview {
-    GrkMarketplaceViewController3(
+    HomeDiscoverViewController(
         viewModel:
             HomeDiscoverViewModel(
                 fetchGenresUseCase:
@@ -737,51 +737,3 @@ fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAP
 #endif
 
 // MARK: - SwiftUI Wrapper
-
-import SwiftUI
-import Swinject
-@available(iOS 16, *)
-public struct GrkMarketplaceView<Route: Hashable>: View {
-    @StateObject var viewModel: HomeDiscoverViewModel
-    let detailRouteBuilder: (Int) -> Route
-    let onItemTapped: () -> Void
-
-    public init(
-        container: Container,
-        apiKey: String,
-        detailRouteBuilder: @escaping (Int) -> Route,
-        onItemTapped: @escaping () -> Void = {}
-    ) {
-        APIKeys.tmdbKey = apiKey
-        let movieAssembly = MovieAssembly()
-        movieAssembly.assemble(container: container)
-        self.detailRouteBuilder = detailRouteBuilder
-        self.onItemTapped = onItemTapped
-
-        _viewModel = StateObject(wrappedValue: HomeDiscoverViewModel(
-            fetchGenresUseCase: DefaultFetchGenresUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
-            fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
-            fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)))
-        )
-    }
-
-    public var body: some View {
-        GrkMarketplaceViewControllerRepresentable(viewModel: viewModel, onItemTapped: onItemTapped)
-    }
-}
-
-@available(iOS 16, *)
-struct GrkMarketplaceViewControllerRepresentable: UIViewControllerRepresentable {
-    let viewModel: HomeDiscoverViewModel
-    let onItemTapped: () -> Void
-
-    func makeUIViewController(context: Context) -> GrkMarketplaceViewController3 {
-        let viewController = GrkMarketplaceViewController3(viewModel: viewModel)
-        viewController.onItemTapped = onItemTapped
-        return viewController
-    }
-
-    func updateUIViewController(_ uiViewController: GrkMarketplaceViewController3, context: Context) {
-        // Updates handled by the view model
-    }
-}

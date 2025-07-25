@@ -5,6 +5,7 @@ protocol APIServiceProtocol {
     func fetchGenres() async -> Result<GenreListModel, Error>
     func fetchPopularPeople() async -> Result<PersonListResultModel, Error>
     func fetchTrendingItems() async -> Result<TrendingAllResultModel, Error>
+    func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error>
 }
 
 class MovieRepositoryImpl: MovieRepository {
@@ -47,6 +48,16 @@ class MovieRepositoryImpl: MovieRepository {
         switch result {
         case let .success(response):
             return .success(response.results.map { self.mapAPITrendingToEntity($0) })
+        case let .failure(error):
+            return .failure(error)
+        }
+    }
+    
+    func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error> {
+        let result = await apiService.toggleTVShowFavorite(tvShowId: tvShowId, isFavorite: isFavorite)
+        switch result {
+        case let .success(success):
+            return .success(success)
         case let .failure(error):
             return .failure(error)
         }

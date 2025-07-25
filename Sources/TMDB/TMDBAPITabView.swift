@@ -186,7 +186,7 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildMarketplacePage() -> some View {
-        let marketplaceContent = TMDB_Discover.GrkMarketplaceView(
+        let marketplaceContent = TMDB_Discover.HomeDiscoverView(
             container: container,
             apiKey: tmdbKey
         ) { movieId in

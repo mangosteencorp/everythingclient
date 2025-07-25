@@ -8,7 +8,7 @@ class MovieAssemblyTests: XCTestCase {
     override func setUp() {
         super.setUp()
         container = Container()
-        let assembly = MovieAssembly()
+        let assembly = DiscoverAssembly()
         assembly.assemble(container: container)
     }
 

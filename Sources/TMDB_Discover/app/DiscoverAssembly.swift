@@ -2,13 +2,17 @@ import CoreFeatures
 import Swinject
 import TMDB_Shared_Backend
 
-public class MovieAssembly: Assembly {
+public class DiscoverAssembly: Assembly {
     public init() {}
 
     public func assemble(container: Container) {
         // Register API Service
         container.register(APIServiceProtocol.self) { _ in
+            #if DEBUG
+            TMDBAPIService(apiKey: debugTMDBAPIKey)
+            #else
             TMDBAPIService(apiKey: APIKeys.tmdbKey)
+            #endif
         }.inObjectScope(.container)
 
         // Register Repository
@@ -37,11 +41,16 @@ public class MovieAssembly: Assembly {
         container.register(FetchTrendingItemsUseCase.self) { resolver in
             DefaultFetchTrendingItemsUseCase(repository: resolver.resolve(MovieRepository.self)!)
         }
+        
+        container.register(ToggleTVShowFavoriteUseCase.self) { resolver in
+            DefaultToggleTVShowFavoriteUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
+        }
 
         // Register ViewModels
         container.register(TVFeedViewModel.self, name: "nowPlaying") { resolver in
             TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!,
+                toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self)
             )
         }
@@ -49,6 +58,7 @@ public class MovieAssembly: Assembly {
         container.register(TVFeedViewModel.self, name: "upcoming") { resolver in
             TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!,
+                toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self)
             )
         }
