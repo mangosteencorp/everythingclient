@@ -1,6 +1,6 @@
 import SwiftUI
 @available(iOS 17, *)
-struct FancyNoResultsView: View {
+public struct FancyNoResultsView: View {
     let configuration: NoResultViewConfiguration
 
     @State private var isAnimating = false
@@ -10,11 +10,11 @@ struct FancyNoResultsView: View {
     @State private var sparkleOpacity: Double = 0
     @State private var searchPulse = false
 
-    init(configuration: NoResultViewConfiguration = NoResultViewConfiguration()) {
+    public init(configuration: NoResultViewConfiguration = NoResultViewConfiguration()) {
         self.configuration = configuration
     }
 
-    var body: some View {
+    public var body: some View {
         GeometryReader { geometry in
             ZStack {
                 // Dynamic gradient background

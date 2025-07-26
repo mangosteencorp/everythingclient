@@ -10,14 +10,14 @@ public enum MovieWatchProvidersState {
 
 public class MovieWatchProvidersViewModel: ObservableObject {
     @Published var state: MovieWatchProvidersState = .loading
-    
+
     private var cancellables = Set<AnyCancellable>()
     private let apiService: TMDBAPIService
-    
+
     init(apiService: TMDBAPIService) {
         self.apiService = apiService
     }
-    
+
     func fetchWatchProviders(movieId: Int) {
         state = .loading
         Task {
@@ -32,4 +32,4 @@ public class MovieWatchProvidersViewModel: ObservableObject {
             }
         }
     }
-} 
+}

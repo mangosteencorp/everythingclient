@@ -1,4 +1,5 @@
 import everythingclient
+import Integration_test
 import SwiftUI
 
 @main
@@ -11,11 +12,16 @@ struct RebuildApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootContentView(
-                TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
-                isAppStoreOrTestFlight: isAppStoreOrTestFlight,
-                options3rdPartySDKs: .init(firebase: true) // mark this as false if you don't have GoogleService-Info.plist or not indending to use Firebase
-            )
+            // Check for integration test environment variable
+            if let testName = ProcessInfo.processInfo.environment["INTEGRATION_TEST_NAME"] {
+                IntegrationTestLauncher.launch(named: testName)
+            } else {
+                RootContentView(
+                    TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
+                    isAppStoreOrTestFlight: isAppStoreOrTestFlight,
+                    options3rdPartySDKs: .init(firebase: true) // mark this as false if you don't have GoogleService-Info.plist or not indending to use Firebase
+                )
+            }
         }
     }
 }

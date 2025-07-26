@@ -46,6 +46,7 @@ let package = Package(
         .library(name: "Pokedex_Detail", targets: ["Pokedex_Detail"]),
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
         .library(name: "TMDB_TVShowDetail", targets: ["TMDB_TVShowDetail"]),
+        .library(name: "Integration_test", targets: ["Integration_test"]),
 
     ],
     dependencies: [
@@ -225,6 +226,29 @@ let package = Package(
         ),
         .target(
             name: "CoreFeatures"
+        ),
+
+        // MARK: Integration Tests
+
+        .target(
+            name: "Integration_test",
+            dependencies: [
+                "TMDB",
+                "Pokedex",
+                "TMDB_Feed",
+                "TMDB_Discover",
+                "TMDB_Profile",
+                "TMDB_MovieDetail",
+                "TMDB_TVShowDetail",
+                "Pokedex_Pokelist",
+                "Pokedex_Detail",
+                "Pokedex_Shared_Backend",
+                "TMDB_Shared_Backend",
+                "TMDB_Shared_UI",
+                "Shared_UI_Support",
+                "CoreFeatures",
+                "Swinject",
+            ]
         ),
     ]
 )
