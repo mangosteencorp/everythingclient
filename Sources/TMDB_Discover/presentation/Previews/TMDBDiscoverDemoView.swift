@@ -1,11 +1,13 @@
 import SwiftUI
 import Swinject
-import TMDB_Discover
 import TMDB_Shared_Backend
 
+#if DEBUG
 @available(iOS 16, *)
-struct TMDBDiscoverDemoView: View {
-    var body: some View {
+public struct TMDBDiscoverDemoView: View {
+    public init() {}
+
+    public var body: some View {
         TabView {
             TabView {
                 NavigationStack {
@@ -41,4 +43,5 @@ struct TMDBDiscoverDemoView: View {
 #Preview {
     TMDBDiscoverDemoView()
 }
+#endif
 #endif

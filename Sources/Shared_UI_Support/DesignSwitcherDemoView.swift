@@ -1,10 +1,12 @@
-import Shared_UI_Support
 import SwiftUI
 
-struct DesignSwitcherDemoView: View {
+#if DEBUG
+public struct DesignSwitcherDemoView: View {
     @State private var useFancyDesign = true
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         VStack(spacing: 20) {
             Text("Design Switcher Demo")
                 .font(.title)
@@ -63,4 +65,5 @@ struct DesignSwitcherDemoView: View {
 #Preview {
     DesignSwitcherDemoView()
 }
+#endif
 #endif

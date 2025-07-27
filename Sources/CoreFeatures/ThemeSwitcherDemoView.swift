@@ -1,11 +1,13 @@
-import CoreFeatures
 import SwiftUI
 
-struct ThemeSwitcherDemoView: View {
+#if DEBUG
+public struct ThemeSwitcherDemoView: View {
     @StateObject private var themeManager = ThemeManager.shared
     @State private var selectedTheme: ThemeProtocol = ThemeManager.shared.currentTheme
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         VStack(spacing: 20) {
             Text("Theme Switcher Demo")
                 .font(.title)
@@ -59,4 +61,5 @@ struct ThemeSwitcherDemoView: View {
 #Preview {
     ThemeSwitcherDemoView()
 }
+#endif
 #endif

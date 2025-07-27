@@ -1,7 +1,10 @@
 import SwiftUI
 
-struct TMDBMovieDetailDemoView: View {
-    var body: some View {
+#if DEBUG
+public struct TMDBMovieDetailDemoView: View {
+    public init() {}
+
+    public var body: some View {
         VStack {
             Image(systemName: "film")
                 .font(.system(size: 60))
@@ -29,4 +32,5 @@ struct TMDBMovieDetailDemoView: View {
 #Preview {
     TMDBMovieDetailDemoView()
 }
+#endif
 #endif

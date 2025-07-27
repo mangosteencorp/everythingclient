@@ -1,22 +1,25 @@
 import SwiftUI
 
-struct TMDBTVShowDetailDemoView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "tv")
-                .font(.system(size: 60))
-                .foregroundColor(.green)
+#if DEBUG
+public struct TMDBProfileDemoView: View {
+    public init() {}
 
-            Text("TMDB TV Show Detail Demo")
+    public var body: some View {
+        VStack {
+            Image(systemName: "person.circle")
+                .font(.system(size: 60))
+                .foregroundColor(.blue)
+
+            Text("TMDB Profile Demo")
                 .font(.title)
                 .padding()
 
-            Text("This demo will showcase the TMDB TV Show Detail functionality")
+            Text("This demo will showcase the TMDB Profile functionality")
                 .multilineTextAlignment(.center)
                 .foregroundColor(.secondary)
                 .padding()
 
-            // TODO: Implement actual TMDB TV Show Detail demo
+            // TODO: Implement actual TMDB Profile demo
             Text("Coming soon...")
                 .font(.caption)
                 .foregroundColor(.orange)
@@ -27,6 +30,7 @@ struct TMDBTVShowDetailDemoView: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailDemoView()
+    TMDBProfileDemoView()
 }
+#endif
 #endif

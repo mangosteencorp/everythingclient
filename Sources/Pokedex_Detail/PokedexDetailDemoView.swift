@@ -1,7 +1,10 @@
 import SwiftUI
 
-struct PokedexDetailDemoView: View {
-    var body: some View {
+#if DEBUG
+public struct PokedexDetailDemoView: View {
+    public init() {}
+
+    public var body: some View {
         VStack {
             Image(systemName: "leaf")
                 .font(.system(size: 60))
@@ -29,4 +32,5 @@ struct PokedexDetailDemoView: View {
 #Preview {
     PokedexDetailDemoView()
 }
+#endif
 #endif
