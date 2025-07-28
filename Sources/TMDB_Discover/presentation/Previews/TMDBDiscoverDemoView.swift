@@ -38,10 +38,9 @@ public struct TMDBDiscoverDemoView: View {
     }
 }
 
-#if DEBUG
 @available(iOS 16, *)
 #Preview {
     TMDBDiscoverDemoView()
 }
-#endif
+
 #endif

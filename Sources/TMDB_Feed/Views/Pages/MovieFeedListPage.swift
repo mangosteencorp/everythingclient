@@ -62,6 +62,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
             .padding(.top, 8)
+            .accessibilityIdentifier("content_type_picker")
 
             // Content based on selected type
             Group {
@@ -81,7 +82,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                 }
             }
         }
-        .accessibilityIdentifier("movielist1.group")
+        .accessibilityIdentifier("movies_list")
         .navigationTitle(currentFeedTypeTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

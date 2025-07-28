@@ -35,6 +35,7 @@ struct MovieContentView<Route: Hashable>: View {
                         List(movies) { movie in
                             NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
                         }
+                        .accessibilityIdentifier("movies_list_content")
                         .searchable(text: $viewModel.searchQuery)
                         .overlay {
                             if case .loading = viewModel.state {
