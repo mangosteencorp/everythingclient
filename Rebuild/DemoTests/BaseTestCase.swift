@@ -186,26 +186,30 @@ class BaseTestCase: XCTestCase {
             .replacingOccurrences(of: ":", with: "-")
             .replacingOccurrences(of: ".", with: "-")
         
-        let screenshotFolder = ".screenshots/\(timestamp)"
+        // Use the Documents directory for saving screenshots
+        let fileManager = FileManager.default
+        guard let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            print("Failed to access Documents directory")
+            return
+        }
+        
+        let screenshotFolder = documentsURL.appendingPathComponent("UITesting-screenshots/\(timestamp)")
         let screenshotName = "\(name).png"
+        let screenshotPath = screenshotFolder.appendingPathComponent(screenshotName)
         
         // Create screenshots directory if it doesn't exist
-        let fileManager = FileManager.default
-        let currentPath = fileManager.currentDirectoryPath
-        let screenshotsPath = "\(currentPath)/\(screenshotFolder)"
-        
         do {
-            try fileManager.createDirectory(atPath: screenshotsPath, withIntermediateDirectories: true, attributes: nil)
+            try fileManager.createDirectory(at: screenshotFolder, withIntermediateDirectories: true, attributes: nil)
         } catch {
             print("Failed to create screenshots directory: \(error)")
+            return
         }
         
         let screenshot = app.screenshot()
-        let screenshotPath = "\(screenshotsPath)/\(screenshotName)"
         
         do {
-            try screenshot.pngRepresentation.write(to: URL(fileURLWithPath: screenshotPath))
-            print("Screenshot saved to: \(screenshotPath)")
+            try screenshot.pngRepresentation.write(to: screenshotPath)
+            print("Screenshot saved to: \(screenshotPath.path)")
         } catch {
             print("Failed to save screenshot: \(error)")
         }
