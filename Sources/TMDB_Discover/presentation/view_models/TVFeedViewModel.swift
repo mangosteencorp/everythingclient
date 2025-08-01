@@ -8,15 +8,18 @@ class TVFeedViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     private let fetchMoviesUseCase: FetchMoviesUseCase
+    private let fetchFavoriteTVShowsUseCase: FetchFavoriteTVShowsUseCase?
     private let toggleTVShowFavoriteUseCase: ToggleTVShowFavoriteUseCase?
     private let analyticsTracker: AnalyticsTracker?
     private let authViewModel: (any AuthenticationViewModelProtocol)?
 
     init(fetchMoviesUseCase: FetchMoviesUseCase,
+         fetchFavoriteTVShowsUseCase: FetchFavoriteTVShowsUseCase? = nil,
          toggleTVShowFavoriteUseCase: ToggleTVShowFavoriteUseCase? = nil,
          analyticsTracker: AnalyticsTracker? = nil,
          authViewModel: (any AuthenticationViewModelProtocol)? = nil) {
         self.fetchMoviesUseCase = fetchMoviesUseCase
+        self.fetchFavoriteTVShowsUseCase = fetchFavoriteTVShowsUseCase
         self.toggleTVShowFavoriteUseCase = toggleTVShowFavoriteUseCase
         self.analyticsTracker = analyticsTracker
         self.authViewModel = authViewModel
@@ -27,12 +30,31 @@ class TVFeedViewModel: ObservableObject {
         errorMessage = nil
 
         Task {
+            // Step 1: Load favorites first (if use case is available)
+            var favoriteIds: Set<Int> = []
+            if let favoritesUseCase = fetchFavoriteTVShowsUseCase {
+                let favoritesResult = await favoritesUseCase.execute()
+                switch favoritesResult {
+                case let .success(favorites):
+                    favoriteIds = Set(favorites)
+                case let .failure(error):
+                    // Log favorites error but continue loading movies
+                    print("Failed to load favorites: \(error.localizedDescription)")
+                }
+            }
+
+            // Step 2: Load movies
             let result = await fetchMoviesUseCase.execute()
             await MainActor.run {
                 self.isLoading = false
                 switch result {
                 case let .success(movies):
-                    self.movies = movies
+                    // Merge favorite status into movies
+                    self.movies = movies.map { movie in
+                        var updatedMovie = movie
+                        updatedMovie.isFavorite = favoriteIds.contains(movie.id)
+                        return updatedMovie
+                    }
                     analyticsTracker?.trackPageView(parameters: PageViewParameters(
                         screenName: "ListTVShows",
                         screenClass: "TVShowListContent"

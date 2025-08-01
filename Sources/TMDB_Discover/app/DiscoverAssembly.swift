@@ -52,10 +52,15 @@ public class DiscoverAssembly: Assembly {
             )
         }
 
+        container.register(FetchFavoriteTVShowsUseCase.self) { resolver in
+            FetchFavoriteTVShowsUseCaseImpl(repository: resolver.resolve(MovieRepository.self)!)
+        }
+
         // Register ViewModels
         container.register(TVFeedViewModel.self, name: "nowPlaying") { resolver in
             TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!,
+                fetchFavoriteTVShowsUseCase: resolver.resolve(FetchFavoriteTVShowsUseCase.self),
                 toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self),
                 authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)
@@ -65,6 +70,7 @@ public class DiscoverAssembly: Assembly {
         container.register(TVFeedViewModel.self, name: "upcoming") { resolver in
             TVFeedViewModel(
                 fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!,
+                fetchFavoriteTVShowsUseCase: resolver.resolve(FetchFavoriteTVShowsUseCase.self),
                 toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self),
                 authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)

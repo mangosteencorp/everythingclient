@@ -266,16 +266,26 @@ extension TVShowListViewController: UICollectionViewDelegate {
 #if DEBUG
 @available(iOS 17, *)
 #Preview {
-    let viewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
+    let viewModel = TVFeedViewModel(
+        fetchMoviesUseCase: MockFetchMoviesUseCase(),
+        fetchFavoriteTVShowsUseCase: MockFetchFavoriteTVShowsUseCase()
+    )
     let nav = UINavigationController(rootViewController: TVShowListViewController(viewModel: viewModel))
     return nav
 }
 
-// MARK: - Mock Use Case for Preview
+// MARK: - Mock Use Cases for Preview
 
 private class MockFetchMoviesUseCase: FetchMoviesUseCase {
     func execute() async -> Result<[Movie], Error> {
         return .success(Movie.exampleMovies)
+    }
+}
+
+private class MockFetchFavoriteTVShowsUseCase: FetchFavoriteTVShowsUseCase {
+    func execute() async -> Result<[Int], Error> {
+        // Mock some favorites (first 2 movies)
+        return .success([889_737, 1_100_782])
     }
 }
 #endif

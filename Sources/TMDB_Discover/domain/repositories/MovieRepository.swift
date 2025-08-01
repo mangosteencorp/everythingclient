@@ -6,4 +6,5 @@ protocol MovieRepository {
     func fetchPopularPeople() async -> Result<[PopularPerson], Error>
     func fetchTrendingItems() async -> Result<[TrendingItem], Error>
     func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error>
+    func fetchFavoriteTVShows() async -> Result<[Int], Error>
 }
