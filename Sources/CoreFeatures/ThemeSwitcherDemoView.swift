@@ -15,7 +15,7 @@ public struct ThemeSwitcherDemoView: View {
 
             Text("Current Theme: \(themeName(for: themeManager.currentTheme))")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(themeManager.currentTheme.labelColor)
 
             VStack(spacing: 10) {
                 ForEach(ThemeManager.shared.availableThemes(), id: \.backgroundColor) { theme in
@@ -33,7 +33,7 @@ public struct ThemeSwitcherDemoView: View {
                             }
                         }
                         .padding()
-                        .background(Color.secondary.opacity(0.1))
+                        .background(themeManager.currentTheme.buttonColor)
                         .cornerRadius(8)
                     }
                 }

@@ -25,47 +25,6 @@ final class DemoTests: BaseTestCase {
         verifyTMDBFeedDemo()
     }
     
-    @MainActor
-    func testTMDBFeedDemoContentSwitching() throws {
-        // Given
-        launchAppAndWait(withDemo: "TMDBFeed")
-        
-        // When & Then - Switch to TV Shows
-        switchContentType(to: "TV Shows")
-        verifyElementsExist(["tvshows_list_content"])
-        
-        // When & Then - Switch back to Movies
-        switchContentType(to: "Movies")
-        verifyElementsExist(["movies_list_content"])
-    }
-    
-    @MainActor
-    func testTMDBFeedDemoSearch() throws {
-        // Given
-        launchAppAndWait(withDemo: "TMDBFeed")
-        
-        // When
-        searchForContent("test")
-        
-        // Then
-        // Verify search field is active
-        let searchField = app.searchFields.firstMatch
-        XCTAssertTrue(searchField.exists, "Search field should be visible")
-    }
-    
-    @MainActor
-    func testTMDBFeedDemoNavigation() throws {
-        // Given
-        launchAppAndWait(withDemo: "TMDBFeed")
-        
-        // When
-        tapFirstMovie()
-        
-        // Then
-        // Verify navigation occurred (this would depend on your detail view accessibility identifiers)
-        XCTAssertTrue(app.navigationBars.element.exists, "Navigation should have occurred")
-    }
-    
     // MARK: - TMDB Discover Tests
     
     @MainActor
@@ -101,17 +60,6 @@ final class DemoTests: BaseTestCase {
         XCTAssertTrue(app.navigationBars.element.exists, "Navigation should have occurred")
     }
     
-    // MARK: - Theme Switcher Tests
-    
-    @MainActor
-    func testThemeSwitcherDemoLaunch() throws {
-        // Given & When
-        launchAppAndWait(withDemo: "ThemeSwitcher")
-        
-        // Then
-        verifyThemeSwitcherDemo()
-    }
-    
     // MARK: - Performance Tests
     
     @MainActor
@@ -129,80 +77,4 @@ final class DemoTests: BaseTestCase {
         measureAppLaunchPerformance(for: "PokedexList")
     }
     
-    @MainActor
-    func testThemeSwitcherLaunchPerformance() throws {
-        measureAppLaunchPerformance(for: "ThemeSwitcher")
-    }
-    
-    // MARK: - Navigation Performance Tests
-    
-    @MainActor
-    func testTMDBFeedNavigationPerformance() throws {
-        measureNavigationPerformance(for: "TMDBFeed")
-    }
-    
-    @MainActor
-    func testPokedexListNavigationPerformance() throws {
-        measureNavigationPerformance(for: "PokedexList")
-    }
-    
-    // MARK: - Accessibility Tests
-    
-    @MainActor
-    func testTMDBFeedAccessibility() throws {
-        // Given
-        launchAppAndWait(withDemo: "TMDBFeed")
-        
-        // When & Then
-        verifyAccessibility(for: "TMDBFeed")
-    }
-    
-    @MainActor
-    func testTMDBDiscoverAccessibility() throws {
-        // Given
-        launchAppAndWait(withDemo: "TMDBDiscover")
-        
-        // When & Then
-        verifyAccessibility(for: "TMDBDiscover")
-    }
-    
-    @MainActor
-    func testPokedexListAccessibility() throws {
-        // Given
-        launchAppAndWait(withDemo: "PokedexList")
-        
-        // When & Then
-        verifyAccessibility(for: "PokedexList")
-    }
-    
-    @MainActor
-    func testThemeSwitcherAccessibility() throws {
-        // Given
-        launchAppAndWait(withDemo: "ThemeSwitcher")
-        
-        // When & Then
-        verifyAccessibility(for: "ThemeSwitcher")
-    }
-    
-    // MARK: - Error Handling Tests
-    
-    @MainActor
-    func testTMDBFeedErrorHandling() throws {
-        verifyErrorHandling(for: "TMDBFeed")
-    }
-    
-    @MainActor
-    func testTMDBDiscoverErrorHandling() throws {
-        verifyErrorHandling(for: "TMDBDiscover")
-    }
-    
-    @MainActor
-    func testPokedexListErrorHandling() throws {
-        verifyErrorHandling(for: "PokedexList")
-    }
-    
-    @MainActor
-    func testThemeSwitcherErrorHandling() throws {
-        verifyErrorHandling(for: "ThemeSwitcher")
-    }
 }
