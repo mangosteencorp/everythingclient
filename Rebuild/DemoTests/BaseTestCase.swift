@@ -113,13 +113,22 @@ class BaseTestCase: XCTestCase {
     /// - Parameter identifier: Accessibility identifier
     /// - Returns: The found element
     func findElement(withIdentifier identifier: String) -> XCUIElement {
-        return app.otherElements[identifier] ?? 
-               app.staticTexts[identifier] ?? 
-               app.buttons[identifier] ?? 
-               app.navigationBars[identifier] ?? 
-               app.tabBars[identifier] ??
-               app.collectionViews[identifier] ??
-               app.tables[identifier]
+        let queries: [XCUIElement] = [
+            app.otherElements[identifier],
+            app.staticTexts[identifier],
+            app.buttons[identifier],
+            app.navigationBars[identifier],
+            app.tabBars[identifier],
+            app.collectionViews[identifier],
+            app.tables[identifier]
+        ]
+        for element in queries {
+            if element.exists {
+                return element
+            }
+        }
+        // If none exist, return the first (for compatibility)
+        return app.otherElements[identifier]
     }
     
     /// Find all elements with accessibility identifier
