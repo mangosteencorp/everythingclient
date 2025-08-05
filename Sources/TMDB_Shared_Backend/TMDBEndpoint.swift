@@ -14,6 +14,7 @@ public enum TMDBEndpoint {
     case videos(movie: Int)
     case credits(movie: Int)
     case review(movie: Int)
+    case watchProviders(movie: Int)
 
     // Search
     case searchMovie(
@@ -97,6 +98,8 @@ public enum TMDBEndpoint {
             return "movie/\(movie)/credits"
         case let .review(movie):
             return "movie/\(movie)/reviews"
+        case let .watchProviders(movie):
+            return "movie/\(movie)/watch/providers"
         case let .recommended(movie):
             return "movie/\(movie)/recommendations"
         case let .similar(movie):
