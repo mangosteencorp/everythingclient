@@ -73,16 +73,16 @@ final class WatchProviderModelsTests: XCTestCase {
 
         // When & Then - Test different regions have different provider types
         for (regionCode, regionData) in watchProviderResponse.results {
-            print("Testing region: \(regionCode)")
+            XCTContext.runActivity(named: "Testing region: \(regionCode)") { _ in
+                // At least one provider type should exist
+                let hasProviders = (regionData.buy?.isEmpty == false) ||
+                                 (regionData.rent?.isEmpty == false) ||
+                                 (regionData.flatrate?.isEmpty == false) ||
+                                 (regionData.free?.isEmpty == false) ||
+                                 (regionData.ads?.isEmpty == false)
 
-            // At least one provider type should exist
-            let hasProviders = (regionData.buy?.isEmpty == false) ||
-                             (regionData.rent?.isEmpty == false) ||
-                             (regionData.flatrate?.isEmpty == false) ||
-                             (regionData.free?.isEmpty == false) ||
-                             (regionData.ads?.isEmpty == false)
-
-            XCTAssertTrue(hasProviders, "Region \(regionCode) should have at least one provider type")
+                XCTAssertTrue(hasProviders, "Region \(regionCode) should have at least one provider type")
+            }
         }
     }
 
