@@ -14,7 +14,7 @@ public class MovieWatchProvidersViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let apiService: TMDBAPIService
 
-    init(apiService: TMDBAPIService) {
+    public init(apiService: TMDBAPIService) {
         self.apiService = apiService
     }
 
