@@ -103,13 +103,11 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
         collectionView.dataSource = self
         collectionView.register(MovieItemCell.self, forCellWithReuseIdentifier: "MovieItemCell")
 
-        let top = CGFloat(searchBarHeight + padding)
-        collectionView.contentInset = UIEdgeInsets(top: top, left: 0, bottom: 0, right: 0)
-
         view.addSubview(collectionView)
 
         collectionView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(searchBar.snp.bottom)
+            make.left.right.bottom.equalToSuperview()
         }
     }
 
@@ -129,7 +127,8 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
             .receive(on: DispatchQueue.main)
             .sink { [weak self] movies in
                 self?.movies = movies
-                self?.filteredMovies = movies
+                // Apply current filter when new movies arrive
+                self?.applyFilter()
                 self?.collectionView.reloadData()
                 self?.refreshControl.endRefreshing()
             }

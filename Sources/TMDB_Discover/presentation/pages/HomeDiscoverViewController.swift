@@ -403,90 +403,90 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
     }
 
     // MARK: - Private Methods
-    
+
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
-        return UICollectionViewCompositionalLayout { [weak self] sectionIndex, layoutEnvironment -> NSCollectionLayoutSection? in
+        return UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ -> NSCollectionLayoutSection? in
             guard let self = self, sectionIndex < self.sectionLayouts.count else { return nil }
-            
+
             let sectionLayout = self.sectionLayouts[sectionIndex]
-            
+
             switch sectionLayout.type {
             case .banner:
                 // Banner section - full width
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(sectionLayout.height))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(sectionLayout.height))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
                 return section
-                
+
             case .categories:
                 // Categories section - horizontal scrolling pills
                 let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(120), heightDimension: .absolute(40))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(120), heightDimension: .absolute(40))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
                 group.interItemSpacing = .fixed(10)
-                
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .continuous
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
-                
+
                 // Add header if needed
                 if let headerTitle = sectionLayout.headerTitle {
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(30))
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
                     section.boundarySupplementaryItems = [header]
                 }
-                
+
                 return section
-                
+
             case .popularCategories:
                 // Popular categories section - horizontal scrolling circles
                 let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(100), heightDimension: .absolute(120))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(100), heightDimension: .absolute(120))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
                 group.interItemSpacing = .fixed(15)
-                
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .continuous
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
-                
+
                 // Add header if needed
                 if let headerTitle = sectionLayout.headerTitle {
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(30))
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
                     section.boundarySupplementaryItems = [header]
                 }
-                
+
                 return section
-                
+
             case .favourites:
                 // Favourites section - horizontal scrolling items
                 let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(150), heightDimension: .absolute(160))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
+
                 let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(150), heightDimension: .absolute(160))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
                 group.interItemSpacing = .fixed(15)
-                
+
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .continuous
                 section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
-                
+
                 // Add header if needed
                 if let headerTitle = sectionLayout.headerTitle {
                     let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(30))
                     let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
                     section.boundarySupplementaryItems = [header]
                 }
-                
+
                 return section
             }
         }
@@ -692,6 +692,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
     }
 
     // MARK: - UICollectionViewDelegate
+
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
             let layout = sectionLayouts[indexPath.section]
