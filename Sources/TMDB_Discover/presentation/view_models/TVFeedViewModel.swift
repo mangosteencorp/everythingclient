@@ -50,12 +50,12 @@ class TVFeedViewModel: ObservableObject {
                 }
             }
 
-            // Step 2: Load movies - use discover API if parameters are set, otherwise use traditional API
+            // Step 2: Load movies
+            // Prefer the discover API when available. If no params are set, use empty/default discover params.
             let result: Result<[Movie], Error>
 
-            if let params = discoverParams,
-               hasDiscoverParams(params),
-               let discoverUseCase = fetchDiscoverMoviesUseCase {
+            if let discoverUseCase = fetchDiscoverMoviesUseCase {
+                let params = self.discoverParams ?? DiscoverMoviesParams()
                 result = await discoverUseCase.execute(params: params)
             } else if let fetchUseCase = fetchMoviesUseCase {
                 result = await fetchUseCase.execute()

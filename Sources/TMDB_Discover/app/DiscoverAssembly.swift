@@ -91,6 +91,18 @@ public class DiscoverAssembly: Assembly {
             )
         }
 
+        // Allow resolving discover VM with initial discover parameters
+        container.register(TVFeedViewModel.self, name: "discover") { (resolver: Resolver, params: DiscoverMoviesParams) in
+            TVFeedViewModel(
+                fetchDiscoverMoviesUseCase: resolver.resolve(FetchDiscoverMoviesUseCase.self)!,
+                fetchFavoriteTVShowsUseCase: resolver.resolve(FetchFavoriteTVShowsUseCase.self),
+                toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
+                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
+                authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self),
+                discoverParams: params
+            )
+        }
+
         // Register HomeDiscoverViewModel
         container.register(HomeDiscoverViewModel.self) { resolver in
             HomeDiscoverViewModel(

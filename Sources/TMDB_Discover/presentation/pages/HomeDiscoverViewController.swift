@@ -499,8 +499,9 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
                 height: 50,
                 data: mapGenresToPillShapeItems(),
                 headerTitle: "Genres",
-                onItemTapped: {index in
-                    if let vm = self.viewModel, let genre = vm.genres.endIndex >= index ? vm.genres[index] : nil {
+                onItemTapped: { index in
+                    if let vm = self.viewModel, vm.genres.indices.contains(index) {
+                        let genre = vm.genres[index]
                         self.onGenreTapped?(genre)
                     }
                 }
@@ -510,8 +511,9 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
                 height: 140,
                 data: mapPopularPeopleToCircleItems(),
                 headerTitle: "Popular People",
-                onItemTapped: {index in
-                    if let vm = self.viewModel, let person = vm.popularPeople.endIndex >= index ? vm.popularPeople[index] : nil {
+                onItemTapped: { index in
+                    if let vm = self.viewModel, vm.popularPeople.indices.contains(index) {
+                        let person = vm.popularPeople[index]
                         self.onCastTapped?(person)
                     }
                 }
@@ -521,10 +523,8 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
                 height: 180,
                 data: mapTrendingToFavouriteListings(),
                 headerTitle: "Trending",
-                onItemTapped: {index in
-                    if let vm = self.viewModel, let listing = vm.trendingItems.endIndex >= index ? vm.trendingItems[index] : nil {
-                        self.onItemTapped?()
-                    }
+                onItemTapped: { _ in
+                    self.onItemTapped?()
                 }
             ),
         ]
@@ -692,13 +692,6 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
     }
 
     // MARK: - UICollectionViewDelegate
-
-    
-
-
-
-
-
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
             let layout = sectionLayouts[indexPath.section]

@@ -20,16 +20,38 @@ public struct TVShowListPage<Route: Hashable>: View {
         let movieAssembly = DiscoverAssembly()
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
+        
+        // Create discover parameters if we have genre information
+        var discoverParams: DiscoverMoviesParams?
+        if case .discoverWithGenre(let genre) = type {
+            discoverParams = DiscoverMoviesParams(genres: [genre.id])
+        }
+        
         switch type {
         case .airingToday:
             _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "nowPlaying")!)
         case .onTheAir:
             _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "upcoming")!)
         case .discover:
-            _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
+            if let params = discoverParams {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover", argument: params)!)
+            } else {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
+            }
+        case .discoverWithGenre:
+            if let params = discoverParams {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover", argument: params)!)
+            } else {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
+            }
         }
 
         self.type = type
+        
+        // If we resolved the VM without params for some reason, still set afterwards
+        if let params = discoverParams {
+            viewModel.setDiscoverParams(params)
+        }
     }
 
     public var body: some View {
