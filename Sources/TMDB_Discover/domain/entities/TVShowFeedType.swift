@@ -2,6 +2,7 @@ import Foundation
 public enum TVShowFeedType: Hashable, Codable {
     case airingToday
     case onTheAir
+    case discover
 
     var title: String {
         switch self {
@@ -9,6 +10,8 @@ public enum TVShowFeedType: Hashable, Codable {
             return "Airing Today"
         case .onTheAir:
             return "On the air"
+        case .discover:
+            return "Discover Movies"
         }
     }
 
@@ -18,6 +21,8 @@ public enum TVShowFeedType: Hashable, Codable {
             return "play.circle"
         case .onTheAir:
             return "calendar"
+        case .discover:
+            return "magnifyingglass"
         }
     }
 }

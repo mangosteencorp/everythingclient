@@ -25,6 +25,8 @@ public struct TVShowListPage<Route: Hashable>: View {
             _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "nowPlaying")!)
         case .onTheAir:
             _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "upcoming")!)
+        case .discover:
+            _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
         }
 
         self.type = type

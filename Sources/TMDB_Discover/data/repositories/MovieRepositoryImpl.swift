@@ -1,12 +1,19 @@
 import TMDB_Shared_Backend
 
 protocol APIServiceProtocol {
-    func fetchTVShows(endpoint: TVShowFeedType) async -> Result<TVShowListResultModel, Error>
     func fetchGenres() async -> Result<GenreListModel, Error>
     func fetchPopularPeople() async -> Result<PersonListResultModel, Error>
     func fetchTrendingItems() async -> Result<TrendingAllResultModel, Error>
     func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error>
     func fetchFavoriteTVShows() async -> Result<TVShowListResultModel, Error>
+    func discoverMovies(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        page: Int?
+    ) async -> Result<MovieListResultModel, Error>
 }
 
 class MovieRepositoryImpl: MovieRepository {
@@ -17,11 +24,13 @@ class MovieRepositoryImpl: MovieRepository {
     }
 
     func fetchNowPlayingMovies() async -> Result<[Movie], Error> {
-        return await fetchMovies(endpoint: .airingToday)
+        // Use discover API instead of specific endpoints
+        return await discoverMovies(keywords: nil, cast: nil, genres: nil, watchProviders: nil, watchRegion: nil, page: nil)
     }
 
     func fetchUpcomingMovies() async -> Result<[Movie], Error> {
-        return await fetchMovies(endpoint: .onTheAir)
+        // Use discover API instead of specific endpoints
+        return await discoverMovies(keywords: nil, cast: nil, genres: nil, watchProviders: nil, watchRegion: nil, page: nil)
     }
 
     func fetchGenres() async -> Result<[Genre], Error> {
@@ -74,8 +83,22 @@ class MovieRepositoryImpl: MovieRepository {
         }
     }
 
-    private func fetchMovies(endpoint: TVShowFeedType) async -> Result<[Movie], Error> {
-        let result = await apiService.fetchTVShows(endpoint: endpoint)
+    func discoverMovies(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        page: Int?
+    ) async -> Result<[Movie], Error> {
+        let result = await apiService.discoverMovies(
+            keywords: keywords,
+            cast: cast,
+            genres: genres,
+            watchProviders: watchProviders,
+            watchRegion: watchRegion,
+            page: page
+        )
         switch result {
         case let .success(response):
             return .success(response.results.map { self.mapAPIMovieToEntity($0) })
@@ -84,15 +107,15 @@ class MovieRepositoryImpl: MovieRepository {
         }
     }
 
-    private func mapAPIMovieToEntity(_ apiMovie: APITVShow) -> Movie {
-        // Map API model to domain entity (same as before)
+    private func mapAPIMovieToEntity(_ apiMovie: TMDBMovieModel) -> Movie {
+        // Map API model to domain entity
         Movie(
             id: apiMovie.id,
             title: apiMovie.title,
             overview: apiMovie.overview,
             posterPath: apiMovie.poster_path,
             voteAverage: apiMovie.vote_average,
-            popularity: apiMovie.popularity,
+            popularity: apiMovie.popularity ?? 0,
             releaseDate: Movie.dateFormatter.date(from: apiMovie.release_date ?? "")
         )
     }

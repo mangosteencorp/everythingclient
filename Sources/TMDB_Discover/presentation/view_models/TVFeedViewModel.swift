@@ -7,22 +7,29 @@ class TVFeedViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private let fetchMoviesUseCase: FetchMoviesUseCase
+    private let fetchMoviesUseCase: FetchMoviesUseCase?
+    private let fetchDiscoverMoviesUseCase: FetchDiscoverMoviesUseCase?
     private let fetchFavoriteTVShowsUseCase: FetchFavoriteTVShowsUseCase?
     private let toggleTVShowFavoriteUseCase: ToggleTVShowFavoriteUseCase?
     private let analyticsTracker: AnalyticsTracker?
     private let authViewModel: (any AuthenticationViewModelProtocol)?
 
-    init(fetchMoviesUseCase: FetchMoviesUseCase,
+    private var discoverParams: DiscoverMoviesParams?
+
+    init(fetchMoviesUseCase: FetchMoviesUseCase? = nil,
+         fetchDiscoverMoviesUseCase: FetchDiscoverMoviesUseCase? = nil,
          fetchFavoriteTVShowsUseCase: FetchFavoriteTVShowsUseCase? = nil,
          toggleTVShowFavoriteUseCase: ToggleTVShowFavoriteUseCase? = nil,
          analyticsTracker: AnalyticsTracker? = nil,
-         authViewModel: (any AuthenticationViewModelProtocol)? = nil) {
+         authViewModel: (any AuthenticationViewModelProtocol)? = nil,
+         discoverParams: DiscoverMoviesParams? = nil) {
         self.fetchMoviesUseCase = fetchMoviesUseCase
+        self.fetchDiscoverMoviesUseCase = fetchDiscoverMoviesUseCase
         self.fetchFavoriteTVShowsUseCase = fetchFavoriteTVShowsUseCase
         self.toggleTVShowFavoriteUseCase = toggleTVShowFavoriteUseCase
         self.analyticsTracker = analyticsTracker
         self.authViewModel = authViewModel
+        self.discoverParams = discoverParams
     }
 
     func fetchMovies() {
@@ -43,8 +50,18 @@ class TVFeedViewModel: ObservableObject {
                 }
             }
 
-            // Step 2: Load movies
-            let result = await fetchMoviesUseCase.execute()
+            // Step 2: Load movies - use discover API if parameters are set, otherwise use traditional API
+            let result: Result<[Movie], Error>
+
+            if let params = discoverParams,
+               hasDiscoverParams(params),
+               let discoverUseCase = fetchDiscoverMoviesUseCase {
+                result = await discoverUseCase.execute(params: params)
+            } else if let fetchUseCase = fetchMoviesUseCase {
+                result = await fetchUseCase.execute()
+            } else {
+                result = .failure(NSError(domain: "TVFeedViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "No use case available"]))
+            }
             await MainActor.run {
                 self.isLoading = false
                 switch result {
@@ -119,5 +136,13 @@ class TVFeedViewModel: ObservableObject {
         }
 
         await authViewModel.signIn()
+    }
+
+    private func hasDiscoverParams(_ params: DiscoverMoviesParams) -> Bool {
+        return params.keywords != nil || params.cast != nil || params.genres != nil || params.watchProviders != nil
+    }
+
+    func setDiscoverParams(_ params: DiscoverMoviesParams) {
+        discoverParams = params
     }
 }

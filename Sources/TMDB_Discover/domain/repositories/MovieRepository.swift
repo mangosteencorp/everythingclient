@@ -7,4 +7,12 @@ protocol MovieRepository {
     func fetchTrendingItems() async -> Result<[TrendingItem], Error>
     func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error>
     func fetchFavoriteTVShows() async -> Result<[Int], Error>
+    func discoverMovies(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        page: Int?
+    ) async -> Result<[Movie], Error>
 }

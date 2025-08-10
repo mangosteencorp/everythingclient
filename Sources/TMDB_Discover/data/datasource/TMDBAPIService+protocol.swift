@@ -1,26 +1,6 @@
 import TMDB_Shared_Backend
 
 extension TMDBAPIService: APIServiceProtocol {
-    func fetchTVShows(endpoint: TVShowFeedType) async -> Result<TVShowListResultModel, Error> {
-        let listTypeEndpoint: TMDBEndpoint = {
-            switch endpoint {
-            case .airingToday:
-                return .tvAiringToday(page: nil)
-            case .onTheAir:
-                return .tvOnTheAir(page: nil)
-            }
-        }()
-        let result: Result<TVShowListResultModel, TMDBAPIError> = await request<MovieListResultModel>(listTypeEndpoint)
-
-        // Map TMDBAPIError to Error
-        switch result {
-        case let .success(response):
-            return .success(response)
-        case let .failure(error):
-            return .failure(error as Error)
-        }
-    }
-
     func fetchGenres() async -> Result<GenreListModel, Error> {
         let result: Result<GenreListModel, TMDBAPIError> = await request(.genres)
         switch result {
@@ -90,6 +70,35 @@ extension TMDBAPIService: APIServiceProtocol {
             case let .failure(error):
                 return .failure(error as Error)
             }
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
+
+    func discoverMovies(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        page: Int?
+    ) async -> Result<MovieListResultModel, Error> {
+        let result: Result<MovieListResultModel, TMDBAPIError> = await request(
+            .discoverMovie(
+                keywords: keywords,
+                cast: cast,
+                genres: genres,
+                watchProviders: watchProviders,
+                watchRegion: watchRegion,
+                includeAdult: false,
+                language: "en-US",
+                page: page
+            )
+        )
+
+        switch result {
+        case let .success(response):
+            return .success(response)
         case let .failure(error):
             return .failure(error as Error)
         }

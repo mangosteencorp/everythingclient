@@ -1,5 +1,5 @@
 import Foundation
-
+// swiftlint:disable type_body_length
 public enum TMDBEndpoint {
     // Movie Lists
     case popular(page: Int? = nil), topRated(page: Int? = nil), upcoming(page: Int? = nil), nowPlaying(
@@ -56,7 +56,16 @@ public enum TMDBEndpoint {
 
     // Other
     case genres
-    case discoverMovie(keywords: Int? = nil, page: Int? = nil)
+    case discoverMovie(
+        keywords: Int? = nil,
+        cast: Int? = nil,
+        genres: [Int]? = nil,
+        watchProviders: [Int]? = nil,
+        watchRegion: String? = nil,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        page: Int? = nil
+    )
 
     // Additional Movie Lists
     case topRatedMovies
@@ -226,8 +235,17 @@ public enum TMDBEndpoint {
                 region: region,
                 year: year
             )
-        case let .discoverMovie(keywords, page):
-            return buildDiscoverMovieParams(keywords: keywords, page: page)
+        case let .discoverMovie(keywords, cast, genres, watchProviders, watchRegion, includeAdult, language, page):
+            return buildDiscoverMovieParams(
+                keywords: keywords,
+                cast: cast,
+                genres: genres,
+                watchProviders: watchProviders,
+                watchRegion: watchRegion,
+                includeAdult: includeAdult,
+                language: language,
+                page: page
+            )
         case let .tvAiringToday(page), let .tvOnTheAir(page), let .airingTodayTVShows(page), let .onTheAirTVShows(page):
             if let page = page {
                 return ["page": String(page)]
@@ -306,11 +324,38 @@ public enum TMDBEndpoint {
         return params
     }
 
-    private func buildDiscoverMovieParams(keywords: Int?, page: Int?) -> [String: String] {
+    private func buildDiscoverMovieParams(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        includeAdult: Bool?,
+        language: String?,
+        page: Int?
+    ) -> [String: String] {
         var params: [String: String] = [:]
 
         if let keywords = keywords {
             params["with_keywords"] = String(keywords)
+        }
+        if let cast = cast {
+            params["with_cast"] = String(cast)
+        }
+        if let genres = genres, !genres.isEmpty {
+            params["with_genres"] = genres.map(String.init).joined(separator: ",")
+        }
+        if let watchProviders = watchProviders, !watchProviders.isEmpty {
+            params["with_watch_providers"] = watchProviders.map(String.init).joined(separator: ",")
+        }
+        if let watchRegion = watchRegion {
+            params["watch_region"] = watchRegion
+        }
+        if let includeAdult = includeAdult {
+            params["include_adult"] = includeAdult ? "true" : "false"
+        }
+        if let language = language {
+            params["language"] = language
         }
         if let page = page {
             params["page"] = String(page)
@@ -363,3 +408,5 @@ public enum TMDBEndpoint {
         }
     }
 }
+
+// swiftlint:enable type_body_length
