@@ -196,9 +196,9 @@ public struct TMDBAPITabView: View {
         } onGenreTapped: { genre in
             // Navigate to TV show list with discover type for genre-based content
             coordinator.navigate(to: .tvShowList(.discoverWithGenre(genre)), in: .marketplace)
-        } onCastTapped: { _ in
+        } onCastTapped: { person in
             // Navigate to TV show list with discover type for cast-based content
-            coordinator.navigate(to: .tvShowList(.discover), in: .marketplace)
+            coordinator.navigate(to: .tvShowList(.discoverWithCast(person)), in: .marketplace)
         }
 
         marketplaceContent

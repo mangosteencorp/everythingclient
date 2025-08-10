@@ -25,6 +25,8 @@ public struct TVShowListPage<Route: Hashable>: View {
         var discoverParams: DiscoverMoviesParams?
         if case .discoverWithGenre(let genre) = type {
             discoverParams = DiscoverMoviesParams(genres: [genre.id])
+        } else if case .discoverWithCast(let person) = type {
+            discoverParams = DiscoverMoviesParams(cast: person.id)
         }
         
         switch type {
@@ -38,7 +40,7 @@ public struct TVShowListPage<Route: Hashable>: View {
             } else {
                 _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
             }
-        case .discoverWithGenre:
+        case .discoverWithGenre, .discoverWithCast:
             if let params = discoverParams {
                 _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover", argument: params)!)
             } else {

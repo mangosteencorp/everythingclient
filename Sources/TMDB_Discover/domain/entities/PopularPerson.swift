@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PopularPerson {
+public struct PopularPerson: Hashable, Codable {
     public let id: Int
     public let name: String
     public let profilePath: String?
