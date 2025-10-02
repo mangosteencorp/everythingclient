@@ -4,6 +4,14 @@ Be brutally honest, don't be a yes man.
 If I am wrong, point it out bluntly. 
 I need honest feedback on my code.
 
+## Quick guide
+> For this whole session, remember: this is a feature based modularization project and each module has different architecture, make sure you follow the patterns in the module. Because of module structure, use `public` access control more often because it's usually needed.
+ > please remember you can use .github/scripts/test-scheme.sh to test a scheme and .github/scripts/build.sh to build a scheme. Use `grep` to look for success or failure message when building to save on context window when running bash scripts.
+> entities to be used in UI should have name suffix Entity to differentiate itself from models in TMDB_Shared_Backend module.
+> when you're done, summarize the industry practices you used in fewer than 100 words and Apple or 3rd party APIs you used at the top of claude-learning-notes.md (do not delete the existing notes) so I can learn later.
+> each SwiftUI view, ViewModifier, UIView,... should be in its own file for easy reference later
+> build Rebuild Xcode project after completing your code to verify the compilation and fix SwiftLint errors (do not fix warnings)
+
 ## Architecture & Reactive Models by Module
 
 - This is an iOS project using Xcode workspace, feature based modularization
