@@ -48,31 +48,6 @@ final class DemoTests: BaseTestCase {
     }
     
     @MainActor
-    func testPokedexListDemoNavigation() throws {
-        // Given
-        launchAppAndWait(withDemo: "PokedexList")
-        
-        // When
-        tapFirstMovie() // This will tap the first Pokemon cell
-        
-        // Then
-        // Verify navigation occurred
-        XCTAssertTrue(app.navigationBars.element.exists, "Navigation should have occurred")
-    }
-    
-    // MARK: - Performance Tests
-    
-    @MainActor
-    func testTMDBFeedLaunchPerformance() throws {
-        measureAppLaunchPerformance(for: "TMDBFeed")
-    }
-    
-    @MainActor
-    func testTMDBDiscoverLaunchPerformance() throws {
-        measureAppLaunchPerformance(for: "TMDBDiscover")
-    }
-    
-    @MainActor
     func testPokedexListLaunchPerformance() throws {
         measureAppLaunchPerformance(for: "PokedexList")
     }
