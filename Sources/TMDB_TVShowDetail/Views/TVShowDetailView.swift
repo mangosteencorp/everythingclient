@@ -5,52 +5,81 @@ import TMDB_Shared_UI
 
 @available(iOS 15, *)
 public struct TVShowDetailView: View {
-    // MARK: - Dependencies
-    private let apiService: TMDBAPIService
-    @EnvironmentObject private var themeManager: ThemeManager
-    
-    // MARK: - View State (No ViewModel needed!)
-    enum ViewState {
+    // MARK: - Store / StateObject
+
+    public enum ViewState {
         case loading
         case loaded(TVShowDetailModel)
         case error(String)
     }
-    
-    // MARK: - Properties
+
+    final class Store: ObservableObject {
+        @Published var state: ViewState = .loading
+
+        private let apiService: TMDBAPIService
+        private let tvShowId: Int
+
+        init(apiService: TMDBAPIService, tvShowId: Int) {
+            self.apiService = apiService
+            self.tvShowId = tvShowId
+        }
+
+        @MainActor
+        func fetch() async {
+            // Log to help detect unexpected re-entrancy
+            print("[TVShowDetail] fetch called for id=\(tvShowId) at \(Date())")
+            state = .loading
+            do {
+                let result: TVShowDetailModel = try await apiService.request(.tvShowDetail(show: tvShowId))
+                state = .loaded(result)
+            } catch {
+                state = .error(error.localizedDescription)
+            }
+        }
+    }
+
+    // MARK: - Dependencies / Properties
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    private let apiService: TMDBAPIService
     let tvShowId: Int
-    @State private var viewState: ViewState = .loading
+    @StateObject private var store: Store
     @State private var isRefreshing = false
-    
+
     // MARK: - Initialization
+
     public init(tvShowId: Int, apiService: TMDBAPIService) {
         self.tvShowId = tvShowId
         self.apiService = apiService
+        _store = StateObject(wrappedValue: Store(apiService: apiService, tvShowId: tvShowId))
     }
-    
+
     // MARK: - Body
+
     public var body: some View {
-        NavigationView {
-            contentView
-                .refreshable {
-                    await refreshTVShowDetail()
+        contentView
+            .refreshable {
+                await refreshTVShowDetail()
+            }
+            .task(id: tvShowId) {
+                await store.fetch()
+            }
+//            .onChange(of: store.state) { newValue in
+//                print("[TVShowDetail] state changed: \(newValue)")
+//            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ThemeSwitchButton()
                 }
-                .task(id: tvShowId) {
-                    await loadTVShowDetail()
-                }
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        ThemeSwitchButton()
-                    }
-                }
-        }
-        .navigationViewStyle(.stack)
+            }
     }
-    
+
     // MARK: - Content View
+
     @ViewBuilder
     private var contentView: some View {
-        switch viewState {
+        switch store.state {
         case .loading:
             LoadingStateView()
         case .loaded(let tvShow):
@@ -58,26 +87,17 @@ public struct TVShowDetailView: View {
         case .error(let message):
             ErrorStateView(
                 message: message,
-                retryAction: { await loadTVShowDetail() }
+                retryAction: { await store.fetch() }
             )
         }
     }
-    
+
     // MARK: - Data Loading
-    private func loadTVShowDetail() async {
-        viewState = .loading
-        do {
-            let result: TVShowDetailModel = try await apiService.request(.tvShowDetail(show: tvShowId))
-            viewState = .loaded(result)
-        } catch {
-            viewState = .error(error.localizedDescription)
-        }
-    }
-    
+
     private func refreshTVShowDetail() async {
         defer { isRefreshing = false }
         isRefreshing = true
-        await loadTVShowDetail()
+        await store.fetch()
     }
 }
 
