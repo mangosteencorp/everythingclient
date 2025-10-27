@@ -748,7 +748,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
 }
 
 #if DEBUG
-fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAPIService.init(apiKey: debugTMDBAPIKey))
+fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
 /// Grok: https://grok.com/chat/a4c29db6-3c12-4221-b134-490e4015d4d4
 @available(iOS 17, *)
 #Preview {
