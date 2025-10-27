@@ -199,6 +199,31 @@ public struct TMDBAPITabView: View {
         } onCastTapped: { person in
             // Navigate to TV show list with discover type for cast-based content
             coordinator.navigate(to: .tvShowList(.discoverWithCast(person)), in: .marketplace)
+        } onTrendingItemTapped: { trendingItem in
+            // Navigate based on the media type of the trending item
+            switch trendingItem.mediaType {
+            case .movie:
+                coordinator.navigate(
+                    to: .movieDetail(MovieRouteModel(
+                        id: trendingItem.id,
+                        title: trendingItem.title ?? "Unknown",
+                        overview: trendingItem.overview ?? "",
+                        posterPath: trendingItem.posterPath,
+                        backdropPath: trendingItem.backdropPath,
+                        voteAverage: Float(trendingItem.voteAverage ?? 0.0),
+                        voteCount: 0,
+                        releaseDate: nil,
+                        popularity: Float(trendingItem.popularity),
+                        originalTitle: trendingItem.title
+                    )),
+                    in: .marketplace
+                )
+            case .tv:
+                coordinator.navigate(to: .tvShowDetail(trendingItem.id), in: .marketplace)
+            case .person:
+                // Person items are not navigable in this context
+                break
+            }
         }
 
         marketplaceContent

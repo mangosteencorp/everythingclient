@@ -8,6 +8,7 @@ public struct HomeDiscoverView<Route: Hashable>: View {
     let onItemTapped: () -> Void
     let onGenreTapped: (Genre) -> Void
     let onCastTapped: (PopularPerson) -> Void
+    let onTrendingItemTapped: (TrendingItem) -> Void
 
     public init(
         container: Container,
@@ -15,7 +16,8 @@ public struct HomeDiscoverView<Route: Hashable>: View {
         detailRouteBuilder: @escaping (Int) -> Route,
         onItemTapped: @escaping () -> Void = {},
         onGenreTapped: @escaping (Genre) -> Void = { _ in },
-        onCastTapped: @escaping (PopularPerson) -> Void = { _ in }
+        onCastTapped: @escaping (PopularPerson) -> Void = { _ in },
+        onTrendingItemTapped: @escaping (TrendingItem) -> Void = { _ in }
     ) {
         APIKeys.tmdbKey = apiKey
         let movieAssembly = DiscoverAssembly()
@@ -24,6 +26,7 @@ public struct HomeDiscoverView<Route: Hashable>: View {
         self.onItemTapped = onItemTapped
         self.onGenreTapped = onGenreTapped
         self.onCastTapped = onCastTapped
+        self.onTrendingItemTapped = onTrendingItemTapped
 
         _viewModel = StateObject(wrappedValue: HomeDiscoverViewModel(
             fetchGenresUseCase: DefaultFetchGenresUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
@@ -37,7 +40,8 @@ public struct HomeDiscoverView<Route: Hashable>: View {
             viewModel: viewModel,
             onItemTapped: onItemTapped,
             onGenreTapped: onGenreTapped,
-            onCastTapped: onCastTapped
+            onCastTapped: onCastTapped,
+            onTrendingItemTapped: onTrendingItemTapped
         )
     }
 }
@@ -48,12 +52,14 @@ struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
     let onItemTapped: () -> Void
     let onGenreTapped: (Genre) -> Void
     let onCastTapped: (PopularPerson) -> Void
+    let onTrendingItemTapped: (TrendingItem) -> Void
 
     func makeUIViewController(context: Context) -> HomeDiscoverViewController {
         let viewController = HomeDiscoverViewController(viewModel: viewModel)
         viewController.onItemTapped = onItemTapped
         viewController.onGenreTapped = onGenreTapped
         viewController.onCastTapped = onCastTapped
+        viewController.onTrendingItemTapped = onTrendingItemTapped
         return viewController
     }
 

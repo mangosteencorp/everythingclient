@@ -57,7 +57,8 @@ class MovieRepositoryImpl: MovieRepository {
         let result = await apiService.fetchTrendingItems()
         switch result {
         case let .success(response):
-            return .success(response.results.map { self.mapAPITrendingToEntity($0) })
+            // Filter out items with invalid media types (compactMap filters out nils)
+            return .success(response.results.compactMap { self.mapAPITrendingToEntity($0) })
         case let .failure(error):
             return .failure(error)
         }
@@ -137,15 +138,20 @@ class MovieRepositoryImpl: MovieRepository {
         )
     }
 
-    private func mapAPITrendingToEntity(_ apiTrending: TrendingAllItem) -> TrendingItem {
-        TrendingItem(
+    private func mapAPITrendingToEntity(_ apiTrending: TrendingAllItem) -> TrendingItem? {
+        // Convert string mediaType to enum, return nil if invalid
+        guard let mediaType = TrendingItem.MediaType(rawValue: apiTrending.mediaType) else {
+            return nil
+        }
+
+        return TrendingItem(
             id: apiTrending.id,
             title: apiTrending.title,
             name: apiTrending.name,
             posterPath: apiTrending.posterPath,
             backdropPath: apiTrending.backdropPath,
             overview: apiTrending.overview,
-            mediaType: apiTrending.mediaType,
+            mediaType: mediaType,
             popularity: apiTrending.popularity,
             voteAverage: apiTrending.voteAverage
         )

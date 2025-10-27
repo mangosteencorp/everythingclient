@@ -353,6 +353,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
     public var onItemTapped: (() -> Void)?
     public var onGenreTapped: ((Genre) -> Void)?
     public var onCastTapped: ((PopularPerson) -> Void)?
+    public var onTrendingItemTapped: ((TrendingItem) -> Void)?
 
     lazy var collectionView: UICollectionView = {
         let layout = createCompositionalLayout()
@@ -523,8 +524,11 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
                 height: 180,
                 data: mapTrendingToFavouriteListings(),
                 headerTitle: "Trending",
-                onItemTapped: { _ in
-                    self.onItemTapped?()
+                onItemTapped: { index in
+                    if let vm = self.viewModel, vm.trendingItems.indices.contains(index) {
+                        let trendingItem = vm.trendingItems[index]
+                        self.onTrendingItemTapped?(trendingItem)
+                    }
                 }
             ),
         ]
@@ -559,7 +563,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
                 imageSource: item.posterPath != nil
                     ? .imageUrl(URL(string: "https://image.tmdb.org/t/p/w300\(item.posterPath!)")!)
                     : .sfSymbolName("photo"),
-                price: "\(item.mediaType.capitalized)",
+                price: "\(item.mediaType.rawValue.capitalized)",
                 title: item.displayTitle
             )
         }
@@ -733,7 +737,8 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
         case .favourites:
             // Handle trending item selection
             if let viewModel = viewModel, row < viewModel.trendingItems.count {
-                onItemTapped?()
+                let trendingItem = viewModel.trendingItems[row]
+                onTrendingItemTapped?(trendingItem)
             }
         default:
             // Default behavior for other sections

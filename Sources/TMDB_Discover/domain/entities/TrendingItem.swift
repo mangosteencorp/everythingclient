@@ -1,13 +1,19 @@
 import Foundation
 
 public struct TrendingItem {
+    public enum MediaType: String, Codable {
+        case movie
+        case tv
+        case person
+    }
+
     public let id: Int
     public let title: String?
     public let name: String?
     public let posterPath: String?
     public let backdropPath: String?
     public let overview: String?
-    public let mediaType: String
+    public let mediaType: MediaType
     public let popularity: Double
     public let voteAverage: Double?
 
@@ -18,7 +24,7 @@ public struct TrendingItem {
         posterPath: String?,
         backdropPath: String?,
         overview: String?,
-        mediaType: String,
+        mediaType: MediaType,
         popularity: Double,
         voteAverage: Double?
     ) {
