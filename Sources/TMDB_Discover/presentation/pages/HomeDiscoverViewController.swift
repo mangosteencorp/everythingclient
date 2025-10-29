@@ -550,7 +550,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
             CircleItem(
                 name: person.name,
                 imageSource: person.profilePath != nil
-                    ? .imageUrl(URL(string: "https://image.tmdb.org/t/p/w200\(person.profilePath!)")!)
+                    ? .imageUrl(TMDBImageSize.profileMedium.buildImageUrl(path: person.profilePath!)!)
                     : .sfSymbolName("person.circle")
             )
         }
@@ -561,7 +561,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
         return viewModel.trendingItems.map { item in
             FavouriteListing(
                 imageSource: item.posterPath != nil
-                    ? .imageUrl(URL(string: "https://image.tmdb.org/t/p/w300\(item.posterPath!)")!)
+                    ? .imageUrl(TMDBImageSize.backdropSmall.buildImageUrl(path: item.posterPath!)!)
                     : .sfSymbolName("photo"),
                 price: "\(item.mediaType.rawValue.capitalized)",
                 title: item.displayTitle

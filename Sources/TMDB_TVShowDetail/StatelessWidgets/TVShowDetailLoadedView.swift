@@ -11,13 +11,13 @@ struct TVShowDetailLoadedView: View {
         ShowData(
             title: tvShow.name,
             tagline: tvShow.tagline,
-            posterURL: TMDBImageSize.medium.buildImageUrl(path: tvShow.posterPath ?? "").absoluteString,
+            posterURL: TMDBImageSize.posterLarge.buildImageUrl(path: tvShow.posterPath ?? "")?.absoluteString ?? "",
             overview: tvShow.overview,
             genres: tvShow.genres.map { $0.name }.joined(separator: ", "),
             creators: tvShow.createdBy.map { creator in
                 Creator(
                     name: creator.name,
-                    imageURL: creator.profilePath.map { TMDBImageSize.cast.buildImageUrl(path: $0).absoluteString } ?? ""
+                    imageURL: creator.profilePath.map { TMDBImageSize.profileMedium.buildImageUrl(path: $0)?.absoluteString ?? "" } ?? ""
                 )
             },
             details: Details(
@@ -32,7 +32,7 @@ struct TVShowDetailLoadedView: View {
                 Season(
                     id: String(season.id),
                     name: season.name,
-                    posterURL: season.posterPath.map { TMDBImageSize.small.buildImageUrl(path: $0).absoluteString } ?? "",
+                    posterURL: season.posterPath.map { TMDBImageSize.posterSmall.buildImageUrl(path: $0)?.absoluteString ?? "" } ?? "",
                     episodeCount: season.episodeCount,
                     airDate: season.airDate ?? L10n.Tvshow.Detail.tba
                 )

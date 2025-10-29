@@ -2,6 +2,7 @@
 import Foundation
 import Shared_UI_Support
 import TMDB_Shared_UI
+import TMDB_Shared_Backend
 
 struct Movie: Equatable {
     let id: Int
@@ -112,7 +113,7 @@ extension Movie: ItemDisplayable {
 
     func getImageURL() -> String? {
         guard let posterPath = posterPath else { return nil }
-        return "https://image.tmdb.org/t/p/w500\(posterPath)"
+        return TMDBImageSize.posterLarge.buildImageUrl(path: posterPath)?.absoluteString
     }
 
     func isFavorited() -> Bool {

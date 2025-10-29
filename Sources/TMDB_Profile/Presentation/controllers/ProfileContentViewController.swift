@@ -128,8 +128,8 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         // Add watchlist section (featured)
         if let watchlist = profile.watchlistTVShows {
             let watchlistItems = watchlist.map { show in
-                let imageUrl = show.posterPath != nil ? TMDBImageSize.medium
-                    .buildImageUrl(path: show.posterPath!) : placeholderImageUrl
+                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
+                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
                 return ProfileCollectionItem(
                     id: show.id,
                     imageURL: imageUrl,
@@ -153,8 +153,8 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
             let tvShowItems = favoriteTVShows.map { show in
                 ProfileCollectionItem(
                     id: show.id,
-                    imageURL: show.posterPath != nil ? TMDBImageSize.small
-                        .buildImageUrl(path: show.posterPath!) : placeholderImageUrl,
+                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
                     name: show.name,
                     tagline: String(format: "%.1f★", show.voteAverage),
                     subheading: show.overview
@@ -175,8 +175,8 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
             let movieItems = favoriteMovies.map { movie in
                 ProfileCollectionItem(
                     id: movie.id,
-                    imageURL: movie.posterPath != nil ? TMDBImageSize.small
-                        .buildImageUrl(path: movie.posterPath!) : placeholderImageUrl,
+                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
                     name: movie.title,
                     tagline: String(format: "%.1f★", movie.voteAverage),
                     subheading: movie.overview
@@ -245,8 +245,8 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         // Add watchlist section (featured)
         if let watchlist = profile.watchlistTVShows {
             let watchlistItems = watchlist.map { show in
-                let imageUrl = show.posterPath != nil ? TMDBImageSize.medium
-                    .buildImageUrl(path: show.posterPath!) : placeholderImageUrl
+                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
+                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
                 return ProfileCollectionItem(
                     id: show.id,
                     imageURL: imageUrl,
@@ -270,8 +270,8 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
             let tvShowItems = favoriteTVShows.map { show in
                 ProfileCollectionItem(
                     id: show.id,
-                    imageURL: show.posterPath != nil ? TMDBImageSize.small
-                        .buildImageUrl(path: show.posterPath!) : placeholderImageUrl,
+                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
                     name: show.name,
                     tagline: String(format: "%.1f★", show.voteAverage),
                     subheading: show.overview
@@ -292,8 +292,8 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
             let movieItems = favoriteMovies.map { movie in
                 ProfileCollectionItem(
                     id: movie.id,
-                    imageURL: movie.posterPath != nil ? TMDBImageSize.small
-                        .buildImageUrl(path: movie.posterPath!) : placeholderImageUrl,
+                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
                     name: movie.title,
                     tagline: String(format: "%.1f★", movie.voteAverage),
                     subheading: movie.overview
