@@ -111,9 +111,12 @@ struct TVShowDetailLoadedView: View {
                         Text(L10n.Tvshow.Detail.firstAirDate(showData.details.firstAirDate))
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)
-                        Text(L10n.Tvshow.Detail.lastAirDate(showData.details.lastAirDate))
-                            .font(.body)
-                            .foregroundColor(themeManager.currentTheme.labelColor)
+                        if let lastAirDate = showData.details.lastAirDate {
+                            Text(L10n.Tvshow.Detail.lastAirDate(lastAirDate))
+                                .font(.body)
+                                .foregroundColor(themeManager.currentTheme.labelColor)
+                        }
+
                         Text(L10n.Tvshow.Detail.status(showData.details.status))
                             .font(.body)
                             .foregroundColor(themeManager.currentTheme.labelColor)

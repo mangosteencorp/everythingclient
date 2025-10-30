@@ -55,4 +55,15 @@ final class TVShowDetailsTests: XCTestCase {
         XCTAssertEqual(season1.name, "Season 1")
         XCTAssertEqual(season1.voteAverage, 8.3)
     }
+
+    func testTVShowDetailsParsing2() throws {
+        let bundle = Bundle.module
+        let url = try XCTUnwrap(bundle.url(forResource: "tv_details2", withExtension: "json"))
+        let data = try XCTUnwrap(Data(contentsOf: url))
+
+        var details: TVShowDetailModel?
+        XCTAssertNoThrow(details = try JSONDecoder().decode(TVShowDetailModel.self, from: data))
+
+        let _ = try XCTUnwrap(details)
+    }
 }

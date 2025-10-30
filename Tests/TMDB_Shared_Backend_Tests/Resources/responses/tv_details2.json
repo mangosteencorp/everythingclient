@@ -1,0 +1,101 @@
+{
+  "adult": false,
+  "backdrop_path": "/44C0YSeSu7MJaBVmNZtHiQsadj3.jpg",
+  "created_by": [],
+  "episode_run_time": [],
+  "first_air_date": "2025-10-29",
+  "genres": [
+    {
+      "id": 18,
+      "name": "Drama"
+    },
+    {
+      "id": 80,
+      "name": "Crime"
+    },
+    {
+      "id": 9648,
+      "name": "Mystery"
+    }
+  ],
+  "homepage": "https://tv.apple.com/show/umc.cmc.3i55uxosnfpzw7rw1q525iksh",
+  "id": 252000,
+  "in_production": true,
+  "languages": [
+    "en"
+  ],
+  "last_air_date": null,
+  "last_episode_to_air": null,
+  "name": "Down Cemetery Road",
+  "next_episode_to_air": {
+    "id": 5283553,
+    "name": "Almost True",
+    "overview": "A catastrophic event upends South Oxford. Sarah grows suspicious of the emergency response. While investigating, she encounters Zoë Boehm.",
+    "vote_average": 7,
+    "vote_count": 1,
+    "air_date": "2025-10-29",
+    "episode_number": 1,
+    "episode_type": "standard",
+    "production_code": "",
+    "runtime": 52,
+    "season_number": 1,
+    "show_id": 252000,
+    "still_path": "/vJuam2ZNuWBkDsTlJQQIgwSEgRD.jpg"
+  },
+  "networks": [
+    {
+      "id": 2552,
+      "logo_path": "/bngHRFi794mnMq34gfVcm9nDxN1.png",
+      "name": "Apple TV",
+      "origin_country": ""
+    }
+  ],
+  "number_of_episodes": 8,
+  "number_of_seasons": 1,
+  "origin_country": [
+    "GB"
+  ],
+  "original_language": "en",
+  "original_name": "Down Cemetery Road",
+  "overview": "When a child goes missing in the aftermath of a house explosion, a concerned neighbor teams up with a private investigator to find them. As secrets unravel and a military conspiracy emerges, all hell is unleashed on South Oxford's sleepy suburbs.",
+  "popularity": 8.6773,
+  "poster_path": "/dj3QTYe7OVPjFTpUoEp2GEyLNrR.jpg",
+  "production_companies": [
+    {
+      "id": 173920,
+      "logo_path": "/h5Kdyi3RTeyPbiiK5IsaYzTgaZW.png",
+      "name": "60Forty Films",
+      "origin_country": "GB"
+    }
+  ],
+  "production_countries": [
+    {
+      "iso_3166_1": "GB",
+      "name": "United Kingdom"
+    }
+  ],
+  "seasons": [
+    {
+      "air_date": "2025-10-29",
+      "episode_count": 8,
+      "id": 388832,
+      "name": "Season 1",
+      "overview": "",
+      "poster_path": "/dj3QTYe7OVPjFTpUoEp2GEyLNrR.jpg",
+      "season_number": 1,
+      "vote_average": 7
+    }
+  ],
+  "spoken_languages": [
+    {
+      "english_name": "English",
+      "iso_639_1": "en",
+      "name": "English"
+    }
+  ],
+  "status": "Returning Series",
+  "tagline": "Curiosity kills.",
+  "type": "Scripted",
+  "vote_average": 10,
+  "vote_count": 2
+}
