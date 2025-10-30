@@ -194,8 +194,11 @@ public struct TMDBAPITabView: View {
         } onItemTapped: {
             coordinator.navigate(to: .tvShowList(.onTheAir), in: .marketplace)
         } onGenreTapped: { genre in
-            // Navigate to TV show list with discover type for genre-based content
+            // Navigate to discover movies filtered by movie genre (using movie genre IDs)
             coordinator.navigate(to: .tvShowList(.discoverWithGenre(genre)), in: .marketplace)
+        } onTVGenreTapped: { genre in
+            // Navigate to discover TV shows filtered by TV genre (using TV genre IDs)
+            coordinator.navigate(to: .tvShowList(.discoverWithTVGenre(genre)), in: .marketplace)
         } onCastTapped: { person in
             // Navigate to TV show list with discover type for cast-based content
             coordinator.navigate(to: .tvShowList(.discoverWithCast(person)), in: .marketplace)
