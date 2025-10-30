@@ -56,7 +56,18 @@ public enum TMDBEndpoint {
 
     // Other
     case genres
+    case tvGenres
     case discoverMovie(
+        keywords: Int? = nil,
+        cast: Int? = nil,
+        genres: [Int]? = nil,
+        watchProviders: [Int]? = nil,
+        watchRegion: String? = nil,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        page: Int? = nil
+    )
+    case discoverTV(
         keywords: Int? = nil,
         cast: Int? = nil,
         genres: [Int]? = nil,
@@ -154,8 +165,12 @@ public enum TMDBEndpoint {
         // Other
         case .genres:
             return "genre/movie/list"
+        case .tvGenres:
+            return "genre/tv/list"
         case .discoverMovie:
             return "discover/movie"
+        case .discoverTV:
+            return "discover/tv"
         // Additional Movie Lists
         case .topRatedMovies:
             return "movie/top_rated"
@@ -246,6 +261,17 @@ public enum TMDBEndpoint {
             )
         case let .discoverMovie(keywords, cast, genres, watchProviders, watchRegion, includeAdult, language, page):
             return buildDiscoverMovieParams(
+                keywords: keywords,
+                cast: cast,
+                genres: genres,
+                watchProviders: watchProviders,
+                watchRegion: watchRegion,
+                includeAdult: includeAdult,
+                language: language,
+                page: page
+            )
+        case let .discoverTV(keywords, cast, genres, watchProviders, watchRegion, includeAdult, language, page):
+            return buildDiscoverTVParams(
                 keywords: keywords,
                 cast: cast,
                 genres: genres,
@@ -378,6 +404,46 @@ public enum TMDBEndpoint {
         return params
     }
 
+    private func buildDiscoverTVParams(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        includeAdult: Bool?,
+        language: String?,
+        page: Int?
+    ) -> [String: String] {
+        var params: [String: String] = [:]
+
+        if let keywords = keywords {
+            params["with_keywords"] = String(keywords)
+        }
+        if let cast = cast {
+            params["with_cast"] = String(cast)
+        }
+        if let genres = genres, !genres.isEmpty {
+            params["with_genres"] = genres.map(String.init).joined(separator: ",")
+        }
+        if let watchProviders = watchProviders, !watchProviders.isEmpty {
+            params["with_watch_providers"] = watchProviders.map(String.init).joined(separator: ",")
+        }
+        if let watchRegion = watchRegion {
+            params["watch_region"] = watchRegion
+        }
+        if let includeAdult = includeAdult {
+            params["include_adult"] = includeAdult ? "true" : "false"
+        }
+        if let language = language {
+            params["language"] = language
+        }
+        if let page = page {
+            params["page"] = String(page)
+        }
+
+        return params
+    }
+
     func httpMethod() -> HTTPMethod {
         switch self {
         case .authNewSession, .setFavoriteMovie, .setFavoriteTVShow:
@@ -407,11 +473,14 @@ public enum TMDBEndpoint {
             return TVShowListResultModel.self
         case .discoverMovie:
             return MovieListResultModel.self
+        case .discoverTV:
+            // Return TVShowListResultModel (from this module, TMDB_Shared_Backend)
+            return TVShowListResultModel.self
         case .tvAiringToday, .tvOnTheAir, .airingTodayTVShows, .onTheAirTVShows:
             return TVShowListResultModel.self
         case .tvShowDetail:
             return TVShowDetailModel.self
-        case .genres:
+        case .genres, .tvGenres:
             return GenreListModel.self
         case .popularPersons:
             return PersonListResultModel.self
