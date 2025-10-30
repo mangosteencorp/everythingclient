@@ -7,6 +7,7 @@ public struct HomeDiscoverView<Route: Hashable>: View {
     let detailRouteBuilder: (Int) -> Route
     let onItemTapped: () -> Void
     let onGenreTapped: (Genre) -> Void
+    let onTVGenreTapped: (Genre) -> Void
     let onCastTapped: (PopularPerson) -> Void
     let onTrendingItemTapped: (TrendingItem) -> Void
 
@@ -16,6 +17,7 @@ public struct HomeDiscoverView<Route: Hashable>: View {
         detailRouteBuilder: @escaping (Int) -> Route,
         onItemTapped: @escaping () -> Void = {},
         onGenreTapped: @escaping (Genre) -> Void = { _ in },
+        onTVGenreTapped: @escaping (Genre) -> Void = { _ in },
         onCastTapped: @escaping (PopularPerson) -> Void = { _ in },
         onTrendingItemTapped: @escaping (TrendingItem) -> Void = { _ in }
     ) {
@@ -25,13 +27,16 @@ public struct HomeDiscoverView<Route: Hashable>: View {
         self.detailRouteBuilder = detailRouteBuilder
         self.onItemTapped = onItemTapped
         self.onGenreTapped = onGenreTapped
+        self.onTVGenreTapped = onTVGenreTapped
         self.onCastTapped = onCastTapped
         self.onTrendingItemTapped = onTrendingItemTapped
 
+        let repository = MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)
         _viewModel = StateObject(wrappedValue: HomeDiscoverViewModel(
-            fetchGenresUseCase: DefaultFetchGenresUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
-            fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
-            fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)))
+            fetchGenresUseCase: DefaultFetchGenresUseCase(repository: repository),
+            fetchTVGenresUseCase: DefaultFetchTVGenresUseCase(repository: repository),
+            fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: repository),
+            fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: repository))
         )
     }
 
@@ -40,6 +45,7 @@ public struct HomeDiscoverView<Route: Hashable>: View {
             viewModel: viewModel,
             onItemTapped: onItemTapped,
             onGenreTapped: onGenreTapped,
+            onTVGenreTapped: onTVGenreTapped,
             onCastTapped: onCastTapped,
             onTrendingItemTapped: onTrendingItemTapped
         )
@@ -51,6 +57,7 @@ struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
     let viewModel: HomeDiscoverViewModel
     let onItemTapped: () -> Void
     let onGenreTapped: (Genre) -> Void
+    let onTVGenreTapped: (Genre) -> Void
     let onCastTapped: (PopularPerson) -> Void
     let onTrendingItemTapped: (TrendingItem) -> Void
 
@@ -58,6 +65,7 @@ struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
         let viewController = HomeDiscoverViewController(viewModel: viewModel)
         viewController.onItemTapped = onItemTapped
         viewController.onGenreTapped = onGenreTapped
+        viewController.onTVGenreTapped = onTVGenreTapped
         viewController.onCastTapped = onCastTapped
         viewController.onTrendingItemTapped = onTrendingItemTapped
         return viewController

@@ -8,7 +8,7 @@ import TMDB_Shared_Backend
     TabView {
         TabView {
             NavigationStack {
-                TVShowListPage(
+                DiscoverListPage(
                     container: Container(),
                     apiKey: debugTMDBAPIKey,
                     type: .airingToday,

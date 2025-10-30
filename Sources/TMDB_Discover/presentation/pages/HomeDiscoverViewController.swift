@@ -352,6 +352,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
     // Navigation closure
     public var onItemTapped: (() -> Void)?
     public var onGenreTapped: ((Genre) -> Void)?
+    public var onTVGenreTapped: ((Genre) -> Void)?
     public var onCastTapped: ((PopularPerson) -> Void)?
     public var onTrendingItemTapped: ((TrendingItem) -> Void)?
 
@@ -499,11 +500,23 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
                 type: .categories,
                 height: 50,
                 data: mapGenresToPillShapeItems(),
-                headerTitle: "Genres",
+                headerTitle: "Movie Genres",
                 onItemTapped: { index in
                     if let vm = self.viewModel, vm.genres.indices.contains(index) {
                         let genre = vm.genres[index]
                         self.onGenreTapped?(genre)
+                    }
+                }
+            ),
+            SectionLayout(
+                type: .categories,
+                height: 50,
+                data: mapTVGenresToPillShapeItems(),
+                headerTitle: "TV Genres",
+                onItemTapped: { index in
+                    if let vm = self.viewModel, vm.tvGenres.indices.contains(index) {
+                        let genre = vm.tvGenres[index]
+                        self.onTVGenreTapped?(genre)
                     }
                 }
             ),
@@ -540,6 +553,16 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
             PillShapeItem(
                 name: genre.name,
                 imageSource: .sfSymbolName("tag")
+            )
+        }
+    }
+
+    private func mapTVGenresToPillShapeItems() -> [PillShapeItem] {
+        guard let viewModel = viewModel else { return [] }
+        return viewModel.tvGenres.map { genre in
+            PillShapeItem(
+                name: genre.name,
+                imageSource: .sfSymbolName("tv")
             )
         }
     }
@@ -595,9 +618,9 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
         guard let viewModel = viewModel else { return }
 
         viewModel.$genres
-            .combineLatest(viewModel.$popularPeople, viewModel.$trendingItems)
+            .combineLatest(viewModel.$tvGenres, viewModel.$popularPeople, viewModel.$trendingItems)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _, _, _ in
+            .sink { [weak self] _, _, _, _ in
                 self?.updateSectionLayouts()
             }
             .store(in: &cancellables)
@@ -721,29 +744,9 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
 
         let sectionLayout = sectionLayouts[section]
 
-        switch sectionLayout.type {
-        case .categories:
-            // Handle genre selection
-            if let viewModel = viewModel, row < viewModel.genres.count {
-                let genre = viewModel.genres[row]
-                onGenreTapped?(genre)
-            }
-        case .popularCategories:
-            // Handle cast selection
-            if let viewModel = viewModel, row < viewModel.popularPeople.count {
-                let person = viewModel.popularPeople[row]
-                onCastTapped?(person)
-            }
-        case .favourites:
-            // Handle trending item selection
-            if let viewModel = viewModel, row < viewModel.trendingItems.count {
-                let trendingItem = viewModel.trendingItems[row]
-                onTrendingItemTapped?(trendingItem)
-            }
-        default:
-            // Default behavior for other sections
-            onItemTapped?()
-        }
+        // Use the section-specific callback defined in setupDefaultSectionLayouts
+        // This properly handles multiple sections of the same type (e.g., Movie Genres and TV Genres)
+        sectionLayout.onItemTapped(row)
     }
 }
 
@@ -757,6 +760,8 @@ fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAP
             HomeDiscoverViewModel(
                 fetchGenresUseCase:
                     DefaultFetchGenresUseCase(repository: exampleMovieRespository),
+                fetchTVGenresUseCase:
+                    DefaultFetchTVGenresUseCase(repository: exampleMovieRespository),
                 fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: exampleMovieRespository),
                 fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: exampleMovieRespository)))
 }

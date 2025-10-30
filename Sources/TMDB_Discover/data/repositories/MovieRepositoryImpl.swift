@@ -2,6 +2,7 @@ import TMDB_Shared_Backend
 
 protocol APIServiceProtocol {
     func fetchGenres() async -> Result<GenreListModel, Error>
+    func fetchTVGenres() async -> Result<GenreListModel, Error>
     func fetchPopularPeople() async -> Result<PersonListResultModel, Error>
     func fetchTrendingItems() async -> Result<TrendingAllResultModel, Error>
     func toggleTVShowFavorite(tvShowId: Int, isFavorite: Bool) async -> Result<Bool, Error>
@@ -12,11 +13,12 @@ protocol APIServiceProtocol {
         genres: [Int]?,
         watchProviders: [Int]?,
         watchRegion: String?,
-        page: Int?
+        page: Int?,
+        mediaType: DiscoverMediaType
     ) async -> Result<MovieListResultModel, Error>
 }
 
-class MovieRepositoryImpl: MovieRepository {
+class MovieRepositoryImpl: DiscoverRepository {
     private let apiService: APIServiceProtocol
 
     init(apiService: APIServiceProtocol) {
@@ -35,6 +37,16 @@ class MovieRepositoryImpl: MovieRepository {
 
     func fetchGenres() async -> Result<[Genre], Error> {
         let result = await apiService.fetchGenres()
+        switch result {
+        case let .success(response):
+            return .success(response.genres.map { self.mapAPIGenreToEntity($0) })
+        case let .failure(error):
+            return .failure(error)
+        }
+    }
+
+    func fetchTVGenres() async -> Result<[Genre], Error> {
+        let result = await apiService.fetchTVGenres()
         switch result {
         case let .success(response):
             return .success(response.genres.map { self.mapAPIGenreToEntity($0) })
@@ -90,7 +102,8 @@ class MovieRepositoryImpl: MovieRepository {
         genres: [Int]?,
         watchProviders: [Int]?,
         watchRegion: String?,
-        page: Int?
+        page: Int?,
+        mediaType: DiscoverMediaType = .movie
     ) async -> Result<[Movie], Error> {
         let result = await apiService.discoverMovies(
             keywords: keywords,
@@ -98,7 +111,8 @@ class MovieRepositoryImpl: MovieRepository {
             genres: genres,
             watchProviders: watchProviders,
             watchRegion: watchRegion,
-            page: page
+            page: page,
+            mediaType: mediaType
         )
         switch result {
         case let .success(response):

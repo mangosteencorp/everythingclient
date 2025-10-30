@@ -5,9 +5,9 @@ protocol FetchPopularPeopleUseCase {
 }
 
 class DefaultFetchPopularPeopleUseCase: FetchPopularPeopleUseCase {
-    private let repository: MovieRepository
+    private let repository: DiscoverRepository
 
-    init(repository: MovieRepository) {
+    init(repository: DiscoverRepository) {
         self.repository = repository
     }
 

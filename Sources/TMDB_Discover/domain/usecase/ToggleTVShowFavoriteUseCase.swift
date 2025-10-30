@@ -11,10 +11,10 @@ protocol ToggleTVShowFavoriteUseCase {
 }
 
 class DefaultToggleTVShowFavoriteUseCase: ToggleTVShowFavoriteUseCase {
-    private let movieRepository: MovieRepository
+    private let movieRepository: DiscoverRepository
     private let authViewModel: any AuthenticationViewModelProtocol
 
-    init(movieRepository: MovieRepository, authViewModel: any AuthenticationViewModelProtocol) {
+    init(movieRepository: DiscoverRepository, authViewModel: any AuthenticationViewModelProtocol) {
         self.movieRepository = movieRepository
         self.authViewModel = authViewModel
     }

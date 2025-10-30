@@ -11,6 +11,16 @@ extension TMDBAPIService: APIServiceProtocol {
         }
     }
 
+    func fetchTVGenres() async -> Result<GenreListModel, Error> {
+        let result: Result<GenreListModel, TMDBAPIError> = await request(.tvGenres)
+        switch result {
+        case let .success(response):
+            return .success(response)
+        case let .failure(error):
+            return .failure(error as Error)
+        }
+    }
+
     func fetchPopularPeople() async -> Result<PersonListResultModel, Error> {
         let result: Result<PersonListResultModel, TMDBAPIError> = await request(.popularPersons)
         switch result {
@@ -81,26 +91,53 @@ extension TMDBAPIService: APIServiceProtocol {
         genres: [Int]?,
         watchProviders: [Int]?,
         watchRegion: String?,
-        page: Int?
+        page: Int?,
+        mediaType: DiscoverMediaType
     ) async -> Result<MovieListResultModel, Error> {
-        let result: Result<MovieListResultModel, TMDBAPIError> = await request(
-            .discoverMovie(
-                keywords: keywords,
-                cast: cast,
-                genres: genres,
-                watchProviders: watchProviders,
-                watchRegion: watchRegion,
-                includeAdult: false,
-                language: "en-US",
-                page: page
+        switch mediaType {
+        case .movie:
+            let result: Result<MovieListResultModel, TMDBAPIError> = await request(
+                .discoverMovie(
+                    keywords: keywords,
+                    cast: cast,
+                    genres: genres,
+                    watchProviders: watchProviders,
+                    watchRegion: watchRegion,
+                    includeAdult: false,
+                    language: "en-US",
+                    page: page
+                )
             )
-        )
 
-        switch result {
-        case let .success(response):
-            return .success(response)
-        case let .failure(error):
-            return .failure(error as Error)
+            switch result {
+            case let .success(response):
+                return .success(response)
+            case let .failure(error):
+                return .failure(error as Error)
+            }
+        case .tv:
+            // For TV discover, we directly call the discoverMovie endpoint with TV genre IDs
+            // The backend API handles this by using the correct endpoint path
+            // Note: This reuses movie discovery infrastructure but with TV genre IDs
+            let result: Result<MovieListResultModel, TMDBAPIError> = await request(
+                .discoverTV(
+                    keywords: keywords,
+                    cast: cast,
+                    genres: genres,
+                    watchProviders: watchProviders,
+                    watchRegion: watchRegion,
+                    includeAdult: false,
+                    language: "en-US",
+                    page: page
+                )
+            )
+
+            switch result {
+            case let .success(response):
+                return .success(response)
+            case let .failure(error):
+                return .failure(error as Error)
+            }
         }
     }
 }

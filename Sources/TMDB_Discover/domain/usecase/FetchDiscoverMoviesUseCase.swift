@@ -1,3 +1,8 @@
+public enum DiscoverMediaType {
+    case movie
+    case tv
+}
+
 public struct DiscoverMoviesParams {
     public let keywords: Int?
     public let cast: Int?
@@ -5,6 +10,7 @@ public struct DiscoverMoviesParams {
     public let watchProviders: [Int]?
     public let watchRegion: String?
     public let page: Int?
+    public let mediaType: DiscoverMediaType
 
     public init(
         keywords: Int? = nil,
@@ -12,7 +18,8 @@ public struct DiscoverMoviesParams {
         genres: [Int]? = nil,
         watchProviders: [Int]? = nil,
         watchRegion: String? = nil,
-        page: Int? = nil
+        page: Int? = nil,
+        mediaType: DiscoverMediaType = .movie
     ) {
         self.keywords = keywords
         self.cast = cast
@@ -20,6 +27,7 @@ public struct DiscoverMoviesParams {
         self.watchProviders = watchProviders
         self.watchRegion = watchRegion
         self.page = page
+        self.mediaType = mediaType
     }
 }
 
@@ -28,9 +36,9 @@ protocol FetchDiscoverMoviesUseCase {
 }
 
 class DefaultFetchDiscoverMoviesUseCase: FetchDiscoverMoviesUseCase {
-    private let movieRepository: MovieRepository
+    private let movieRepository: DiscoverRepository
 
-    public init(movieRepository: MovieRepository) {
+    public init(movieRepository: DiscoverRepository) {
         self.movieRepository = movieRepository
     }
 
@@ -41,7 +49,8 @@ class DefaultFetchDiscoverMoviesUseCase: FetchDiscoverMoviesUseCase {
             genres: params.genres,
             watchProviders: params.watchProviders,
             watchRegion: params.watchRegion,
-            page: params.page
+            page: params.page,
+            mediaType: params.mediaType
         )
     }
 }

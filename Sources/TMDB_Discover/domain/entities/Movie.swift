@@ -1,8 +1,8 @@
 // Entities
 import Foundation
 import Shared_UI_Support
-import TMDB_Shared_UI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 
 struct Movie: Equatable {
     let id: Int

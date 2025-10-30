@@ -3,7 +3,8 @@ public enum TVShowFeedType: Hashable, Codable {
     case airingToday
     case onTheAir
     case discover
-    case discoverWithGenre(Genre)
+    case discoverWithGenre(Genre)  // For movie genres
+    case discoverWithTVGenre(Genre)  // For TV genres
     case discoverWithCast(PopularPerson)
 
     var title: String {
@@ -16,6 +17,8 @@ public enum TVShowFeedType: Hashable, Codable {
             return "Discover Movies"
         case .discoverWithGenre(let genre):
             return "\(genre.name) Movies"
+        case .discoverWithTVGenre(let genre):
+            return "\(genre.name) TV Shows"
         case .discoverWithCast(let person):
             return "\(person.name) Movies"
         }
@@ -29,7 +32,7 @@ public enum TVShowFeedType: Hashable, Codable {
             return "calendar"
         case .discover:
             return "magnifyingglass"
-        case .discoverWithGenre:
+        case .discoverWithGenre, .discoverWithTVGenre:
             return "tag"
         case .discoverWithCast:
             return "person"

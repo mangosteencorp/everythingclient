@@ -174,7 +174,7 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildTVShowFeedPage() -> some View {
-        TMDB_Discover.TVShowListPage(
+        TMDB_Discover.DiscoverListPage(
             container: container,
             apiKey: tmdbKey,
             type: .onTheAir

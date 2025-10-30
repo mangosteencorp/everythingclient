@@ -4,7 +4,7 @@ import Swinject
 import TMDB_Shared_UI
 
 @available(iOS 16.0, *)
-public struct TVShowListPage<Route: Hashable>: View {
+public struct DiscoverListPage<Route: Hashable>: View {
     @StateObject var viewModel: TVFeedViewModel
     @State private var useUIKitView = false
     let type: TVShowFeedType
@@ -24,9 +24,14 @@ public struct TVShowListPage<Route: Hashable>: View {
         // Create discover parameters if we have genre information
         var discoverParams: DiscoverMoviesParams?
         if case .discoverWithGenre(let genre) = type {
-            discoverParams = DiscoverMoviesParams(genres: [genre.id])
+            // Use mediaType: .movie for movie genre filtering
+            discoverParams = DiscoverMoviesParams(genres: [genre.id], mediaType: .movie)
+        } else if case .discoverWithTVGenre(let genre) = type {
+            // Use mediaType: .tv for TV genre filtering (TV genre IDs are different from movie genre IDs)
+            discoverParams = DiscoverMoviesParams(genres: [genre.id], mediaType: .tv)
         } else if case .discoverWithCast(let person) = type {
-            discoverParams = DiscoverMoviesParams(cast: person.id)
+            // Use mediaType: .movie for cast filtering (assuming movies by default)
+            discoverParams = DiscoverMoviesParams(cast: person.id, mediaType: .movie)
         }
 
         switch type {
@@ -40,7 +45,7 @@ public struct TVShowListPage<Route: Hashable>: View {
             } else {
                 _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
             }
-        case .discoverWithGenre, .discoverWithCast:
+        case .discoverWithGenre, .discoverWithTVGenre, .discoverWithCast:
             if let params = discoverParams {
                 _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover", argument: params)!)
             } else {

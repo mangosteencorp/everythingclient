@@ -19,45 +19,49 @@ public class DiscoverAssembly: Assembly {
         }.inObjectScope(.container)
 
         // Register Repository
-        container.register(MovieRepository.self) { resolver in
+        container.register(DiscoverRepository.self) { resolver in
             MovieRepositoryImpl(apiService: resolver.resolve(APIServiceProtocol.self)!)
         }.inObjectScope(.container)
 
         // Register Use Cases
         container.register(FetchNowPlayingMoviesUseCase.self) { resolver in
-            FetchNowPlayingMoviesUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
+            FetchNowPlayingMoviesUseCase(movieRepository: resolver.resolve(DiscoverRepository.self)!)
         }
 
         container.register(FetchUpcomingMoviesUseCase.self) { resolver in
-            FetchUpcomingMoviesUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
+            FetchUpcomingMoviesUseCase(movieRepository: resolver.resolve(DiscoverRepository.self)!)
         }
 
         // Register Discover Use Cases
         container.register(FetchGenresUseCase.self) { resolver in
-            DefaultFetchGenresUseCase(repository: resolver.resolve(MovieRepository.self)!)
+            DefaultFetchGenresUseCase(repository: resolver.resolve(DiscoverRepository.self)!)
+        }
+
+        container.register(FetchTVGenresUseCase.self) { resolver in
+            DefaultFetchTVGenresUseCase(repository: resolver.resolve(DiscoverRepository.self)!)
         }
 
         container.register(FetchPopularPeopleUseCase.self) { resolver in
-            DefaultFetchPopularPeopleUseCase(repository: resolver.resolve(MovieRepository.self)!)
+            DefaultFetchPopularPeopleUseCase(repository: resolver.resolve(DiscoverRepository.self)!)
         }
 
         container.register(FetchTrendingItemsUseCase.self) { resolver in
-            DefaultFetchTrendingItemsUseCase(repository: resolver.resolve(MovieRepository.self)!)
+            DefaultFetchTrendingItemsUseCase(repository: resolver.resolve(DiscoverRepository.self)!)
         }
 
         container.register(ToggleTVShowFavoriteUseCase.self) { resolver in
             DefaultToggleTVShowFavoriteUseCase(
-                movieRepository: resolver.resolve(MovieRepository.self)!,
+                movieRepository: resolver.resolve(DiscoverRepository.self)!,
                 authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)!
             )
         }
 
         container.register(FetchFavoriteTVShowsUseCase.self) { resolver in
-            FetchFavoriteTVShowsUseCaseImpl(repository: resolver.resolve(MovieRepository.self)!)
+            FetchFavoriteTVShowsUseCaseImpl(repository: resolver.resolve(DiscoverRepository.self)!)
         }
 
         container.register(FetchDiscoverMoviesUseCase.self) { resolver in
-            DefaultFetchDiscoverMoviesUseCase(movieRepository: resolver.resolve(MovieRepository.self)!)
+            DefaultFetchDiscoverMoviesUseCase(movieRepository: resolver.resolve(DiscoverRepository.self)!)
         }
 
         // Register ViewModels
@@ -107,6 +111,7 @@ public class DiscoverAssembly: Assembly {
         container.register(HomeDiscoverViewModel.self) { resolver in
             HomeDiscoverViewModel(
                 fetchGenresUseCase: resolver.resolve(FetchGenresUseCase.self)!,
+                fetchTVGenresUseCase: resolver.resolve(FetchTVGenresUseCase.self)!,
                 fetchPopularPeopleUseCase: resolver.resolve(FetchPopularPeopleUseCase.self)!,
                 fetchTrendingItemsUseCase: resolver.resolve(FetchTrendingItemsUseCase.self)!,
                 analyticsTracker: resolver.resolve(AnalyticsTracker.self)

@@ -1,6 +1,6 @@
 import SwiftUI
-import TMDB_Shared_UI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 
 struct MovieCoverRow: View {
     let movie: Movie

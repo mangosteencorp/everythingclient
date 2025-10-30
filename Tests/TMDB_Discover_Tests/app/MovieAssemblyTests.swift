@@ -17,7 +17,7 @@ class MovieAssemblyTests: XCTestCase {
         XCTAssertNotNil(container.resolve(APIServiceProtocol.self))
 
         // Test Repository registration
-        XCTAssertNotNil(container.resolve(MovieRepository.self))
+        XCTAssertNotNil(container.resolve(DiscoverRepository.self))
 
         // Test Use Cases registration
         XCTAssertNotNil(container.resolve(FetchNowPlayingMoviesUseCase.self))
