@@ -11,7 +11,7 @@ public struct TMDBDiscoverDemoView: View {
         TabView {
             TabView {
                 NavigationStack {
-                    TVShowListPage(
+                    DiscoverListPage(
                         container: Container(),
                         apiKey: debugTMDBAPIKey,
                         type: .airingToday,
