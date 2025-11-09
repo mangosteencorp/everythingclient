@@ -16,6 +16,14 @@ protocol APIServiceProtocol {
         page: Int?,
         mediaType: DiscoverMediaType
     ) async -> Result<MovieListResultModel, Error>
+    func discoverTV(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        page: Int?
+    ) async -> Result<TVShowListResultModel, Error>
 }
 
 class MovieRepositoryImpl: DiscoverRepository {
@@ -122,6 +130,30 @@ class MovieRepositoryImpl: DiscoverRepository {
         }
     }
 
+    func discoverTV(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        page: Int?
+    ) async -> Result<[Movie], Error> {
+        let result = await apiService.discoverTV(
+            keywords: keywords,
+            cast: cast,
+            genres: genres,
+            watchProviders: watchProviders,
+            watchRegion: watchRegion,
+            page: page
+        )
+        switch result {
+        case let .success(response):
+            return .success(response.results.map { self.mapAPITVShowToEntity($0) })
+        case let .failure(error):
+            return .failure(error)
+        }
+    }
+
     private func mapAPIMovieToEntity(_ apiMovie: TMDBMovieModel) -> Movie {
         // Map API model to domain entity
         Movie(
@@ -168,6 +200,19 @@ class MovieRepositoryImpl: DiscoverRepository {
             mediaType: mediaType,
             popularity: apiTrending.popularity,
             voteAverage: apiTrending.voteAverage
+        )
+    }
+
+    private func mapAPITVShowToEntity(_ apiTVShow: TVShow) -> Movie {
+        // Map TVShow API model to Movie domain entity
+        Movie(
+            id: apiTVShow.id,
+            title: apiTVShow.name,
+            overview: apiTVShow.overview,
+            posterPath: apiTVShow.poster_path,
+            voteAverage: Float(apiTVShow.vote_average),
+            popularity: Float(apiTVShow.popularity),
+            releaseDate: Movie.dateFormatter.date(from: apiTVShow.first_air_date)
         )
     }
 }

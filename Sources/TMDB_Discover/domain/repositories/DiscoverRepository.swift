@@ -17,4 +17,12 @@ protocol DiscoverRepository {
         page: Int?,
         mediaType: DiscoverMediaType
     ) async -> Result<[Movie], Error>
+    func discoverTV(
+        keywords: Int?,
+        cast: Int?,
+        genres: [Int]?,
+        watchProviders: [Int]?,
+        watchRegion: String?,
+        page: Int?
+    ) async -> Result<[Movie], Error>
 }

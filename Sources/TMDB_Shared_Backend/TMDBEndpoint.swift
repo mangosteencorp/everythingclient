@@ -494,4 +494,8 @@ public enum TMDBEndpoint {
     }
 }
 
+public struct TMDBAPIResponse {
+    public typealias DiscoverTV = TVShowListResultModel
+}
+
 // swiftlint:enable type_body_length

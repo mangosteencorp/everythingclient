@@ -55,6 +55,7 @@ fileprivate extension UIImageView {
 fileprivate struct PillShapeItem {
     let name: String
     let imageSource: ImageSource
+    let selection: (() -> Void)?
 }
 
 fileprivate struct CircleItem {
@@ -495,29 +496,28 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
     }
 
     private func setupDefaultSectionLayouts() {
+        let movieGenreItems = mapGenresToPillShapeItems()
+        let tvGenreItems = mapTVGenresToPillShapeItems()
+
         sectionLayouts = [
             SectionLayout(
                 type: .categories,
                 height: 50,
-                data: mapGenresToPillShapeItems(),
+                data: movieGenreItems,
                 headerTitle: "Movie Genres",
                 onItemTapped: { index in
-                    if let vm = self.viewModel, vm.genres.indices.contains(index) {
-                        let genre = vm.genres[index]
-                        self.onGenreTapped?(genre)
-                    }
+                    guard movieGenreItems.indices.contains(index) else { return }
+                    movieGenreItems[index].selection?()
                 }
             ),
             SectionLayout(
                 type: .categories,
                 height: 50,
-                data: mapTVGenresToPillShapeItems(),
+                data: tvGenreItems,
                 headerTitle: "TV Genres",
                 onItemTapped: { index in
-                    if let vm = self.viewModel, vm.tvGenres.indices.contains(index) {
-                        let genre = vm.tvGenres[index]
-                        self.onTVGenreTapped?(genre)
-                    }
+                    guard tvGenreItems.indices.contains(index) else { return }
+                    tvGenreItems[index].selection?()
                 }
             ),
             SectionLayout(
@@ -552,7 +552,10 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
         return viewModel.genres.map { genre in
             PillShapeItem(
                 name: genre.name,
-                imageSource: .sfSymbolName("tag")
+                imageSource: .sfSymbolName("tag"),
+                selection: { [weak self] in
+                    self?.onGenreTapped?(genre)
+                }
             )
         }
     }
@@ -562,7 +565,10 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
         return viewModel.tvGenres.map { genre in
             PillShapeItem(
                 name: genre.name,
-                imageSource: .sfSymbolName("tv")
+                imageSource: .sfSymbolName("tv"),
+                selection: { [weak self] in
+                    self?.onTVGenreTapped?(genre)
+                }
             )
         }
     }
@@ -743,6 +749,13 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
         guard section < sectionLayouts.count else { return }
 
         let sectionLayout = sectionLayouts[section]
+
+        if sectionLayout.type == .categories,
+           let items = sectionLayout.data as? [PillShapeItem],
+           items.indices.contains(row) {
+            items[row].selection?()
+            return
+        }
 
         // Use the section-specific callback defined in setupDefaultSectionLayouts
         // This properly handles multiple sections of the same type (e.g., Movie Genres and TV Genres)

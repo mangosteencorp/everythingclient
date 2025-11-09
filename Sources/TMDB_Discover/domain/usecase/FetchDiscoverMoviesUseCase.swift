@@ -43,14 +43,26 @@ class DefaultFetchDiscoverMoviesUseCase: FetchDiscoverMoviesUseCase {
     }
 
     public func execute(params: DiscoverMoviesParams) async -> Result<[Movie], Error> {
-        return await movieRepository.discoverMovies(
-            keywords: params.keywords,
-            cast: params.cast,
-            genres: params.genres,
-            watchProviders: params.watchProviders,
-            watchRegion: params.watchRegion,
-            page: params.page,
-            mediaType: params.mediaType
-        )
+        switch params.mediaType {
+        case .movie:
+            return await movieRepository.discoverMovies(
+                keywords: params.keywords,
+                cast: params.cast,
+                genres: params.genres,
+                watchProviders: params.watchProviders,
+                watchRegion: params.watchRegion,
+                page: params.page,
+                mediaType: params.mediaType
+            )
+        case .tv:
+            return await movieRepository.discoverTV(
+                keywords: params.keywords,
+                cast: params.cast,
+                genres: params.genres,
+                watchProviders: params.watchProviders,
+                watchRegion: params.watchRegion,
+                page: params.page
+            )
+        }
     }
 }
