@@ -8,7 +8,7 @@ class MovieAssemblyTests: XCTestCase {
     override func setUp() {
         super.setUp()
         container = Container()
-        let assembly = MovieAssembly()
+        let assembly = DiscoverAssembly()
         assembly.assemble(container: container)
     }
 
@@ -17,7 +17,7 @@ class MovieAssemblyTests: XCTestCase {
         XCTAssertNotNil(container.resolve(APIServiceProtocol.self))
 
         // Test Repository registration
-        XCTAssertNotNil(container.resolve(MovieRepository.self))
+        XCTAssertNotNil(container.resolve(DiscoverRepository.self))
 
         // Test Use Cases registration
         XCTAssertNotNil(container.resolve(FetchNowPlayingMoviesUseCase.self))

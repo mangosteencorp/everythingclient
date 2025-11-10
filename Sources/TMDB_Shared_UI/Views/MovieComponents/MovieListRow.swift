@@ -1,5 +1,6 @@
 import Shared_UI_Support
 import SwiftUI
+import TMDB_Shared_Backend
 private let formatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
@@ -47,7 +48,7 @@ public struct MovieRow: View {
                 RemoteTMDBImage(
                     posterPath: movie.posterPath ?? "",
                     posterSize: .medium,
-                    image: .medium
+                    imageSize: .posterLarge
                 )
                 .redacted(if: movie.posterPath == nil)
             }

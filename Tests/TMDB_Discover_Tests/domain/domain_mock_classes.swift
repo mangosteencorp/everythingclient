@@ -10,7 +10,7 @@ class MockFetchMoviesUseCase: FetchMoviesUseCase {
     }
 }
 
-class MockMovieRepository: MovieRepository {
+class MockMovieRepository: DiscoverRepository {
     var result: Result<[Movie], Error>!
     var genresResult: Result<[Genre], Error>!
     var popularPeopleResult: Result<[PopularPerson], Error>!

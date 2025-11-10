@@ -19,13 +19,15 @@ public struct SectionLayout {
     public let data: [Any]
     public let headerTitle: String?
     public let isVisible: Bool
+    public let onItemTapped: (Int) -> Void
 
-    public init(type: SectionType, height: CGFloat, data: [Any], headerTitle: String? = nil, isVisible: Bool = true) {
+    public init(type: SectionType, height: CGFloat, data: [Any], headerTitle: String? = nil, isVisible: Bool = true, onItemTapped: @escaping ((Int) -> Void)) {
         self.type = type
         self.height = height
         self.data = data
         self.headerTitle = headerTitle
         self.isVisible = isVisible
+        self.onItemTapped = onItemTapped
     }
 }
 
@@ -53,6 +55,7 @@ fileprivate extension UIImageView {
 fileprivate struct PillShapeItem {
     let name: String
     let imageSource: ImageSource
+    let selection: (() -> Void)?
 }
 
 fileprivate struct CircleItem {
@@ -137,101 +140,6 @@ fileprivate class BannerCell: UICollectionViewCell {
 
     @objc private func closeTapped() {
         onCloseTapped?()
-    }
-}
-
-fileprivate class HorizontalCollectionCell: UICollectionViewCell, UICollectionViewDataSource {
-    static let reuseIdentifier: String = "HorizontalCollectionCell"
-
-    enum SectionType {
-        case categories
-        case popularCategories
-        case favourites
-    }
-
-    var sectionType: SectionType?
-    var data: [Any] = []
-
-    lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .black
-        cv.dataSource = self
-        return cv
-    }()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupViews()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func setupViews() {
-        contentView.addSubview(collectionView)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-        ])
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        guard let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else { return }
-        switch sectionType {
-        case .categories:
-            collectionView.register(PillShapeItemCell.self, forCellWithReuseIdentifier: PillShapeItemCell.reuseIdentifier)
-            flowLayout.itemSize = CGSize(width: 120, height: 40)
-            flowLayout.minimumInteritemSpacing = 10
-        case .popularCategories:
-            collectionView.register(CircleItemCell.self, forCellWithReuseIdentifier: CircleItemCell.reuseIdentifier)
-            flowLayout.itemSize = CGSize(width: 100, height: 120)
-            flowLayout.minimumInteritemSpacing = 15
-        case .favourites:
-            collectionView.register(FavouriteListingCell.self, forCellWithReuseIdentifier: FavouriteListingCell.reuseIdentifier)
-            flowLayout.itemSize = CGSize(width: 150, height: 160)
-            flowLayout.minimumInteritemSpacing = 15
-        default:
-            break
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return data.count
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch sectionType {
-        case .categories:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PillShapeItemCell.reuseIdentifier, for: indexPath) as? PillShapeItemCell,
-                  let item = data[indexPath.item] as? PillShapeItem else {
-                return UICollectionViewCell()
-            }
-            cell.configure(with: item)
-            return cell
-        case .popularCategories:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CircleItemCell.reuseIdentifier, for: indexPath) as? CircleItemCell,
-                  let item = data[indexPath.item] as? CircleItem else {
-                return UICollectionViewCell()
-            }
-            cell.configure(with: item)
-            return cell
-        case .favourites:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FavouriteListingCell.reuseIdentifier, for: indexPath) as? FavouriteListingCell,
-                  let listing = data[indexPath.item] as? FavouriteListing else {
-                return UICollectionViewCell()
-            }
-            cell.configure(with: listing)
-            return cell
-        default:
-            return UICollectionViewCell()
-        }
     }
 }
 
@@ -435,16 +343,22 @@ fileprivate class SectionHeaderView: UICollectionReusableView {
 
 // MARK: - Main View Controller
 
-public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+public class HomeDiscoverViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     // MARK: - Properties
 
     private var sectionLayouts: [SectionLayout] = []
     private var viewModel: HomeDiscoverViewModel?
     private var cancellables = Set<AnyCancellable>()
 
+    // Navigation closure
+    public var onItemTapped: (() -> Void)?
+    public var onGenreTapped: ((Genre) -> Void)?
+    public var onTVGenreTapped: ((Genre) -> Void)?
+    public var onCastTapped: ((PopularPerson) -> Void)?
+    public var onTrendingItemTapped: ((TrendingItem) -> Void)?
+
     lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
+        let layout = createCompositionalLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .black
         cv.dataSource = self
@@ -479,37 +393,156 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
 
     public func updateSectionVisibility(at index: Int, isVisible: Bool) {
         guard index < sectionLayouts.count else { return }
+        let existingLayout = sectionLayouts[index]
         sectionLayouts[index] = SectionLayout(
-            type: sectionLayouts[index].type,
-            height: sectionLayouts[index].height,
-            data: sectionLayouts[index].data,
-            headerTitle: sectionLayouts[index].headerTitle,
-            isVisible: isVisible
+            type: existingLayout.type,
+            height: existingLayout.height,
+            data: existingLayout.data,
+            headerTitle: existingLayout.headerTitle,
+            isVisible: isVisible,
+            onItemTapped: existingLayout.onItemTapped
         )
         collectionView.reloadData()
     }
 
     // MARK: - Private Methods
 
+    private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
+        return UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ -> NSCollectionLayoutSection? in
+            guard let self = self, sectionIndex < self.sectionLayouts.count else { return nil }
+
+            let sectionLayout = self.sectionLayouts[sectionIndex]
+
+            switch sectionLayout.type {
+            case .banner:
+                // Banner section - full width
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(sectionLayout.height))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(sectionLayout.height))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+                return section
+
+            case .categories:
+                // Categories section - horizontal scrolling pills
+                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(120), heightDimension: .absolute(40))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+                let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(120), heightDimension: .absolute(40))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                group.interItemSpacing = .fixed(10)
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+
+                // Add header if needed
+                if let headerTitle = sectionLayout.headerTitle {
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(30))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+                    section.boundarySupplementaryItems = [header]
+                }
+
+                return section
+
+            case .popularCategories:
+                // Popular categories section - horizontal scrolling circles
+                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(100), heightDimension: .absolute(120))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+                let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(100), heightDimension: .absolute(120))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                group.interItemSpacing = .fixed(15)
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+
+                // Add header if needed
+                if let headerTitle = sectionLayout.headerTitle {
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(30))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+                    section.boundarySupplementaryItems = [header]
+                }
+
+                return section
+
+            case .favourites:
+                // Favourites section - horizontal scrolling items
+                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(150), heightDimension: .absolute(160))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+                let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(150), heightDimension: .absolute(160))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                group.interItemSpacing = .fixed(15)
+
+                let section = NSCollectionLayoutSection(group: group)
+                section.orthogonalScrollingBehavior = .continuous
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+
+                // Add header if needed
+                if let headerTitle = sectionLayout.headerTitle {
+                    let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(30))
+                    let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+                    section.boundarySupplementaryItems = [header]
+                }
+
+                return section
+            }
+        }
+    }
+
     private func setupDefaultSectionLayouts() {
+        let movieGenreItems = mapGenresToPillShapeItems()
+        let tvGenreItems = mapTVGenresToPillShapeItems()
+
         sectionLayouts = [
             SectionLayout(
                 type: .categories,
                 height: 50,
-                data: mapGenresToPillShapeItems(),
-                headerTitle: "Genres"
+                data: movieGenreItems,
+                headerTitle: "Movie Genres",
+                onItemTapped: { index in
+                    guard movieGenreItems.indices.contains(index) else { return }
+                    movieGenreItems[index].selection?()
+                }
+            ),
+            SectionLayout(
+                type: .categories,
+                height: 50,
+                data: tvGenreItems,
+                headerTitle: "TV Genres",
+                onItemTapped: { index in
+                    guard tvGenreItems.indices.contains(index) else { return }
+                    tvGenreItems[index].selection?()
+                }
             ),
             SectionLayout(
                 type: .popularCategories,
                 height: 140,
                 data: mapPopularPeopleToCircleItems(),
-                headerTitle: "Popular People"
+                headerTitle: "Popular People",
+                onItemTapped: { index in
+                    if let vm = self.viewModel, vm.popularPeople.indices.contains(index) {
+                        let person = vm.popularPeople[index]
+                        self.onCastTapped?(person)
+                    }
+                }
             ),
             SectionLayout(
                 type: .favourites,
                 height: 180,
                 data: mapTrendingToFavouriteListings(),
-                headerTitle: "Trending"
+                headerTitle: "Trending",
+                onItemTapped: { index in
+                    if let vm = self.viewModel, vm.trendingItems.indices.contains(index) {
+                        let trendingItem = vm.trendingItems[index]
+                        self.onTrendingItemTapped?(trendingItem)
+                    }
+                }
             ),
         ]
     }
@@ -519,7 +552,23 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
         return viewModel.genres.map { genre in
             PillShapeItem(
                 name: genre.name,
-                imageSource: .sfSymbolName("tag")
+                imageSource: .sfSymbolName("tag"),
+                selection: { [weak self] in
+                    self?.onGenreTapped?(genre)
+                }
+            )
+        }
+    }
+
+    private func mapTVGenresToPillShapeItems() -> [PillShapeItem] {
+        guard let viewModel = viewModel else { return [] }
+        return viewModel.tvGenres.map { genre in
+            PillShapeItem(
+                name: genre.name,
+                imageSource: .sfSymbolName("tv"),
+                selection: { [weak self] in
+                    self?.onTVGenreTapped?(genre)
+                }
             )
         }
     }
@@ -530,7 +579,7 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
             CircleItem(
                 name: person.name,
                 imageSource: person.profilePath != nil
-                    ? .imageUrl(URL(string: "https://image.tmdb.org/t/p/w200\(person.profilePath!)")!)
+                    ? .imageUrl(TMDBImageSize.profileMedium.buildImageUrl(path: person.profilePath!)!)
                     : .sfSymbolName("person.circle")
             )
         }
@@ -541,9 +590,9 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
         return viewModel.trendingItems.map { item in
             FavouriteListing(
                 imageSource: item.posterPath != nil
-                    ? .imageUrl(URL(string: "https://image.tmdb.org/t/p/w300\(item.posterPath!)")!)
+                    ? .imageUrl(TMDBImageSize.backdropSmall.buildImageUrl(path: item.posterPath!)!)
                     : .sfSymbolName("photo"),
-                price: "\(item.mediaType.capitalized)",
+                price: "\(item.mediaType.rawValue.capitalized)",
                 title: item.displayTitle
             )
         }
@@ -562,7 +611,9 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
         ])
 
         collectionView.register(BannerCell.self, forCellWithReuseIdentifier: BannerCell.reuseIdentifier)
-        collectionView.register(HorizontalCollectionCell.self, forCellWithReuseIdentifier: HorizontalCollectionCell.reuseIdentifier)
+        collectionView.register(PillShapeItemCell.self, forCellWithReuseIdentifier: PillShapeItemCell.reuseIdentifier)
+        collectionView.register(CircleItemCell.self, forCellWithReuseIdentifier: CircleItemCell.reuseIdentifier)
+        collectionView.register(FavouriteListingCell.self, forCellWithReuseIdentifier: FavouriteListingCell.reuseIdentifier)
         collectionView.register(SectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeaderView.reuseIdentifier)
 
         setupBindings()
@@ -573,9 +624,9 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
         guard let viewModel = viewModel else { return }
 
         viewModel.$genres
-            .combineLatest(viewModel.$popularPeople, viewModel.$trendingItems)
+            .combineLatest(viewModel.$tvGenres, viewModel.$popularPeople, viewModel.$trendingItems)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _, _, _ in
+            .sink { [weak self] _, _, _, _ in
                 self?.updateSectionLayouts()
             }
             .store(in: &cancellables)
@@ -631,7 +682,7 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
 
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let layout = sectionLayouts[section]
-        return layout.isVisible ? 1 : 0
+        return layout.isVisible ? layout.data.count : 0
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -647,43 +698,33 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
             }
             return cell
 
-        case .categories, .popularCategories, .favourites:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HorizontalCollectionCell.reuseIdentifier, for: indexPath) as? HorizontalCollectionCell else {
+        case .categories:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PillShapeItemCell.reuseIdentifier, for: indexPath) as? PillShapeItemCell,
+                  let item = layout.data[indexPath.row] as? PillShapeItem else {
                 return UICollectionViewCell()
             }
+            cell.configure(with: item)
+            return cell
 
-            switch layout.type {
-            case .categories:
-                cell.sectionType = .categories
-            case .popularCategories:
-                cell.sectionType = .popularCategories
-            case .favourites:
-                cell.sectionType = .favourites
-            default:
-                break
+        case .popularCategories:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CircleItemCell.reuseIdentifier, for: indexPath) as? CircleItemCell,
+                  let item = layout.data[indexPath.row] as? CircleItem else {
+                return UICollectionViewCell()
             }
+            cell.configure(with: item)
+            return cell
 
-            cell.data = layout.data
-            cell.collectionView.reloadData()
+        case .favourites:
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FavouriteListingCell.reuseIdentifier, for: indexPath) as? FavouriteListingCell,
+                  let listing = layout.data[indexPath.row] as? FavouriteListing else {
+                return UICollectionViewCell()
+            }
+            cell.configure(with: listing)
             return cell
         }
     }
 
-    // MARK: - UICollectionViewDelegateFlowLayout
-
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = collectionView.bounds.width
-        let layout = sectionLayouts[indexPath.section]
-        return CGSize(width: width, height: layout.height)
-    }
-
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        let layout = sectionLayouts[section]
-        if layout.headerTitle != nil {
-            return CGSize(width: collectionView.bounds.width, height: 30)
-        }
-        return .zero
-    }
+    // MARK: - UICollectionViewDelegate
 
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
@@ -699,66 +740,44 @@ public class GrkMarketplaceViewController3: UIViewController, UICollectionViewDa
         return UICollectionReusableView()
     }
 
-    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
+    // MARK: - UICollectionViewDelegate
+
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let section = indexPath.section
+        let row = indexPath.row
+
+        guard section < sectionLayouts.count else { return }
+
+        let sectionLayout = sectionLayouts[section]
+
+        if sectionLayout.type == .categories,
+           let items = sectionLayout.data as? [PillShapeItem],
+           items.indices.contains(row) {
+            items[row].selection?()
+            return
+        }
+
+        // Use the section-specific callback defined in setupDefaultSectionLayouts
+        // This properly handles multiple sections of the same type (e.g., Movie Genres and TV Genres)
+        sectionLayout.onItemTapped(row)
     }
 }
 
 #if DEBUG
-fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAPIService.init(apiKey: debugTMDBAPIKey))
+fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
 /// Grok: https://grok.com/chat/a4c29db6-3c12-4221-b134-490e4015d4d4
 @available(iOS 17, *)
 #Preview {
-    GrkMarketplaceViewController3(
+    HomeDiscoverViewController(
         viewModel:
             HomeDiscoverViewModel(
                 fetchGenresUseCase:
                     DefaultFetchGenresUseCase(repository: exampleMovieRespository),
+                fetchTVGenresUseCase:
+                    DefaultFetchTVGenresUseCase(repository: exampleMovieRespository),
                 fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: exampleMovieRespository),
                 fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: exampleMovieRespository)))
 }
 #endif
 
 // MARK: - SwiftUI Wrapper
-
-import SwiftUI
-import Swinject
-@available(iOS 16, *)
-public struct GrkMarketplaceView<Route: Hashable>: View {
-    @StateObject var viewModel: HomeDiscoverViewModel
-    let detailRouteBuilder: (Int) -> Route
-
-    public init(
-        container: Container,
-        apiKey: String,
-        detailRouteBuilder: @escaping (Int) -> Route
-    ) {
-        APIKeys.tmdbKey = apiKey
-        let movieAssembly = MovieAssembly()
-        movieAssembly.assemble(container: container)
-        self.detailRouteBuilder = detailRouteBuilder
-
-        _viewModel = StateObject(wrappedValue: HomeDiscoverViewModel(
-            fetchGenresUseCase: DefaultFetchGenresUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
-            fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)),
-            fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: MovieRepositoryImpl(apiService: container.resolve(TMDBAPIService.self)!)))
-        )
-    }
-
-    public var body: some View {
-        GrkMarketplaceViewControllerRepresentable(viewModel: viewModel)
-    }
-}
-
-@available(iOS 16, *)
-struct GrkMarketplaceViewControllerRepresentable: UIViewControllerRepresentable {
-    let viewModel: HomeDiscoverViewModel
-
-    func makeUIViewController(context: Context) -> GrkMarketplaceViewController3 {
-        return GrkMarketplaceViewController3(viewModel: viewModel)
-    }
-
-    func updateUIViewController(_ uiViewController: GrkMarketplaceViewController3, context: Context) {
-        // Updates handled by the view model
-    }
-}

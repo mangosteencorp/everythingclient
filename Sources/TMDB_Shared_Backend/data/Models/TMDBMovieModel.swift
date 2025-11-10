@@ -10,6 +10,7 @@ public struct TMDBMovieModel: Codable {
     public let vote_average: Float
     public let popularity: Float?
     public let release_date: String?
+    public let genre_ids: [Int]?
 }
 
 // swiftlint:enable identifier_name

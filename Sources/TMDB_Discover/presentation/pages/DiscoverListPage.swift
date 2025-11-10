@@ -4,7 +4,7 @@ import Swinject
 import TMDB_Shared_UI
 
 @available(iOS 16.0, *)
-public struct TVShowListPage<Route: Hashable>: View {
+public struct DiscoverListPage<Route: Hashable>: View {
     @StateObject var viewModel: TVFeedViewModel
     @State private var useUIKitView = false
     let type: TVShowFeedType
@@ -17,17 +17,48 @@ public struct TVShowListPage<Route: Hashable>: View {
         detailRouteBuilder: @escaping (Int) -> Route
     ) {
         APIKeys.tmdbKey = apiKey
-        let movieAssembly = MovieAssembly()
+        let movieAssembly = DiscoverAssembly()
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
+
+        // Create discover parameters if we have genre information
+        var discoverParams: DiscoverMoviesParams?
+        if case .discoverWithGenre(let genre) = type {
+            // Use mediaType: .movie for movie genre filtering
+            discoverParams = DiscoverMoviesParams(genres: [genre.id], mediaType: .movie)
+        } else if case .discoverWithTVGenre(let genre) = type {
+            // Use mediaType: .tv for TV genre filtering (TV genre IDs are different from movie genre IDs)
+            discoverParams = DiscoverMoviesParams(genres: [genre.id], mediaType: .tv)
+        } else if case .discoverWithCast(let person) = type {
+            // Use mediaType: .movie for cast filtering (assuming movies by default)
+            discoverParams = DiscoverMoviesParams(cast: person.id, mediaType: .movie)
+        }
+
         switch type {
         case .airingToday:
             _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "nowPlaying")!)
         case .onTheAir:
             _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "upcoming")!)
+        case .discover:
+            if let params = discoverParams {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover", argument: params)!)
+            } else {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
+            }
+        case .discoverWithGenre, .discoverWithTVGenre, .discoverWithCast:
+            if let params = discoverParams {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover", argument: params)!)
+            } else {
+                _viewModel = StateObject(wrappedValue: container.resolve(TVFeedViewModel.self, name: "discover")!)
+            }
         }
 
         self.type = type
+
+        // If we resolved the VM without params for some reason, still set afterwards
+        if let params = discoverParams {
+            viewModel.setDiscoverParams(params)
+        }
     }
 
     public var body: some View {

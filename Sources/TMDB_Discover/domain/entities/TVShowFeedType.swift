@@ -1,7 +1,11 @@
 import Foundation
-public enum TVShowFeedType {
+public enum TVShowFeedType: Hashable, Codable {
     case airingToday
     case onTheAir
+    case discover
+    case discoverWithGenre(Genre)  // For movie genres
+    case discoverWithTVGenre(Genre)  // For TV genres
+    case discoverWithCast(PopularPerson)
 
     var title: String {
         switch self {
@@ -9,6 +13,14 @@ public enum TVShowFeedType {
             return "Airing Today"
         case .onTheAir:
             return "On the air"
+        case .discover:
+            return "Discover Movies"
+        case .discoverWithGenre(let genre):
+            return "\(genre.name) Movies"
+        case .discoverWithTVGenre(let genre):
+            return "\(genre.name) TV Shows"
+        case .discoverWithCast(let person):
+            return "\(person.name) Movies"
         }
     }
 
@@ -18,6 +30,12 @@ public enum TVShowFeedType {
             return "play.circle"
         case .onTheAir:
             return "calendar"
+        case .discover:
+            return "magnifyingglass"
+        case .discoverWithGenre, .discoverWithTVGenre:
+            return "tag"
+        case .discoverWithCast:
+            return "person"
         }
     }
 }

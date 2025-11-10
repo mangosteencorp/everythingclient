@@ -1,20 +1,21 @@
 import Combine
 import SwiftUI
+import TMDB_Shared_Backend
 
 public struct RemoteTMDBImage: View {
     let posterPath: String?
     let posterSize: PosterSize
-    let image: ImageSize
+    let imageSize: TMDBImageSize
     let contentMode: ContentMode
-    public init(posterPath: String?, posterSize: PosterSize, image: ImageSize, contentMode: ContentMode = .fit) {
+    public init(posterPath: String?, posterSize: PosterSize, imageSize: TMDBImageSize, contentMode: ContentMode = .fit) {
         self.posterPath = posterPath
         self.posterSize = posterSize
-        self.image = image
+        self.imageSize = imageSize
         self.contentMode = contentMode
     }
 
     public var body: some View {
-        if let posterPath = posterPath, let url = image.path(poster: posterPath) {
+        if let posterPath = posterPath, let url = imageSize.buildImageUrl(path: posterPath) {
             if #available(iOS 15.0, *) {
                 AsyncImage(url: url) { phase in
                     switch phase {
@@ -62,17 +63,6 @@ struct ImageView: View {
             .onReceive(imageLoader.didChange) { data in
                 self.image = UIImage(data: data) ?? UIImage()
             }
-    }
-}
-
-public enum ImageSize: String {
-    case small = "https://image.tmdb.org/t/p/w154/"
-    case medium = "https://image.tmdb.org/t/p/w500/"
-    case cast = "https://image.tmdb.org/t/p/w185/"
-    case original = "https://image.tmdb.org/t/p/original/"
-
-    func path(poster: String) -> URL? {
-        return URL(string: rawValue)?.appendingPathComponent(poster)
     }
 }
 

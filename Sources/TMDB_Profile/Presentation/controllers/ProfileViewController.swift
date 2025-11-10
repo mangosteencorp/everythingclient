@@ -95,14 +95,18 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
             loadingView.startAnimating()
 
         case let .loaded(profile):
-            let contentVC = ProfileContentViewController(profile: profile)
-            contentVC.delegate = self
-            contentVC.coordinator = coordinator
-            addChild(contentVC)
-            contentVC.view.frame = view.bounds
-            view.addSubview(contentVC.view)
-            contentVC.didMove(toParent: self)
-            contentViewController = contentVC
+            if let existingContentVC = contentViewController {
+                existingContentVC.updateProfile(profile)
+            } else {
+                let contentVC = ProfileContentViewController(profile: profile)
+                contentVC.delegate = self
+                contentVC.coordinator = coordinator
+                addChild(contentVC)
+                contentVC.view.frame = view.bounds
+                view.addSubview(contentVC.view)
+                contentVC.didMove(toParent: self)
+                contentViewController = contentVC
+            }
 
         case let .error(error):
             errorView.isHidden = false
@@ -114,6 +118,10 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
 
     func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController) {
         viewModel.signOut()
+    }
+
+    func profileContentViewControllerDidRefresh(_ viewController: ProfileContentViewController) {
+        viewModel.refreshProfile()
     }
 
     // Add setter for coordinator
