@@ -5,9 +5,9 @@ import TMDB_Shared_Backend
 @available(iOS 15, *)
 struct CreatorView: View {
     @EnvironmentObject private var themeManager: ThemeManager
-    
+
     let creator: TVShowDetailModel.Creator
-    
+
     var body: some View {
         VStack(spacing: 8) {
             AsyncImage(url: profileImageURL) { image in
@@ -24,7 +24,7 @@ struct CreatorView: View {
             }
             .frame(width: 50, height: 50)
             .clipShape(Circle())
-            
+
             Text(creator.name)
                 .font(.caption)
                 .foregroundColor(themeManager.currentTheme.labelColor)
@@ -33,9 +33,9 @@ struct CreatorView: View {
         }
         .frame(width: 70)
     }
-    
+
     private var profileImageURL: URL? {
         guard let profilePath = creator.profilePath else { return nil }
-        return TMDBImageSize.cast.buildImageUrl(path: profilePath)
+        return TMDBImageSize.logoLarge.buildImageUrl(path: profilePath)
     }
 }
