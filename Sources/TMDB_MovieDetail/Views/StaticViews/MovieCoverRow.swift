@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
 struct MovieCoverRow: View {
@@ -9,14 +10,14 @@ struct MovieCoverRow: View {
                 RemoteTMDBImage(
                     posterPath: movie.backdropPath,
                     posterSize: PosterSize(width: geometry.size.width, height: 250),
-                    image: .medium
+                    imageSize: .backdropSmall
                 )
                 .blur(radius: 3)
                 .overlay(Color.black.opacity(0.6))
 
                 VStack(alignment: .leading) {
                     HStack(spacing: 16) {
-                        RemoteTMDBImage(posterPath: movie.posterPath, posterSize: .medium, image: .medium)
+                        RemoteTMDBImage(posterPath: movie.posterPath, posterSize: .medium, imageSize: .posterLarge)
                             .padding(.leading, 16)
                         VStack(alignment: .leading, spacing: 16) {
                             MovieInfoRow(movie: movie)

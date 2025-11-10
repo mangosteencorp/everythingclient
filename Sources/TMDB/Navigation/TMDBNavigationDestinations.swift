@@ -1,6 +1,7 @@
 import CoreFeatures
 import SwiftUI
 import Swinject
+import TMDB_Discover
 import TMDB_Feed
 import TMDB_MovieDetail
 import TMDB_Shared_Backend
@@ -38,6 +39,14 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
             } tvShowDetailRouteBuilder: { tvShow in
                 TMDBRoute.tvShowDetail(tvShow.id)
+            }
+        case let .tvShowList(type):
+            TMDB_Discover.DiscoverListPage(
+                container: container,
+                apiKey: container.resolve(String.self, name: "tmdbApiKey")!,
+                type: type
+            ) { tvShowId in
+                TMDBRoute.tvShowDetail(tvShowId)
             }
         }
     }

@@ -11,7 +11,7 @@ class MovieListPageTests: XCTestCase {
     override func setUp() {
         super.setUp()
         container = Container()
-        let assembly = MovieAssembly()
+        let assembly = DiscoverAssembly()
         assembly.assemble(container: container)
         mockViewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
     }
@@ -21,8 +21,8 @@ class MovieListPageTests: XCTestCase {
         let apiKey = "test_api_key"
 
         // When
-        let nowPlayingPage = TVShowListPage(container: container, apiKey: apiKey, type: .airingToday, detailRouteBuilder: {_ in 1})
-        let upcomingPage = TVShowListPage(container: container, apiKey: apiKey, type: .onTheAir, detailRouteBuilder: {_ in 1})
+        let nowPlayingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .airingToday, detailRouteBuilder: {_ in 1})
+        let upcomingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .onTheAir, detailRouteBuilder: {_ in 1})
 
         // Then
         XCTAssertNotNil(nowPlayingPage)

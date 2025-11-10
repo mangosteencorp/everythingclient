@@ -46,6 +46,20 @@ class ProfileViewModel {
             .disposed(by: disposeBag)
     }
 
+    func refreshProfile() {
+        getProfileUseCase.execute()
+            .observe(on: MainScheduler.instance)
+            .subscribe(
+                onSuccess: { [weak self] profile in
+                    self?.stateRelay.accept(.loaded(profile))
+                },
+                onFailure: { [weak self] error in
+                    self?.stateRelay.accept(.error(error))
+                }
+            )
+            .disposed(by: disposeBag)
+    }
+
     func signOut() {
         Task {
             await authViewModel.signOut()

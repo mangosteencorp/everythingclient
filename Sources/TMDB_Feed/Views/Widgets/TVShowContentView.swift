@@ -70,6 +70,7 @@ struct TVShowContentView<Route: Hashable>: View {
         List(shows) { show in
             NavigationTVShowRow<Route>(viewModel: viewModel, show: show, routeBuilder: detailRouteBuilder)
         }
+        .accessibilityIdentifier("tvshows_list_content")
         .searchable(text: $viewModel.searchQuery)
         .overlay {
             if case .loading = viewModel.state {

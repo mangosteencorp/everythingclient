@@ -3,38 +3,45 @@ import SwiftUI
 
 public class HomeDiscoverViewModel: ObservableObject {
     @Published var genres: [Genre] = []
+    @Published var tvGenres: [Genre] = []
     @Published var popularPeople: [PopularPerson] = []
     @Published var trendingItems: [TrendingItem] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
 
     private let fetchGenresUseCase: FetchGenresUseCase
+    private let fetchTVGenresUseCase: FetchTVGenresUseCase
     private let fetchPopularPeopleUseCase: FetchPopularPeopleUseCase
     private let fetchTrendingItemsUseCase: FetchTrendingItemsUseCase
     private let analyticsTracker: AnalyticsTracker?
 
     init(
         fetchGenresUseCase: FetchGenresUseCase,
+        fetchTVGenresUseCase: FetchTVGenresUseCase,
         fetchPopularPeopleUseCase: FetchPopularPeopleUseCase,
         fetchTrendingItemsUseCase: FetchTrendingItemsUseCase,
         analyticsTracker: AnalyticsTracker? = nil
     ) {
         self.fetchGenresUseCase = fetchGenresUseCase
+        self.fetchTVGenresUseCase = fetchTVGenresUseCase
         self.fetchPopularPeopleUseCase = fetchPopularPeopleUseCase
         self.fetchTrendingItemsUseCase = fetchTrendingItemsUseCase
         self.analyticsTracker = analyticsTracker
     }
 
     func fetchAllData() {
-        isLoading = true
-        errorMessage = nil
-
         Task {
+            await MainActor.run {
+                self.isLoading = true
+                self.errorMessage = nil
+            }
+
             async let genresResult = fetchGenresUseCase.execute()
+            async let tvGenresResult = fetchTVGenresUseCase.execute()
             async let peopleResult = fetchPopularPeopleUseCase.execute()
             async let trendingResult = fetchTrendingItemsUseCase.execute()
 
-            let (genres, people, trending) = await (genresResult, peopleResult, trendingResult)
+            let (genres, tvGenres, people, trending) = await (genresResult, tvGenresResult, peopleResult, trendingResult)
 
             await MainActor.run {
                 self.isLoading = false
@@ -42,6 +49,13 @@ public class HomeDiscoverViewModel: ObservableObject {
                 switch genres {
                 case .success(let genreList):
                     self.genres = genreList
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                }
+
+                switch tvGenres {
+                case .success(let tvGenreList):
+                    self.tvGenres = tvGenreList
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }

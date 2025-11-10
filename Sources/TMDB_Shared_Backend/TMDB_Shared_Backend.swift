@@ -6,6 +6,8 @@ public class TMDB_Shared_Backend {
 
     public static func configure(container: Container, apiKey: String) {
         TMDB_Shared_Backend.container = container
+        // Register API key
+        container.register(String.self, name: "tmdbApiKey") { _ in apiKey }.inObjectScope(.container)
         // Register basic services
         container.register(KeychainDataSource.self) { _ in
             KeychainDataSource()

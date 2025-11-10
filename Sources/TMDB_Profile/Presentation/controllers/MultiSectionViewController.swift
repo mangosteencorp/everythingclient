@@ -59,6 +59,8 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
     private weak var delegate: MultiSectionViewControllerDelegate?
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<Section<T>, T>?
+    private var refreshControl: UIRefreshControl?
+    private var refreshHandler: (() -> Void)?
 
     // MARK: Initialization
 
@@ -130,6 +132,21 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
                 items: section.items.filter { !items.contains($0) }
             )
         }
+    }
+
+    func setupRefreshControl(refreshHandler: @escaping () -> Void) {
+        self.refreshHandler = refreshHandler
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView.refreshControl = refreshControl
+    }
+
+    func endRefreshing() {
+        refreshControl?.endRefreshing()
+    }
+
+    @objc private func handleRefresh() {
+        refreshHandler?()
     }
 
     // MARK: Private Methods

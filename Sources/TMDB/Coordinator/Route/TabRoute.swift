@@ -9,7 +9,7 @@ public enum TabRoute: Hashable {
         switch self {
         case .movieFeed: return "Movies"
         case .tvShowFeed: return "TV Shows"
-        case .marketplace: return "Marketplace"
+        case .marketplace: return "Discover"
         case .profile: return "Profile"
         }
     }

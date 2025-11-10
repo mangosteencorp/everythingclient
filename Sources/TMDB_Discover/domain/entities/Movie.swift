@@ -1,6 +1,7 @@
 // Entities
 import Foundation
 import Shared_UI_Support
+import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
 struct Movie: Equatable {
@@ -11,6 +12,7 @@ struct Movie: Equatable {
     let voteAverage: Float
     let popularity: Float
     let releaseDate: Date?
+    var isFavorite: Bool = false
 
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -111,14 +113,15 @@ extension Movie: ItemDisplayable {
 
     func getImageURL() -> String? {
         guard let posterPath = posterPath else { return nil }
-        return "https://image.tmdb.org/t/p/w500\(posterPath)"
+        return TMDBImageSize.posterLarge.buildImageUrl(path: posterPath)?.absoluteString
     }
 
     func isFavorited() -> Bool {
-        return false // Default implementation, can be enhanced later
+        return isFavorite
     }
 
     func setFavorited(_ favorited: Bool) {
-        // No-op for now, can be enhanced later
+        // This will be handled by the view controller
+        // The actual mutation will happen there
     }
 }

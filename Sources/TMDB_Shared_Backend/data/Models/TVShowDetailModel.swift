@@ -5,7 +5,7 @@ public struct TVShowDetailModel: Codable {
     public let originalName: String
     public let overview: String
     public let firstAirDate: String
-    public let lastAirDate: String
+    public let lastAirDate: String?
     public let numberOfEpisodes: Int
     public let numberOfSeasons: Int
     public let voteAverage: Double

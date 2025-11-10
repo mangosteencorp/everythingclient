@@ -1,8 +1,10 @@
+import TMDB_Discover
 import TMDB_Feed
 public enum TMDBRoute: Route {
     case movieDetail(MovieRouteModel)
     case tvShowDetail(Int)
     case movieList(AdditionalMovieListParams)
+    case tvShowList(TMDB_Discover.TVShowFeedType)
     public func hash(into hasher: inout Hasher) {
         switch self {
         case let .movieDetail(movie):
@@ -11,6 +13,8 @@ public enum TMDBRoute: Route {
             hasher.combine(id)
         case let .movieList(params):
             hasher.combine(params)
+        case let .tvShowList(type):
+            hasher.combine(type)
         }
     }
 
@@ -20,6 +24,10 @@ public enum TMDBRoute: Route {
             return lMovie.id == rMovie.id
         case let (.tvShowDetail(lId), .tvShowDetail(rId)):
             return lId == rId
+        case let (.movieList(lParams), .movieList(rParams)):
+            return lParams == rParams
+        case let (.tvShowList(lType), .tvShowList(rType)):
+            return lType == rType
         default:
             return false
         }

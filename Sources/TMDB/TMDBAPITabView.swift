@@ -174,7 +174,7 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildTVShowFeedPage() -> some View {
-        let tvShowContent = TMDB_Discover.TVShowListPage(
+        TMDB_Discover.DiscoverListPage(
             container: container,
             apiKey: tmdbKey,
             type: .onTheAir
@@ -182,22 +182,55 @@ public struct TMDBAPITabView: View {
             TMDBRoute.tvShowDetail(tvShowId)
         }
         .withTMDBNavigationDestinations(container: container)
-
-        tvShowContent
-            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .tvShowFeed)
     }
 
     @ViewBuilder
     private func buildMarketplacePage() -> some View {
-        let marketplaceContent = TMDB_Discover.GrkMarketplaceView(
+        let marketplaceContent = TMDB_Discover.HomeDiscoverView(
             container: container,
             apiKey: tmdbKey
         ) { movieId in
             TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
+        } onItemTapped: {
+            coordinator.navigate(to: .tvShowList(.onTheAir), in: .marketplace)
+        } onGenreTapped: { genre in
+            // Navigate to discover movies filtered by movie genre (using movie genre IDs)
+            coordinator.navigate(to: .tvShowList(.discoverWithGenre(genre)), in: .marketplace)
+        } onTVGenreTapped: { genre in
+            // Navigate to discover TV shows filtered by TV genre (using TV genre IDs)
+            coordinator.navigate(to: .tvShowList(.discoverWithTVGenre(genre)), in: .marketplace)
+        } onCastTapped: { person in
+            // Navigate to TV show list with discover type for cast-based content
+            coordinator.navigate(to: .tvShowList(.discoverWithCast(person)), in: .marketplace)
+        } onTrendingItemTapped: { trendingItem in
+            // Navigate based on the media type of the trending item
+            switch trendingItem.mediaType {
+            case .movie:
+                coordinator.navigate(
+                    to: .movieDetail(MovieRouteModel(
+                        id: trendingItem.id,
+                        title: trendingItem.title ?? "Unknown",
+                        overview: trendingItem.overview ?? "",
+                        posterPath: trendingItem.posterPath,
+                        backdropPath: trendingItem.backdropPath,
+                        voteAverage: Float(trendingItem.voteAverage ?? 0.0),
+                        voteCount: 0,
+                        releaseDate: nil,
+                        popularity: Float(trendingItem.popularity),
+                        originalTitle: trendingItem.title
+                    )),
+                    in: .marketplace
+                )
+            case .tv:
+                coordinator.navigate(to: .tvShowDetail(trendingItem.id), in: .marketplace)
+            case .person:
+                // Person items are not navigable in this context
+                break
+            }
         }
 
         marketplaceContent
-            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .marketplace)
+            .withTMDBNavigationDestinations(container: container)
     }
 
     @ViewBuilder

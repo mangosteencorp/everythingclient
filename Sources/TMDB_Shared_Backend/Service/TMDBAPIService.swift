@@ -56,6 +56,10 @@ public struct TMDBAPIService {
         var request = URLRequest(url: url)
         request.httpMethod = endpoint.httpMethod().method()
         request.httpBody = endpoint.body()
+
+        if endpoint.body() != nil {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
         debugPrint(request.curlString)
         let (data, response) = try await session.data(for: request)
 

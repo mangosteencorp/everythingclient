@@ -5,8 +5,9 @@ import Combine
 import CoreFeatures
 import Shared_UI_Support
 import SnapKit
+import TMDB_Shared_Backend
 
-class TVShowListViewController: UIViewController, UISearchBarDelegate {
+class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButtonDelegate {
     // MARK: - Properties
 
     private let viewModel: TVFeedViewModel
@@ -102,13 +103,11 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
         collectionView.dataSource = self
         collectionView.register(MovieItemCell.self, forCellWithReuseIdentifier: "MovieItemCell")
 
-        let top = CGFloat(searchBarHeight + padding)
-        collectionView.contentInset = UIEdgeInsets(top: top, left: 0, bottom: 0, right: 0)
-
         view.addSubview(collectionView)
 
         collectionView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(searchBar.snp.bottom)
+            make.left.right.bottom.equalToSuperview()
         }
     }
 
@@ -128,7 +127,8 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] movies in
                 self?.movies = movies
-                self?.filteredMovies = movies
+                // Apply current filter when new movies arrive
+                self?.applyFilter()
                 self?.collectionView.reloadData()
                 self?.refreshControl.endRefreshing()
             }
@@ -197,6 +197,16 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate {
             collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
         }
     }
+
+    // MARK: - FavButtonDelegate
+
+    func favButtonTapped(for item: ItemDisplayable) {
+        guard let movie = item as? Movie else { return }
+
+        Task {
+            await viewModel.toggleFavorite(for: movie.id)
+        }
+    }
 }
 
 // MARK: - UICollectionViewDataSource
@@ -215,6 +225,7 @@ extension TVShowListViewController: UICollectionViewDataSource {
         }
 
         let movie = filteredMovies[indexPath.item]
+        cell.delegate = self
         cell.configure(with: movie)
         return cell
     }
@@ -254,16 +265,26 @@ extension TVShowListViewController: UICollectionViewDelegate {
 #if DEBUG
 @available(iOS 17, *)
 #Preview {
-    let viewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
+    let viewModel = TVFeedViewModel(
+        fetchMoviesUseCase: MockFetchMoviesUseCase(),
+        fetchFavoriteTVShowsUseCase: MockFetchFavoriteTVShowsUseCase()
+    )
     let nav = UINavigationController(rootViewController: TVShowListViewController(viewModel: viewModel))
     return nav
 }
 
-// MARK: - Mock Use Case for Preview
+// MARK: - Mock Use Cases for Preview
 
 private class MockFetchMoviesUseCase: FetchMoviesUseCase {
     func execute() async -> Result<[Movie], Error> {
         return .success(Movie.exampleMovies)
+    }
+}
+
+private class MockFetchFavoriteTVShowsUseCase: FetchFavoriteTVShowsUseCase {
+    func execute() async -> Result<[Int], Error> {
+        // Mock some favorites (first 2 movies)
+        return .success([889_737, 1_100_782])
     }
 }
 #endif

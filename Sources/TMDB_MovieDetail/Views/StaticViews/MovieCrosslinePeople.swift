@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
 struct MovieCrosslinePeopleRow: View {
@@ -60,7 +61,7 @@ struct PeopleListItem: View {
     var body: some View {
         NavigationLink(destination: EmptyView()) {
             HStack {
-                RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, image: .cast)
+                RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(people.name)
@@ -83,7 +84,7 @@ struct PeopleRowItem: View {
     var body: some View {
         NavigationLink(destination: EmptyView()) {
             VStack(alignment: .center) {
-                RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, image: .cast)
+                RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
                 Text(people.name)
                     .font(.footnote)
                     .foregroundColor(.primary)

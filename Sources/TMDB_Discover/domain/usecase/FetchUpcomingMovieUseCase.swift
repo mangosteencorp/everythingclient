@@ -1,7 +1,7 @@
 class FetchUpcomingMoviesUseCase: FetchMoviesUseCase {
-    private let movieRepository: MovieRepository
+    private let movieRepository: DiscoverRepository
 
-    init(movieRepository: MovieRepository) {
+    init(movieRepository: DiscoverRepository) {
         self.movieRepository = movieRepository
     }
 
