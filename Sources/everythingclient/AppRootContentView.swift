@@ -7,12 +7,15 @@ public struct RootContentView: View {
     @State private var selectedTab = 0
     let tmdbAPIKey: String
     private let isAppStoreOrTestFlight: Bool
+    private let initialTabs: Set<AppTab>
     private let analyticsTracker: AnalyticsTracker?
 
     public init(TMDBApiKey: String, isAppStoreOrTestFlight: Bool = true, options3rdPartySDKs: ThirdPartyInitializationOptions = .init()) {
         tmdbAPIKey = TMDBApiKey
         self.isAppStoreOrTestFlight = isAppStoreOrTestFlight
+        initialTabs = isAppStoreOrTestFlight ? Set([.tmdb]) : Set(AppTab.allCases)
         analyticsTracker = options3rdPartySDKs.firebase ? FirebaseAnalyticsTracker() : nil
+        TabManager.shared.availableTabs = initialTabs
     }
 
     public var body: some View {
@@ -59,7 +62,9 @@ public struct RootContentView: View {
             }
         }
         .onAppear {
-            tabManager.availableTabs = isAppStoreOrTestFlight ? Set([.tmdb]) : Set(AppTab.allCases)
+            if tabManager.availableTabs != initialTabs {
+                tabManager.availableTabs = initialTabs
+            }
         }
     }
 }
