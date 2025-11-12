@@ -1,4 +1,5 @@
 import SwiftUI
+#if DEBUG
 @available(iOS 16, *)
 struct DemoLauncherView: View {
     @State private var selectedDemo: IntegrationTestLauncher.DemoTest?
@@ -37,7 +38,6 @@ extension IntegrationTestLauncher.DemoTest: Identifiable {
     public var id: String { rawValue }
 }
 
-#if DEBUG
 @available(iOS 16, *)
 #Preview {
     DemoLauncherView()

@@ -9,6 +9,7 @@ import TMDB_MovieDetail
 import TMDB_Profile
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
+#if DEBUG
 @available(iOS 16, *)
 public struct IntegrationTestLauncher {
     public enum DemoTest: String, CaseIterable {
@@ -88,3 +89,4 @@ struct IntegrationTestErrorView: View {
         .padding()
     }
 }
+#endif
