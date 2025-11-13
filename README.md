@@ -98,6 +98,58 @@ Details of packages:
 
 Using Router Pattern, `NavigationStack` and Coordinator pattern
 
+#### TMDB Navigation Matrix
+
+The TMDB section uses a Coordinator pattern with NavigationStack for routing between screens. Below is a comprehensive matrix showing navigation capabilities:
+
+**Tab Routes (Root Level)**
+- Movie Feed (`movieFeed`)
+- Marketplace/Discover (`marketplace`)
+- Profile (`profile`)
+
+**Navigation Destinations**
+
+| From Screen | To Screen | Route Type | Status | Notes |
+|------------|-----------|------------|--------|-------|
+| **Movie Feed** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap on movie in feed |
+| **Movie Feed** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap on TV show in feed |
+| **Movie Feed** | Movie List (Filtered) | `TMDBRoute.movieList` | ✅ | Apply filters/search |
+| **Marketplace/Discover** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap on trending movie |
+| **Marketplace/Discover** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap on trending TV show |
+| **Marketplace/Discover** | TV Show List | `TMDBRoute.tvShowList` | ✅ | Tap genre/cast/on-the-air |
+| **Profile** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap favorite/watchlist movie |
+| **Profile** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap favorite/watchlist TV show |
+| **Movie Detail** | Movie List (by Keyword) | `TMDBRoute.movieList(.keyword)` | ✅ | Tap keyword tag |
+| **Movie Detail** | Cast/Crew Detail | 🔴 | Not implemented | No route for person detail |
+| **TV Show Detail** | Season Detail | 🔴 | Not implemented | Internal to TVShowDetail |
+| **TV Show Detail** | Cast Detail | 🔴 | Not implemented | No route for person detail |
+| **TV Show List** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap TV show in filtered list |
+| **Movie List** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap movie in filtered list |
+| **Any Screen** | Person/Cast Detail | 🔴 | Missing | Would need `TMDBRoute.personDetail` |
+
+**Navigation Parameters**
+
+1. **`TMDBRoute.movieDetail(MovieRouteModel)`**
+   - Required: movie ID
+   - Optional: title, overview, poster path, backdrop path, vote average, etc.
+
+2. **`TMDBRoute.tvShowDetail(Int)`**
+   - Required: TV show ID
+
+3. **`TMDBRoute.movieList(AdditionalMovieListParams)`**
+   - Supports: keyword filtering, genre filtering, cast filtering
+   - Example: `.movieList(.keyword(123))`
+
+4. **`TMDBRoute.tvShowList(TVShowFeedType)`**
+   - Supports: `.onTheAir`, `.discoverWithGenre`, `.discoverWithTVGenre`, `.discoverWithCast`
+
+**Missing Navigation Routes**
+- 🔴 Person/Cast Detail page (tap on actor/crew member)
+- 🔴 Season Detail page (separate from TV show detail)
+- 🔴 Episode Detail page
+- 🔴 Reviews/Comments page
+- 🔴 Similar Movies/TV Shows (currently might be handled via movieList/tvShowList)
+
 ## Security
 
 - Secure Credential Management
