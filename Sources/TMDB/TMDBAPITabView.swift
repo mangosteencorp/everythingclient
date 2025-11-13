@@ -121,7 +121,7 @@ public struct TMDBAPITabView: View {
 
         self.container = container
 
-        let tabList: [TabRoute] = [.movieFeed, .tvShowFeed, .marketplace, .profile]
+        let tabList: [TabRoute] = [.movieFeed, .marketplace, .profile]
         _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
 
@@ -170,18 +170,6 @@ public struct TMDBAPITabView: View {
 
         movieFeedContent
             .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .movieFeed)
-    }
-
-    @ViewBuilder
-    private func buildTVShowFeedPage() -> some View {
-        TMDB_Discover.DiscoverListPage(
-            container: container,
-            apiKey: tmdbKey,
-            type: .onTheAir
-        ) { tvShowId in
-            TMDBRoute.tvShowDetail(tvShowId)
-        }
-        .withTMDBNavigationDestinations(container: container)
     }
 
     @ViewBuilder
@@ -256,16 +244,6 @@ public struct TMDBAPITabView: View {
             }
             .tag(TabRoute.movieFeed)
 
-            // TV Show Feed Tab
-            NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
-                buildTVShowFeedPage()
-            }
-            .tabItem {
-                Image(systemName: TabRoute.tvShowFeed.iconName)
-                Text(TabRoute.tvShowFeed.title)
-            }
-            .tag(TabRoute.tvShowFeed)
-
             // Marketplace Tab
             NavigationStack(path: coordinator.path(for: .marketplace)) {
                 buildMarketplacePage()
@@ -296,12 +274,6 @@ public struct TMDBAPITabView: View {
             buildMovieFeedPage()
             .tag(TabRoute.movieFeed)
 
-            // TV Show Feed Page
-            NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
-                buildTVShowFeedPage()
-            }
-            .tag(TabRoute.tvShowFeed)
-
             // Marketplace Page
             NavigationStack(path: coordinator.path(for: .marketplace)) {
                 buildMarketplacePage()
@@ -330,10 +302,6 @@ public struct TMDBAPITabView: View {
             switch coordinator.selectedTab {
             case .movieFeed:
                 buildMovieFeedPage()
-            case .tvShowFeed:
-                NavigationStack(path: coordinator.path(for: .tvShowFeed)) {
-                    buildTVShowFeedPage()
-                }
             case .marketplace:
                 NavigationStack(path: coordinator.path(for: .marketplace)) {
                     buildMarketplacePage()
