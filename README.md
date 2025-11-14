@@ -59,7 +59,7 @@ What you'll find looking at this repo:
 ### Screens
 
 <div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
-  <table>
+  <table style="width: auto; table-layout: auto;">
     <thead>
       <tr>
         <th>TMDB</th>
@@ -74,12 +74,12 @@ What you'll find looking at this repo:
     <tbody>
       <tr>
         <td></td>
-        <td><img src=".screenshots/moviefeed.gif" alt="Movie Feed" width="200"/></td>
-        <td><img src=".screenshots/tvfeed.png" alt="TV Feed" width="300"/></td>
-        <td><img src=".screenshots/search-filter.gif" alt="Search & Filters" width="200"/></td>
-        <td><img src=".screenshots/tvdetail.png" alt="TV Detail" width="200"/></td>
-        <td><img src=".screenshots/tmdb-profile.png" alt="Profile" width="200"/></td>
-        <td><img src=".screenshots/moviefeed-endless.gif" alt="Endless Loading" width="200"/></td>
+        <td style="width: 200px;"><img src=".screenshots/moviefeed.gif" alt="Movie Feed" width="200" style="max-width: none;"/></td>
+        <td style="width: 300px;"><img src=".screenshots/tvfeed.png" alt="TV Feed" width="300" style="max-width: none;"/></td>
+        <td style="width: 200px;"><img src=".screenshots/search-filter.gif" alt="Search & Filters" width="200" style="max-width: none;"/></td>
+        <td style="width: 200px;"><img src=".screenshots/tvdetail.png" alt="TV Detail" width="200" style="max-width: none;"/></td>
+        <td style="width: 200px;"><img src=".screenshots/tmdb-profile.png" alt="Profile" width="200" style="max-width: none;"/></td>
+        <td style="width: 200px;"><img src=".screenshots/moviefeed-endless.gif" alt="Endless Loading" width="200" style="max-width: none;"/></td>
       </tr>
     </tbody>
   </table>
