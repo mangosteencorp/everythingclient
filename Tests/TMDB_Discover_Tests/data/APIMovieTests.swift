@@ -1,8 +1,9 @@
 @testable import TMDB_Discover
+import TMDB_Shared_Backend
 import XCTest
 
-class APIMovieTests: XCTestCase {
-    func testAPIMovieDecoding() throws {
+class APITVShowDecodingTests: XCTestCase {
+    func testTVShowDecoding() throws {
         // Given
         let json = Data("""
         {
@@ -30,22 +31,22 @@ class APIMovieTests: XCTestCase {
         """.utf8)
 
         // When
-        let apiMovie = try JSONDecoder().decode(APITVShow.self, from: json)
+        let apiShow = try JSONDecoder().decode(TVShow.self, from: json)
 
         // Then
-        XCTAssertEqual(apiMovie.id, 257064)
-        XCTAssertEqual(apiMovie.title, "Volta por Cima")
-        XCTAssertEqual(apiMovie.overview, "")
-        XCTAssertEqual(apiMovie.poster_path, "/nyN8R0P1Hqwq7ksJz4O2BIAUd4W.jpg")
-        XCTAssertEqual(apiMovie.vote_average, 6.9)
-        XCTAssertEqual(apiMovie.popularity, 2692.492)
-        XCTAssertEqual(apiMovie.release_date, "2024-09-30")
+        XCTAssertEqual(apiShow.id, 257064)
+        XCTAssertEqual(apiShow.name, "Volta por Cima")
+        XCTAssertEqual(apiShow.overview, "")
+        XCTAssertEqual(apiShow.poster_path, "/nyN8R0P1Hqwq7ksJz4O2BIAUd4W.jpg")
+        XCTAssertEqual(apiShow.vote_average, 6.9)
+        XCTAssertEqual(apiShow.popularity, 2692.492)
+        XCTAssertEqual(apiShow.first_air_date, "2024-09-30")
     }
 }
 
 // swiftlint:disable line_length
-class MovieListResultModelTests: XCTestCase {
-    func testMovieListResultModelDecoding() throws {
+class TVShowListResultModelTests: XCTestCase {
+    func testTVShowListResultModelDecoding() throws {
         // Given
         let json = Data("""
         {
@@ -101,16 +102,15 @@ class MovieListResultModelTests: XCTestCase {
         """.utf8)
         // swiftlint:enable line_length
         // When
-        let movieListResult = try JSONDecoder().decode(TVShowListResultModel.self, from: json)
+        let tvShowListResult = try JSONDecoder().decode(TVShowListResultModel.self, from: json)
 
         // Then
-        XCTAssertNil(movieListResult.dates)
-        XCTAssertEqual(movieListResult.page, 1)
-        XCTAssertEqual(movieListResult.results.count, 2)
-        XCTAssertEqual(movieListResult.totalPages, 10)
-        XCTAssertEqual(movieListResult.totalResults, 200)
+        XCTAssertEqual(tvShowListResult.page, 1)
+        XCTAssertEqual(tvShowListResult.results.count, 2)
+        XCTAssertEqual(tvShowListResult.total_pages, 10)
+        XCTAssertEqual(tvShowListResult.total_results, 200)
 
-        let apiMovie = movieListResult.results[0]
-        XCTAssertEqual(apiMovie.id, 257064)
+        let apiShow = tvShowListResult.results[0]
+        XCTAssertEqual(apiShow.id, 257064)
     }
 }

@@ -21,7 +21,7 @@ class TMDBAPIServiceProtocolTests: XCTestCase {
 
     func testFetchMoviesNowPlaying() async throws {
         // Given
-        let mockResponse = MockData.movieListResultModel
+        let mockResponse = MockData.tvShowListResultModel
         let mockData = try JSONEncoder().encode(mockResponse)
 
         MockURLProtocol.requestHandler = { request in
@@ -31,12 +31,19 @@ class TMDBAPIServiceProtocolTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil
             )!
-            XCTAssertTrue(request.url?.absoluteString.contains("airing_today") ?? false)
+            XCTAssertTrue(request.url?.absoluteString.contains("discover/tv") ?? false)
             return (response, mockData)
         }
 
         // When
-        let result = await apiService.fetchTVShows(endpoint: .airingToday)
+        let result = await apiService.discoverTV(
+            keywords: nil,
+            cast: nil,
+            genres: nil,
+            watchProviders: nil,
+            watchRegion: nil,
+            page: nil
+        )
 
         // Then
         switch result {
@@ -61,7 +68,14 @@ class TMDBAPIServiceProtocolTests: XCTestCase {
         }
 
         // When
-        let result = await apiService.fetchTVShows(endpoint: .onTheAir)
+        let result = await apiService.discoverTV(
+            keywords: nil,
+            cast: nil,
+            genres: nil,
+            watchProviders: nil,
+            watchRegion: nil,
+            page: nil
+        )
 
         // Then
         switch result {

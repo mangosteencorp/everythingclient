@@ -33,6 +33,7 @@ Also adding a GoogleService-Info.plist file to the root of the project for Fireb
   - [Architecture \& Design](#architecture--design)
     - [Feature based Modularization:](#feature-based-modularization)
     - [Navigation](#navigation)
+      - [TMDB Navigation Matrix](#tmdb-navigation-matrix)
   - [Security](#security)
   - [Testing](#testing)
   - [Development Tools, Build tools \& Automation](#development-tools-build-tools--automation)
@@ -57,21 +58,70 @@ What you'll find looking at this repo:
 
 ### Screens
 
-<div class="table-wrapper" markdown="block" style="overflow-x: auto; white-space: nowrap;">
+<div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+  <table>
+    <thead>
+      <tr>
+        <th>TMDB</th>
+        <th>Movie List</th>
+        <th>TV list</th>
+        <th>search & filters</th>
+        <th>TV Detail</th>
+        <th>Profile</th>
+        <th>endless loading</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td><img src=".screenshots/moviefeed.gif" alt="Movie Feed" width="200"/></td>
+        <td><img src=".screenshots/tvfeed.png" alt="TV Feed" width="300"/></td>
+        <td><img src=".screenshots/search-filter.gif" alt="Search & Filters" width="200"/></td>
+        <td><img src=".screenshots/tvdetail.png" alt="TV Detail" width="200"/></td>
+        <td><img src=".screenshots/tmdb-profile.png" alt="Profile" width="200"/></td>
+        <td><img src=".screenshots/moviefeed-endless.gif" alt="Endless Loading" width="200"/></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-|TMDB| Movie List | TV list | search & filters | TV Detail | Profile | endless loading |
-|-|-|-|-|-|-|-|
-|-|![](.screenshots/moviefeed.gif)|![](.screenshots/tvfeed.png)|![](.screenshots/search-filter.gif)|![](.screenshots/tvdetail.png)|![](.screenshots/tmdb-profile.png)|![](.screenshots/moviefeed-endless.gif)|
-|Pokedex|Poke list|Pokemon detail|
-|-|![](.screenshots/pokemon-list.png)|![](.screenshots/pokemon-detail.png)|
-
+<div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; margin-top: 20px;">
+  <table>
+    <thead>
+      <tr>
+        <th>Pokedex</th>
+        <th>Poke list</th>
+        <th>Pokemon detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td><img src=".screenshots/pokemon-list.png" alt="Pokemon List" width="200"/></td>
+        <td><img src=".screenshots/pokemon-detail.png" alt="Pokemon Detail" width="200"/></td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 ### Special Features
 
-| Design Switching | Theme Switching |
-|---------|------|
-| ![Design Switch](.screenshots/switch-design.gif) | ![Theme Switch](.screenshots/switch-themes.gif) |
+<div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+  <table>
+    <thead>
+      <tr>
+        <th>Design Switching</th>
+        <th>Theme Switching</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><img src=".screenshots/switch-design.gif" alt="Design Switch" width="200"/></td>
+        <td><img src=".screenshots/switch-themes.gif" alt="Theme Switch" width="200"/></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 # Practices
 
