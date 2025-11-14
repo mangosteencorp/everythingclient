@@ -9,8 +9,8 @@ public struct TMDBTVShowDetailDemoView: View {
 
     public var body: some View {
         TVShowDetailView(
-            apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
-            tvShowId: 1399 // Game of Thrones ID
+            tvShowId: 1399, // Game of Thrones ID
+            apiService: TMDBAPIService(apiKey: debugTMDBAPIKey)
         )
         .environmentObject(ThemeManager.shared)
     }
