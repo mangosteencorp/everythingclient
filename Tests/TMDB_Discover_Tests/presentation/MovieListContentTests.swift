@@ -39,5 +39,4 @@ class MovieListContentTests: XCTestCase {
         XCTAssertEqual(moviesProperty[0].popularity, movies[0].popularity)
         XCTAssertEqual(moviesProperty[0].releaseDate, movies[0].releaseDate)
     }
-
 }
