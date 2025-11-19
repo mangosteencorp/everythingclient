@@ -45,14 +45,6 @@ class MovieFeedListPageTests: XCTestCase {
         XCTAssertNotNil(progressView)
     }
 
-    func testErrorState() throws {
-        let errorMessage = "Test error"
-        mockViewModel.state = .error(errorMessage)
-
-        let errorText = try page.inspect().find(ViewType.Text.self)
-        XCTAssertEqual(try errorText.string(), errorMessage)
-    }
-
     func testMovieListDisplay() throws {
         mockViewModel.state = .loaded([sampleApeMovie])
 

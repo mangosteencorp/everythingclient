@@ -26,7 +26,7 @@ struct RebuildApp: App {
             }
         }
         #else
-        WindowGroup{
+        WindowGroup {
             RootContentView(
                 TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
                 isAppStoreOrTestFlight: isAppStoreOrTestFlight,
