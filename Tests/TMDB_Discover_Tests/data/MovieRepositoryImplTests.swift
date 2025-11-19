@@ -14,7 +14,7 @@ class MovieRepositoryImplTests: XCTestCase {
 
     func testFetchMoviesSuccess() async {
         // Setup mock API to return success...
-        mockAPIService.resultToReturn = .success(MockData.movieListResultModel)
+        mockAPIService.discoverMoviesResult = .success(MockData.movieListResultModel)
         let result = await repository.fetchNowPlayingMovies()
         if case let .success(movies) = result {
             XCTAssert(!movies.isEmpty, "Movies should not be empty on success")
@@ -26,7 +26,7 @@ class MovieRepositoryImplTests: XCTestCase {
 
     func testFetchMoviesFailure() async {
         // Setup mock API to return failure...
-        mockAPIService.resultToReturn = .failure(MockError.noResponse)
+        mockAPIService.discoverMoviesResult = .failure(MockError.noResponse)
         let result = await repository.fetchUpcomingMovies()
         if case let .success(movies) = result {
             XCTFail("Expected failure movie fetch but got \(movies)")
@@ -35,24 +35,4 @@ class MovieRepositoryImplTests: XCTestCase {
             XCTAssertTrue(true)
         }
     }
-}
-
-class MockAPIService: APIServiceProtocol {
-    func fetchTVShows(endpoint: TVShowFeedType) async -> Result<TMDB_Discover.TVShowListResultModel, Error> {
-        return resultToReturn ?? .failure(MockError.noResponse)
-    }
-
-    func fetchGenres() async -> Result<GenreListModel, Error> {
-        return .failure(MockError.noResponse)
-    }
-
-    func fetchPopularPeople() async -> Result<PersonListResultModel, Error> {
-        return .failure(MockError.noResponse)
-    }
-
-    func fetchTrendingItems() async -> Result<TrendingAllResultModel, Error> {
-        return .failure(MockError.noResponse)
-    }
-
-    var resultToReturn: Result<TMDB_Discover.TVShowListResultModel, Error>?
 }

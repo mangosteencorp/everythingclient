@@ -4,6 +4,7 @@ import SwiftUI
 
 @main
 struct RebuildApp: App {
+    let usingFirebase = false
 #if DEBUG
     let isAppStoreOrTestFlight = false
 #else
@@ -11,6 +12,7 @@ struct RebuildApp: App {
 #endif
 
     var body: some Scene {
+        #if DEBUG
         WindowGroup {
             // Check for integration test environment variable
             if let testName = ProcessInfo.processInfo.environment["INTEGRATION_TEST_NAME"] {
@@ -19,10 +21,20 @@ struct RebuildApp: App {
                 RootContentView(
                     TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
                     isAppStoreOrTestFlight: isAppStoreOrTestFlight,
-                    options3rdPartySDKs: .init(firebase: true) // mark this as false if you don't have GoogleService-Info.plist or not indending to use Firebase
+                    options3rdPartySDKs: .init(firebase: usingFirebase) // mark this as false if you don't have GoogleService-Info.plist or not indending to use Firebase
                 )
             }
         }
+        #else
+        WindowGroup {
+            RootContentView(
+                TMDBApiKey: try! Configuration.value(for: "TMDB_API_KEY"),
+                isAppStoreOrTestFlight: isAppStoreOrTestFlight,
+                options3rdPartySDKs: .init(firebase: usingFirebase) // mark this as false if you don't have GoogleService-Info.plist or not indending to use Firebase
+            )
+        }
+        #endif
+        
     }
 }
 

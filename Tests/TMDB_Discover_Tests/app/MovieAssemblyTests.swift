@@ -22,9 +22,5 @@ class MovieAssemblyTests: XCTestCase {
         // Test Use Cases registration
         XCTAssertNotNil(container.resolve(FetchNowPlayingMoviesUseCase.self))
         XCTAssertNotNil(container.resolve(FetchUpcomingMoviesUseCase.self))
-
-        // Test ViewModels registration
-        XCTAssertNotNil(container.resolve(TVFeedViewModel.self, name: "nowPlaying"))
-        XCTAssertNotNil(container.resolve(TVFeedViewModel.self, name: "upcoming"))
     }
 }

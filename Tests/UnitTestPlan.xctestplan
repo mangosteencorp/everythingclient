@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "DEF7517B-859D-42B7-BEBE-D3B4EC7C546C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TMDB_Discover_Tests",
+        "name" : "TMDB_Discover_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TMDB_Feed_Tests",
+        "name" : "TMDB_Feed_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TMDB_Shared_Backend_Tests",
+        "name" : "TMDB_Shared_Backend_Tests"
+      }
+    }
+  ],
+  "version" : 1
+}
