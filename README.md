@@ -27,8 +27,14 @@ Also adding a GoogleService-Info.plist file to the root of the project for Fireb
 - [iOS Best Practices Demo Project](#ios-best-practices-demo-project)
 - [Overview](#overview)
   - [Screenshots](#screenshots)
-    - [Screens](#screens)
     - [Special Features](#special-features)
+    - [Screens](#screens)
+      - [TMDB](#tmdb)
+      - [Pokedex](#pokedex)
+    - [Design inspirations](#design-inspirations)
+      - [Small projects](#small-projects)
+      - [Commercial apps](#commercial-apps)
+      - [Large open source apps](#large-open-source-apps)
 - [Best Practices](#best-practices)
   - [Security](#security)
   - [Testing](#testing)
@@ -57,7 +63,27 @@ What you'll find looking at this repo:
 
 ## Screenshots
 
+### Special Features
+
+<div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+  <table>
+    <thead>
+      <tr>
+        <th>Design Switching</th>
+        <th>Theme Switching</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><img src=".screenshots/switch-design.gif" alt="Design Switch" width="200"/></td>
+        <td><img src=".screenshots/switch-themes.gif" alt="Theme Switch" width="200"/></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 ### Screens
+#### TMDB
 
 <div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
   <table style="width: auto; table-layout: auto;">
@@ -67,6 +93,7 @@ What you'll find looking at this repo:
         <th>Movie List</th>
         <th>TV list</th>
         <th>search & filters</th>
+        <th>Movie Detail</th>
         <th>TV Detail</th>
         <th>Profile</th>
         <th>endless loading</th>
@@ -78,13 +105,16 @@ What you'll find looking at this repo:
         <td style="width: 200px;"><img src=".screenshots/moviefeed.gif" alt="Movie Feed" width="200" style="max-width: none;"/></td>
         <td style="width: 300px;"><img src=".screenshots/tvfeed.png" alt="TV Feed" width="300" style="max-width: none;"/></td>
         <td style="width: 200px;"><img src=".screenshots/search-filter.gif" alt="Search & Filters" width="200" style="max-width: none;"/></td>
-        <td style="width: 200px;"><img src=".screenshots/tvdetail.png" alt="TV Detail" width="200" style="max-width: none;"/></td>
-        <td style="width: 200px;"><img src=".screenshots/tmdb-profile.png" alt="Profile" width="200" style="max-width: none;"/></td>
+        <td style="width: 200px;"><img src=".screenshots/movie-detail.gif" alt="TV Detail" width="200" style="max-width: none;"/></td>
+        <td style="width: 200px;"><img src=".screenshots/tv-detail.gif" alt="TV Detail" width="200" style="max-width: none;"/></td>
+        <td style="width: 200px;"><img src=".screenshots/profile-page.gif" alt="Profile" width="200" style="max-width: none;"/></td>
         <td style="width: 200px;"><img src=".screenshots/moviefeed-endless.gif" alt="Endless Loading" width="200" style="max-width: none;"/></td>
       </tr>
     </tbody>
   </table>
 </div>
+
+#### Pokedex
 
 <div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; margin-top: 20px;">
   <table>
@@ -105,24 +135,28 @@ What you'll find looking at this repo:
   </table>
 </div>
 
-### Special Features
+### Design inspirations
+#### Small projects
 
-<div style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
-  <table>
-    <thead>
-      <tr>
-        <th>Design Switching</th>
-        <th>Theme Switching</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><img src=".screenshots/switch-design.gif" alt="Design Switch" width="200"/></td>
-        <td><img src=".screenshots/switch-themes.gif" alt="Theme Switch" width="200"/></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+#### Commercial apps
+
+<table>
+  <tr>
+    <th>Screen name</th>
+    <th>Home screen</th>
+  </tr>
+  <tr>
+    <td><img src="https://private-user-images.githubusercontent.com/43954417/521134031-17055c00-f65a-4c21-9ecb-587a12f89801.jpeg?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjQ2NTIzNTUsIm5iZiI6MTc2NDY1MjA1NSwicGF0aCI6Ii80Mzk1NDQxNy81MjExMzQwMzEtMTcwNTVjMDAtZjY1YS00YzIxLTllY2ItNTg3YTEyZjg5ODAxLmpwZWc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUxMjAyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MTIwMlQwNTA3MzVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1kNjA2OWE4MDU0YzFjZjk4MTZjMjA0NzdjNWMxMzQ1MmIwMzE0ZTY1OWRiOGUwMzFmYzYzY2M0NDMzMTNkZTIyJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.MZjc3BKfWu7bHnf5U3bqiMKNSU99bs3BAptjZpdcp1Q"></td>
+    <td style="padding: 80px 120px;"><img src=".screenshots/discover-page.gif" style="transform: rotate(90deg);"></td>
+  </tr>
+  <tr>
+    <td>Reference</td>
+    <td>My TMDB_Discover module</td>
+  </tr>
+  
+</table>
+
+#### Large open source apps
 
 # Best Practices
 
