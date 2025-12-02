@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 
 public class SwitchDesignBarButtonItem: UIBarButtonItem {
@@ -21,7 +22,7 @@ public extension UIViewController {
         navigationItem.rightBarButtonItem = switchButton
     }
 }
-
+#endif
 #if canImport(SwiftUI)
 import SwiftUI
 
