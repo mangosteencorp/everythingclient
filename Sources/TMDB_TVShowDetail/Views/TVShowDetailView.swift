@@ -83,7 +83,7 @@ public struct TVShowDetailView: View {
         case .loading:
             LoadingStateView()
         case .loaded(let tvShow):
-            TVShowDetailContentView(tvShow: tvShow)
+            TVShowDetailContentView(apiService: apiService, tvShow: tvShow)
         case .error(let message):
             ErrorStateView(
                 message: message,

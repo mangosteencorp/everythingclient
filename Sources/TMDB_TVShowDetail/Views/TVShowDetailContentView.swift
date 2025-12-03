@@ -5,7 +5,7 @@ import TMDB_Shared_Backend
 @available(iOS 15, *)
 struct TVShowDetailContentView: View {
     @EnvironmentObject private var themeManager: ThemeManager
-
+    let apiService: TMDBAPIService
     let tvShow: TVShowDetailModel
 
     var body: some View {
@@ -13,6 +13,9 @@ struct TVShowDetailContentView: View {
             VStack(alignment: .leading, spacing: 20) {
                 TVShowHeaderView(tvShow: tvShow)
                 TVShowInfoView(tvShow: tvShow)
+
+                TVShowWatchProvidersSection(tvShowId: tvShow.id, apiService: apiService)
+
                 TVShowSeasonsView(tvShow: tvShow)
             }
             .padding()

@@ -97,6 +97,7 @@ public enum TMDBEndpoint {
     // Watch Providers
     case movieWatchProviders(watchRegion: String? = nil)
     case tvWatchProviders(watchRegion: String? = nil)
+    case tvShowWatchProviders(show: Int)
 
     // swiftlint:disable cyclomatic_complexity
     func path() -> String {
@@ -193,6 +194,8 @@ public enum TMDBEndpoint {
             return "watch/providers/movie"
         case .tvWatchProviders:
             return "watch/providers/tv"
+        case let .tvShowWatchProviders(show):
+            return "tv/\(show)/watch/providers"
         }
     }
 
@@ -491,6 +494,8 @@ public enum TMDBEndpoint {
             return TrendingAllResultModel.self
         case .movieWatchProviders, .tvWatchProviders:
             return WatchProviderListModel.self
+        case .watchProviders, .tvShowWatchProviders:
+            return WatchProviderResponse.self
         default:
             throw TMDBAPIError.unsupportedEndpoint
         }
