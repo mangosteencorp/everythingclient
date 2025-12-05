@@ -45,8 +45,13 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 container: container,
                 apiKey: container.resolve(String.self, name: "tmdbApiKey")!,
                 type: type
-            ) { tvShowId in
-                TMDBRoute.tvShowDetail(tvShowId)
+            ) { id, mediaType in
+                switch mediaType {
+                case .movie:
+                    TMDBRoute.movieDetail(MovieRouteModel(id: id))
+                case .tv:
+                    TMDBRoute.tvShowDetail(id)
+                }
             }
         }
     }

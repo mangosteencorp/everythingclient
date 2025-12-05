@@ -4,11 +4,12 @@ import TMDB_Shared_UI
 @available(iOS 16.0, *)
 struct TVShowListContent<Route: Hashable>: View {
     let movies: [Movie]
-    let detailRouteBuilder: (Int) -> Route
+    let mediaType: DiscoverMediaType
+    let detailRouteBuilder: (Int, DiscoverMediaType) -> Route
 
     var body: some View {
         List(movies, id: \.id) { movie in
-            NavigationLink(value: detailRouteBuilder(movie.id), label: {
+            NavigationLink(value: detailRouteBuilder(movie.id, mediaType), label: {
                 MovieRow(movie: movie.toMovieRowEntity())
             })
         }.accessibilityIdentifier("TVShowListContent.List")
@@ -19,7 +20,18 @@ struct TVShowListContent<Route: Hashable>: View {
 struct TVShowListPageContent<Route: Hashable>: View {
     @StateObject var viewModel: TVFeedViewModel
     let type: TVShowFeedType
-    let detailRouteBuilder: (Int) -> Route
+    let detailRouteBuilder: (Int, DiscoverMediaType) -> Route
+
+    private var mediaType: DiscoverMediaType {
+        switch type {
+        case .discoverWithTVGenre:
+            return .tv
+        case .discoverWithGenre, .discoverWithCast, .discover:
+            return .movie
+        case .airingToday, .onTheAir:
+            return .tv
+        }
+    }
 
     var body: some View {
         Group {
@@ -30,7 +42,7 @@ struct TVShowListPageContent<Route: Hashable>: View {
                 Text(errorMessage)
                     .id("errorView")
             } else {
-                TVShowListContent(movies: viewModel.movies, detailRouteBuilder: detailRouteBuilder)
+                TVShowListContent(movies: viewModel.movies, mediaType: mediaType, detailRouteBuilder: detailRouteBuilder)
                     .id("movieListContent")
             }
         }
@@ -45,6 +57,6 @@ struct TVShowListPageContent<Route: Hashable>: View {
 #if DEBUG
 @available(iOS 16.0, *)
 #Preview {
-    TVShowListContent(movies: Movie.exampleMovies, detailRouteBuilder: { _ in 0 })
+    TVShowListContent(movies: Movie.exampleMovies, mediaType: .movie, detailRouteBuilder: { _, _ in 0 })
 }
 #endif

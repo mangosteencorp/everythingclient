@@ -15,7 +15,7 @@ public struct TMDBDiscoverDemoView: View {
                         container: Container(),
                         apiKey: debugTMDBAPIKey,
                         type: .airingToday,
-                        detailRouteBuilder: { _ in 1 })
+                        detailRouteBuilder: { _,_ in 1 })
                     .tag(0)
                     .tabItem {
                         Label("First View", systemImage: "house")
