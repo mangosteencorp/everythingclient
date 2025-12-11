@@ -62,7 +62,11 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 }
             }
             .listStyle(PlainListStyle())
+#if os(macOS)
+            .navigationTitle(getMovie().userTitle)
+#else
             .navigationBarTitle(Text(getMovie().userTitle), displayMode: .large)
+#endif
         }.onFirstAppear {
             movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
             watchProvidersViewModel.fetchWatchProviders(movieId: movie.id)

@@ -1,7 +1,7 @@
 import SwiftUI
 import Swinject
 import TMDB_Shared_Backend
-@available(iOS 16, *)
+@available(iOS 16, macOS 13, *)
 public struct HomeDiscoverView<Route: Hashable>: View {
     @StateObject var viewModel: HomeDiscoverViewModel
     let detailRouteBuilder: (Int) -> Route
@@ -41,6 +41,7 @@ public struct HomeDiscoverView<Route: Hashable>: View {
     }
 
     public var body: some View {
+#if canImport(UIKit)
         HomeDiscoverViewControllerRepresentable(
             viewModel: viewModel,
             onItemTapped: onItemTapped,
@@ -49,9 +50,20 @@ public struct HomeDiscoverView<Route: Hashable>: View {
             onCastTapped: onCastTapped,
             onTrendingItemTapped: onTrendingItemTapped
         )
+#elseif canImport(AppKit)
+        HomeDiscoverMacViewControllerRepresentable(
+            viewModel: viewModel,
+            onItemTapped: onItemTapped,
+            onGenreTapped: onGenreTapped,
+            onTVGenreTapped: onTVGenreTapped,
+            onCastTapped: onCastTapped,
+            onTrendingItemTapped: onTrendingItemTapped
+        )
+#endif
     }
 }
 
+#if canImport(UIKit)
 @available(iOS 16, *)
 struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
     let viewModel: HomeDiscoverViewModel
@@ -75,3 +87,31 @@ struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
         // Updates handled by the view model
     }
 }
+#endif
+
+#if canImport(AppKit)
+@available(macOS 13, *)
+struct HomeDiscoverMacViewControllerRepresentable: NSViewControllerRepresentable {
+    let viewModel: HomeDiscoverViewModel
+    let onItemTapped: () -> Void
+    let onGenreTapped: (Genre) -> Void
+    let onTVGenreTapped: (Genre) -> Void
+    let onCastTapped: (PopularPerson) -> Void
+    let onTrendingItemTapped: (TrendingItem) -> Void
+
+    func makeNSViewController(context: Context) -> HomeDiscoverViewController {
+        let viewController = HomeDiscoverViewController(viewModel: viewModel)
+        viewController.onItemTapped = onItemTapped
+        viewController.onGenreTapped = onGenreTapped
+        viewController.onTVGenreTapped = onTVGenreTapped
+        viewController.onCastTapped = onCastTapped
+        viewController.onTrendingItemTapped = onTrendingItemTapped
+        return viewController
+    }
+
+    func updateNSViewController(_ nsViewController: HomeDiscoverViewController, context: Context) {
+        // Updates handled by the view model
+    }
+}
+#endif
+

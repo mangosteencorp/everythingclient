@@ -1,5 +1,12 @@
 import Foundation
+import Shared_UI_Support
+#if canImport(UIKit)
 import UIKit
+
+#elseif canImport(AppKit)
+import AppKit
+
+#endif
 
 public final class PokelistPresenter: PokelistPresenterProtocol {
     public init() {}
@@ -27,7 +34,7 @@ public final class PokelistPresenter: PokelistPresenterProtocol {
     }
 
     public func didSelectPokemon(at index: Int) {
-        router?.navigateToPokemonDetail(from: view as? UIViewController, with: getPokemons()[index].id)
+        router?.navigateToPokemonDetail(from: view as? PlatformViewController, with: getPokemons()[index].id)
     }
 }
 

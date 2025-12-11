@@ -1,9 +1,9 @@
 import Pokedex_Shared_Backend
 import Shared_UI_Support
 import SwiftUI
-
 #if DEBUG
 let pokemonService = PokemonService.shared
+#if canImport(UIKit)
 class ExamplePokelistRouter: PokelistRouterProtocol {
     static func createModule(pokemonService: Pokedex_Shared_Backend.PokemonService) -> UIViewController {
         let presenter = PokelistPresenter()
@@ -26,4 +26,5 @@ class ExamplePokelistRouter: PokelistRouterProtocol {
         ExamplePokelistRouter.createModule(pokemonService: pokemonService)
     }
 }
+#endif
 #endif

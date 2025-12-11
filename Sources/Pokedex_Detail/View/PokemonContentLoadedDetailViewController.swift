@@ -1,8 +1,19 @@
 import Kingfisher
 import Pokedex_Shared_Backend
+#if canImport(UIKit)
 import Shared_UI_Support
 import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
+#if canImport(UIKit)
+
+@MainActor
 class DetailDesign2ViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollV = UIScrollView()
@@ -280,34 +291,10 @@ class DetailDesign2ViewController: UIViewController {
     }
 }
 
-#if DEBUG
-import SwiftUI
-
-#Preview {
+#if DEBUG && canImport(SwiftUI)
+#Preview("iOS Loaded Detail View") {
     UIViewControllerPreview {
-        let pokemon = PokemonDetail(
-            id: 10,
-            name: "Caterpie",
-            imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif",
-            weight: 29,
-            speciesId: 10,
-            moves: [
-                .init(id: 1, moveId: 1, name: "Tackle"),
-                .init(id: 2, moveId: 2, name: "String Shot"),
-                .init(id: 3, moveId: 3, name: "Bug Bite"),
-                .init(id: 4, moveId: 4, name: "Electroweb"),
-            ],
-            abilities: [
-                .init(abilityId: 1, name: "Shield Dust"),
-                .init(abilityId: 2, name: "Run Away"),
-            ],
-            stats: [
-                .init(statId: 1, baseStat: 45, effort: 1, name: "hp"),
-                .init(statId: 2, baseStat: 30, effort: 0, name: "attack"),
-                .init(statId: 3, baseStat: 35, effort: 0, name: "defense"),
-                .init(statId: 6, baseStat: 45, effort: 0, name: "speed"),
-            ]
-        )
+        let pokemon = PokemonDetail.previewSample
         let navVC = UINavigationController(rootViewController: UIViewController())
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             navVC.pushViewController(DetailDesign2ViewController(pokemon: pokemon), animated: false)
@@ -316,3 +303,190 @@ import SwiftUI
     }
 }
 #endif
+
+#elseif canImport(AppKit)
+
+@MainActor
+final class DetailDesign2ViewController: NSViewController {
+    private let pokemon: PokemonDetailModel
+
+    init(pokemon: PokemonDetailModel) {
+        self.pokemon = pokemon
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = NSView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+        embedSwiftUIView()
+    }
+
+    private func embedSwiftUIView() {
+        let hostingView = NSHostingView(rootView: PokemonLoadedDetailMacView(pokemon: pokemon))
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingView)
+
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+    }
+}
+
+private struct PokemonLoadedDetailMacView: View {
+    let pokemon: PokemonDetailModel
+
+    private struct StatDisplay: Identifiable {
+        let id = UUID()
+        let label: String
+        let value: Int
+        let color: Color
+    }
+
+    private var statDisplays: [StatDisplay] {
+        let mapping: [String: (String, Color)] = [
+            "hp": ("HP", Color(red: 255 / 255, green: 89 / 255, blue: 89 / 255)),
+            "attack": ("ATK", Color(red: 245 / 255, green: 172 / 255, blue: 120 / 255)),
+            "defense": ("DEF", Color(red: 250 / 255, green: 224 / 255, blue: 120 / 255)),
+            "speed": ("SPD", Color(red: 250 / 255, green: 146 / 255, blue: 178 / 255)),
+        ]
+
+        return pokemon.stats.compactMap { stat in
+            guard let (label, color) = mapping[stat.name] else { return nil }
+            return StatDisplay(label: label, value: stat.baseStat, color: color)
+        }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                header
+
+                SectionCard {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Base Stats")
+                            .font(.headline)
+                        VStack(spacing: 12) {
+                            ForEach(statDisplays) { stat in
+                                PokemonStatBar(label: stat.label, value: stat.value, color: stat.color)
+                            }
+                        }
+                    }
+                }
+
+                SectionCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Abilities")
+                            .font(.headline)
+                        ForEach(pokemon.abilities, id: \.abilityId) { ability in
+                            Text(ability.name.capitalized)
+                                .font(.system(size: 14))
+                        }
+                    }
+                }
+
+                SectionCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Moves")
+                            .font(.headline)
+                        ForEach(Array(pokemon.moves.prefix(4)), id: \.moveId) { move in
+                            Text(move.name.capitalized)
+                                .font(.system(size: 14))
+                        }
+                    }
+                }
+            }
+            .padding(24)
+        }
+        .background(Color(nsColor: NSColor.windowBackgroundColor))
+    }
+
+    private var header: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(red: 152 / 255, green: 251 / 255, blue: 152 / 255))
+                .frame(height: 220)
+
+            VStack(spacing: 12) {
+                Text("\(pokemon.name) #\(String(format: "%03d", pokemon.id))")
+                    .font(.system(size: 26, weight: .bold))
+                    .foregroundColor(.black)
+
+                if let url = URL(string: pokemon.imageURL) {
+                    KFImage(url)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 140, height: 140)
+                }
+            }
+        }
+    }
+}
+
+private struct SectionCard<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            content
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(nsColor: NSColor.controlBackgroundColor))
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        )
+    }
+}
+
+private struct PokemonStatBar: View {
+    let label: String
+    let value: Int
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Text(label)
+                .font(.system(size: 12, weight: .bold))
+                .frame(width: 40, alignment: .leading)
+
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.gray.opacity(0.2))
+                    Capsule()
+                        .fill(color)
+                        .frame(width: max(0, min(CGFloat(value) / 100, 1)) * geometry.size.width)
+                }
+            }
+            .frame(height: 16)
+
+            Text("\(value)")
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 40, alignment: .leading)
+        }
+    }
+}
+
+#if DEBUG && canImport(SwiftUI)
+#Preview("macOS Loaded Detail View") {
+    PokemonLoadedDetailMacView(pokemon: PokemonDetail.previewSample)
+        .frame(width: 600, height: 900)
+}
+#endif
+
+#endif
+

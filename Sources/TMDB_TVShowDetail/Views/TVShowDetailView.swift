@@ -3,7 +3,7 @@ import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
-@available(iOS 15, *)
+@available(iOS 15, macOS 12, *)
 public struct TVShowDetailView: View {
     // MARK: - Store / StateObject
 
@@ -67,12 +67,20 @@ public struct TVShowDetailView: View {
 //            .onChange(of: store.state) { newValue in
 //                print("[TVShowDetail] state changed: \(newValue)")
 //            }
+#if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     ThemeSwitchButton()
                 }
             }
+#elseif os(macOS)
+            .toolbar {
+                ToolbarItem(placement: .automatic) {
+                    ThemeSwitchButton()
+                }
+            }
+#endif
     }
 
     // MARK: - Content View

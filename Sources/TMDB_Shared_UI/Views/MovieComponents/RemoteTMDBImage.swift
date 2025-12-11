@@ -2,6 +2,14 @@ import Combine
 import SwiftUI
 import TMDB_Shared_Backend
 
+#if canImport(UIKit)
+import UIKit
+typealias PlatformImage = UIImage
+#elseif canImport(AppKit)
+import AppKit
+typealias PlatformImage = NSImage
+#endif
+
 public struct RemoteTMDBImage: View {
     let posterPath: String?
     let posterSize: PosterSize
@@ -16,7 +24,7 @@ public struct RemoteTMDBImage: View {
 
     public var body: some View {
         if let posterPath = posterPath, let url = imageSize.buildImageUrl(path: posterPath) {
-            if #available(iOS 15.0, *) {
+            if #available(iOS 15.0, macOS 12.0, *) {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .empty:
@@ -47,7 +55,7 @@ public struct RemoteTMDBImage: View {
 
 struct ImageView: View {
     @ObservedObject var imageLoader: ImageLoader
-    @State var image: UIImage = .init()
+    @State var image: PlatformImage = .init()
     let posterSize: PosterSize
 
     init(url: URL, posterSize: PosterSize) {
@@ -56,13 +64,23 @@ struct ImageView: View {
     }
 
     var body: some View {
+        #if canImport(UIKit)
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: posterSize.width, height: posterSize.height)
             .onReceive(imageLoader.didChange) { data in
-                self.image = UIImage(data: data) ?? UIImage()
+                self.image = PlatformImage(data: data) ?? PlatformImage()
             }
+        #elseif canImport(AppKit)
+        Image(nsImage: image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: posterSize.width, height: posterSize.height)
+            .onReceive(imageLoader.didChange) { data in
+                self.image = PlatformImage(data: data) ?? PlatformImage()
+            }
+        #endif
     }
 }
 

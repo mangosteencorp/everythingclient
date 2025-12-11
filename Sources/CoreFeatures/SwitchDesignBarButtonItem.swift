@@ -34,11 +34,19 @@ public struct SwitchDesignToolbarItem: ToolbarContent {
     }
 
     public var body: some ToolbarContent {
+        #if os(macOS)
+        ToolbarItem(placement: .automatic) {
+            Button(action: action) {
+                Image(systemName: "arrow.left.arrow.right")
+            }
+        }
+        #else
         ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: action) {
                 Image(systemName: "arrow.left.arrow.right")
             }
         }
+        #endif
     }
 }
 
@@ -51,3 +59,4 @@ public extension View {
 }
 
 #endif
+

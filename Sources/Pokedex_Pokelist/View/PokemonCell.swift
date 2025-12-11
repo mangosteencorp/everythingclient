@@ -1,6 +1,8 @@
 import Kingfisher
 import Pokedex_Shared_Backend
 import Shared_UI_Support
+
+#if canImport(UIKit)
 import UIKit
 
 class PokemonCell: UICollectionViewCell {
@@ -98,3 +100,95 @@ class PokemonCell: UICollectionViewCell {
         }
     }
 }
+
+#elseif canImport(AppKit)
+import AppKit
+
+final class PokemonCell: NSCollectionViewItem {
+    static let reuseIdentifier = NSUserInterfaceItemIdentifier("PokemonCell")
+
+    private let spriteImageView: NSImageView = {
+        let imageView = NSImageView()
+        imageView.imageScaling = .scaleProportionallyUpOrDown
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
+    private let nameLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "")
+        label.alignment = .center
+        label.font = FontFamily.Pixelmix.regular.font(size: 14)
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let idLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "")
+        label.alignment = .right
+        label.font = FontFamily.Pixelmix.regular.font(size: 12)
+        label.textColor = NSColor.white.withAlphaComponent(0.8)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    override func loadView() {
+        view = NSView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupView()
+    }
+
+    private func setupView() {
+        view.wantsLayer = true
+        view.layer?.cornerRadius = 14
+        view.layer?.masksToBounds = true
+        view.layer?.backgroundColor = NSColor.systemGray.cgColor
+
+        [spriteImageView, nameLabel, idLabel].forEach { subview in
+            view.addSubview(subview)
+        }
+
+        NSLayoutConstraint.activate([
+            spriteImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            spriteImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -16),
+            spriteImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7),
+            spriteImageView.heightAnchor.constraint(equalTo: spriteImageView.widthAnchor),
+
+            idLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 8),
+            idLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+
+            nameLabel.topAnchor.constraint(equalTo: spriteImageView.bottomAnchor, constant: 8),
+            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -8),
+        ])
+    }
+
+    func configure(with pokemon: PokemonEntity) {
+        nameLabel.stringValue = pokemon.name.capitalized
+        idLabel.stringValue = String(format: "#%03d", pokemon.id)
+        view.layer?.backgroundColor = NSColor.systemGray.cgColor
+
+        if let url = URL(string: pokemon.imageURL) {
+            spriteImageView.kf.setImage(with: url) { [weak self] result in
+                guard let self else { return }
+                switch result {
+                case let .success(value):
+                    let avgColor = value.image.dominantColor ?? NSColor.systemBlue
+                    DispatchQueue.main.async {
+                        self.view.layer?.backgroundColor = avgColor.cgColor
+                    }
+                case .failure:
+                    DispatchQueue.main.async {
+                        self.view.layer?.backgroundColor = NSColor.systemOrange.cgColor
+                    }
+                }
+            }
+        }
+    }
+}
+
+#endif

@@ -1,8 +1,19 @@
 import Kingfisher
 import Pokedex_Shared_Backend
+#if canImport(UIKit)
 import Shared_UI_Support
 import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
+#if canImport(UIKit)
+
+@MainActor
 class DetailDesign1ViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
@@ -272,12 +283,201 @@ class MoveCell: UICollectionViewCell {
     }
 }
 
-#if DEBUG
-import SwiftUI
-
-#Preview {
+#if DEBUG && canImport(SwiftUI)
+#Preview("iOS Detail View") {
     UIViewControllerPreview {
-        DetailDesign1ViewController(pokemon: PokemonDetail(
+        DetailDesign1ViewController(pokemon: .previewSample)
+    }
+}
+#endif
+
+#elseif canImport(AppKit)
+
+@MainActor
+final class DetailDesign1ViewController: NSViewController {
+    private let pokemon: PokemonDetail
+
+    init(pokemon: PokemonDetail) {
+        self.pokemon = pokemon
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = NSView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+
+        let hostingView = NSHostingView(rootView: PokemonDetailMacView(pokemon: pokemon))
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingView)
+
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+    }
+}
+
+private struct PokemonDetailMacView: View {
+    let pokemon: PokemonDetailModel
+
+    private var displayId: String {
+        String(format: "#%03d", pokemon.id)
+    }
+
+    private var weightText: String {
+        String(format: "%.1f kg", Float(pokemon.weight) / 10.0)
+    }
+
+    private var abilitiesText: String {
+        let names = pokemon.abilities.map(\.name)
+        return names.isEmpty ? "" : "Abilities: \(names.joined(separator: " · "))"
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                Text("Pokémon Details")
+                    .font(.title2.weight(.semibold))
+
+                pokemonImage
+
+                HStack {
+                    Text(pokemon.name)
+                        .font(.system(size: 28, weight: .bold))
+                    Spacer()
+                    Text(displayId)
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack(spacing: 12) {
+                    PokemonInfoBadge(text: weightText)
+                    if !abilitiesText.isEmpty {
+                        PokemonInfoBadge(text: abilitiesText)
+                    }
+                }
+
+                PokemonStatGrid(stats: pokemon.stats)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Moves")
+                        .font(.headline)
+                    PokemonMovesGrid(moves: pokemon.moves)
+                }
+            }
+            .padding(24)
+        }
+        .background(Color(nsColor: NSColor.windowBackgroundColor))
+    }
+
+    @ViewBuilder
+    private var pokemonImage: some View {
+        if let urlString = pokemon.imageURL,
+           let url = URL(string: urlString), !urlString.isEmpty {
+            KFImage(url)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .frame(height: 200)
+        } else {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.gray.opacity(0.2))
+                .frame(height: 200)
+                .overlay(
+                    Image(systemName: "photo")
+                        .foregroundStyle(.secondary)
+                )
+        }
+    }
+}
+
+private struct PokemonInfoBadge: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 14))
+            .foregroundColor(.primary)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(Color(nsColor: NSColor.controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+}
+
+private struct PokemonStatGrid: View {
+    let stats: [PokemonDetail.Stat]
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16),
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 16) {
+            ForEach(stats, id: \.statId) { stat in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(stat.name)
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("\(stat.baseStat)")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(nsColor: NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            }
+        }
+    }
+}
+
+private struct PokemonMovesGrid: View {
+    let moves: [PokemonDetail.Move]
+
+    private let columns = [
+        GridItem(.adaptive(minimum: 120), spacing: 12),
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+            ForEach(moves, id: \.moveId) { move in
+                Text(move.name)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.primary)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .background(Color.green.opacity(0.15))
+                    .clipShape(Capsule())
+            }
+        }
+    }
+}
+
+#if DEBUG && canImport(SwiftUI)
+#Preview("macOS Detail View") {
+    PokemonDetailMacView(pokemon: .previewSample)
+        .frame(width: 600, height: 800)
+}
+#endif
+
+#endif
+
+extension PokemonDetail {
+    static var previewSample: PokemonDetail {
+        PokemonDetail(
             id: 1,
             name: "Caterpie",
             imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif",
@@ -302,7 +502,6 @@ import SwiftUI
                 PokemonDetail.Stat(statId: 5, baseStat: 20, effort: 0, name: "Sp. Def"),
                 PokemonDetail.Stat(statId: 6, baseStat: 45, effort: 0, name: "Speed"),
             ]
-        ))
+        )
     }
 }
-#endif

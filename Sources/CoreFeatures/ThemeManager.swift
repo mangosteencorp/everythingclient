@@ -1,4 +1,9 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 public class ThemeManager: ObservableObject {
     public static let shared = ThemeManager()
@@ -11,7 +16,13 @@ public class ThemeManager: ObservableObject {
 
     private init() {
         // Initialize with a default theme first
+        #if canImport(UIKit)
         let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
+        #elseif canImport(AppKit)
+        let isDarkMode = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        #else
+        let isDarkMode = false
+        #endif
         currentTheme = isDarkMode ? DarkTheme() : LightTheme()
 
         // Then check if user has already selected a theme and update if needed
@@ -55,6 +66,7 @@ public class ThemeManager: ObservableObject {
     }
 
     private func setupAppearanceChangeObserver() {
+        #if canImport(UIKit)
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleTraitCollectionChange),
@@ -69,17 +81,41 @@ public class ThemeManager: ObservableObject {
             name: NSNotification.Name("UITraitCollectionDidChangeNotification"),
             object: nil
         )
+        #elseif canImport(AppKit)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleTraitCollectionChange),
+            name: NSApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(handleTraitCollectionChange),
+            name: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil
+        )
+        #endif
     }
 
     @objc private func handleTraitCollectionChange() {
         // Only update theme based on system if user hasn't explicitly chosen a theme
         if !hasUserSelectedTheme {
+            #if canImport(UIKit)
             let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
+            #elseif canImport(AppKit)
+            let isDarkMode = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            #else
+            let isDarkMode = false
+            #endif
             currentTheme = isDarkMode ? DarkTheme() : LightTheme()
         }
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
+        #if canImport(AppKit)
+        DistributedNotificationCenter.default().removeObserver(self)
+        #endif
     }
 }

@@ -1,5 +1,12 @@
 import Pokedex_Shared_Backend
+import Shared_UI_Support
+#if canImport(UIKit)
 import UIKit
+
+#elseif canImport(AppKit)
+import AppKit
+
+#endif
 
 // MARK: - View
 
@@ -41,6 +48,6 @@ public protocol PokelistInteractorOutputProtocol: AnyObject {
 // MARK: - Router
 
 public protocol PokelistRouterProtocol: AnyObject {
-    static func createModule(pokemonService: PokemonService) -> UIViewController
-    func navigateToPokemonDetail(from view: UIViewController?, with id: Int)
+    static func createModule(pokemonService: PokemonService) -> PlatformViewController
+    func navigateToPokemonDetail(from view: PlatformViewController?, with id: Int)
 }

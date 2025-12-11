@@ -1,7 +1,6 @@
 import Kingfisher
 import Shared_UI_Support
 import TMDB_Shared_Backend
-import UIKit
 
 protocol ProfileContentViewControllerDelegate: AnyObject {
     func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController)
@@ -13,6 +12,9 @@ enum ProfileContentSection: Int {
     case favoriteTV = 2
     case favoriteMovie = 3
 }
+
+#if canImport(UIKit)
+import UIKit
 
 class ProfileContentViewController: UIViewController, MultiSectionViewControllerDelegate {
     weak var delegate: ProfileContentViewControllerDelegate?
@@ -107,7 +109,6 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
             headerStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
 
-        // Setup sections
         setupSections()
     }
 
@@ -116,81 +117,12 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         usernameLabel.text = "@\(profile.accountInfo.username)"
 
         if let avatarPath = profile.accountInfo.avatarPath {
-            // Here you would load the avatar image using your image loading system
-            // For example: imageLoader.loadImage(path: avatarPath, into: avatarImageView)
             avatarImageView.kf.setImage(with: TMDBImageSize.original.buildImageUrl(path: avatarPath))
         }
     }
 
     private func setupSections() {
-        var sections: [Section<ProfileCollectionItem>] = []
-        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
-        // Add watchlist section (featured)
-        if let watchlist = profile.watchlistTVShows {
-            let watchlistItems = watchlist.map { show in
-                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
-                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
-                return ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: imageUrl,
-                    name: show.name,
-                    tagline: "TV Show",
-                    subheading: "First aired: \(show.firstAirDate)"
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.watchlistTV.rawValue,
-                type: .featured,
-                title: "Watchlist",
-                subtitle: "Shows you want to watch",
-                items: watchlistItems
-            ))
-        }
-
-        // Add favorite TV shows section (mediumTable)
-        if let favoriteTVShows = profile.favoriteTVShows {
-            let tvShowItems = favoriteTVShows.map { show in
-                ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: show.name,
-                    tagline: String(format: "%.1f★", show.voteAverage),
-                    subheading: show.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteTV.rawValue,
-                type: .mediumTable,
-                title: "Favorite TV Shows",
-                subtitle: "Your top picks",
-                items: tvShowItems
-            ))
-        }
-
-        // Add favorite movies section (mediumTable)
-        if let favoriteMovies = profile.favoriteMovies {
-            let movieItems = favoriteMovies.map { movie in
-                ProfileCollectionItem(
-                    id: movie.id,
-                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: movie.title,
-                    tagline: String(format: "%.1f★", movie.voteAverage),
-                    subheading: movie.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteMovie.rawValue,
-                type: .mediumTable,
-                title: "Favorite Movies",
-                subtitle: "Your movie collection",
-                items: movieItems
-            ))
-        }
+        let sections = ProfileSectionsBuilder.sections(from: profile)
 
         let multiSectionVC = MultiSectionViewController(sections: sections, delegate: self)
         addChild(multiSectionVC)
@@ -211,18 +143,12 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         multiSectionVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         multiSectionVC.didMove(toParent: self)
 
-        multiSectionViewController = multiSectionVC
-
-        // Setup pull-to-refresh
-        setupPullToRefresh()
-    }
-
-    private func setupPullToRefresh() {
-        guard let multiSectionVC = multiSectionViewController else { return }
         multiSectionVC.setupRefreshControl { [weak self] in
             guard let self = self else { return }
             self.delegate?.profileContentViewControllerDidRefresh(self)
         }
+
+        multiSectionViewController = multiSectionVC
     }
 
     func updateProfile(_ newProfile: ProfileEntity) {
@@ -239,76 +165,7 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
     }
 
     private func updateSections(with profile: ProfileEntity) {
-        var sections: [Section<ProfileCollectionItem>] = []
-        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
-
-        // Add watchlist section (featured)
-        if let watchlist = profile.watchlistTVShows {
-            let watchlistItems = watchlist.map { show in
-                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
-                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
-                return ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: imageUrl,
-                    name: show.name,
-                    tagline: "TV Show",
-                    subheading: "First aired: \(show.firstAirDate)"
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.watchlistTV.rawValue,
-                type: .featured,
-                title: "Watchlist",
-                subtitle: "Shows you want to watch",
-                items: watchlistItems
-            ))
-        }
-
-        // Add favorite TV shows section (mediumTable)
-        if let favoriteTVShows = profile.favoriteTVShows {
-            let tvShowItems = favoriteTVShows.map { show in
-                ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: show.name,
-                    tagline: String(format: "%.1f★", show.voteAverage),
-                    subheading: show.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteTV.rawValue,
-                type: .mediumTable,
-                title: "Favorite TV Shows",
-                subtitle: "Your top picks",
-                items: tvShowItems
-            ))
-        }
-
-        // Add favorite movies section (mediumTable)
-        if let favoriteMovies = profile.favoriteMovies {
-            let movieItems = favoriteMovies.map { movie in
-                ProfileCollectionItem(
-                    id: movie.id,
-                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: movie.title,
-                    tagline: String(format: "%.1f★", movie.voteAverage),
-                    subheading: movie.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteMovie.rawValue,
-                type: .mediumTable,
-                title: "Favorite Movies",
-                subtitle: "Your movie collection",
-                items: movieItems
-            ))
-        }
-
+        let sections = ProfileSectionsBuilder.sections(from: profile)
         multiSectionViewController?.updateSections(sections)
     }
 
@@ -340,20 +197,10 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
     }
 }
 
-// MARK: - Profile Collection Item
-
-struct ProfileCollectionItem: CollectionItem {
-    let id: Int
-    let imageURL: URL
-    let name: String
-    let tagline: String
-    let subheading: String
-}
-
-// swiftlint:disable all
 #if DEBUG
 import SwiftUI
 
+// swiftlint:disable all
 let sampleProfileEntity = ProfileEntity(
     accountInfo: AccountInfoEntity(
         id: 21_446_814,
@@ -431,6 +278,293 @@ struct ProfileContentViewController_Previews: PreviewProvider {
         }
     }
 }
-
-#endif
 // swiftlint:enable all
+#endif
+
+#elseif canImport(AppKit)
+import AppKit
+import SwiftUI
+
+class ProfileContentViewController: NSViewController, MultiSectionViewControllerDelegate {
+    weak var delegate: ProfileContentViewControllerDelegate?
+    weak var coordinator: ProfilePageVCView.Coordinator?
+    private let profile: ProfileEntity
+    private var currentProfile: ProfileEntity
+    private var multiSectionViewController: MultiSectionViewController<ProfileCollectionItem>?
+
+    private let avatarImageView: NSImageView = {
+        let imageView = NSImageView()
+        imageView.wantsLayer = true
+        imageView.layer?.cornerRadius = 40
+        imageView.layer?.masksToBounds = true
+        imageView.imageScaling = .scaleProportionallyUpOrDown
+        imageView.layer?.borderWidth = 3
+        imageView.layer?.borderColor = NSColor.windowBackgroundColor.cgColor
+        return imageView
+    }()
+
+    private let nameLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "")
+        label.font = .boldSystemFont(ofSize: 22)
+        label.alignment = .center
+        return label
+    }()
+
+    private let usernameLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "")
+        label.font = .systemFont(ofSize: 15)
+        label.textColor = .secondaryLabelColor
+        label.alignment = .center
+        return label
+    }()
+
+    private lazy var signOutButton: NSButton = {
+        let button = NSButton(title: "Sign Out", target: self, action: #selector(signOutTapped))
+        button.bezelStyle = .rounded
+        button.contentTintColor = .systemRed
+        return button
+    }()
+
+    private let headerStack: NSStackView = {
+        let stack = NSStackView()
+        stack.orientation = .vertical
+        stack.spacing = 6
+        stack.alignment = .centerX
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+
+    private let headerBackground: NSView = {
+        let view = NSView()
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private let contentContainer: NSView = {
+        let view = NSView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    init(profile: ProfileEntity) {
+        self.profile = profile
+        currentProfile = profile
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = NSView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        configureWithProfile()
+    }
+
+    private func setupViews() {
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+
+        view.addSubview(headerBackground)
+        headerBackground.addSubview(headerStack)
+        view.addSubview(contentContainer)
+
+        headerStack.addArrangedSubview(avatarImageView)
+        headerStack.addArrangedSubview(nameLabel)
+        headerStack.addArrangedSubview(usernameLabel)
+        headerStack.addArrangedSubview(signOutButton)
+
+        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            headerBackground.topAnchor.constraint(equalTo: view.topAnchor),
+            headerBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            headerStack.topAnchor.constraint(equalTo: headerBackground.topAnchor, constant: 16),
+            headerStack.leadingAnchor.constraint(equalTo: headerBackground.leadingAnchor),
+            headerStack.trailingAnchor.constraint(equalTo: headerBackground.trailingAnchor),
+            headerStack.bottomAnchor.constraint(equalTo: headerBackground.bottomAnchor, constant: -12),
+
+            avatarImageView.widthAnchor.constraint(equalToConstant: 80),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 80),
+
+            contentContainer.topAnchor.constraint(equalTo: headerBackground.bottomAnchor, constant: 20),
+            contentContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            contentContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            contentContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+
+        setupSections()
+    }
+
+    private func configureWithProfile() {
+        nameLabel.stringValue = profile.accountInfo.name
+        usernameLabel.stringValue = "@\(profile.accountInfo.username)"
+
+        if let avatarPath = profile.accountInfo.avatarPath {
+            avatarImageView.kf.setImage(with: TMDBImageSize.original.buildImageUrl(path: avatarPath))
+        }
+    }
+
+    private func setupSections() {
+        let sections = ProfileSectionsBuilder.sections(from: profile)
+        let multiSectionVC = MultiSectionViewController(sections: sections, delegate: self)
+
+        addChild(multiSectionVC)
+
+        let sectionsView = multiSectionVC.view
+        sectionsView.translatesAutoresizingMaskIntoConstraints = false
+        contentContainer.addSubview(sectionsView)
+
+        NSLayoutConstraint.activate([
+            sectionsView.topAnchor.constraint(equalTo: contentContainer.topAnchor),
+            sectionsView.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor),
+            sectionsView.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
+            sectionsView.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
+        ])
+
+        
+        multiSectionVC.setupRefreshControl { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileContentViewControllerDidRefresh(self)
+        }
+
+        multiSectionViewController = multiSectionVC
+    }
+
+    func updateProfile(_ newProfile: ProfileEntity) {
+        currentProfile = newProfile
+        nameLabel.stringValue = newProfile.accountInfo.name
+        usernameLabel.stringValue = "@\(newProfile.accountInfo.username)"
+
+        if let avatarPath = newProfile.accountInfo.avatarPath {
+            avatarImageView.kf.setImage(with: TMDBImageSize.original.buildImageUrl(path: avatarPath))
+        }
+
+        updateSections(with: newProfile)
+        multiSectionViewController?.endRefreshing()
+    }
+
+    private func updateSections(with profile: ProfileEntity) {
+        let sections = ProfileSectionsBuilder.sections(from: profile)
+        multiSectionViewController?.updateSections(sections)
+    }
+
+    @objc private func signOutTapped() {
+        delegate?.profileContentViewControllerDidTapSignOut(self)
+    }
+
+    func didSelectItem<ProfileCollectionItem>(
+        _ item: ProfileCollectionItem,
+        in section: Section<ProfileCollectionItem>
+    ) {
+        switch section.id {
+        case ProfileContentSection.favoriteMovie.rawValue:
+            if let favMov = profile.favoriteMovies?.first(where: { $0.id == item.id }) {
+                coordinator?.navigateToMovie(favMov.id)
+            }
+        case ProfileContentSection.favoriteTV.rawValue, ProfileContentSection.watchlistTV.rawValue:
+            if let tvShow = (
+                profile.favoriteTVShows?.first(where: { $0.id == item.id }) ??
+                    profile.watchlistTVShows?.first(where: { $0.id == item.id })
+            ) {
+                coordinator?.navigateToTVShow(tvShow.id)
+            }
+        default:
+            break
+        }
+    }
+}
+#endif
+
+private enum ProfileSectionsBuilder {
+    static func sections(from profile: ProfileEntity) -> [Section<ProfileCollectionItem>] {
+        var sections: [Section<ProfileCollectionItem>] = []
+        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
+
+        if let watchlist = profile.watchlistTVShows {
+            let watchlistItems = watchlist.map { show in
+                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
+                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
+                return ProfileCollectionItem(
+                    id: show.id,
+                    imageURL: imageUrl,
+                    name: show.name,
+                    tagline: "TV Show",
+                    subheading: "First aired: \(show.firstAirDate)"
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.watchlistTV.rawValue,
+                type: .featured,
+                title: "Watchlist",
+                subtitle: "Shows you want to watch",
+                items: watchlistItems
+            ))
+        }
+
+        if let favoriteTVShows = profile.favoriteTVShows {
+            let tvShowItems = favoriteTVShows.map { show in
+                ProfileCollectionItem(
+                    id: show.id,
+                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
+                    name: show.name,
+                    tagline: String(format: "%.1f★", show.voteAverage),
+                    subheading: show.overview
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.favoriteTV.rawValue,
+                type: .mediumTable,
+                title: "Favorite TV Shows",
+                subtitle: "Your top picks",
+                items: tvShowItems
+            ))
+        }
+
+        if let favoriteMovies = profile.favoriteMovies {
+            let movieItems = favoriteMovies.map { movie in
+                ProfileCollectionItem(
+                    id: movie.id,
+                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
+                    name: movie.title,
+                    tagline: String(format: "%.1f★", movie.voteAverage),
+                    subheading: movie.overview
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.favoriteMovie.rawValue,
+                type: .mediumTable,
+                title: "Favorite Movies",
+                subtitle: "Your movie collection",
+                items: movieItems
+            ))
+        }
+
+        return sections
+    }
+}
+
+// MARK: - Profile Collection Item
+
+struct ProfileCollectionItem: CollectionItem {
+    let id: Int
+    let imageURL: URL
+    let name: String
+    let tagline: String
+    let subheading: String
+}

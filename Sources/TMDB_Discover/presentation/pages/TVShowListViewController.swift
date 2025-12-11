@@ -1,6 +1,5 @@
 #if canImport(UIKit)
 import UIKit
-#endif
 import Combine
 import CoreFeatures
 import Shared_UI_Support
@@ -287,4 +286,290 @@ private class MockFetchFavoriteTVShowsUseCase: FetchFavoriteTVShowsUseCase {
         return .success([889_737, 1_100_782])
     }
 }
+#endif
+
+#elseif canImport(AppKit)
+import AppKit
+import Combine
+import SwiftUI
+import CoreFeatures
+import Shared_UI_Support
+import TMDB_Shared_Backend
+
+final class TVShowListViewController: NSViewController {
+    private let viewModel: TVFeedViewModel
+    private var movies: [Movie] = []
+    private let adapter = TVShowListMacAdapter()
+    private var hostingView: NSHostingView<TVShowListMacView>?
+    private var cancellables = Set<AnyCancellable>()
+    private var searchCancellable: AnyCancellable?
+
+    init(viewModel: TVFeedViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = NSView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupView()
+        setupBindings()
+        viewModel.fetchMovies()
+    }
+
+    private func setupView() {
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+
+        let contentView = TVShowListMacView(
+            adapter: adapter,
+            onSelect: { movie in
+                print("Selected movie: \(movie.title)")
+            },
+            onFavorite: { [weak self] movie in
+                Task {
+                    await self?.viewModel.toggleFavorite(for: movie.id)
+                }
+            },
+            onRefresh: { [weak self] in
+                self?.viewModel.fetchMovies()
+            }
+        )
+
+        let hosting = NSHostingView(rootView: contentView)
+        hosting.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hosting)
+
+        NSLayoutConstraint.activate([
+            hosting.topAnchor.constraint(equalTo: view.topAnchor),
+            hosting.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hosting.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hosting.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+
+        hostingView = hosting
+
+        searchCancellable = adapter.$searchText
+            .removeDuplicates()
+            .debounce(for: .milliseconds(200), scheduler: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.applyFilter()
+            }
+    }
+
+    private func setupBindings() {
+        viewModel.$movies
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] movies in
+                guard let self else { return }
+                self.movies = movies
+                self.applyFilter()
+            }
+            .store(in: &cancellables)
+
+        viewModel.$isLoading
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isLoading in
+                self?.adapter.isLoading = isLoading
+            }
+            .store(in: &cancellables)
+
+        viewModel.$errorMessage
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                self?.adapter.presentedError = TVShowListError(message: message)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func applyFilter() {
+        let query = adapter.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let filtered: [Movie]
+
+        if query.isEmpty {
+            filtered = movies
+        } else {
+            filtered = movies.filter { movie in
+                movie.title.lowercased().contains(query.lowercased()) ||
+                movie.overview.lowercased().contains(query.lowercased())
+            }
+        }
+
+        adapter.displayMovies = filtered
+    }
+}
+
+private final class TVShowListMacAdapter: ObservableObject {
+    @Published var searchText: String = ""
+    @Published var displayMovies: [Movie] = []
+    @Published var isLoading = false
+    @Published var presentedError: TVShowListError?
+}
+
+private struct TVShowListError: Identifiable {
+    let id = UUID()
+    let message: String
+}
+
+private struct TVShowListMacView: View {
+    @ObservedObject var adapter: TVShowListMacAdapter
+    var onSelect: (Movie) -> Void
+    var onFavorite: (Movie) -> Void
+    var onRefresh: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            searchBar
+            Divider()
+            ScrollView {
+                LazyVStack(spacing: 12, pinnedViews: []) {
+                    if adapter.displayMovies.isEmpty {
+                        Text("No TV shows match your filters.")
+                            .foregroundColor(.secondary)
+                            .padding(.top, 80)
+                    } else {
+                        ForEach(adapter.displayMovies, id: \.id) { movie in
+                            TVShowRowView(movie: movie, onFavorite: { onFavorite(movie) })
+                                .onTapGesture { onSelect(movie) }
+                        }
+                    }
+                }
+                .padding(16)
+            }
+        }
+        .background(Color(NSColor.windowBackgroundColor))
+        .overlay {
+            if adapter.isLoading {
+                ProgressView("Loading TV shows...")
+                    .padding(24)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+        }
+        .alert(item: $adapter.presentedError) { error in
+            Alert(
+                title: Text("Something went wrong"),
+                message: Text(error.message),
+                dismissButton: .default(Text("OK")) {
+                    adapter.presentedError = nil
+                }
+            )
+        }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+            TextField("Filter...", text: $adapter.searchText)
+                .textFieldStyle(.roundedBorder)
+            Button(action: onRefresh) {
+                Image(systemName: "arrow.clockwise")
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(16)
+    }
+}
+
+private struct TVShowRowView: View {
+    let movie: Movie
+    var onFavorite: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            MoviePosterView(path: movie.posterPath)
+                .frame(width: 90, height: 130)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(movie.title)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+
+                Text(movie.overview.isEmpty ? "No overview available" : movie.overview)
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .lineLimit(3)
+
+                HStack {
+                    Label(
+                        String(format: "%.1f★", movie.voteAverage),
+                        systemImage: "star.fill"
+                    )
+                    .foregroundColor(.yellow)
+                    .font(.system(size: 12, weight: .medium))
+
+                    if let releaseDate = movie.releaseDate {
+                        Text(releaseDate, style: .date)
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+
+            Spacer()
+
+            Button(action: onFavorite) {
+                Image(systemName: movie.isFavorite ? "heart.fill" : "heart")
+                    .foregroundColor(movie.isFavorite ? .pink : .gray)
+                    .imageScale(.large)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(NSColor.controlBackgroundColor))
+                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+        )
+    }
+}
+
+private struct MoviePosterView: View {
+    let path: String?
+
+    var body: some View {
+        if let path,
+           let url = TMDBImageSize.posterSmall.buildImageUrl(path: path) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case let .success(image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .failure:
+                    placeholder
+                case .empty:
+                    placeholder
+                @unknown default:
+                    placeholder
+                }
+            }
+        } else {
+            placeholder
+        }
+    }
+
+    private var placeholder: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.2))
+            Image(systemName: "photo")
+                .font(.title2)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
 #endif

@@ -63,6 +63,7 @@ public struct DiscoverListPage<Route: Hashable>: View {
 
     public var body: some View {
         Group {
+#if canImport(UIKit)
             if useUIKitView {
                 TVShowListViewControllerRepresentable(viewModel: viewModel)
             } else {
@@ -72,6 +73,13 @@ public struct DiscoverListPage<Route: Hashable>: View {
                     detailRouteBuilder: detailRouteBuilder
                 )
             }
+            #else
+            TVShowListPageContent(
+                viewModel: viewModel,
+                type: type,
+                detailRouteBuilder: detailRouteBuilder
+            )
+            #endif
         }
         .navigationTitle(type.title)
         .accessibilityIdentifier("movieListPage.group")
@@ -82,7 +90,7 @@ public struct DiscoverListPage<Route: Hashable>: View {
         }
     }
 }
-
+#if canImport(UIKit)
 @available(iOS 16.0, *)
 struct TVShowListViewControllerRepresentable: UIViewControllerRepresentable {
     let viewModel: TVFeedViewModel
@@ -95,7 +103,7 @@ struct TVShowListViewControllerRepresentable: UIViewControllerRepresentable {
         // Updates handled by the view model
     }
 }
-
+#endif
 enum APIKeys {
     static var tmdbKey = ""
 }

@@ -1,8 +1,13 @@
 import Foundation
-import Kingfisher
 import Shared_UI_Support
-import SwiftUI
+#if canImport(UIKit)
+import Kingfisher
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+import SwiftUI
+import Combine
+#endif
 
 // MARK: - Section Type Enum
 
@@ -37,6 +42,8 @@ struct Section<T: CollectionItem>: Hashable {
     }
 }
 
+extension Section: Identifiable {}
+
 // MARK: - Delegate Protocol
 
 protocol MultiSectionViewControllerDelegate: AnyObject {
@@ -51,6 +58,7 @@ protocol SelfConfiguringCell {
 }
 
 // MARK: - View Controller
+#if canImport(UIKit)
 
 class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollectionViewDelegate {
     // MARK: Properties
@@ -720,3 +728,311 @@ let sampleSections: [Section<ProfileCollectionItem>] = [
 }
 #endif
 // swiftlint:enable all
+#elseif canImport(AppKit)
+
+class MultiSectionViewController<T: CollectionItem>: NSViewController {
+    private var sections: [Section<T>]
+    private weak var delegate: MultiSectionViewControllerDelegate?
+    private let adapter = SectionLayoutsAdapter<T>()
+    private var hostingView: NSHostingView<MultiSectionMacView<T>>?
+    private var refreshHandler: (() -> Void)?
+
+    init(sections: [Section<T>], delegate: MultiSectionViewControllerDelegate? = nil) {
+        self.sections = sections
+        self.delegate = delegate
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = NSView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupHostingView()
+        adapter.sections = sections
+    }
+
+    private func setupHostingView() {
+        let contentView = MultiSectionMacView(
+            adapter: adapter,
+            onSelectItem: { [weak self] item, section in
+                self?.delegate?.didSelectItem(item, in: section)
+            },
+            onRefresh: { [weak self] in
+                self?.refreshHandler?()
+            }
+        )
+        let hosting = NSHostingView(rootView: contentView)
+        hosting.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hosting)
+
+        NSLayoutConstraint.activate([
+            hosting.topAnchor.constraint(equalTo: view.topAnchor),
+            hosting.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hosting.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hosting.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+
+        hostingView = hosting
+    }
+
+    func updateSections(_ newSections: [Section<T>], animatingDifferences: Bool = true) {
+        sections = newSections
+        adapter.sections = newSections
+    }
+
+    func appendItems(_ items: [T], to section: Section<T>, animatingDifferences: Bool = true) {
+        guard let index = sections.firstIndex(where: { $0.id == section.id }) else { return }
+        let updatedSection = Section(
+            id: section.id,
+            type: section.type,
+            title: section.title,
+            subtitle: section.subtitle,
+            items: section.items + items
+        )
+        sections[index] = updatedSection
+        adapter.sections = sections
+    }
+
+    func deleteItems(_ items: [T], animatingDifferences: Bool = true) {
+        sections = sections.map { section in
+            Section(
+                id: section.id,
+                type: section.type,
+                title: section.title,
+                subtitle: section.subtitle,
+                items: section.items.filter { !items.contains($0) }
+            )
+        }
+        adapter.sections = sections
+    }
+
+    func setupRefreshControl(refreshHandler: @escaping () -> Void) {
+        self.refreshHandler = refreshHandler
+    }
+
+    func endRefreshing() {
+        // No-op on AppKit
+    }
+}
+
+private final class SectionLayoutsAdapter<T: CollectionItem>: ObservableObject {
+    @Published var sections: [Section<T>] = []
+}
+
+private struct MultiSectionMacView<T: CollectionItem>: View {
+    @ObservedObject var adapter: SectionLayoutsAdapter<T>
+    var onSelectItem: (T, Section<T>) -> Void
+    var onRefresh: () -> Void
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 32) {
+                header
+                ForEach(adapter.sections) { section in
+                    SectionHeaderViewMac(section: section)
+                    sectionView(for: section)
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 32)
+        }
+        .background(Color(NSColor.windowBackgroundColor))
+    }
+
+    private var header: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Curated selections")
+                    .font(.title2.bold())
+                Text("View and manage your personalized collections.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            Button(action: onRefresh) {
+                Label("Refresh", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(.top, 24)
+    }
+
+    @ViewBuilder
+    private func sectionView(for section: Section<T>) -> some View {
+        switch section.type {
+        case .featured:
+            FeaturedCarouselView(section: section) { item in
+                onSelectItem(item, section)
+            }
+        case .mediumTable:
+            MediumTableListView(section: section) { item in
+                onSelectItem(item, section)
+            }
+        }
+    }
+}
+
+private struct SectionHeaderViewMac<T: CollectionItem>: View {
+    let section: Section<T>
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(section.title)
+                .font(.title3.bold())
+            Text(section.subtitle)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+private struct FeaturedCarouselView<T: CollectionItem>: View {
+    let section: Section<T>
+    var onSelect: (T) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 20) {
+                ForEach(section.items, id: \.id) { item in
+                    CollectionItemCardView(item: item)
+                        .frame(width: 280, height: 200)
+                        .onTapGesture { onSelect(item) }
+                }
+            }
+            .padding(.vertical, 8)
+        }
+    }
+}
+
+private struct MediumTableListView<T: CollectionItem>: View {
+    let section: Section<T>
+    var onSelect: (T) -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(section.items, id: \.id) { item in
+                CollectionItemRowView(item: item)
+                    .onTapGesture { onSelect(item) }
+            }
+        }
+    }
+}
+
+private struct CollectionItemCardView<T: CollectionItem>: View {
+    let item: T
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            AsyncImage(url: item.imageURL) { phase in
+                switch phase {
+                case let .success(image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .failure:
+                    placeholder
+                case .empty:
+                    placeholder
+                @unknown default:
+                    placeholder
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            LinearGradient(
+                colors: [Color.black.opacity(0.0), Color.black.opacity(0.65)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.tagline.uppercased())
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(.white.opacity(0.85))
+                Text(item.name)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Text(item.subheading)
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineLimit(2)
+            }
+            .padding(16)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: Color.black.opacity(0.25), radius: 12, x: 0, y: 8)
+    }
+
+    private var placeholder: some View {
+        ZStack {
+            Color.gray.opacity(0.2)
+            Image(systemName: "photo")
+                .font(.title2)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+private struct CollectionItemRowView<T: CollectionItem>: View {
+    let item: T
+
+    var body: some View {
+        HStack(spacing: 16) {
+            AsyncImage(url: item.imageURL) { phase in
+                switch phase {
+                case let .success(image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .failure:
+                    placeholder
+                case .empty:
+                    placeholder
+                @unknown default:
+                    placeholder
+                }
+            }
+            .frame(width: 60, height: 60)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.name)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                Text(item.subheading)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+
+            Spacer()
+
+            Text(item.tagline)
+                .font(.caption.monospacedDigit())
+                .foregroundColor(.secondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(NSColor.controlBackgroundColor))
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
+        )
+    }
+
+    private var placeholder: some View {
+        ZStack {
+            Color.gray.opacity(0.15)
+            Image(systemName: "photo")
+                .foregroundColor(.secondary)
+        }
+    }
+}
+#endif

@@ -2,8 +2,22 @@
 import Combine
 import Kingfisher
 import TMDB_Shared_Backend
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+public typealias UIViewController = NSViewController
+public typealias UIColor = NSColor
+public typealias UIImage = NSImage
+public typealias UIImageView = NSImageView
+public typealias UILabel = NSTextField
+public typealias UIFont = NSFont
+public typealias UIView = NSView
 
+#endif
 // MARK: - Section Layout Configuration
 
 public struct SectionLayout {
@@ -39,19 +53,6 @@ fileprivate enum ImageSource {
     case imageUrl(URL)
 }
 
-fileprivate extension UIImageView {
-    func setImage(from source: ImageSource) {
-        switch source {
-        case .sfSymbolName(let name):
-            image = UIImage(systemName: name)
-        case .assetName(let name):
-            image = UIImage(named: name)
-        case .imageUrl(let url):
-            kf.setImage(with: url)
-        }
-    }
-}
-
 fileprivate struct PillShapeItem {
     let name: String
     let imageSource: ImageSource
@@ -67,6 +68,21 @@ fileprivate struct FavouriteListing {
     let imageSource: ImageSource
     let price: String
     let title: String
+}
+
+#if canImport(UIKit)
+
+fileprivate extension UIImageView {
+    func setImage(from source: ImageSource) {
+        switch source {
+        case .sfSymbolName(let name):
+            image = UIImage(systemName: name)
+        case .assetName(let name):
+            image = UIImage(named: name)
+        case .imageUrl(let url):
+            kf.setImage(with: url)
+        }
+    }
 }
 
 // MARK: - Cell Classes
@@ -780,4 +796,483 @@ fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAP
 }
 #endif
 
-// MARK: - SwiftUI Wrapper
+/******************** AppKit Variant ********************/
+
+#elseif canImport(AppKit)
+
+// MARK: - Observable Adapter
+
+fileprivate final class SectionLayoutsAdapter: ObservableObject {
+    @Published var layouts: [SectionLayout] = []
+}
+
+// MARK: - AppKit View Controller
+
+public class HomeDiscoverViewController: NSViewController {
+    private var sectionLayouts: [SectionLayout] = []
+    private var viewModel: HomeDiscoverViewModel?
+    private var cancellables = Set<AnyCancellable>()
+    private let layoutAdapter = SectionLayoutsAdapter()
+    private var hostingView: NSHostingView<HomeDiscoverMacContentView>?
+
+    public var onItemTapped: (() -> Void)?
+    public var onGenreTapped: ((Genre) -> Void)?
+    public var onTVGenreTapped: ((Genre) -> Void)?
+    public var onCastTapped: ((PopularPerson) -> Void)?
+    public var onTrendingItemTapped: ((TrendingItem) -> Void)?
+
+    public init(viewModel: HomeDiscoverViewModel? = nil) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+        setupDefaultSectionLayouts()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupDefaultSectionLayouts()
+    }
+
+    public override func loadView() {
+        self.view = NSView()
+    }
+
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.black.cgColor
+
+        embedSwiftUIView()
+        setupBindings()
+        fetchDataIfNeeded()
+        reloadContent()
+    }
+
+    public func configure(with sectionLayouts: [SectionLayout]) {
+        self.sectionLayouts = sectionLayouts
+        reloadContent()
+    }
+
+    public func updateSectionVisibility(at index: Int, isVisible: Bool) {
+        guard index < sectionLayouts.count else { return }
+        let existingLayout = sectionLayouts[index]
+        sectionLayouts[index] = SectionLayout(
+            type: existingLayout.type,
+            height: existingLayout.height,
+            data: existingLayout.data,
+            headerTitle: existingLayout.headerTitle,
+            isVisible: isVisible,
+            onItemTapped: existingLayout.onItemTapped
+        )
+        reloadContent()
+    }
+
+    // MARK: - Private Helpers
+
+    private func embedSwiftUIView() {
+        let contentView = HomeDiscoverMacContentView(
+            adapter: layoutAdapter,
+            onCloseSection: { [weak self] index in
+                self?.updateSectionVisibility(at: index, isVisible: false)
+            }
+        )
+        let hostingView = NSHostingView(rootView: contentView)
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingView)
+
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+
+        self.hostingView = hostingView
+    }
+
+    private func reloadContent() {
+        layoutAdapter.layouts = sectionLayouts
+    }
+
+    private func setupDefaultSectionLayouts() {
+        let movieGenreItems = mapGenresToPillShapeItems()
+        let tvGenreItems = mapTVGenresToPillShapeItems()
+
+        sectionLayouts = [
+            SectionLayout(
+                type: .categories,
+                height: 50,
+                data: movieGenreItems,
+                headerTitle: "Movie Genres",
+                onItemTapped: { index in
+                    guard movieGenreItems.indices.contains(index) else { return }
+                    movieGenreItems[index].selection?()
+                }
+            ),
+            SectionLayout(
+                type: .categories,
+                height: 50,
+                data: tvGenreItems,
+                headerTitle: "TV Genres",
+                onItemTapped: { index in
+                    guard tvGenreItems.indices.contains(index) else { return }
+                    tvGenreItems[index].selection?()
+                }
+            ),
+            SectionLayout(
+                type: .popularCategories,
+                height: 140,
+                data: mapPopularPeopleToCircleItems(),
+                headerTitle: "Popular People",
+                onItemTapped: { [weak self] index in
+                    guard let self = self, let vm = self.viewModel, vm.popularPeople.indices.contains(index) else { return }
+                    let person = vm.popularPeople[index]
+                    self.onCastTapped?(person)
+                }
+            ),
+            SectionLayout(
+                type: .favourites,
+                height: 180,
+                data: mapTrendingToFavouriteListings(),
+                headerTitle: "Trending",
+                onItemTapped: { [weak self] index in
+                    guard let self = self, let vm = self.viewModel, vm.trendingItems.indices.contains(index) else { return }
+                    let trendingItem = vm.trendingItems[index]
+                    self.onTrendingItemTapped?(trendingItem)
+                }
+            ),
+        ]
+    }
+
+    private func mapGenresToPillShapeItems() -> [PillShapeItem] {
+        guard let viewModel = viewModel else { return [] }
+        return viewModel.genres.map { genre in
+            PillShapeItem(
+                name: genre.name,
+                imageSource: .sfSymbolName("tag"),
+                selection: { [weak self] in
+                    self?.onGenreTapped?(genre)
+                }
+            )
+        }
+    }
+
+    private func mapTVGenresToPillShapeItems() -> [PillShapeItem] {
+        guard let viewModel = viewModel else { return [] }
+        return viewModel.tvGenres.map { genre in
+            PillShapeItem(
+                name: genre.name,
+                imageSource: .sfSymbolName("tv"),
+                selection: { [weak self] in
+                    self?.onTVGenreTapped?(genre)
+                }
+            )
+        }
+    }
+
+    private func mapPopularPeopleToCircleItems() -> [CircleItem] {
+        guard let viewModel = viewModel else { return [] }
+        return viewModel.popularPeople.map { person in
+            CircleItem(
+                name: person.name,
+                imageSource: person.profilePath != nil
+                    ? .imageUrl(TMDBImageSize.profileMedium.buildImageUrl(path: person.profilePath!)!)
+                    : .sfSymbolName("person.circle")
+            )
+        }
+    }
+
+    private func mapTrendingToFavouriteListings() -> [FavouriteListing] {
+        guard let viewModel = viewModel else { return [] }
+        return viewModel.trendingItems.map { item in
+            FavouriteListing(
+                imageSource: item.posterPath != nil
+                    ? .imageUrl(TMDBImageSize.backdropSmall.buildImageUrl(path: item.posterPath!)!)
+                    : .sfSymbolName("photo"),
+                price: "\(item.mediaType.rawValue.capitalized)",
+                title: item.displayTitle
+            )
+        }
+    }
+
+    private func setupBindings() {
+        guard let viewModel = viewModel else { return }
+
+        viewModel.$genres
+            .combineLatest(viewModel.$tvGenres, viewModel.$popularPeople, viewModel.$trendingItems)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _, _, _, _ in
+                self?.updateSectionLayouts()
+            }
+            .store(in: &cancellables)
+
+        viewModel.$isLoading
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isLoading in
+                self?.handleLoadingState(isLoading)
+            }
+            .store(in: &cancellables)
+
+        viewModel.$errorMessage
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                if let error = errorMessage {
+                    self?.handleError(error)
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    private func fetchDataIfNeeded() {
+        guard let viewModel = viewModel else { return }
+        viewModel.fetchAllData()
+    }
+
+    private func updateSectionLayouts() {
+        setupDefaultSectionLayouts()
+        reloadContent()
+    }
+
+    private func handleLoadingState(_ isLoading: Bool) {
+        view.alphaValue = isLoading ? 0.5 : 1.0
+    }
+
+    private func handleError(_ errorMessage: String) {
+        let alert = NSAlert()
+        alert.messageText = "Error"
+        alert.informativeText = errorMessage
+        alert.addButton(withTitle: "OK")
+        alert.alertStyle = .warning
+        if let window = view.window {
+            alert.beginSheetModal(for: window, completionHandler: nil)
+        } else {
+            alert.runModal()
+        }
+    }
+}
+
+// MARK: - SwiftUI Content View
+
+fileprivate struct HomeDiscoverMacContentView: View {
+    @ObservedObject var adapter: SectionLayoutsAdapter
+    var onCloseSection: (Int) -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                ForEach(Array(adapter.layouts.enumerated()), id: \.offset) { index, layout in
+                    if layout.isVisible {
+                        sectionBlock(for: layout, index: index)
+                    }
+                }
+            }
+            .padding(24)
+        }
+        .background(Color.black)
+    }
+
+    @ViewBuilder
+    private func sectionBlock(for layout: SectionLayout, index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let title = layout.headerTitle {
+                Text(title)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            sectionContent(for: layout, index: index)
+        }
+    }
+
+    @ViewBuilder
+    private func sectionContent(for layout: SectionLayout, index: Int) -> some View {
+        switch layout.type {
+        case .banner:
+            BannerCard(onClose: { onCloseSection(index) })
+
+        case .categories:
+            if let items = layout.data as? [PillShapeItem] {
+                CategoriesRow(items: items, layout: layout)
+            }
+
+        case .popularCategories:
+            if let items = layout.data as? [CircleItem] {
+                PopularRow(items: items, layout: layout)
+            }
+
+        case .favourites:
+            if let items = layout.data as? [FavouriteListing] {
+                FavouritesRow(items: items, layout: layout)
+            }
+        }
+    }
+}
+
+// MARK: - SwiftUI Components
+
+fileprivate struct BannerCard: View {
+    var onClose: () -> Void
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: "photo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .foregroundColor(.white)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Quick post with AI")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
+                Text("List your items for sale in a jiffy")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.85))
+            }
+
+            Spacer()
+
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .foregroundColor(.white)
+                    .padding(6)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding()
+        .background(Color(red: 0.2, green: 0.2, blue: 0.4))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+}
+
+fileprivate struct CategoriesRow: View {
+    let items: [PillShapeItem]
+    let layout: SectionLayout
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                    Button(action: {
+                        layout.onItemTapped(index)
+                    }) {
+                        HStack(spacing: 8) {
+                            DiscoverImageView(source: item.imageSource)
+                                .frame(width: 20, height: 20)
+                                .clipShape(Circle())
+                            Text(item.name)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Color(red: 0.2, green: 0.2, blue: 0.4))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
+fileprivate struct PopularRow: View {
+    let items: [CircleItem]
+    let layout: SectionLayout
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 16) {
+                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                    VStack(spacing: 6) {
+                        DiscoverImageView(source: item.imageSource)
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                        Text(item.name)
+                            .font(.system(size: 12))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 90)
+                    }
+                    .onTapGesture {
+                        layout.onItemTapped(index)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fileprivate struct FavouritesRow: View {
+    let items: [FavouriteListing]
+    let layout: SectionLayout
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 16) {
+                ForEach(Array(items.enumerated()), id: \.offset) { index, listing in
+                    VStack(alignment: .leading, spacing: 8) {
+                        ZStack(alignment: .topTrailing) {
+                            DiscoverImageView(source: listing.imageSource)
+                                .frame(width: 150, height: 100)
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+
+                            Image(systemName: "heart")
+                                .foregroundColor(.white)
+                                .padding(6)
+                        }
+
+                        Text(listing.price)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+
+                        Text(listing.title)
+                            .font(.system(size: 12))
+                            .foregroundColor(.white.opacity(0.85))
+                            .lineLimit(2)
+                    }
+                    .frame(width: 150, alignment: .leading)
+                    .onTapGesture {
+                        layout.onItemTapped(index)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fileprivate struct DiscoverImageView: View {
+    let source: ImageSource
+
+    var body: some View {
+        switch source {
+        case .sfSymbolName(let name):
+            Image(systemName: name)
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(.white)
+
+        case .assetName(let name):
+            if let image = NSImage(named: name) {
+                Image(nsImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                placeholder
+            }
+
+        case .imageUrl(let url):
+            KFImage(url)
+                .resizable()
+                .scaledToFill()
+        }
+    }
+
+    private var placeholder: some View {
+        Color.gray.opacity(0.3)
+    }
+}
+
+#endif

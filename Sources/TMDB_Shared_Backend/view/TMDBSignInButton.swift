@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Simple Sign In Button View
 
-@available(iOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, *)
 public struct TMDBSignInButton: View {
     @ObservedObject private var viewModel: AuthenticationViewModel
 

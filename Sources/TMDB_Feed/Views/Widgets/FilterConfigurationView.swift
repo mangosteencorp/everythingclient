@@ -32,14 +32,14 @@ public struct FilterConfigurationView: View {
             }
             .padding()
             .navigationTitle(filterType.displayName)
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationBarTitleIfAvailable()
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.filterCancel) {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.filterDone) {
                         dismiss()
                     }
@@ -83,7 +83,7 @@ public struct FilterConfigurationView: View {
                 Text("Korean").tag("ko" as String?)
                 Text("Chinese").tag("zh" as String?)
             }
-            .pickerStyle(.wheel)
+            .platformPickerStyle()
         }
     }
 
@@ -106,7 +106,7 @@ public struct FilterConfigurationView: View {
                 Text("South Korea").tag("KR" as String?)
                 Text("China").tag("CN" as String?)
             }
-            .pickerStyle(.wheel)
+            .platformPickerStyle()
         }
     }
 
@@ -121,7 +121,7 @@ public struct FilterConfigurationView: View {
                     set: { binding.wrappedValue = $0.isEmpty ? nil : $0 }
                 ))
                 .textFieldStyle(.roundedBorder)
-                .keyboardType(.numberPad)
+                .numericKeyboardIfAvailable()
 
                 Button(L10n.filterClear) {
                     binding.wrappedValue = nil
@@ -133,6 +133,35 @@ public struct FilterConfigurationView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func inlineNavigationBarTitleIfAvailable() -> some View {
+        #if os(iOS)
+        self.navigationBarTitleDisplayMode(.inline)
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func platformPickerStyle() -> some View {
+        #if os(iOS)
+        self.pickerStyle(.wheel)
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func numericKeyboardIfAvailable() -> some View {
+        #if os(iOS)
+        self.keyboardType(.numberPad)
+        #else
+        self
+        #endif
     }
 }
 

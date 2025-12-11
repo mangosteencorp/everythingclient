@@ -1,17 +1,23 @@
 import Shared_UI_Support
-import UIKit
 
 protocol RobotErrorViewControllerDelegate: AnyObject {
     func didTapTryAgain()
 }
 
-class RobotErrorViewController: UIViewController {
+#if canImport(UIKit)
+import UIKit
+
+final class RobotErrorViewController: UIViewController {
     weak var delegate: RobotErrorViewControllerDelegate?
 
     // MARK: - UI Components
 
     private let gradientLayer = CAGradientLayer()
-    private let robotContainer = UIView()
+    private let robotContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     private let antennaLayer = CAShapeLayer()
     private let bodyLayer = CAShapeLayer()
     private let exclamationLayer = CAShapeLayer()
@@ -47,6 +53,7 @@ class RobotErrorViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         button.layer.cornerRadius = 25
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleTryAgain), for: .touchUpInside)
         return button
     }()
@@ -229,4 +236,197 @@ import SwiftUI
         RobotErrorViewController()
     }
 }
+#endif
+
+#elseif canImport(AppKit)
+import AppKit
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
+
+final class RobotErrorViewController: NSViewController {
+    weak var delegate: RobotErrorViewControllerDelegate?
+
+    private let gradientLayer = CAGradientLayer()
+    private let glassCard: NSVisualEffectView = {
+        let view = NSVisualEffectView()
+        view.material = .hudWindow
+        view.blendingMode = .withinWindow
+        view.state = .active
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.wantsLayer = true
+        view.layer?.cornerRadius = 32
+        view.layer?.masksToBounds = true
+        return view
+    }()
+
+    private let iconImageView: NSImageView = {
+        let imageView = NSImageView()
+        if #available(macOS 11.0, *) {
+            imageView.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 80, weight: .semibold)
+            imageView.image = NSImage(systemSymbolName: "gearshape.2.fill", accessibilityDescription: "Robot issue")
+        } else {
+            imageView.image = NSImage(named: NSImage.cautionName)
+        }
+        imageView.contentTintColor = .white
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.wantsLayer = true
+        imageView.layer?.shadowColor = NSColor.black.cgColor
+        imageView.layer?.shadowRadius = 12
+        imageView.layer?.shadowOpacity = 0.3
+        imageView.layer?.shadowOffset = .zero
+        return imageView
+    }()
+
+    private let titleLabel = RobotErrorViewController.makeLabel(
+        text: "SYSTEM GLITCH DETECTED",
+        font: .systemFont(ofSize: 24, weight: .bold),
+        alpha: 0.95
+    )
+
+    private let descriptionLabel = RobotErrorViewController.makeLabel(
+        text: "Our maintenance bots are recalibrating the servos.",
+        font: .systemFont(ofSize: 15, weight: .medium),
+        alpha: 0.85
+    )
+
+    private let errorCodeLabel = RobotErrorViewController.makeLabel(
+        text: "Incident #A1-BOT-404",
+        font: .monospacedSystemFont(ofSize: 13, weight: .regular),
+        alpha: 0.75
+    )
+
+    private lazy var tryAgainButton: NSButton = {
+        let button = NSButton(title: "RUN DIAGNOSTICS", target: self, action: #selector(handleTryAgain))
+        button.bezelStyle = .regularSquare
+        button.isBordered = false
+        button.font = .systemFont(ofSize: 16, weight: .semibold)
+        button.wantsLayer = true
+        button.layer?.backgroundColor = NSColor.systemPink.cgColor
+        button.layer?.cornerRadius = 24
+        button.contentTintColor = .white
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    private lazy var pulseLayer: CALayer = {
+        let layer = CALayer()
+        layer.backgroundColor = NSColor.white.withAlphaComponent(0.08).cgColor
+        layer.cornerRadius = 60
+        return layer
+    }()
+
+    override func loadView() {
+        view = NSView()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupView()
+        startAnimations()
+    }
+
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        gradientLayer.frame = view.bounds
+    }
+
+    private func setupView() {
+        view.wantsLayer = true
+        view.layer?.masksToBounds = true
+
+        gradientLayer.colors = [
+            NSColor.systemPink.cgColor,
+            NSColor.systemRed.cgColor,
+            NSColor.black.cgColor,
+        ]
+        gradientLayer.locations = [0.0, 0.45, 1.0]
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 1, y: 1)
+        view.layer?.addSublayer(gradientLayer)
+
+        view.addSubview(glassCard)
+
+        let stackView = NSStackView(views: [iconImageView, titleLabel, descriptionLabel, errorCodeLabel, tryAgainButton])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.orientation = .vertical
+        stackView.alignment = .centerX
+        stackView.spacing = 14
+        stackView.setHuggingPriority(.required, for: .horizontal)
+        glassCard.addSubview(stackView)
+
+        iconImageView.layer?.insertSublayer(pulseLayer, at: 0)
+
+        NSLayoutConstraint.activate([
+            glassCard.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            glassCard.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            glassCard.widthAnchor.constraint(lessThanOrEqualToConstant: 460),
+            glassCard.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 24),
+            glassCard.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -24),
+
+            stackView.topAnchor.constraint(equalTo: glassCard.topAnchor, constant: 32),
+            stackView.leadingAnchor.constraint(equalTo: glassCard.leadingAnchor, constant: 32),
+            stackView.trailingAnchor.constraint(equalTo: glassCard.trailingAnchor, constant: -32),
+            stackView.bottomAnchor.constraint(equalTo: glassCard.bottomAnchor, constant: -32),
+
+            iconImageView.widthAnchor.constraint(equalToConstant: 120),
+            iconImageView.heightAnchor.constraint(equalTo: iconImageView.widthAnchor),
+
+            tryAgainButton.widthAnchor.constraint(equalToConstant: 220),
+            tryAgainButton.heightAnchor.constraint(equalToConstant: 48),
+        ])
+    }
+
+    private func startAnimations() {
+        view.layoutSubtreeIfNeeded()
+        let diameter = iconImageView.bounds.width + 40
+        pulseLayer.frame = CGRect(
+            x: (iconImageView.bounds.width - diameter) / 2,
+            y: (iconImageView.bounds.height - diameter) / 2,
+            width: diameter,
+            height: diameter
+        )
+        pulseLayer.cornerRadius = diameter / 2
+
+        let pulseAnimation = CABasicAnimation(keyPath: "transform.scale")
+        pulseAnimation.fromValue = 0.95
+        pulseAnimation.toValue = 1.05
+        pulseAnimation.duration = 1.8
+        pulseAnimation.autoreverses = true
+        pulseAnimation.repeatCount = .infinity
+        iconImageView.layer?.add(pulseAnimation, forKey: "pulse")
+
+        let glowAnimation = CABasicAnimation(keyPath: "shadowRadius")
+        glowAnimation.fromValue = 8
+        glowAnimation.toValue = 18
+        glowAnimation.duration = 2.0
+        glowAnimation.autoreverses = true
+        glowAnimation.repeatCount = .infinity
+        iconImageView.layer?.add(glowAnimation, forKey: "glow")
+    }
+
+    @objc private func handleTryAgain() {
+        delegate?.didTapTryAgain()
+        dismiss(self)
+    }
+
+    private static func makeLabel(text: String, font: NSFont, alpha: CGFloat) -> NSTextField {
+        let label = NSTextField(labelWithString: text)
+        label.font = font
+        label.textColor = NSColor.white.withAlphaComponent(alpha)
+        label.alignment = .center
+        label.lineBreakMode = .byWordWrapping
+        label.maximumNumberOfLines = 2
+        return label
+    }
+}
+
+#if DEBUG && canImport(SwiftUI)
+#Preview {
+    NSViewControllerPreview {
+        RobotErrorViewController()
+    }
+}
+#endif
+
 #endif

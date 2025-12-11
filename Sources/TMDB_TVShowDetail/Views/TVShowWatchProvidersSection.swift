@@ -13,6 +13,13 @@ struct TVShowWatchProvidersSection: View {
     }
 
     @State private var state: ViewState = .loading
+    private var userRegionIdentifier: String? {
+        if #available(iOS 16.0, macOS 13.0, *) {
+            return Locale.current.region?.identifier
+        } else {
+            return Locale.current.regionCode
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -40,7 +47,7 @@ struct TVShowWatchProvidersSection: View {
             .padding()
 
         case .success(let response):
-            if let userRegion = Locale.current.regionCode,
+            if let userRegion = userRegionIdentifier,
                let regionData = response.results[userRegion] {
                 WatchProvidersView(regionData: regionData)
             } else if let firstRegion = response.results.first {
@@ -127,11 +134,12 @@ private struct ProviderCategoryView: View {
 private struct ProviderLogoView: View {
     let provider: WatchProvider
     let regionLink: String
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         Button(action: {
             if let url = URL(string: regionLink) {
-                UIApplication.shared.open(url)
+                openURL(url)
             }
         }) {
             AsyncImage(url: URL(string: provider.logoURL ?? "")) { image in
