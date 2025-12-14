@@ -8,13 +8,13 @@ public struct DiscoverListPage<Route: Hashable>: View {
     @StateObject var viewModel: TVFeedViewModel
     @State private var useUIKitView = false
     let type: TVShowFeedType
-    let detailRouteBuilder: (Int) -> Route
+    let detailRouteBuilder: (Int, DiscoverMediaType) -> Route
 
     public init(
         container: Container,
         apiKey: String,
         type: TVShowFeedType,
-        detailRouteBuilder: @escaping (Int) -> Route
+        detailRouteBuilder: @escaping (Int, DiscoverMediaType) -> Route
     ) {
         APIKeys.tmdbKey = apiKey
         let movieAssembly = DiscoverAssembly()
