@@ -40,14 +40,29 @@ fileprivate enum ImageSource {
 }
 
 fileprivate extension UIImageView {
-    func setImage(from source: ImageSource) {
+    func setImage(from source: ImageSource, completion: ((UIImage?) -> Void)? = nil) {
         switch source {
         case .sfSymbolName(let name):
-            image = UIImage(systemName: name)
+            let image = UIImage(systemName: name)
+            self.image = image
+            completion?(image)
         case .assetName(let name):
-            image = UIImage(named: name)
+            let image = UIImage(named: name)
+            self.image = image
+            completion?(image)
         case .imageUrl(let url):
-            kf.setImage(with: url)
+            kf.setImage(with: url) { result in
+                switch result {
+                case .success(let value):
+                    DispatchQueue.main.async {
+                        completion?(value.image)
+                    }
+                case .failure:
+                    DispatchQueue.main.async {
+                        completion?(nil)
+                    }
+                }
+            }
         }
     }
 }
@@ -198,6 +213,7 @@ fileprivate class CircleItemCell: UICollectionViewCell {
 
     let imageView = UIImageView()
     let nameLabel = UILabel()
+    private let placeholderBackgroundColor = UIColor(white: 0.2, alpha: 1.0)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -209,10 +225,12 @@ fileprivate class CircleItemCell: UICollectionViewCell {
     }
 
     private func setupViews() {
+        contentView.clipsToBounds = false
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = 40
         imageView.clipsToBounds = true
         imageView.tintColor = .white
+        imageView.backgroundColor = placeholderBackgroundColor
 
         nameLabel.textColor = .white
         nameLabel.font = .systemFont(ofSize: 12)
@@ -226,27 +244,63 @@ fileprivate class CircleItemCell: UICollectionViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
             imageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             imageView.widthAnchor.constraint(equalToConstant: 80),
             imageView.heightAnchor.constraint(equalToConstant: 80),
 
-            nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 5),
+            nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
             nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor),
         ])
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+        imageView.backgroundColor = placeholderBackgroundColor
+        nameLabel.text = nil
+    }
+
     func configure(with item: CircleItem) {
-        imageView.setImage(from: item.imageSource)
         nameLabel.text = item.name
+        imageView.backgroundColor = placeholderBackgroundColor
+        imageView.setImage(from: item.imageSource) { [weak self] image in
+            self?.applyAverageColorBackground(using: image)
+        }
+    }
+
+    private func applyAverageColorBackground(using image: UIImage?) {
+        guard let image else {
+            DispatchQueue.main.async { [weak self] in
+                self?.imageView.backgroundColor = self?.placeholderBackgroundColor
+            }
+            return
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let averageColor = image.averageColor() else {
+                DispatchQueue.main.async {
+                    self?.imageView.backgroundColor = self?.placeholderBackgroundColor
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                UIView.animate(withDuration: 0.25) {
+                    self.imageView.backgroundColor = averageColor
+                }
+            }
+        }
     }
 }
 
 fileprivate class FavouriteListingCell: UICollectionViewCell {
     static let reuseIdentifier: String = "FavouriteListingCell"
 
+    private let cardContainerView = UIView()
     let imageView = UIImageView()
     let priceLabel = UILabel()
     let titleLabel = UILabel()
@@ -262,8 +316,20 @@ fileprivate class FavouriteListingCell: UICollectionViewCell {
     }
 
     private func setupViews() {
+        contentView.backgroundColor = .clear
+        layer.masksToBounds = false
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.35
+        layer.shadowRadius = 12
+        layer.shadowOffset = CGSize(width: 0, height: 6)
+
+        cardContainerView.backgroundColor = UIColor(red: 32.0 / 255.0, green: 34.0 / 255.0, blue: 45.0 / 255.0, alpha: 1)
+        cardContainerView.layer.cornerRadius = 18
+        cardContainerView.layer.masksToBounds = true
+
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 10
+        imageView.layer.cornerRadius = 18
+        imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         imageView.clipsToBounds = true
 
         heartIcon.image = UIImage(systemName: "heart")
@@ -275,35 +341,51 @@ fileprivate class FavouriteListingCell: UICollectionViewCell {
 
         titleLabel.textColor = .white
         titleLabel.font = .systemFont(ofSize: 12)
+        titleLabel.numberOfLines = 2
 
-        contentView.addSubview(imageView)
-        contentView.addSubview(priceLabel)
-        contentView.addSubview(titleLabel)
+        contentView.addSubview(cardContainerView)
+        cardContainerView.addSubview(imageView)
+        cardContainerView.addSubview(priceLabel)
+        cardContainerView.addSubview(titleLabel)
         imageView.addSubview(heartIcon)
 
+        cardContainerView.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
         priceLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         heartIcon.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            imageView.heightAnchor.constraint(equalToConstant: 100),
+            cardContainerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            cardContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 4),
+            cardContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
+            cardContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
 
-            heartIcon.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 5),
-            heartIcon.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -5),
-            heartIcon.widthAnchor.constraint(equalToConstant: 20),
-            heartIcon.heightAnchor.constraint(equalToConstant: 20),
+            imageView.topAnchor.constraint(equalTo: cardContainerView.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor),
+            imageView.heightAnchor.constraint(equalToConstant: 120),
 
-            priceLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 5),
-            priceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            heartIcon.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 8),
+            heartIcon.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -8),
+            heartIcon.widthAnchor.constraint(equalToConstant: 22),
+            heartIcon.heightAnchor.constraint(equalToConstant: 22),
 
-            titleLabel.topAnchor.constraint(equalTo: priceLabel.bottomAnchor, constant: 2),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            priceLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
+            priceLabel.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: 12),
+            priceLabel.trailingAnchor.constraint(lessThanOrEqualTo: cardContainerView.trailingAnchor, constant: -12),
+
+            titleLabel.topAnchor.constraint(equalTo: priceLabel.bottomAnchor, constant: 6),
+            titleLabel.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: 12),
+            titleLabel.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor, constant: -12),
+            titleLabel.bottomAnchor.constraint(equalTo: cardContainerView.bottomAnchor, constant: -12),
         ])
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let shadowRect = contentView.convert(cardContainerView.frame, to: self)
+        layer.shadowPath = UIBezierPath(roundedRect: shadowRect, cornerRadius: cardContainerView.layer.cornerRadius).cgPath
     }
 
     func configure(with listing: FavouriteListing) {
@@ -472,16 +554,16 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
 
             case .favourites:
                 // Favourites section - horizontal scrolling items
-                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(150), heightDimension: .absolute(160))
+                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(160), heightDimension: .absolute(sectionLayout.height))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-                let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(150), heightDimension: .absolute(160))
+                let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(160), heightDimension: .absolute(sectionLayout.height))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                group.interItemSpacing = .fixed(15)
+                group.interItemSpacing = .fixed(20)
 
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .continuous
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 15, leading: 20, bottom: 20, trailing: 20)
 
                 // Add header if needed
                 if let headerTitle = sectionLayout.headerTitle {
@@ -534,7 +616,7 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
             ),
             SectionLayout(
                 type: .favourites,
-                height: 180,
+                height: 200,
                 data: mapTrendingToFavouriteListings(),
                 headerTitle: "Trending",
                 onItemTapped: { index in

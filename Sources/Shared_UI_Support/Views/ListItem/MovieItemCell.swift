@@ -354,7 +354,7 @@ public class ThemeService: NSObject {
 }
 
 extension UIImage {
-    func averageColor() -> UIColor? {
+    public func averageColor() -> UIColor? {
         guard let inputImage = CIImage(image: self) else { return nil }
         let extentVector = CIVector(x: inputImage.extent.origin.x,
                                     y: inputImage.extent.origin.y,
