@@ -7,18 +7,14 @@ import Shared_UI_Support
 import SnapKit
 import TMDB_Shared_Backend
 
-class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButtonDelegate {
+class TVShowListViewController: UIViewController {
     // MARK: - Properties
 
     private let viewModel: TVFeedViewModel
     private var movies: [Movie] = []
     private var filteredMovies: [Movie] = []
-    private var searchBar: UISearchBar!
-    private var refreshControl: UIRefreshControl!
-    private var collectionView: UICollectionView!
-    private let padding: Int = 8
-    private let searchBarHeight: Int = 60
     private var searchString: String?
+    private let filterableList = FilterableFavouritableItemList()
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Initialization
@@ -37,9 +33,7 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
-        setupSearchBar()
-        setupCollectionView()
-        setupPullToRefresh()
+        setupFilterableList()
         setupBindings()
         viewModel.fetchMovies()
     }
@@ -63,62 +57,18 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
         view.backgroundColor = ThemeService.lightGrey
     }
 
-    private func setupSearchBar() {
-        searchBar = UISearchBar()
-        searchBar.searchBarStyle = .prominent
-        searchBar.tintColor = .white
-        searchBar.barTintColor = .white
-        searchBar.delegate = self
-        searchBar.placeholder = "Filter..."
-        searchBar.isTranslucent = true
-        searchBar.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.75)
-        searchBar.backgroundImage = UIImage()
+    private func setupFilterableList() {
+        addChild(filterableList)
+        filterableList.loadViewIfNeeded()
+        view.addSubview(filterableList.view)
 
-        if #available(iOS 13.0, *) {
-            searchBar.searchTextField.backgroundColor = .clear
-        } else {
-            if let textField = searchBar.value(forKey: "searchField") as? UITextField {
-                textField.backgroundColor = .clear
-            }
+        filterableList.view.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
-        view.addSubview(searchBar)
-
-        searchBar.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.left.right.equalToSuperview()
-            make.height.equalTo(searchBarHeight)
-        }
-    }
-
-    private func setupCollectionView() {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = CGFloat(padding)
-        layout.minimumInteritemSpacing = 0
-        layout.sectionInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .clear
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(MovieItemCell.self, forCellWithReuseIdentifier: "MovieItemCell")
-
-        view.addSubview(collectionView)
-
-        collectionView.snp.makeConstraints { make in
-            make.top.equalTo(searchBar.snp.bottom)
-            make.left.right.bottom.equalToSuperview()
-        }
-    }
-
-    private func setupPullToRefresh() {
-        refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
-        collectionView.addSubview(refreshControl)
-    }
-
-    @objc private func handleRefresh() {
-        viewModel.fetchMovies()
+        filterableList.didMove(toParent: self)
+        filterableList.delegate = self
+        filterableList.searchPlaceholder = "Filter..."
     }
 
     private func setupBindings() {
@@ -128,9 +78,7 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
             .sink { [weak self] movies in
                 self?.movies = movies
                 // Apply current filter when new movies arrive
-                self?.applyFilter()
-                self?.collectionView.reloadData()
-                self?.refreshControl.endRefreshing()
+                self?.applyFilter(scrollToTop: false)
             }
             .store(in: &cancellables)
 
@@ -138,7 +86,7 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoading in
                 if !isLoading {
-                    self?.refreshControl.endRefreshing()
+                    self?.filterableList.endRefreshing()
                 }
             }
             .store(in: &cancellables)
@@ -154,111 +102,44 @@ class TVShowListViewController: UIViewController, UISearchBarDelegate, FavButton
             .store(in: &cancellables)
     }
 
-    // MARK: - Search Bar Delegate
-
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
-            cancelSearching()
-            view.endEditing(true)
-        }
-        searchString = searchText
-        applyFilter()
-        collectionView.reloadData()
-        scrollToTop()
-    }
-
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        view.endEditing(true)
-    }
-
-    private func applyFilter() {
+    private func applyFilter(scrollToTop: Bool) {
         guard let searchString = searchString, !searchString.isEmpty else {
             filteredMovies = movies
+            filterableList.display(items: filteredMovies.map { $0 as ItemDisplayable }, scrollToTop: scrollToTop)
             return
         }
+        let lowercasedSearch = searchString.lowercased()
         filteredMovies = movies.filter { movie in
-            movie.title.lowercased().contains(searchString.lowercased()) ||
-            movie.overview.lowercased().contains(searchString.lowercased())
+            movie.title.lowercased().contains(lowercasedSearch) ||
+            movie.overview.lowercased().contains(lowercasedSearch)
         }
+        filterableList.display(items: filteredMovies.map { $0 as ItemDisplayable }, scrollToTop: scrollToTop)
+    }
+}
+
+// MARK: - FilterableFavouritableItemListDelegate
+
+extension TVShowListViewController: FilterableFavouritableItemListDelegate {
+    func filterableList(_ list: FilterableFavouritableItemList, didUpdateQuery query: String?) {
+        searchString = query
+        applyFilter(scrollToTop: true)
     }
 
-    private func cancelSearching() {
-        DispatchQueue.main.async {
-            self.searchBar.resignFirstResponder()
-            self.searchBar.text = ""
-            self.searchString = nil
-            self.filteredMovies = self.movies
-            self.collectionView.reloadData()
-        }
+    func filterableListDidRequestRefresh(_ list: FilterableFavouritableItemList) {
+        viewModel.fetchMovies()
     }
 
-    private func scrollToTop() {
-        if !filteredMovies.isEmpty {
-            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
-        }
-    }
-
-    // MARK: - FavButtonDelegate
-
-    func favButtonTapped(for item: ItemDisplayable) {
+    func filterableList(_ list: FilterableFavouritableItemList, didSelect item: ItemDisplayable) {
         guard let movie = item as? Movie else { return }
-
-        Task {
-            await viewModel.toggleFavorite(for: movie.id)
-        }
-    }
-}
-
-// MARK: - UICollectionViewDataSource
-
-extension TVShowListViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return filteredMovies.count
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: "MovieItemCell",
-            for: indexPath
-        ) as? MovieItemCell else {
-            return UICollectionViewCell()
-        }
-
-        let movie = filteredMovies[indexPath.item]
-        cell.delegate = self
-        cell.configure(with: movie)
-        return cell
-    }
-}
-
-// MARK: - UICollectionViewDelegateFlowLayout
-
-extension TVShowListViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
-        let width = Int(collectionView.bounds.size.width) - (padding * 2)
-        let height = ThemeService.cellsHeight
-        return CGSize(width: width, height: height)
-    }
-}
-
-// MARK: - UICollectionViewDelegate
-
-extension TVShowListViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let movie = filteredMovies[indexPath.item]
         // Handle movie selection - you can add navigation logic here
         print("Selected movie: \(movie.title)")
     }
 
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // Implement pagination if needed
-        // if indexPath.item == filteredMovies.count - 1 {
-        //     // Load more data
-        // }
+    func filterableList(_ list: FilterableFavouritableItemList, didTapFavoriteFor item: ItemDisplayable) {
+        guard let movie = item as? Movie else { return }
+        Task {
+            await viewModel.toggleFavorite(for: movie.id)
+        }
     }
 }
 
