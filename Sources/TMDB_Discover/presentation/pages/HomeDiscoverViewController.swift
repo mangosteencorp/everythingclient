@@ -305,6 +305,9 @@ fileprivate class FavouriteListingCell: UICollectionViewCell {
     let priceLabel = UILabel()
     let titleLabel = UILabel()
     let heartIcon = UIImageView()
+    private let defaultCardColor = UIColor(red: 32.0 / 255.0, green: 34.0 / 255.0, blue: 45.0 / 255.0, alpha: 1)
+    private let defaultTextColor: UIColor = .white
+    private var paletteRequestID = UUID()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -323,7 +326,7 @@ fileprivate class FavouriteListingCell: UICollectionViewCell {
         layer.shadowRadius = 12
         layer.shadowOffset = CGSize(width: 0, height: 6)
 
-        cardContainerView.backgroundColor = UIColor(red: 32.0 / 255.0, green: 34.0 / 255.0, blue: 45.0 / 255.0, alpha: 1)
+        cardContainerView.backgroundColor = defaultCardColor
         cardContainerView.layer.cornerRadius = 18
         cardContainerView.layer.masksToBounds = true
 
@@ -336,10 +339,10 @@ fileprivate class FavouriteListingCell: UICollectionViewCell {
         heartIcon.tintColor = .white
         heartIcon.contentMode = .scaleAspectFit
 
-        priceLabel.textColor = .white
+        priceLabel.textColor = defaultTextColor
         priceLabel.font = .boldSystemFont(ofSize: 14)
 
-        titleLabel.textColor = .white
+        titleLabel.textColor = defaultTextColor
         titleLabel.font = .systemFont(ofSize: 12)
         titleLabel.numberOfLines = 2
 
@@ -382,6 +385,13 @@ fileprivate class FavouriteListingCell: UICollectionViewCell {
         ])
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        paletteRequestID = UUID()
+        imageView.image = nil
+        applyFallbackPalette()
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         let shadowRect = contentView.convert(cardContainerView.frame, to: self)
@@ -389,9 +399,80 @@ fileprivate class FavouriteListingCell: UICollectionViewCell {
     }
 
     func configure(with listing: FavouriteListing) {
-        imageView.setImage(from: listing.imageSource)
+        paletteRequestID = UUID()
+        let requestID = paletteRequestID
+        applyFallbackPalette()
+
+        imageView.setImage(from: listing.imageSource) { [weak self] image in
+            self?.applyPalette(using: image, requestID: requestID)
+        }
         priceLabel.text = listing.price
         titleLabel.text = listing.title
+    }
+
+    private func applyPalette(using image: UIImage?, requestID: UUID) {
+        guard let image else {
+            DispatchQueue.main.async { [weak self] in
+                self?.applyFallbackPaletteIfNeeded(for: requestID)
+            }
+            return
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            let resizedImage = image.kf.resize(to: CGSize(width: 50, height: 50))
+            guard let averageColor = resizedImage.averageColor() else {
+                DispatchQueue.main.async {
+                    self.applyFallbackPaletteIfNeeded(for: requestID)
+                }
+                return
+            }
+
+            let textColor = self.contrastingTextColor(for: averageColor)
+            DispatchQueue.main.async {
+                self.applyPaletteIfNeeded(backgroundColor: averageColor, textColor: textColor, requestID: requestID)
+            }
+        }
+    }
+
+    private func applyPaletteIfNeeded(backgroundColor: UIColor, textColor: UIColor, requestID: UUID) {
+        guard paletteRequestID == requestID else { return }
+        UIView.animate(withDuration: 0.25) {
+            self.cardContainerView.backgroundColor = backgroundColor
+            self.priceLabel.textColor = textColor
+            self.titleLabel.textColor = textColor
+        }
+    }
+
+    private func applyFallbackPalette() {
+        cardContainerView.backgroundColor = defaultCardColor
+        priceLabel.textColor = defaultTextColor
+        titleLabel.textColor = defaultTextColor
+    }
+
+    private func applyFallbackPaletteIfNeeded(for requestID: UUID) {
+        guard paletteRequestID == requestID else { return }
+        applyFallbackPalette()
+    }
+
+    private func contrastingTextColor(for color: UIColor) -> UIColor {
+        guard let components = color.cgColor.components else { return defaultTextColor }
+        let red: CGFloat
+        let green: CGFloat
+        let blue: CGFloat
+
+        if components.count >= 3 {
+            red = components[0]
+            green = components[1]
+            blue = components[2]
+        } else {
+            red = components[0]
+            green = components[0]
+            blue = components[0]
+        }
+
+        let brightness = ((red * 299) + (green * 587) + (blue * 114)) / 1000
+        return brightness > 0.5 ? .black : .white
     }
 }
 
