@@ -48,7 +48,17 @@ struct TVShowContentView<Route: Hashable>: View {
                 filterChipsView
             }
             if shows.isEmpty {
-                CommonNoResultView(useFancyDesign: $useFancyDesign)
+                CommonNoResultView(
+                    configuration: NoResultViewConfiguration(
+                        primaryButtonAction: { [weak viewModel] in
+                            viewModel?.retrySearch()
+                        },
+                        secondaryButtonAction: { [weak viewModel] in
+                            viewModel?.clearSearchAndRetry()
+                        }
+                    ),
+                    useFancyDesign: $useFancyDesign
+                )
             } else {
                 showsListView(shows)
             }

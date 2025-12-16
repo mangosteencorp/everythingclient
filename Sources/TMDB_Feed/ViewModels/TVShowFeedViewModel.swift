@@ -124,6 +124,20 @@ public class TVShowFeedViewModel: ObservableObject {
         state = .loaded(shows)
     }
 
+    func clearSearchAndRetry() {
+        searchQuery = ""
+        searchFilters = SearchFilters()
+        loadCurrentFeedTVShows()
+    }
+
+    func retrySearch() {
+        if !searchQuery.isEmpty {
+            searchTVShows(query: searchQuery)
+        } else {
+            fetchTVShowsForCurrentFeedType()
+        }
+    }
+
     private func searchTVShows(query: String) {
         if case .loaded(let shows) = state {
             state = .searchResults(shows)
