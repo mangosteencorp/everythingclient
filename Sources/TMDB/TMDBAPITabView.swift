@@ -12,7 +12,6 @@ import TMDB_Shared_UI
 public enum TabStyle: CaseIterable {
     case normal
     case floating
-    case page
 }
 
 @available(iOS 16, *)
@@ -132,8 +131,6 @@ public struct TMDBAPITabView: View {
                 normalTabView
             case .floating:
                 floatingTabView
-            case .page:
-                pageTabView
             }
         }
     }
@@ -235,59 +232,55 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private var normalTabView: some View {
-        TabView(selection: $coordinator.selectedTab) {
-            // Movie Feed Tab
-            buildMovieFeedPage()
+        if #available(iOS 26, *) {
+            // iOS 26: Liquid Glass tab bar with minimize behavior
+            TabView(selection: $coordinator.selectedTab) {
+                Tab(TabRoute.movieFeed.title, systemImage: TabRoute.movieFeed.iconName, value: TabRoute.movieFeed) {
+                    buildMovieFeedPage()
+                }
+                Tab(TabRoute.marketplace.title, systemImage: TabRoute.marketplace.iconName, value: TabRoute.marketplace) {
+                    NavigationStack(path: coordinator.path(for: .marketplace)) {
+                        buildMarketplacePage()
+                    }
+                }
+                Tab(TabRoute.profile.title, systemImage: TabRoute.profile.iconName, value: TabRoute.profile) {
+                    NavigationStack(path: coordinator.path(for: .profile)) {
+                        buildProfilePage()
+                    }
+                }
+            }
+            .tabBarMinimizeBehavior(.onScrollDown)
+            .environmentObject(coordinator)
+        } else {
+            // Fallback for iOS 16-25
+            TabView(selection: $coordinator.selectedTab) {
+                buildMovieFeedPage()
+                    .tabItem {
+                        Image(systemName: TabRoute.movieFeed.iconName)
+                        Text(TabRoute.movieFeed.title)
+                    }
+                    .tag(TabRoute.movieFeed)
+
+                NavigationStack(path: coordinator.path(for: .marketplace)) {
+                    buildMarketplacePage()
+                }
                 .tabItem {
-                Image(systemName: TabRoute.movieFeed.iconName)
-                Text(TabRoute.movieFeed.title)
-            }
-            .tag(TabRoute.movieFeed)
+                    Image(systemName: TabRoute.marketplace.iconName)
+                    Text(TabRoute.marketplace.title)
+                }
+                .tag(TabRoute.marketplace)
 
-            // Marketplace Tab
-            NavigationStack(path: coordinator.path(for: .marketplace)) {
-                buildMarketplacePage()
+                NavigationStack(path: coordinator.path(for: .profile)) {
+                    buildProfilePage()
+                }
+                .tabItem {
+                    Image(systemName: TabRoute.profile.iconName)
+                    Text(TabRoute.profile.title)
+                }
+                .tag(TabRoute.profile)
             }
-            .tabItem {
-                Image(systemName: TabRoute.marketplace.iconName)
-                Text(TabRoute.marketplace.title)
-            }
-            .tag(TabRoute.marketplace)
-
-            // Profile Tab
-            NavigationStack(path: coordinator.path(for: .profile)) {
-                buildProfilePage()
-            }
-            .tabItem {
-                Image(systemName: TabRoute.profile.iconName)
-                Text(TabRoute.profile.title)
-            }
-            .tag(TabRoute.profile)
+            .environmentObject(coordinator)
         }
-        .environmentObject(coordinator)
-    }
-
-    @ViewBuilder
-    private var pageTabView: some View {
-        TabView(selection: $coordinator.selectedTab) {
-            // Movie Feed Page
-            buildMovieFeedPage()
-            .tag(TabRoute.movieFeed)
-
-            // Marketplace Page
-            NavigationStack(path: coordinator.path(for: .marketplace)) {
-                buildMarketplacePage()
-            }
-            .tag(TabRoute.marketplace)
-
-            // Profile Page
-            NavigationStack(path: coordinator.path(for: .profile)) {
-                buildProfilePage()
-            }
-            .tag(TabRoute.profile)
-        }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-        .environmentObject(coordinator)
     }
 
     @ViewBuilder
