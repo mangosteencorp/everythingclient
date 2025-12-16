@@ -8,8 +8,8 @@ import TMDB_Shared_Backend
 }
 
 @available(iOS 16, *)
-#Preview("floating style") {
-    TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .floating)
+#Preview("page style") {
+    TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .page)
 }
 
 @available(iOS 16, *)
