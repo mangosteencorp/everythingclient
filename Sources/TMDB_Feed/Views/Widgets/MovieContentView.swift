@@ -30,7 +30,17 @@ struct MovieContentView<Route: Hashable>: View {
                         )
                     }
                     if movies.isEmpty {
-                        CommonNoResultView(useFancyDesign: $useFancyDesign)
+                        CommonNoResultView(
+                            configuration: NoResultViewConfiguration(
+                                primaryButtonAction: { [weak viewModel] in
+                                    viewModel?.retrySearch()
+                                },
+                                secondaryButtonAction: { [weak viewModel] in
+                                    viewModel?.clearSearchAndRetry()
+                                }
+                            ),
+                            useFancyDesign: $useFancyDesign
+                        )
                     } else {
                         List(movies) { movie in
                             NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)

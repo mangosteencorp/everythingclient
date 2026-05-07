@@ -198,6 +198,20 @@ public class MovieFeedViewModel: ObservableObject {
         state = .loaded(movies)
     }
 
+    func clearSearchAndRetry() {
+        searchQuery = ""
+        searchFilters = SearchFilters()
+        loadCurrentFeedMovies()
+    }
+
+    func retrySearch() {
+        if !searchQuery.isEmpty {
+            searchMovies(query: searchQuery)
+        } else {
+            fetchMoviesForCurrentFeedType()
+        }
+    }
+
     private func searchMovies(query: String) {
         if case .loaded(let movies) = state {
             state = .searchResults(movies)
