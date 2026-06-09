@@ -2,6 +2,7 @@
 import Combine
 import Kingfisher
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 import UIKit
 
 // MARK: - Section Layout Configuration

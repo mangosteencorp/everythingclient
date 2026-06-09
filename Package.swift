@@ -106,8 +106,6 @@ let package = Package(
             name: "TMDB_Shared_UI",
             dependencies: [
                 "Shared_UI_Support",
-                "TMDB_Shared_Backend",
-                "Swinject",
             ]
         ),
         // Detail page
@@ -135,6 +133,9 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
+            ],
+            resources: [
+                .process("Resources"),
             ]
         ),
         // Movie list

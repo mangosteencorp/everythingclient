@@ -1,6 +1,7 @@
 import Kingfisher
 import Shared_UI_Support
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 import UIKit
 
 protocol ProfileContentViewControllerDelegate: AnyObject {

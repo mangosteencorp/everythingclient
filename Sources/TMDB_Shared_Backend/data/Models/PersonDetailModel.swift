@@ -1,20 +1,20 @@
 import Foundation
 
-struct PersonDetail: Decodable {
-    let adult: Bool?
-    let alsoKnownAs: [String]
-    let biography: String
-    let birthday: String?
-    let deathday: String?
-    let gender: Int?
-    let homepage: String?
-    let id: Int
-    let imdbId: String?
-    let knownForDepartment: String?
-    let name: String
-    let placeOfBirth: String?
-    let popularity: Double
-    let profilePath: String?
+public struct PersonDetail: Decodable {
+    public let adult: Bool?
+    public let alsoKnownAs: [String]
+    public let biography: String
+    public let birthday: String?
+    public let deathday: String?
+    public let gender: Int?
+    public let homepage: String?
+    public let id: Int
+    public let imdbId: String?
+    public let knownForDepartment: String?
+    public let name: String
+    public let placeOfBirth: String?
+    public let popularity: Double
+    public let profilePath: String?
 
     enum CodingKeys: String, CodingKey {
         case adult, biography, birthday, deathday, gender, homepage, id, name, popularity
@@ -26,29 +26,29 @@ struct PersonDetail: Decodable {
     }
 }
 
-struct PersonMovieCredits: Decodable {
-    let id: Int
-    let cast: [PersonMovieCredit]
-    let crew: [PersonMovieCredit]
+public struct PersonMovieCredits: Decodable {
+    public let id: Int
+    public let cast: [PersonMovieCredit]
+    public let crew: [PersonMovieCredit]
 }
 
-struct PersonMovieCredit: Decodable, Identifiable {
-    let adult: Bool?
-    let backdropPath: String?
-    let character: String?
-    let creditId: String
-    let department: String?
-    let id: Int
-    let job: String?
-    let order: Int?
-    let originalTitle: String?
-    let overview: String
-    let popularity: Double
-    let posterPath: String?
-    let releaseDate: String?
-    let title: String
-    let voteAverage: Double
-    let voteCount: Int
+public struct PersonMovieCredit: Decodable, Identifiable {
+    public let adult: Bool?
+    public let backdropPath: String?
+    public let character: String?
+    public let creditId: String
+    public let department: String?
+    public let id: Int
+    public let job: String?
+    public let order: Int?
+    public let originalTitle: String?
+    public let overview: String
+    public let popularity: Double
+    public let posterPath: String?
+    public let releaseDate: String?
+    public let title: String
+    public let voteAverage: Double
+    public let voteCount: Int
 
     enum CodingKeys: String, CodingKey {
         case adult, character, department, id, job, order, overview, popularity, title
@@ -62,20 +62,7 @@ struct PersonMovieCredit: Decodable, Identifiable {
     }
 }
 
-extension PersonDetail {
-    var lifespan: String? {
-        switch (birthday, deathday) {
-        case let (birthday?, deathday?):
-            return "\(birthday) - \(deathday)"
-        case let (birthday?, nil):
-            return "Born \(birthday)"
-        default:
-            return nil
-        }
-    }
-}
-
-extension PersonMovieCredits {
+public extension PersonMovieCredits {
     var featuredCredits: [PersonMovieCredit] {
         let uniqueCredits = Dictionary(grouping: cast + crew, by: \.id)
             .compactMap { _, credits in
@@ -94,7 +81,7 @@ extension PersonMovieCredits {
     }
 }
 
-extension PersonMovieCredit {
+public extension PersonMovieCredit {
     var roleText: String? {
         if let character, !character.isEmpty {
             return character

@@ -490,6 +490,10 @@ public enum TMDBEndpoint {
             return GenreListModel.self
         case .popularPersons:
             return PersonListResultModel.self
+        case .personDetail:
+            return PersonDetail.self
+        case .personMovieCredits:
+            return PersonMovieCredits.self
         case .trendingAll:
             return TrendingAllResultModel.self
         case .movieWatchProviders, .tvWatchProviders:
