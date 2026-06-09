@@ -1,23 +1,45 @@
 #!/bin/bash
+set -euo pipefail
 
-# Debug info
 pwd
 ls -la
 
-# Get the scheme list in JSON format
-scheme_list=$(xcodebuild -list -json | tr -d "\n")
+scheme_list=$(xcodebuild -list -json)
 echo "Available schemes: $scheme_list"
 
-# Determine the default scheme
-if echo $scheme_list | grep -q "workspace"; then
-    default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['workspace']['schemes'][0]" || echo "Rebuild")
-else
-    default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]" || echo "Rebuild")
+schemes=$(printf "%s" "$scheme_list" | ruby -e '
+  require "json"
+  data = JSON.parse(STDIN.read)
+  container = data["workspace"] || data["project"] || {}
+  puts Array(container["schemes"])
+')
+
+if [ -z "$schemes" ]; then
+  echo "No schemes found" >&2
+  exit 1
 fi
 
-# Save to file for other scripts
-echo $default | cat >default
+preferred_schemes=(
+  "Rebuild"
+  "EverythingClient"
+  "TMDB"
+)
+
+default=""
+for preferred_scheme in "${preferred_schemes[@]}"; do
+  if printf "%s\n" "$schemes" | grep -qx "$preferred_scheme"; then
+    default="$preferred_scheme"
+    break
+  fi
+done
+
+if [ -z "$default" ]; then
+  default=$(printf "%s\n" "$schemes" | head -n 1)
+fi
+
+printf "%s" "$default" > default
 echo "Using default scheme: $default"
 
-# Set environment variable for GitHub Actions
-echo "default=$default" >> $GITHUB_ENV 
+if [ -n "${GITHUB_ENV:-}" ]; then
+  echo "default=$default" >> "$GITHUB_ENV"
+fi

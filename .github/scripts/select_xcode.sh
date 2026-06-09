@@ -1,37 +1,76 @@
 #!/bin/bash
+set -euo pipefail
 
-# Select latest Xcode with version filtering
-# Usage: ./select_xcode.sh [max_major_version] [max_minor_version]
-# Example: ./select_xcode.sh 16 4 (for max Xcode 16.4)
+# Usage:
+#   ./select_xcode.sh [max_major_version] [max_minor_version]
+#
+# With no version cap, selects the newest stable Xcode installed on the runner.
+# Set ALLOW_XCODE_BETA=1 to include beta Xcode bundles.
 
-# Default to max Xcode 16.4 if no arguments provided
-MAX_MAJOR_VERSION=${1:-16}
-MAX_MINOR_VERSION=${2:-4}
+MAX_MAJOR_VERSION="${1:-}"
+MAX_MINOR_VERSION="${2:-99}"
+ALLOW_XCODE_BETA="${ALLOW_XCODE_BETA:-0}"
 
-echo "Selecting Xcode with max version: $MAX_MAJOR_VERSION.$MAX_MINOR_VERSION"
+if [ -n "$MAX_MAJOR_VERSION" ]; then
+  echo "Selecting newest Xcode up to $MAX_MAJOR_VERSION.$MAX_MINOR_VERSION"
+else
+  echo "Selecting newest installed stable Xcode"
+fi
 
-XCODE_LIST_RAW=$(ls -d /Applications/Xcode*.app)
-echo "Xcode List full: $XCODE_LIST_RAW"
-XCODE_LIST=$(ls -d /Applications/Xcode*.app | grep -i -v beta)
-echo "Xcode List: $XCODE_LIST"
+shopt -s nullglob
+xcode_paths=(/Applications/Xcode*.app)
 
-# Filter Xcode versions to specified max version
-FILTERED_XCODE_LIST=""
-for xcode_path in $XCODE_LIST; do
-  xcode_name=$(basename "$xcode_path" .app)
-  if [[ "$xcode_name" == "Xcode" ]]; then
-    # Handle Xcode without version suffix (likely Xcode 15 or earlier)
-    FILTERED_XCODE_LIST="$FILTERED_XCODE_LIST $xcode_path"
-  elif [[ "$xcode_name" =~ ^Xcode_([0-9]+)\.([0-9]+)(\.[0-9]+)?$ ]]; then
-    major_version="${BASH_REMATCH[1]}"
-    minor_version="${BASH_REMATCH[2]}"
-    if [[ "$major_version" -lt $MAX_MAJOR_VERSION ]] || [[ "$major_version" -eq $MAX_MAJOR_VERSION && "$minor_version" -le $MAX_MINOR_VERSION ]]; then
-      FILTERED_XCODE_LIST="$FILTERED_XCODE_LIST $xcode_path"
+if [ ${#xcode_paths[@]} -eq 0 ]; then
+  echo "No Xcode installations found in /Applications" >&2
+  exit 1
+fi
+
+selected_path=""
+selected_version=""
+
+for xcode_path in "${xcode_paths[@]}"; do
+  xcode_name=$(basename "$xcode_path")
+
+  if [[ "$ALLOW_XCODE_BETA" != "1" && "$xcode_name" =~ [Bb]eta ]]; then
+    echo "Skipping beta Xcode: $xcode_path"
+    continue
+  fi
+
+  version=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$xcode_path/Contents/Info.plist" 2>/dev/null || true)
+
+  if [ -z "$version" ]; then
+    version=$(DEVELOPER_DIR="$xcode_path/Contents/Developer" xcodebuild -version | awk '/^Xcode / { print $2 }')
+  fi
+
+  major_version="${version%%.*}"
+  minor_version="${version#*.}"
+  minor_version="${minor_version%%.*}"
+
+  if [ -n "$MAX_MAJOR_VERSION" ]; then
+    if [ "$major_version" -gt "$MAX_MAJOR_VERSION" ]; then
+      echo "Skipping $xcode_path ($version), above max major"
+      continue
     fi
+
+    if [ "$major_version" -eq "$MAX_MAJOR_VERSION" ] && [ "$minor_version" -gt "$MAX_MINOR_VERSION" ]; then
+      echo "Skipping $xcode_path ($version), above max minor"
+      continue
+    fi
+  fi
+
+  echo "Candidate: $xcode_path ($version)"
+
+  if [ -z "$selected_version" ] || [ "$(printf "%s\n%s\n" "$selected_version" "$version" | sort -V | tail -n 1)" = "$version" ]; then
+    selected_path="$xcode_path"
+    selected_version="$version"
   fi
 done
 
-echo "Filtered Xcode List (max $MAX_MAJOR_VERSION.$MAX_MINOR_VERSION): $FILTERED_XCODE_LIST"
-LATEST_XCODE=$(echo "$FILTERED_XCODE_LIST" | tr ' ' '\n' | sort -V | tail -n 1)
-echo "Using Xcode: $LATEST_XCODE"
-sudo xcode-select -switch "$LATEST_XCODE" 
+if [ -z "$selected_path" ]; then
+  echo "No matching Xcode installation found" >&2
+  exit 1
+fi
+
+echo "Using Xcode: $selected_path ($selected_version)"
+sudo xcode-select -switch "$selected_path"
+xcodebuild -version
