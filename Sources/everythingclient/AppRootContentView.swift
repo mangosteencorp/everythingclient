@@ -1,5 +1,4 @@
 import CoreFeatures
-import Pokedex
 import SwiftUI
 import TMDB
 
@@ -71,8 +70,6 @@ public struct RootContentView: View {
                     analyticsTracker: analyticsTracker
                 )
             }
-        case .pokedex:
-            PokedexTabView()
         }
     }
 
@@ -89,8 +86,6 @@ public struct RootContentView: View {
                         analyticsTracker: analyticsTracker
                     )
                 }
-            case .pokedex:
-                PokedexTabView()
             }
         }
     }

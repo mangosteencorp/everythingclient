@@ -162,14 +162,14 @@ public struct TMDBAPITabView: View {
             TMDBRoute.tvShowDetail(tvShow.id)
         }
         .withTMDBNavigationDestinations(container: container)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                SwitchTabNavDesignToolbarItem(tabNavCombination: $tabNavCombination)
-            }
-        }
 
         movieFeedContent
             .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .movieFeed)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    SwitchTabNavDesignToolbarItem(tabNavCombination: $tabNavCombination)
+                }
+            }
     }
 
     @ViewBuilder
@@ -188,8 +188,7 @@ public struct TMDBAPITabView: View {
             // Navigate to discover TV shows filtered by TV genre (using TV genre IDs)
             coordinator.navigate(to: .tvShowList(.discoverWithTVGenre(genre)), in: .marketplace)
         } onCastTapped: { person in
-            // Navigate to TV show list with discover type for cast-based content
-            coordinator.navigate(to: .tvShowList(.discoverWithCast(person)), in: .marketplace)
+            coordinator.navigate(to: .personDetail(person.id), in: .marketplace)
         } onTrendingItemTapped: { trendingItem in
             // Navigate based on the media type of the trending item
             switch trendingItem.mediaType {
@@ -212,8 +211,7 @@ public struct TMDBAPITabView: View {
             case .tv:
                 coordinator.navigate(to: .tvShowDetail(trendingItem.id), in: .marketplace)
             case .person:
-                // Person items are not navigable in this context
-                break
+                coordinator.navigate(to: .personDetail(trendingItem.id), in: .marketplace)
             }
         }
 

@@ -2,13 +2,15 @@ import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
-struct MovieCrosslinePeopleRow: View {
+@available(iOS 16.0, *)
+struct MovieCrosslinePeopleRow<Route: Hashable>: View {
     let title: String
     let peoples: [People]
+    let personRouteBuilder: ((Int) -> Route)?
 
     private var peoplesListView: some View {
         List(peoples) { cast in
-            PeopleListItem(people: cast)
+            PeopleListItem(people: cast, personRouteBuilder: personRouteBuilder)
         }.navigationBarTitle(title)
     }
 
@@ -28,7 +30,7 @@ struct MovieCrosslinePeopleRow: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(peoples) { cast in
-                        PeopleRowItem(people: cast)
+                        PeopleRowItem(people: cast, personRouteBuilder: personRouteBuilder)
                     }
                 }.padding(.leading)
             }
@@ -38,6 +40,7 @@ struct MovieCrosslinePeopleRow: View {
     }
 }
 
+@available(iOS 16.0, *)
 struct RedactedMovieCrosslinePeopleRow: View {
     var body: some View {
         MovieCrosslinePeopleRow(
@@ -49,62 +52,85 @@ struct RedactedMovieCrosslinePeopleRow: View {
                 People.redacted(),
                 People.redacted(),
                 People.redacted(),
-            ]
+            ],
+            personRouteBuilder: nil as ((Int) -> Int)?
         )
         .redacted(reason: .placeholder)
     }
 }
 
-struct PeopleListItem: View {
+@available(iOS 16.0, *)
+struct PeopleListItem<Route: Hashable>: View {
     let people: People
+    let personRouteBuilder: ((Int) -> Route)?
 
     var body: some View {
-        NavigationLink(destination: EmptyView()) {
-            HStack {
-                RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(people.name)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                    Text(people.character ?? people.department ?? "")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
-            } // .contextMenu{ PeopleContextMenu(people: people.id) }
+        if let routeBuilder = personRouteBuilder {
+            NavigationLink(value: routeBuilder(people.id)) {
+                content
+            }
+        } else {
+            content
         }
     }
-}
 
-struct PeopleRowItem: View {
-    let people: People
+    private var content: some View {
+        HStack {
+            RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
 
-    var body: some View {
-        NavigationLink(destination: EmptyView()) {
-            VStack(alignment: .center) {
-                RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
+            VStack(alignment: .leading, spacing: 8) {
                 Text(people.name)
-                    .font(.footnote)
+                    .font(.headline)
                     .foregroundColor(.primary)
                     .lineLimit(1)
                 Text(people.character ?? people.department ?? "")
-                    .font(.footnote)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
-            .frame(width: 100)
-            // .contextMenu{ PeopleContextMenu(people: people.id) }
+        } // .contextMenu{ PeopleContextMenu(people: people.id) }
+    }
+}
+
+@available(iOS 16.0, *)
+struct PeopleRowItem<Route: Hashable>: View {
+    let people: People
+    let personRouteBuilder: ((Int) -> Route)?
+
+    var body: some View {
+        if let routeBuilder = personRouteBuilder {
+            NavigationLink(value: routeBuilder(people.id)) {
+                content
+            }
+        } else {
+            content
         }
+    }
+
+    private var content: some View {
+        VStack(alignment: .center) {
+            RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
+            Text(people.name)
+                .font(.footnote)
+                .foregroundColor(.primary)
+                .lineLimit(1)
+            Text(people.character ?? people.department ?? "")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+        }
+        .frame(width: 100)
+        // .contextMenu{ PeopleContextMenu(people: people.id) }
     }
 }
 
 #if DEBUG
+@available(iOS 16.0, *)
 #Preview {
-    return MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples)
+    return MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples, personRouteBuilder: { $0 })
 }
 
+@available(iOS 16.0, *)
 #Preview {
     return RedactedMovieCrosslinePeopleRow()
 }

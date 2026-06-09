@@ -11,10 +11,14 @@ public struct MovieDetailPage<Route: Hashable>: View {
     @ObservedObject var watchProvidersViewModel: MovieWatchProvidersViewModel
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
+    let personRouteBuilder: ((Int) -> Route)?
+    let pokedexRouteBuilder: (() -> Route)?
 
     public init(movieRoute: Movie,
                 apiService: TMDBAPIService,
-                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route) {
+                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
+                personRouteBuilder: ((Int) -> Route)? = nil,
+                pokedexRouteBuilder: (() -> Route)? = nil) {
         // Convert MovieRouteModel to Movie
         movie = movieRoute
         self.apiService = apiService
@@ -22,17 +26,23 @@ public struct MovieDetailPage<Route: Hashable>: View {
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
         watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
+        self.personRouteBuilder = personRouteBuilder
+        self.pokedexRouteBuilder = pokedexRouteBuilder
     }
 
     public init(movieId: Int,
                 apiService: TMDBAPIService,
-                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route) {
+                discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
+                personRouteBuilder: ((Int) -> Route)? = nil,
+                pokedexRouteBuilder: (() -> Route)? = nil) {
         movie = Movie.placeholder(id: movieId)
         self.apiService = apiService
         movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
         watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
+        self.personRouteBuilder = personRouteBuilder
+        self.pokedexRouteBuilder = pokedexRouteBuilder
     }
 
     public var body: some View {
@@ -55,7 +65,16 @@ public struct MovieDetailPage<Route: Hashable>: View {
                     if let locations = extractLocations(from: getMovie().overview), !locations.isEmpty {
                         MovieLocations(locations: locations)
                     }
-                    MovieCreditSection(movieId: movie.id, creditsViewModel: creditsViewModel)
+                    if let pokedexRouteBuilder, PokemonMovieMatcher.shouldShowPokedexButton(for: getMovie()) {
+                        NavigationLink(value: pokedexRouteBuilder()) {
+                            Label("Open Pokédex", systemImage: "sparkles")
+                        }
+                    }
+                    MovieCreditSection(
+                        movieId: movie.id,
+                        creditsViewModel: creditsViewModel,
+                        personRouteBuilder: personRouteBuilder
+                    )
                 }
                 Section {
                     MovieWatchProvidersSection(movieId: movie.id, watchProvidersViewModel: watchProvidersViewModel)

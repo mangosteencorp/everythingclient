@@ -40,6 +40,10 @@ let package = Package(
             name: "TMDB_MovieDetail",
             targets: ["TMDB_MovieDetail"]
         ),
+        .library(
+            name: "TMDB_Person",
+            targets: ["TMDB_Person"]
+        ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
@@ -69,7 +73,6 @@ let package = Package(
             name: "everythingclient",
             dependencies: [
                 "TMDB",
-                "Pokedex",
                 "CoreFeatures",
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
             ]
@@ -90,6 +93,8 @@ let package = Package(
                 "TMDB_Shared_UI",
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
+                "TMDB_Person",
+                "Pokedex",
                 "Swinject",
             ]
         ),
@@ -97,8 +102,14 @@ let package = Package(
             name: "TMDB_Shared_Backend",
             dependencies: ["Swinject"]
         ),
-        .target(name: "TMDB_Shared_UI",
-                dependencies: ["Shared_UI_Support"]),
+        .target(
+            name: "TMDB_Shared_UI",
+            dependencies: [
+                "Shared_UI_Support",
+                "TMDB_Shared_Backend",
+                "Swinject",
+            ]
+        ),
         // Detail page
         .target(
             name: "TMDB_MovieDetail",
@@ -115,6 +126,13 @@ let package = Package(
             name: "TMDB_TVShowDetail",
             dependencies: [
                 "CoreFeatures",
+                "TMDB_Shared_Backend",
+                "TMDB_Shared_UI",
+            ]
+        ),
+        .target(
+            name: "TMDB_Person",
+            dependencies: [
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
             ]
@@ -241,6 +259,7 @@ let package = Package(
                 "TMDB_Profile",
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
+                "TMDB_Person",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",

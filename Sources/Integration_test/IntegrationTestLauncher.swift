@@ -45,17 +45,14 @@ public struct IntegrationTestLauncher {
     public static func launch(_ demoTest: DemoTest) -> some View {
         switch demoTest {
         case .tmdbFeed:
-
             AnyView(TMDBFeedDemoView())
 
         case .tmdbDiscover:
-
             AnyView(TMDBDiscoverDemoView())
 
         case .tmdbMovieDetail:
             AnyView(TMDBMovieDetailDemoView())
         case .tmdbTVShowDetail:
-
             AnyView(TMDBTVShowDetailDemoView())
 
         case .pokedexList:
