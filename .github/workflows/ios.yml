@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build and Test default scheme using any available iPhone simulator
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       - name: Checkout
@@ -17,7 +17,7 @@ jobs:
       - name: Select latest Xcode
         run: |
           chmod +x ./.github/scripts/select_xcode.sh
-          ./.github/scripts/select_xcode.sh 16 4
+          ./.github/scripts/select_xcode.sh
       - name: Check environment
         run: |
           swift --version
@@ -33,11 +33,11 @@ jobs:
       - name: Set Default Scheme
         run: |
           chmod +x ./.github/scripts/set_scheme.sh
-          sh ./.github/scripts/set_scheme.sh
+          ./.github/scripts/set_scheme.sh
       - name: Build
         env:
           scheme: ${{ 'default' }}
           platform: ${{ 'iOS Simulator' }}
         run: |
           chmod +x ./.github/scripts/build.sh
-          sh ./.github/scripts/build.sh
+          ./.github/scripts/build.sh
