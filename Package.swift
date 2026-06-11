@@ -7,13 +7,17 @@ let package = Package(
     name: "everythingclient",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v16),
         //.macOS(.v11),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "EverythingClient",
+            targets: ["everythingclient"]
+        ),
+        .library(
+            name: "everythingclient",
             targets: ["everythingclient"]
         ),
         // Targets need to be exposed as libraries so Preview works
@@ -65,6 +69,7 @@ let package = Package(
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
+        .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -105,6 +110,7 @@ let package = Package(
         .target(
             name: "TMDB_Shared_UI",
             dependencies: [
+                "TMDB_Shared_Backend",
                 "Shared_UI_Support",
             ]
         ),
@@ -133,6 +139,7 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
+                .product(name: "SwiftfinLib", package: "Swiftfin"),
             ],
             resources: [
                 .process("Resources"),

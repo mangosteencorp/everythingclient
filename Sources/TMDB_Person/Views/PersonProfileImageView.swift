@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
 @available(iOS 16.0, *)

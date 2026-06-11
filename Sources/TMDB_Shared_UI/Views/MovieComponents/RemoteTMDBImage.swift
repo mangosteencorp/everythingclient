@@ -1,5 +1,6 @@
 import Combine
 import SwiftUI
+import TMDB_Shared_Backend
 
 public struct RemoteTMDBImage: View {
     let posterPath: String?
