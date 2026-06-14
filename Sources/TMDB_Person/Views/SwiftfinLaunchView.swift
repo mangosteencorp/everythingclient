@@ -10,7 +10,7 @@ struct SwiftfinLaunchView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .topLeading) {
             SwiftfinView()
 
             Button {
