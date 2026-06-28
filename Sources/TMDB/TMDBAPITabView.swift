@@ -375,4 +375,17 @@ private extension View {
     func withTabNavCombination(_ combination: TabNavCombination, coordinator: Coordinator, tabRoute: TabRoute) -> some View {
         modifier(TabNavCombinationModifier(tabNavCombination: combination, coordinator: coordinator, tabRoute: tabRoute))
     }
+
+    @ViewBuilder
+    func withDefaultSidebarTabBarPlacement() -> some View {
+        #if compiler(>6.4)
+        if #available(iOS 27, *) {
+            defaultTabBarPlacement(.sidebar)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
 }
