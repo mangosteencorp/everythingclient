@@ -11,6 +11,7 @@ import TMDB_Shared_UI
 @available(iOS 16, *)
 public enum TabStyle: CaseIterable {
     case normal
+    case sidebar
     case floating
     case page
 }
@@ -39,6 +40,8 @@ public enum NavigationWrapStyle: Int, CaseIterable {
 public enum TabNavCombination: CaseIterable {
     case normalTabPlainNav
     case normalTabNavigationViewNav
+    case sidebarTabPlainNav
+    case sidebarTabNavigationViewNav
     case floatingTabPlainNav
     case floatingTabNavigationViewNav
 
@@ -46,6 +49,8 @@ public enum TabNavCombination: CaseIterable {
         switch self {
         case .normalTabPlainNav, .normalTabNavigationViewNav:
             return .normal
+        case .sidebarTabPlainNav, .sidebarTabNavigationViewNav:
+            return .sidebar
         case .floatingTabPlainNav, .floatingTabNavigationViewNav:
             return .floating
         }
@@ -53,9 +58,9 @@ public enum TabNavCombination: CaseIterable {
 
     var navigationStyle: NavigationWrapStyle {
         switch self {
-        case .normalTabPlainNav, .floatingTabPlainNav:
+        case .normalTabPlainNav, .sidebarTabPlainNav, .floatingTabPlainNav:
             return .plain
-        case .normalTabNavigationViewNav, .floatingTabNavigationViewNav:
+        case .normalTabNavigationViewNav, .sidebarTabNavigationViewNav, .floatingTabNavigationViewNav:
             return .navigationView
         }
     }
@@ -66,6 +71,10 @@ public enum TabNavCombination: CaseIterable {
             return "Normal Tab + Plain Nav"
         case .normalTabNavigationViewNav:
             return "Normal Tab + Navigation View"
+        case .sidebarTabPlainNav:
+            return "Sidebar Tab + Plain Nav"
+        case .sidebarTabNavigationViewNav:
+            return "Sidebar Tab + Navigation View"
         case .floatingTabPlainNav:
             return "Floating Tab + Plain Nav"
         case .floatingTabNavigationViewNav:
@@ -78,6 +87,15 @@ public enum TabNavCombination: CaseIterable {
         if navigationStyle == .navigationView && UIDevice.current.userInterfaceIdiom != .pad {
             return false
         }
+
+        if tabStyle == .sidebar {
+            if #available(iOS 27, *) {
+                return true
+            }
+
+            return false
+        }
+
         return true
     }
 
@@ -99,13 +117,33 @@ public struct TMDBAPITabView: View {
     @State private var selectedTVShowId: Int?
     private let navigationInterceptor: TMDBNavigationInterceptor?
 
+    private static var defaultTabStyle: TabStyle {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return .floating
+        }
+
+        if #available(iOS 27, *) {
+            return .sidebar
+        }
+
+        return .normal
+    }
+
     public init(tmdbKey: String,
                 tabStyle: TabStyle? = nil,
                 navigationInterceptor: TMDBNavigationInterceptor? = nil,
                 analyticsTracker: AnalyticsTracker? = nil) {
         self.tmdbKey = tmdbKey
-        let defaultTabStyle = tabStyle ?? (UIDevice.current.userInterfaceIdiom == .pad ? .normal : .floating)
-        let defaultCombination: TabNavCombination = defaultTabStyle == .normal ? .normalTabPlainNav : .floatingTabPlainNav
+        let defaultTabStyle = tabStyle ?? Self.defaultTabStyle
+        let defaultCombination: TabNavCombination
+        switch defaultTabStyle {
+        case .normal, .page:
+            defaultCombination = .normalTabPlainNav
+        case .sidebar:
+            defaultCombination = .sidebarTabPlainNav
+        case .floating:
+            defaultCombination = .floatingTabPlainNav
+        }
         tabNavCombination = defaultCombination
         self.navigationInterceptor = navigationInterceptor
         self.analyticsTracker = analyticsTracker
@@ -130,6 +168,8 @@ public struct TMDBAPITabView: View {
             switch tabNavCombination.tabStyle {
             case .normal:
                 normalTabView
+            case .sidebar:
+                sidebarTabView
             case .floating:
                 floatingTabView
             case .page:
@@ -162,14 +202,14 @@ public struct TMDBAPITabView: View {
             TMDBRoute.tvShowDetail(tvShow.id)
         }
         .withTMDBNavigationDestinations(container: container)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                SwitchTabNavDesignToolbarItem(tabNavCombination: $tabNavCombination)
+            }
+        }
 
         movieFeedContent
             .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .movieFeed)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    SwitchTabNavDesignToolbarItem(tabNavCombination: $tabNavCombination)
-                }
-            }
     }
 
     @ViewBuilder
@@ -232,7 +272,7 @@ public struct TMDBAPITabView: View {
     // MARK: - Tab Views
 
     @ViewBuilder
-    private var normalTabView: some View {
+    private var systemTabView: some View {
         TabView(selection: $coordinator.selectedTab) {
             // Movie Feed Tab
             buildMovieFeedPage()
@@ -262,6 +302,18 @@ public struct TMDBAPITabView: View {
             }
             .tag(TabRoute.profile)
         }
+    }
+
+    @ViewBuilder
+    private var normalTabView: some View {
+        systemTabView
+        .environmentObject(coordinator)
+    }
+
+    @ViewBuilder
+    private var sidebarTabView: some View {
+        systemTabView
+        .withDefaultSidebarTabBarPlacement()
         .environmentObject(coordinator)
     }
 
@@ -356,11 +408,11 @@ private struct TabNavCombinationModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         switch tabNavCombination {
-        case .normalTabPlainNav, .floatingTabPlainNav:
+        case .normalTabPlainNav, .sidebarTabPlainNav, .floatingTabPlainNav:
             NavigationStack(path: coordinator.path(for: tabRoute)) {
                 content
             }
-        case .normalTabNavigationViewNav, .floatingTabNavigationViewNav:
+        case .normalTabNavigationViewNav, .sidebarTabNavigationViewNav, .floatingTabNavigationViewNav:
             NavigationStack(path: coordinator.path(for: tabRoute)) {
                 NavigationView {
                     content
@@ -378,7 +430,7 @@ private extension View {
 
     @ViewBuilder
     func withDefaultSidebarTabBarPlacement() -> some View {
-        #if compiler(>6.4)
+        #if compiler(>=6.4)
         if #available(iOS 27, *) {
             defaultTabBarPlacement(.sidebar)
         } else {
