@@ -63,6 +63,12 @@ public struct Movie: Codable, Identifiable {
         let backdrops: [ImageData]?
     }
 
+    var photoPaths: [String] {
+        let backdrops = images?.backdrops?.map(\.filePath) ?? []
+        let posters = images?.posters?.map(\.filePath) ?? []
+        return backdrops + posters + [posterPath].compactMap (\.self)  + [backdropPath].compactMap(\.self)
+    }
+
     public struct ProductionCountry: Codable, Identifiable {
         public var id: String {
             name

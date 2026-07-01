@@ -15,6 +15,9 @@
 // MovieLocations
 "locations_title" = "Locations";
 
+// MoviePhotos
+"photos_section_title" = "Photos";
+
 // MovieInfoRow
 "minutes_format" = "%@ minutes";
 "separator" = "•";

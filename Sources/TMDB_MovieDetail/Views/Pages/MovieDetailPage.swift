@@ -1,4 +1,4 @@
-import Shared_UI_Support
+import PhotoListViewer
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
@@ -12,12 +12,14 @@ public struct MovieDetailPage<Route: Hashable>: View {
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
     let personRouteBuilder: ((Int) -> Route)?
+    let photoSlidesRouteBuilder: (([String], Int) -> Route)?
     let pokedexRouteBuilder: (() -> Route)?
 
     public init(movieRoute: Movie,
                 apiService: TMDBAPIService,
                 discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
                 personRouteBuilder: ((Int) -> Route)? = nil,
+                photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
                 pokedexRouteBuilder: (() -> Route)? = nil) {
         // Convert MovieRouteModel to Movie
         movie = movieRoute
@@ -27,6 +29,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
+        self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
         self.pokedexRouteBuilder = pokedexRouteBuilder
     }
 
@@ -34,6 +37,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 apiService: TMDBAPIService,
                 discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
                 personRouteBuilder: ((Int) -> Route)? = nil,
+                photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
                 pokedexRouteBuilder: (() -> Route)? = nil) {
         movie = Movie.placeholder(id: movieId)
         self.apiService = apiService
@@ -42,6 +46,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
+        self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
         self.pokedexRouteBuilder = pokedexRouteBuilder
     }
 
@@ -54,6 +59,15 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 }
                 Section {
                     MovieOverview(movie: getMovie())
+                }
+                if let photoSlidesRouteBuilder, !getMovie().photoPaths.isEmpty {
+                    Section {
+                        PhotoCarouselView(
+                            title: L10n.photosSectionTitle,
+                            imagePaths: getMovie().photoPaths,
+                            photoSlidesRouteBuilder: photoSlidesRouteBuilder
+                        )
+                    }
                 }
                 Section {
                     if let kwList = getMovie().keywords?.keywords, !kwList.isEmpty {
@@ -109,7 +123,8 @@ let exampleMovieDetailPage: MovieDetailPage = {
     var page = MovieDetailPage(
         movieRoute: exampleMovieDetail,
         apiService: apiService,
-        discoverMovieByKeywordRouteBuilder: {_ in 1}
+        discoverMovieByKeywordRouteBuilder: {_ in 1},
+        photoSlidesRouteBuilder: { _, index in index }
     )
 
     let movieDetailVM = MovieDetailViewModel(apiService: apiService)

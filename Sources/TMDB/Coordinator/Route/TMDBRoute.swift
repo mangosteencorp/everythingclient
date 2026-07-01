@@ -4,6 +4,7 @@ public enum TMDBRoute: Route {
     case movieDetail(MovieRouteModel)
     case tvShowDetail(Int)
     case personDetail(Int)
+    case photoSlides(PhotoSlidesRouteModel)
     case pokedex
     case movieList(AdditionalMovieListParams)
     case tvShowList(TMDB_Discover.TVShowFeedType)
@@ -16,6 +17,9 @@ public enum TMDBRoute: Route {
             hasher.combine(id)
         case let .personDetail(id):
             hasher.combine(id)
+        case let .photoSlides(model):
+            hasher.combine(model.imagePaths)
+            hasher.combine(model.initialIndex)
         case .pokedex:
             hasher.combine("pokedex")
         case let .movieList(params):
@@ -33,6 +37,8 @@ public enum TMDBRoute: Route {
             return lId == rId
         case let (.personDetail(lId), .personDetail(rId)):
             return lId == rId
+        case let (.photoSlides(lModel), .photoSlides(rModel)):
+            return lModel == rModel
         case (.pokedex, .pokedex):
             return true
         case let (.movieList(lParams), .movieList(rParams)):

@@ -1,4 +1,5 @@
 import CoreFeatures
+import PhotoListViewer
 import Pokedex
 import SwiftUI
 import Swinject
@@ -34,6 +35,9 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 personRouteBuilder: { personId in
                     TMDBRoute.personDetail(personId)
                 },
+                photoSlidesRouteBuilder: { imagePaths, initialIndex in
+                    TMDBRoute.photoSlides(PhotoSlidesRouteModel(imagePaths: imagePaths, initialIndex: initialIndex))
+                },
                 pokedexRouteBuilder: {
                     TMDBRoute.pokedex
                 }
@@ -50,6 +54,8 @@ public struct TMDBNavigationDestinations: ViewModifier {
                     TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
                 }
             )
+        case let .photoSlides(model):
+            PhotoSlidesPage(imagePaths: model.imagePaths, initialIndex: model.initialIndex)
         case .pokedex:
             PokedexView()
                 .navigationTitle("Pokédex")

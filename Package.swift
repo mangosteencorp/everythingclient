@@ -45,6 +45,10 @@ let package = Package(
             targets: ["TMDB_MovieDetail"]
         ),
         .library(
+            name: "PhotoListViewer",
+            targets: ["PhotoListViewer"]
+        ),
+        .library(
             name: "TMDB_Person",
             targets: ["TMDB_Person"]
         ),
@@ -99,6 +103,7 @@ let package = Package(
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
+                "PhotoListViewer",
                 "Pokedex",
                 "Swinject",
             ]
@@ -119,6 +124,7 @@ let package = Package(
             name: "TMDB_MovieDetail",
             dependencies: [
                 "TMDB_Shared_UI",
+                "PhotoListViewer",
                 "Swinject",
                 "TMDB_Shared_Backend",
             ],
@@ -255,6 +261,14 @@ let package = Package(
             name: "CoreFeatures"
         ),
 
+        .target(
+            name: "PhotoListViewer",
+            dependencies: [
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
+            ]
+        ),
+
         // MARK: Integration Tests
 
         .target(
@@ -268,6 +282,7 @@ let package = Package(
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
+                "PhotoListViewer",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",

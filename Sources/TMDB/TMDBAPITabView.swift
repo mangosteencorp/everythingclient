@@ -1,4 +1,5 @@
 import CoreFeatures
+import Shared_UI_Support
 import SwiftUI
 import Swinject
 import TMDB_Discover
@@ -395,6 +396,7 @@ private struct SwitchTabNavDesignToolbarItem: View {
         } label: {
             Image(systemName: "figure.jumprope")
         }
+        .adaptiveContainerCornerOffset(.horizontal, sizeToFit: true)
     }
 }
 
