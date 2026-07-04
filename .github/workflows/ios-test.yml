@@ -6,9 +6,10 @@ on:
   pull_request:
     branches: [ "main", "dev", "cicd" ]
   workflow_dispatch:
+
 jobs:
-  build:
-    name: Build and Test default scheme using any available iPhone simulator
+  test:
+    name: Run unit tests
     runs-on: macos-26
 
     steps:
@@ -42,16 +43,44 @@ jobs:
         run: |
           chmod +x ./.github/scripts/find_simulator.sh
           ./.github/scripts/find_simulator.sh
-      - name: Test with coverage
+      - name: Run tests
         env:
           scheme: ${{ 'default' }}
           platform: ${{ 'iOS Simulator' }}
         run: |
-          chmod +x ./.github/scripts/test.sh
-          ./.github/scripts/test.sh
+          chmod +x ./.github/scripts/test-only.sh
+          ./.github/scripts/test-only.sh
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data
+          path: .DerivedData/everythingclient/Build
+          retention-days: 1
 
+  coverage:
+    name: Check code coverage
+    runs-on: macos-26
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select latest Xcode
+        run: |
+          chmod +x ./.github/scripts/select_xcode.sh
+          ./.github/scripts/select_xcode.sh
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-data
+          path: .DerivedData/everythingclient
+      - name: Check coverage
+        run: |
+          chmod +x ./.github/scripts/coverage-check.sh
+          ./.github/scripts/coverage-check.sh
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: coverage-report
           path: .output/coverage_report.txt
