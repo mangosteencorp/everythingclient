@@ -50,6 +50,12 @@ jobs:
         run: |
           chmod +x ./.github/scripts/test-only.sh
           ./.github/scripts/test-only.sh
+      - name: Verify coverage data before upload
+        run: |
+          ls -la .DerivedData/everythingclient/Build
+          ls -la .DerivedData/everythingclient/Build/ProfileData
+          find .DerivedData/everythingclient/Build/ProfileData -name Coverage.profdata
+          ls -la .DerivedData/everythingclient/Build/Products/Debug-iphonesimulator/*Tests.xctest
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
         with:
@@ -73,7 +79,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: coverage-data
-          path: .DerivedData/everythingclient
+          path: .DerivedData/everythingclient/Build
+      - name: Verify coverage data after download
+        run: |
+          ls -la .DerivedData/everythingclient/Build
+          ls -la .DerivedData/everythingclient/Build/ProfileData
+          find .DerivedData/everythingclient/Build/ProfileData -name Coverage.profdata
+          ls -la .DerivedData/everythingclient/Build/Products/Debug-iphonesimulator/*Tests.xctest
       - name: Check coverage
         run: |
           chmod +x ./.github/scripts/coverage-check.sh
