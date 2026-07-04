@@ -21,8 +21,8 @@ class MovieListPageTests: XCTestCase {
         let apiKey = "test_api_key"
 
         // When
-        let nowPlayingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .airingToday, detailRouteBuilder: {_ in 1})
-        let upcomingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .onTheAir, detailRouteBuilder: {_ in 1})
+        let nowPlayingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .airingToday, detailRouteBuilder: { _, _ in 1 })
+        let upcomingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .onTheAir, detailRouteBuilder: { _, _ in 1 })
 
         // Then
         XCTAssertNotNil(nowPlayingPage)

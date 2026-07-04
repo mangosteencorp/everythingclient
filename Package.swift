@@ -299,7 +299,7 @@ for target in package.targets {
   target.linkerSettings = target.linkerSettings ?? []
   target.linkerSettings?.append(
     .unsafeFlags([
-      "-ObjC",
+      "-Xlinker", "-ObjC",
     ])
   )
 }

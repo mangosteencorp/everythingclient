@@ -23,9 +23,10 @@ jobs:
           swift --version
           xcodebuild -version
           xcrun xctrace list devices 2>&1
-      - name: Configure Xcode DerivedData path
+      - name: Configure Xcode
         run: |
-          defaults write com.apple.dt.Xcode IDECustomDerivedDataLocation "./.DerivedData"
+          chmod +x ./.github/scripts/configure_xcode.sh
+          ./.github/scripts/configure_xcode.sh
       - name: Set up secrets in xcconfig
         run: |
           echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
