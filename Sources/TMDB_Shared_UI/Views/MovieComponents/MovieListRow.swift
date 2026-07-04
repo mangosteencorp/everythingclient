@@ -54,7 +54,6 @@ public struct MovieRow: View {
                 .redacted(if: movie.posterPath == nil)
             }
             .fixedSize()
-            .animation(.spring())
             VStack(alignment: .leading, spacing: 8) {
                 Text(movie.title)
                     .titleStyle()

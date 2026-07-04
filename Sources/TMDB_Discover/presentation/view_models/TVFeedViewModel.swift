@@ -62,6 +62,7 @@ class TVFeedViewModel: ObservableObject {
             } else {
                 result = .failure(NSError(domain: "TVFeedViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "No use case available"]))
             }
+            let capturedFavoriteIds = favoriteIds
             await MainActor.run {
                 self.isLoading = false
                 switch result {
@@ -69,7 +70,7 @@ class TVFeedViewModel: ObservableObject {
                     // Merge favorite status into movies
                     self.movies = movies.map { movie in
                         var updatedMovie = movie
-                        updatedMovie.isFavorite = favoriteIds.contains(movie.id)
+                        updatedMovie.isFavorite = capturedFavoriteIds.contains(movie.id)
                         return updatedMovie
                     }
                     analyticsTracker?.trackPageView(parameters: PageViewParameters(

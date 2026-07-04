@@ -27,10 +27,8 @@ public func findViewOfType<T>(_ type: T.Type, in view: Any) -> T? {
 
     let mirror = Mirror(reflecting: view)
     for child in mirror.children {
-        if let childView = child.value as? Any {
-            if let result = findViewOfType(type, in: childView) {
-                return result
-            }
+        if let result = findViewOfType(type, in: child.value) {
+            return result
         }
     }
 
