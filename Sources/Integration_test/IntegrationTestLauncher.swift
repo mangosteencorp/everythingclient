@@ -3,9 +3,11 @@ import Pokedex_Detail
 import Pokedex_Pokelist
 import Shared_UI_Support
 import SwiftUI
+import TMDB
 import TMDB_Discover
 import TMDB_Feed
 import TMDB_MovieDetail
+import TMDB_Person
 import TMDB_Profile
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
@@ -17,6 +19,8 @@ public struct IntegrationTestLauncher {
         case tmdbDiscover = "TMDBDiscover"
         case tmdbMovieDetail = "TMDBMovieDetail"
         case tmdbTVShowDetail = "TMDBTVShowDetail"
+        case tmdbSettings = "TMDBSettings"
+        case tmdbPersonDetail = "TMDBPersonDetail"
         case pokedexList = "PokedexList"
         case pokedexDetail = "PokedexDetail"
         case themeSwitcher = "ThemeSwitcher"
@@ -27,6 +31,8 @@ public struct IntegrationTestLauncher {
             case .tmdbDiscover: return "TMDB Discover"
             case .tmdbMovieDetail: return "TMDB Movie Detail"
             case .tmdbTVShowDetail: return "TMDB TV Show Detail"
+            case .tmdbSettings: return "TMDB Settings"
+            case .tmdbPersonDetail: return "TMDB Person Detail"
             case .pokedexList: return "Pokedex List"
             case .pokedexDetail: return "Pokedex Detail"
             case .themeSwitcher: return "Theme Switcher"
@@ -54,6 +60,10 @@ public struct IntegrationTestLauncher {
             AnyView(TMDBMovieDetailDemoView())
         case .tmdbTVShowDetail:
             AnyView(TMDBTVShowDetailDemoView())
+        case .tmdbSettings:
+            AnyView(TMDBSettingsDemoView())
+        case .tmdbPersonDetail:
+            AnyView(TMDBPersonDetailDemoView())
 
         case .pokedexList:
             AnyView(PokedexListDemoView())

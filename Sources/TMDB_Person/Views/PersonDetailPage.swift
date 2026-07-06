@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 
@@ -46,6 +47,7 @@ public struct PersonDetailPage<Route: Hashable>: View {
     private let personId: Int
     private let movieRouteBuilder: (Int) -> Route
     @StateObject private var store: Store
+    @State private var useCarouselFilmography = false
 
     public init(
         personId: Int,
@@ -60,6 +62,11 @@ public struct PersonDetailPage<Route: Hashable>: View {
     public var body: some View {
         content
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                SwitchDesignToolbarItem(accessibilityIdentifier: "personDetail.switchDesign.button") {
+                    useCarouselFilmography.toggle()
+                }
+            }
             .task(id: personId) {
                 await store.fetch()
             }
@@ -80,6 +87,7 @@ public struct PersonDetailPage<Route: Hashable>: View {
             PersonDetailContent(
                 person: payload.detail,
                 credits: payload.credits.featuredCredits,
+                useCarouselFilmography: useCarouselFilmography,
                 movieRouteBuilder: movieRouteBuilder
             )
         case .error(let message):

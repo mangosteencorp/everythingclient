@@ -32,6 +32,13 @@
         "identifier" : "TMDB_Shared_Backend_Tests",
         "name" : "TMDB_Shared_Backend_Tests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TMDB_MovieDetail_Tests",
+        "name" : "TMDB_MovieDetail_Tests"
+      }
     }
   ],
   "version" : 1

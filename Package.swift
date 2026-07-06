@@ -130,7 +130,14 @@ let package = Package(
             ],
             resources: [
                 .process("Resources"),
+            ],
+            linkerSettings: [
+                .linkedFramework("MusicKit", .when(platforms: [.iOS, .macCatalyst])),
             ]
+        ),
+        .testTarget(
+            name: "TMDB_MovieDetail_Tests",
+            dependencies: ["TMDB_MovieDetail"]
         ),
         .target(
             name: "TMDB_TVShowDetail",
@@ -145,6 +152,8 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
+                "Shared_UI_Support",
+                "CoreFeatures",
                 .product(name: "SwiftfinLib", package: "Swiftfin"),
             ],
             resources: [

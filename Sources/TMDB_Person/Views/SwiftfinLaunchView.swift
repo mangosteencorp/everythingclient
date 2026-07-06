@@ -2,14 +2,14 @@ import SwiftfinLib
 import SwiftUI
 
 @available(iOS 16.0, *)
-struct SwiftfinLaunchView: View {
+public struct SwiftfinLaunchView: View {
     @Environment(\.dismiss) private var dismiss
 
-    init() {
+    public init() {
         SwiftfinLaunchConfiguration.configureIfNeeded()
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack(alignment: .topLeading) {
             SwiftfinView()
 
@@ -23,6 +23,7 @@ struct SwiftfinLaunchView: View {
                     .padding(16)
             }
             .accessibilityLabel("Close Swiftfin")
+            .accessibilityIdentifier("swiftfin.close.button")
         }
     }
 }

@@ -5,6 +5,7 @@ import TMDB_Shared_Backend
 struct PersonDetailContent<Route: Hashable>: View {
     let person: PersonDetail
     let credits: [PersonMovieCredit]
+    let useCarouselFilmography: Bool
     let movieRouteBuilder: (Int) -> Route
 
     var body: some View {
@@ -13,7 +14,19 @@ struct PersonDetailContent<Route: Hashable>: View {
                 PersonDetailHeaderView(person: person)
                 PersonFactGrid(person: person)
                 PersonBiographySection(biography: person.biography)
-                PersonFilmographySection(credits: credits, movieRouteBuilder: movieRouteBuilder)
+
+                if useCarouselFilmography {
+                    PersonFilmographyCarouselSection(
+                        credits: credits,
+                        movieRouteBuilder: movieRouteBuilder
+                    )
+                } else {
+                    PersonFilmographySection(
+                        credits: credits,
+                        movieRouteBuilder: movieRouteBuilder
+                    )
+                    .accessibilityIdentifier("personDetail.filmography.list")
+                }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 18)

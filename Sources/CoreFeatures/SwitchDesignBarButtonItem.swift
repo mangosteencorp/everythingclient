@@ -28,8 +28,13 @@ import SwiftUI
 
 public struct SwitchDesignToolbarItem: ToolbarContent {
     private let action: () -> Void
+    private let accessibilityIdentifier: String
 
-    public init(action: @escaping () -> Void) {
+    public init(
+        accessibilityIdentifier: String = "switchDesign.toolbar.button",
+        action: @escaping () -> Void
+    ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
     }
 
@@ -38,6 +43,7 @@ public struct SwitchDesignToolbarItem: ToolbarContent {
             Button(action: action) {
                 Image(systemName: "arrow.left.arrow.right")
             }
+            .accessibilityIdentifier(accessibilityIdentifier)
         }
     }
 }

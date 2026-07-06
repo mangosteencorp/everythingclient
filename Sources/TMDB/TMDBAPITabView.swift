@@ -160,7 +160,7 @@ public struct TMDBAPITabView: View {
 
         self.container = container
 
-        let tabList: [TabRoute] = [.movieFeed, .marketplace, .profile]
+        let tabList: [TabRoute] = [.movieFeed, .marketplace, .profile, .settings]
         _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
 
@@ -270,6 +270,11 @@ public struct TMDBAPITabView: View {
         .withTMDBNavigationDestinations(container: container)
     }
 
+    @ViewBuilder
+    private func buildSettingsPage() -> some View {
+        SettingsPageView()
+    }
+
     // MARK: - Tab Views
 
     @ViewBuilder
@@ -302,6 +307,16 @@ public struct TMDBAPITabView: View {
                 Text(TabRoute.profile.title)
             }
             .tag(TabRoute.profile)
+
+            // Settings Tab
+            NavigationStack(path: coordinator.path(for: .settings)) {
+                buildSettingsPage()
+            }
+            .tabItem {
+                Image(systemName: TabRoute.settings.iconName)
+                Text(TabRoute.settings.title)
+            }
+            .tag(TabRoute.settings)
         }
     }
 
@@ -336,6 +351,12 @@ public struct TMDBAPITabView: View {
                 buildProfilePage()
             }
             .tag(TabRoute.profile)
+
+            // Settings Page
+            NavigationStack(path: coordinator.path(for: .settings)) {
+                buildSettingsPage()
+            }
+            .tag(TabRoute.settings)
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
         .environmentObject(coordinator)
@@ -360,6 +381,10 @@ public struct TMDBAPITabView: View {
             case .profile:
                 NavigationStack(path: coordinator.path(for: .profile)) {
                     buildProfilePage()
+                }
+            case .settings:
+                NavigationStack(path: coordinator.path(for: .settings)) {
+                    buildSettingsPage()
                 }
             }
 

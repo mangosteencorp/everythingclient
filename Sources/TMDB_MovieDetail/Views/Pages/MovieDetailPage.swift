@@ -9,6 +9,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
     @ObservedObject var movieDetailViewModel: MovieDetailViewModel
     @ObservedObject var creditsViewModel: MovieCastingViewModel
     @ObservedObject var watchProvidersViewModel: MovieWatchProvidersViewModel
+    @ObservedObject var ostViewModel: MovieOSTViewModel
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
     let personRouteBuilder: ((Int) -> Route)?
@@ -27,6 +28,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
         watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
+        ostViewModel = MovieOSTViewModel()
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
         self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
@@ -44,6 +46,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
         creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
         watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
+        ostViewModel = MovieOSTViewModel()
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
         self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
@@ -59,6 +62,9 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 }
                 Section {
                     MovieOverview(movie: getMovie())
+                }
+                Section {
+                    MovieOSTSection(ostViewModel: ostViewModel)
                 }
                 if let photoSlidesRouteBuilder, !getMovie().photoPaths.isEmpty {
                     Section {
@@ -99,6 +105,10 @@ public struct MovieDetailPage<Route: Hashable>: View {
         }.onFirstAppear {
             movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
             watchProvidersViewModel.fetchWatchProviders(movieId: movie.id)
+            ostViewModel.load(for: getMovie().userTitle)
+        }
+        .onChange(of: getMovie().userTitle) { newTitle in
+            ostViewModel.load(for: newTitle)
         }
     }
 
