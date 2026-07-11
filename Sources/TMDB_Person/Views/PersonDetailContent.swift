@@ -15,7 +15,7 @@ struct PersonDetailContent<Route: Hashable>: View {
                 PersonFactGrid(person: person)
                 PersonBiographySection(biography: person.biography)
 
-                if useCarouselFilmography {
+                if #available(iOS 18.0, *), useCarouselFilmography {
                     PersonFilmographyCarouselSection(
                         credits: credits,
                         movieRouteBuilder: movieRouteBuilder
