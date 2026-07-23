@@ -4,5 +4,7 @@
 <dict>
 	<key>TMDB_API_KEY</key>
 	<string>$(TMDB_API_KEY)</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app uses Apple Music to search for movie soundtracks and original scores.</string>
 </dict>
 </plist>

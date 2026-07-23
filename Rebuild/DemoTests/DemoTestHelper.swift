@@ -18,6 +18,24 @@ extension BaseTestCase {
         // Take screenshot
         takeScreenshot(name: "TMDBDiscover_demo")
     }
+
+    /// Verify TMDB Settings demo is showing correctly
+    func verifyTMDBSettingsDemo() {
+        waitForElement(withIdentifier: "settings.page")
+        takeScreenshot(name: "TMDBSettings_demo")
+    }
+
+    /// Verify TMDB Person Detail demo is showing correctly
+    func verifyTMDBPersonDetailDemo() {
+        waitForElement(withIdentifier: "personDetail.demo.page")
+        takeScreenshot(name: "TMDBPersonDetail_demo")
+    }
+
+    /// Verify TMDB Movie Detail demo is showing correctly
+    func verifyTMDBMovieDetailDemo() {
+        waitForElement(withIdentifier: "movieDetail.demo.page")
+        takeScreenshot(name: "TMDBMovieDetail_demo")
+    }
     
     /// Verify Pokedex List demo is showing correctly
     func verifyPokedexListDemo() {

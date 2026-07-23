@@ -2,36 +2,35 @@ import Foundation
 
 public enum TMDBImageSize {
     // Poster sizes (for movie/TV show posters)
-    case posterTiny           // w92
-    case posterSmall          // w154
-    case posterMedium         // w342
-    case posterLarge          // w500
-    case posterExtraLarge     // w780
+    case posterTiny
+    case posterSmall
+    case posterMedium
+    case posterLarge
+    case posterExtraLarge
 
     // Profile/Cast sizes (for person images)
-    case profileSmall         // w45
-    case profileMedium        // w185
-    case profileLarge         // h632
+    case profileSmall
+    case profileMedium
+    case profileLarge
 
     // Backdrop sizes (for background/hero images)
-    case backdropSmall        // w300
-    case backdropMedium       // w780
-    case backdropLarge        // w1280
+    case backdropSmall
+    case backdropMedium
+    case backdropLarge
 
     // Logo sizes
-    case logoTiny             // w45
-    case logoSmall            // w92
-    case logoMedium           // w154
-    case logoLarge            // w185
-    case logoExtraLarge       // w300
-    case logoExtraExtraLarge  // w500
+    case logoTiny
+    case logoSmall
+    case logoMedium
+    case logoLarge
+    case logoExtraLarge
+    case logoExtraExtraLarge
 
     // Still sizes (for episode/scene stills)
-    case stillSmall           // w92
-    case stillMedium          // w185
-    case stillLarge           // w300
+    case stillSmall
+    case stillMedium
+    case stillLarge
 
-    // Original (full resolution)
     case original
 
     private static let baseURL = "https://image.tmdb.org/t/p"
@@ -62,9 +61,6 @@ public enum TMDBImageSize {
         }
     }
 
-    /// Builds a complete TMDB image URL from a path
-    /// - Parameter path: The image path from TMDB API (e.g., "/abc123.jpg")
-    /// - Returns: Complete URL, or nil if path is empty
     public func buildImageUrl(path: String) -> URL? {
         guard !path.isEmpty else { return nil }
         let cleanPath = path.hasPrefix("/") ? path : "/\(path)"

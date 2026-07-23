@@ -31,7 +31,15 @@ let exampleMovieDetail = Movie(
         Keyword(id: 269_710, name: "anthropomorphic animal"),
         Keyword(id: 298_618, name: "family comedy"),
     ]),
-    images: Movie.MovieImages(posters: [], backdrops: []),
+    images: Movie.MovieImages(
+        posters: [
+            ImageData(aspectRatio: 0.667, filePath: "/1ffZAucqfvQu36x1C49XfOdjuOG.jpg", height: 3000, width: 2000),
+        ],
+        backdrops: [
+            ImageData(aspectRatio: 1.778, filePath: "/AvIfrjJL9WRk3TziSvOZCTUHKEn.jpg", height: 1080, width: 1920),
+            ImageData(aspectRatio: 1.778, filePath: "/fqv8v6AycXKsivp1T5yKtLbGXce.jpg", height: 1080, width: 1920),
+        ]
+    ),
     productionCountries: [
         Movie.ProductionCountry(name: "Japan"),
         Movie.ProductionCountry(name: "United Kingdom"),

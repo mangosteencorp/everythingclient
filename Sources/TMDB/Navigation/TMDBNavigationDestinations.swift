@@ -1,9 +1,12 @@
 import CoreFeatures
+import PhotoListViewer
+import Pokedex
 import SwiftUI
 import Swinject
 import TMDB_Discover
 import TMDB_Feed
 import TMDB_MovieDetail
+import TMDB_Person
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
 @available(iOS 16.0, *)
@@ -28,12 +31,34 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 apiService: container.resolve(TMDBAPIService.self)!,
                 discoverMovieByKeywordRouteBuilder: {keywordId in
                     TMDBRoute.movieList(.keyword(keywordId))
+                },
+                personRouteBuilder: { personId in
+                    TMDBRoute.personDetail(personId)
+                },
+                photoSlidesRouteBuilder: { imagePaths, initialIndex in
+                    TMDBRoute.photoSlides(PhotoSlidesRouteModel(imagePaths: imagePaths, initialIndex: initialIndex))
+                },
+                pokedexRouteBuilder: {
+                    TMDBRoute.pokedex
                 }
             )
         case let .tvShowDetail(tvShowId):
             let api = container.resolve(TMDBAPIService.self)!
             TVShowDetailView(tvShowId: tvShowId, apiService: api)
                 .environmentObject(ThemeManager.shared)
+        case let .personDetail(personId):
+            PersonDetailPage(
+                personId: personId,
+                apiService: container.resolve(TMDBAPIService.self)!,
+                movieRouteBuilder: { movieId in
+                    TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
+                }
+            )
+        case let .photoSlides(model):
+            PhotoSlidesPage(imagePaths: model.imagePaths, initialIndex: model.initialIndex)
+        case .pokedex:
+            PokedexView()
+                .navigationTitle("Pokédex")
         case let .movieList(params):
             MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
                 TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))

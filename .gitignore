@@ -10,3 +10,4 @@ apollo-ios-cli
 **/.DerivedData/
 Rebuild/Rebuild/GoogleService-Info.plist
 .llm
+Rebuild/Rebuild/Build.xcconfig

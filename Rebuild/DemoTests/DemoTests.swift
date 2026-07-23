@@ -35,6 +35,37 @@ final class DemoTests: BaseTestCase {
         // Then
         verifyTMDBDiscoverDemo()
     }
+
+    @MainActor
+    func testSettingsLaunchSwiftfinFlow() throws {
+        launchAppAndWait(withDemo: "TMDBSettings")
+        verifyTMDBSettingsDemo()
+
+        tapElement(withIdentifier: "settings.launchSwiftfin.button")
+        waitForElement(withIdentifier: "swiftfin.close.button")
+
+        tapElement(withIdentifier: "swiftfin.close.button")
+        waitForElement(withIdentifier: "settings.page")
+    }
+
+    @MainActor
+    func testPersonFilmographyDesignSwitch() throws {
+        launchAppAndWait(withDemo: "TMDBPersonDetail", timeout: 20)
+        verifyTMDBPersonDetailDemo()
+
+        tapElement(withIdentifier: "personDetail.switchDesign.button")
+        waitForElement(withIdentifier: "personDetail.filmography.carousel")
+
+        tapElement(withIdentifier: "personDetail.switchDesign.button")
+        waitForElement(withIdentifier: "personDetail.filmography.list")
+    }
+
+    @MainActor
+    func testMovieDetailOSTSectionVisible() throws {
+        launchAppAndWait(withDemo: "TMDBMovieDetail", timeout: 20)
+        verifyTMDBMovieDetailDemo()
+        waitForElement(withIdentifier: "movieDetail.ost.section", timeout: 20)
+    }
     
     // MARK: - Pokedex Tests
     

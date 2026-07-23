@@ -49,6 +49,7 @@ Also adding a GoogleService-Info.plist file to the root of the project for Fireb
     - [Navigation](#navigation)
       - [TMDB Navigation Matrix](#tmdb-navigation-matrix)
     - [Feature based Modularization:](#feature-based-modularization)
+      - [Module Architecture Overview](#module-architecture-overview)
       - [Module Architecture Layers](#module-architecture-layers)
 
 
@@ -293,14 +294,58 @@ The TMDB section uses a Coordinator pattern with NavigationStack for routing bet
 
 Swinject are used for dependency injection.
 
-Details of packages:
-- **TMDB_MVVM_Detail**: Showing details of a movie including overview, cast, crew, keywords, etc. Using **SwiftUI** and **MVVM architecture**. 
-- **TMDB_Discover**: Display list of TV shows (from "up in the air" or "airing today" TMDB API) using **Clean Architecture** and **SwiftUI**.
-- **TMDB_Feed**: same as TMDB_Discover but using **MVVM architecture**. Also supports endless loading
-- **TMDB_Clean_Profile**: Handling authentication and displaying user profile (including avatar, favourite movies & TV shows & watchlist). Using **Clean Architecture** and **UIKit** and **Combine** for concurrency.
-- **TMDB_TVShowDetail**: Showing details of a TV show including overview, cast, crew, TV seasons. Using **SwiftUI** and Data Store pattern. **Support multiple themes**.
-- **Pokedex_Pokelist**: loading a Pokemon list from Pokedex **GraphQL** API. Using **VIPER** architecture and **UIKit**
-- **Pokedex_Detail**: loading a Pokemon detail from Pokedex **GraphQL** API. Using RxSwift & RxCocoa for reactive programming. MVVM architecture.
+#### Module Architecture Overview
+
+Quick reference for each Swift package module — UI stack, reactive layer, architecture pattern, and test coverage.
+
+**Patterns at a glance**
+
+| Pattern | Modules |
+|---------|---------|
+| MVVM | `TMDB_Feed`, `TMDB_MovieDetail`, `Pokedex_Detail` |
+| Clean Architecture | `TMDB_Discover`, `TMDB_Profile` |
+| VIPER | `Pokedex_Pokelist` |
+| Coordinator / Router | `TMDB`, `Pokedex` |
+| Data Store (inline `@Observable`/`Store`) | `TMDB_TVShowDetail`, `TMDB_Person` |
+| Shared / no UI pattern | `TMDB_Shared_Backend`, `Pokedex_Shared_Backend`, `CoreFeatures`, `Shared_UI_Support` |
+
+**App shell**
+
+- **everythingclient**: SwiftUI + Combine — app shell — tests: 🔴 (placeholder only)
+- **TMDB**: SwiftUI + Combine — Coordinator — tests: 🔴
+- **Integration_test**: SwiftUI — demo launcher (not a production feature) — tests: n/a
+
+**TMDB feature modules**
+
+- **TMDB_Feed**: SwiftUI + Combine + async/await — MVVM — tests: ✅
+- **TMDB_Discover**: SwiftUI + UIKit (mixed) + async/await — Clean Architecture — tests: ✅
+- **TMDB_MovieDetail**: SwiftUI + Combine + async/await — MVVM — tests: 🔴
+- **TMDB_TVShowDetail**: SwiftUI + async/await — Data Store — tests: 🔴
+- **TMDB_Person**: SwiftUI + async/await — Data Store — tests: 🔴
+- **TMDB_Profile**: UIKit + RxSwift (+ Combine for auth) — Clean Architecture — tests: 🔴
+- **PhotoListViewer**: SwiftUI — simple view module — tests: 🔴
+
+**Pokedex feature modules**
+
+- **Pokedex**: SwiftUI + UIKit bridge — Coordinator / Router — tests: 🔴
+- **Pokedex_Pokelist**: UIKit + async/await — VIPER — tests: 🔴
+- **Pokedex_Detail**: UIKit + RxSwift/RxCocoa — MVVM — tests: 🔴
+
+**Shared / infrastructure modules**
+
+- **TMDB_Shared_Backend**: no UI — Combine + async/await, light Clean (repository layer) — tests: ✅
+- **TMDB_Shared_UI**: SwiftUI + Combine — shared UI components — tests: 🔴
+- **Pokedex_Shared_Backend**: no UI — async/await + Apollo GraphQL — tests: 🔴
+- **CoreFeatures**: SwiftUI + UIKit — theming & analytics abstractions — tests: 🔴
+- **Shared_UI_Support**: SwiftUI + UIKit — cross-feature UI helpers — tests: 🔴
+
+**Gaps to fill** (patterns or coverage not yet represented):
+
+- 🔴 VIPER with RxSwift (Pokedex list uses async/await instead)
+- 🔴 UIKit + Combine feature module (Profile uses RxSwift; Discover home is UIKit but driven by Clean Architecture)
+- 🔴 Clean Architecture + SwiftUI-only (Discover mixes UIKit; Profile is UIKit)
+- 🔴 Tests for most feature modules except `TMDB_Feed`, `TMDB_Discover`, and `TMDB_Shared_Backend`
+- 🔴 Person detail navigation from movie/TV screens (see [Navigation Matrix](#tmdb-navigation-matrix))
 
 #### Module Architecture Layers
 

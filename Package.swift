@@ -7,13 +7,17 @@ let package = Package(
     name: "everythingclient",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v16),
         //.macOS(.v11),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "EverythingClient",
+            targets: ["everythingclient"]
+        ),
+        .library(
+            name: "everythingclient",
             targets: ["everythingclient"]
         ),
         // Targets need to be exposed as libraries so Preview works
@@ -40,6 +44,14 @@ let package = Package(
             name: "TMDB_MovieDetail",
             targets: ["TMDB_MovieDetail"]
         ),
+        .library(
+            name: "PhotoListViewer",
+            targets: ["PhotoListViewer"]
+        ),
+        .library(
+            name: "TMDB_Person",
+            targets: ["TMDB_Person"]
+        ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
@@ -61,6 +73,7 @@ let package = Package(
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
+        .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -69,7 +82,6 @@ let package = Package(
             name: "everythingclient",
             dependencies: [
                 "TMDB",
-                "Pokedex",
                 "CoreFeatures",
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
             ]
@@ -90,6 +102,9 @@ let package = Package(
                 "TMDB_Shared_UI",
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
+                "TMDB_Person",
+                "PhotoListViewer",
+                "Pokedex",
                 "Swinject",
             ]
         ),
@@ -97,19 +112,32 @@ let package = Package(
             name: "TMDB_Shared_Backend",
             dependencies: ["Swinject"]
         ),
-        .target(name: "TMDB_Shared_UI",
-                dependencies: ["Shared_UI_Support"]),
+        .target(
+            name: "TMDB_Shared_UI",
+            dependencies: [
+                "TMDB_Shared_Backend",
+                "Shared_UI_Support",
+            ]
+        ),
         // Detail page
         .target(
             name: "TMDB_MovieDetail",
             dependencies: [
                 "TMDB_Shared_UI",
+                "PhotoListViewer",
                 "Swinject",
                 "TMDB_Shared_Backend",
             ],
             resources: [
                 .process("Resources"),
+            ],
+            linkerSettings: [
+                .linkedFramework("MusicKit", .when(platforms: [.iOS, .macCatalyst])),
             ]
+        ),
+        .testTarget(
+            name: "TMDB_MovieDetail_Tests",
+            dependencies: ["TMDB_MovieDetail"]
         ),
         .target(
             name: "TMDB_TVShowDetail",
@@ -117,6 +145,19 @@ let package = Package(
                 "CoreFeatures",
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
+            ]
+        ),
+        .target(
+            name: "TMDB_Person",
+            dependencies: [
+                "TMDB_Shared_Backend",
+                "TMDB_Shared_UI",
+                "Shared_UI_Support",
+                "CoreFeatures",
+                .product(name: "SwiftfinLib", package: "Swiftfin"),
+            ],
+            resources: [
+                .process("Resources"),
             ]
         ),
         // Movie list
@@ -229,6 +270,14 @@ let package = Package(
             name: "CoreFeatures"
         ),
 
+        .target(
+            name: "PhotoListViewer",
+            dependencies: [
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
+            ]
+        ),
+
         // MARK: Integration Tests
 
         .target(
@@ -241,6 +290,8 @@ let package = Package(
                 "TMDB_Profile",
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
+                "TMDB_Person",
+                "PhotoListViewer",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",
@@ -257,7 +308,7 @@ for target in package.targets {
   target.linkerSettings = target.linkerSettings ?? []
   target.linkerSettings?.append(
     .unsafeFlags([
-      "-ObjC",
+      "-Xlinker", "-ObjC",
     ])
   )
 }

@@ -21,7 +21,7 @@ class MovieListContentTests: XCTestCase {
         ]
 
         // When
-        let content = TVShowListContent(movies: movies, detailRouteBuilder: {_ in 1})
+        let content = TVShowListContent(movies: movies, mediaType: .movie, detailRouteBuilder: { _, _ in 1 })
 
         // Then
         let mirror = Mirror(reflecting: content)

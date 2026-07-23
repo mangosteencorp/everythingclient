@@ -1,6 +1,7 @@
 import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 
 @available(iOS 15, *)
 struct SeasonCardView: View {

@@ -93,7 +93,7 @@ class TVShowListViewController: UIViewController {
 
         viewModel.$errorMessage
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] errorMessage in
+            .sink { errorMessage in
                 if let errorMessage = errorMessage {
                     // Handle error display if needed
                     print("Error: \(errorMessage)")

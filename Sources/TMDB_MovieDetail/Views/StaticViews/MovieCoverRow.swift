@@ -1,3 +1,4 @@
+import Shared_UI_Support
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
@@ -19,6 +20,7 @@ struct MovieCoverRow: View {
                     HStack(spacing: 16) {
                         RemoteTMDBImage(posterPath: movie.posterPath, posterSize: .medium, imageSize: .posterLarge)
                             .padding(.leading, 16)
+                            .adaptiveContainerCornerOffset(.horizontal, sizeToFit: true)
                         VStack(alignment: .leading, spacing: 16) {
                             MovieInfoRow(movie: movie)
                             HStack {

@@ -35,7 +35,7 @@ public class AuthenticationViewModel: AuthenticationViewModelProtocol {
     public var errorPublisher: Published<Error?>.Publisher { $error }
 
     public func signIn() async {
-        DispatchQueue.main.async {
+        await MainActor.run {
             self.isLoading = true
             self.error = nil
         }
@@ -52,12 +52,12 @@ public class AuthenticationViewModel: AuthenticationViewModelProtocol {
 
             // Step 4: Create session with the authenticated token
             let _ = try await authService.createSession(requestToken: authenticatedToken)
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.isAuthenticated = true
                 self.isLoading = false
             }
         } catch {
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.error = error
                 self.isLoading = false
             }
@@ -65,19 +65,19 @@ public class AuthenticationViewModel: AuthenticationViewModelProtocol {
     }
 
     public func signOut() async {
-        DispatchQueue.main.async {
+        await MainActor.run {
             self.isLoading = true
             self.error = nil
         }
 
         do {
             try await authService.signOut()
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.isAuthenticated = false
                 self.isLoading = false
             }
         } catch {
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.error = error
                 self.isLoading = false
             }

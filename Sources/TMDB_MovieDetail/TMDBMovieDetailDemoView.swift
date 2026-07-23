@@ -1,30 +1,23 @@
 import SwiftUI
+import TMDB_MovieDetail
+import TMDB_Shared_Backend
 
 #if DEBUG
 public struct TMDBMovieDetailDemoView: View {
     public init() {}
 
     public var body: some View {
-        VStack {
-            Image(systemName: "film")
-                .font(.system(size: 60))
-                .foregroundColor(.purple)
-
-            Text("TMDB Movie Detail Demo")
-                .font(.title)
-                .padding()
-
-            Text("This demo will showcase the TMDB Movie Detail functionality")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-                .padding()
-
-            // TODO: Implement actual TMDB Movie Detail demo
-            Text("Coming soon...")
-                .font(.caption)
-                .foregroundColor(.orange)
+        NavigationStack {
+            MovieDetailPage(
+                movieId: 1061474,
+                apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
+                discoverMovieByKeywordRouteBuilder: { $0 },
+                personRouteBuilder: { $0 },
+                photoSlidesRouteBuilder: { _, index in index }
+            )
+            .navigationTitle("Movie Detail")
         }
-        .padding()
+        .accessibilityIdentifier("movieDetail.demo.page")
     }
 }
 
