@@ -40,8 +40,9 @@ final class DemoTests: BaseTestCase {
     func testSettingsLaunchSwiftfinFlow() throws {
         launchAppAndWait(withDemo: "TMDBSettings")
         verifyTMDBSettingsDemo()
-
-        tapElement(withIdentifier: "settings.launchSwiftfin.button")
+        let launchSwiftfinIdentifier = "settings.launchSwiftfin.button"
+        let launchSFbutton = app.descendants(matching: .button).matching(identifier: launchSwiftfinIdentifier).firstMatch
+        launchSFbutton.tap()
         waitForElement(withIdentifier: "swiftfin.close.button")
 
         tapElement(withIdentifier: "swiftfin.close.button")

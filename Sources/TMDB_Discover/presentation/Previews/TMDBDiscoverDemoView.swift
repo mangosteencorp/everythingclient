@@ -5,17 +5,23 @@ import TMDB_Shared_Backend
 #if DEBUG
 @available(iOS 16, *)
 public struct TMDBDiscoverDemoView: View {
-    public init() {}
+    private let container: Container
+
+    public init() {
+        let container = Container()
+        TMDB_Shared_Backend.configure(container: container, apiKey: debugTMDBAPIKey)
+        self.container = container
+    }
 
     public var body: some View {
         TabView {
             TabView {
                 NavigationStack {
                     DiscoverListPage(
-                        container: Container(),
+                        container: container,
                         apiKey: debugTMDBAPIKey,
                         type: .airingToday,
-                        detailRouteBuilder: { _,_ in 1 })
+                        detailRouteBuilder: { _, _ in 1 })
                     .tag(0)
                     .tabItem {
                         Label("First View", systemImage: "house")

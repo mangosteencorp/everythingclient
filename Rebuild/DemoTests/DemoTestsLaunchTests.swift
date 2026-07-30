@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Integration_test
 
 final class DemoTestsLaunchTests: BaseTestCase {
 
@@ -43,19 +44,18 @@ final class DemoTestsLaunchTests: BaseTestCase {
     
     @MainActor
     func testLaunchWithDifferentDemos() throws {
-        // Test launch with different demo configurations
-        let demos = ["TMDBFeed", "TMDBDiscover", "PokedexList", "ThemeSwitcher"]
-        
-        for demo in demos {
-            // Given & When
-            let app = launchAppAndWait(withDemo: demo)
-            
-            // Then
-            XCTAssertTrue(app.exists, "App should launch successfully with demo: \(demo)")
-            XCTAssertTrue(app.state == .runningForeground, "App should be in foreground with demo: \(demo)")
-            
-            // Take screenshot for each demo
-            takeScreenshot(name: "Launch_\(demo)")
+        for demo in IntegrationTestLauncher.DemoTest.allCases {
+            let app = launchApp(withDemo: demo.rawValue)
+            let previewRoot = app.descendants(matching: .any)[demo.accessibilityIdentifier]
+
+            XCTAssertTrue(
+                previewRoot.waitForExistence(timeout: 20),
+                "Preview route did not become visible: \(demo.rawValue)"
+            )
+            XCTAssertEqual(app.state, .runningForeground, "App should be in foreground for \(demo.rawValue)")
+
+            takeScreenshot(name: "Launch_\(demo.rawValue)")
+            app.terminate()
         }
     }
     

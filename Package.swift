@@ -283,6 +283,7 @@ let package = Package(
         .target(
             name: "Integration_test",
             dependencies: [
+                "everythingclient",
                 "TMDB",
                 "Pokedex",
                 "TMDB_Feed",

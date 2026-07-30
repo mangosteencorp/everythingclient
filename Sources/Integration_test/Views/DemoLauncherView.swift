@@ -1,15 +1,17 @@
 import SwiftUI
 #if DEBUG
 @available(iOS 16, *)
-struct DemoLauncherView: View {
+public struct DemoLauncherView: View {
     @State private var selectedDemo: IntegrationTestLauncher.DemoTest?
 
-    var body: some View {
-        NavigationView {
+    public init() {}
+
+    public var body: some View {
+        NavigationStack {
             List(IntegrationTestLauncher.getAvailableTests(), id: \.rawValue) { demo in
                 Button(action: {
                     selectedDemo = demo
-                }) {
+                }, label: {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(demo.displayName)
@@ -23,13 +25,14 @@ struct DemoLauncherView: View {
                         Image(systemName: "chevron.right")
                             .foregroundColor(.secondary)
                     }
-                }
+                })
             }
             .navigationTitle("Integration Demos")
             .sheet(item: $selectedDemo) { demo in
                 IntegrationTestLauncher.launch(demo)
             }
         }
+        .accessibilityIdentifier("integration.preview.catalog")
     }
 }
 

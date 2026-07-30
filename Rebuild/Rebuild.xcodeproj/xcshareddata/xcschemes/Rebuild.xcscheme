@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8BEDAF932BD1442D000A62D2"
-               BuildableName = "Rebuild.app"
+               BuildableName = "Glen Movies.app"
                BlueprintName = "Rebuild"
                ReferencedContainer = "container:Rebuild.xcodeproj">
             </BuildableReference>
@@ -58,7 +58,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8BEDAF932BD1442D000A62D2"
-            BuildableName = "Rebuild.app"
+            BuildableName = "Glen Movies.app"
             BlueprintName = "Rebuild"
             ReferencedContainer = "container:Rebuild.xcodeproj">
          </BuildableReference>
@@ -75,7 +75,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8BEDAF932BD1442D000A62D2"
-            BuildableName = "Rebuild.app"
+            BuildableName = "Glen Movies.app"
             BlueprintName = "Rebuild"
             ReferencedContainer = "container:Rebuild.xcodeproj">
          </BuildableReference>
