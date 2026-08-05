@@ -34,9 +34,9 @@ public enum TVShowFeedType: String, CaseIterable, Identifiable {
     public var localizedTitle: String {
         switch self {
         case .airingToday:
-            return "Airing Today"
+            return L10n.feedAiringToday
         case .onTheAir:
-            return "On the Air"
+            return L10n.feedOnTheAir
         }
     }
 }
@@ -50,9 +50,9 @@ public enum ContentFeedType: String, CaseIterable, Identifiable {
     public var localizedTitle: String {
         switch self {
         case .movies:
-            return "Movies"
+            return L10n.feedSearchMovies
         case .tvShows:
-            return "TV Shows"
+            return L10n.feedSearchTv
         }
     }
 }
@@ -70,10 +70,23 @@ public class MovieFeedViewModel: ObservableObject {
     private var topRatedMovies: [Movie] = []
     private var upcomingMovies: [Movie] = []
     private var currentPage: Int = 1
+    private let cache: FeedResponseCache
 
-    // Computed property to check if we have any cached movies
     var hasCachedMovies: Bool {
-        return !nowPlayingMovies.isEmpty || !popularMovies.isEmpty || !topRatedMovies.isEmpty || !upcomingMovies.isEmpty
+        !nowPlayingMovies.isEmpty || !popularMovies.isEmpty || !topRatedMovies.isEmpty || !upcomingMovies.isEmpty
+    }
+
+    func movies(for feedType: MovieFeedType) -> [Movie] {
+        cachedMovies(for: feedType)
+    }
+
+    func isLoading(for feedType: MovieFeedType) -> Bool {
+        currentFeedType == feedType && state == .loading
+    }
+
+    func errorMessage(for feedType: MovieFeedType) -> String? {
+        guard currentFeedType == feedType, case .error(let message) = state else { return nil }
+        return message
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -81,31 +94,50 @@ public class MovieFeedViewModel: ObservableObject {
     private let additionalParams: AdditionalMovieListParams?
     let analyticsTracker: AnalyticsTracker?
 
-    public init(
+    public convenience init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         analyticsTracker: AnalyticsTracker? = nil
     ) {
+        self.init(
+            apiService: apiService,
+            additionalParams: additionalParams,
+            analyticsTracker: analyticsTracker,
+            cache: .shared
+        )
+    }
+
+    init(
+        apiService: APIServiceProtocol,
+        additionalParams: AdditionalMovieListParams? = nil,
+        analyticsTracker: AnalyticsTracker? = nil,
+        cache: FeedResponseCache
+    ) {
         self.apiService = apiService
         self.additionalParams = additionalParams
         self.analyticsTracker = analyticsTracker
+        self.cache = cache
+        hydrateFromDiskCache()
+
         $searchQuery
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .sink { [weak self] query in
+                guard let self else { return }
                 if !query.isEmpty {
-                    self?.searchMovies(query: query)
-                } else if let self = self {
-                    self.loadCurrentFeedMovies()
+                    self.searchMovies(query: query)
+                } else if case .error = self.state {
+                    // Keep error until cancel/retry.
+                } else {
+                    self.state = .initial
                 }
             }
             .store(in: &cancellables)
 
-        // Watch for filter changes and re-search if there's an active search
         $searchFilters
+            .dropFirst()
             .sink { [weak self] _ in
-                if let self = self, !self.searchQuery.isEmpty {
-                    self.searchMovies(query: self.searchQuery)
-                }
+                guard let self, !self.searchQuery.isEmpty else { return }
+                self.searchMovies(query: self.searchQuery)
             }
             .store(in: &cancellables)
     }
@@ -122,86 +154,91 @@ public class MovieFeedViewModel: ObservableObject {
 
     func switchFeedType(_ feedType: MovieFeedType) {
         currentFeedType = feedType
+        currentPage = 1
         fetchMoviesForCurrentFeedType()
     }
 
-    private func fetchMoviesForCurrentFeedType() {
-        state = .loading
+    func loadFeed(_ feedType: MovieFeedType) {
+        currentFeedType = feedType
+        currentPage = 1
+        let cached = cachedMovies(for: feedType)
+        if !cached.isEmpty {
+            state = .loaded(cached)
+        }
+        fetchMoviesForCurrentFeedType(showLoadingIfEmpty: cached.isEmpty)
+    }
 
+    @MainActor
+    func refresh() async {
+        await fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: false)
+    }
+
+    @MainActor
+    func refresh(_ feedType: MovieFeedType) async {
+        currentFeedType = feedType
+        await fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: false)
+    }
+
+    private func fetchMoviesForCurrentFeedType(showLoadingIfEmpty: Bool = true) {
         Task {
-            let result: Result<MovieListResponse, Error>
+            await fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: showLoadingIfEmpty)
+        }
+    }
 
-            switch currentFeedType {
-            case .nowPlaying:
-                result = await apiService.fetchNowPlayingMovies(
-                    page: nil,
-                    additionalParams: additionalParams
-                )
-            case .popular:
-                result = await apiService.fetchPopularMovies(
-                    page: nil,
-                    additionalParams: additionalParams
-                )
-            case .topRated:
-                result = await apiService.fetchTopRatedMovies(
-                    page: nil,
-                    additionalParams: additionalParams
-                )
-            case .upcoming:
-                result = await apiService.fetchUpcomingMovies(
-                    page: nil,
-                    additionalParams: additionalParams
-                )
-            }
+    @MainActor
+    private func fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: Bool) async {
+        let feedType = currentFeedType
+        let cached = cachedMovies(for: feedType)
+        if showLoadingIfEmpty && cached.isEmpty {
+            state = .loading
+        } else if !cached.isEmpty, case .initial = state {
+            state = .loaded(cached)
+        }
 
-            await MainActor.run {
-                switch result {
-                case let .success(response):
-                    self.analyticsTracker?.trackPageView(parameters: PageViewParameters(
-                        screenName: currentFeedType.rawValue,
-                        screenClass: "MovieFeedPage",
-                        contentType: "movie_list"
-                    ))
+        let result: Result<MovieListResponse, Error>
+        switch feedType {
+        case .nowPlaying:
+            result = await apiService.fetchNowPlayingMovies(page: nil, additionalParams: additionalParams)
+        case .popular:
+            result = await apiService.fetchPopularMovies(page: nil, additionalParams: additionalParams)
+        case .topRated:
+            result = await apiService.fetchTopRatedMovies(page: nil, additionalParams: additionalParams)
+        case .upcoming:
+            result = await apiService.fetchUpcomingMovies(page: nil, additionalParams: additionalParams)
+        }
 
-                    // Store movies based on feed type
-                    switch currentFeedType {
-                    case .nowPlaying:
-                        self.nowPlayingMovies = response.results
-                    case .popular:
-                        self.popularMovies = response.results
-                    case .topRated:
-                        self.topRatedMovies = response.results
-                    case .upcoming:
-                        self.upcomingMovies = response.results
-                    }
-
-                    self.state = .loaded(response.results)
-                case let .failure(error):
-                    self.state = .error(error.localizedDescription)
-                }
+        switch result {
+        case let .success(response):
+            analyticsTracker?.trackPageView(parameters: PageViewParameters(
+                screenName: feedType.rawValue,
+                screenClass: "MovieFeedPage",
+                contentType: "movie_list"
+            ))
+            storeMovies(response.results, for: feedType)
+            cache.saveMovies(response.results, for: feedType)
+            currentPage = 1
+            state = .loaded(response.results)
+        case let .failure(error):
+            if !cached.isEmpty {
+                state = .loaded(cached)
+            } else {
+                state = .error(error.localizedDescription)
             }
         }
     }
 
     func loadCurrentFeedMovies() {
-        let movies: [Movie]
-        switch currentFeedType {
-        case .nowPlaying:
-            movies = nowPlayingMovies
-        case .popular:
-            movies = popularMovies
-        case .topRated:
-            movies = topRatedMovies
-        case .upcoming:
-            movies = upcomingMovies
-        }
-        state = .loaded(movies)
+        state = .loaded(cachedMovies(for: currentFeedType))
     }
 
     func clearSearchAndRetry() {
         searchQuery = ""
         searchFilters = SearchFilters()
-        loadCurrentFeedMovies()
+        state = .initial
+    }
+
+    func cancelSearch() {
+        clearSearchAndRetry()
     }
 
     func retrySearch() {
@@ -212,13 +249,15 @@ public class MovieFeedViewModel: ObservableObject {
         }
     }
 
-    private func searchMovies(query: String) {
-        if case .loaded(let movies) = state {
-            state = .searchResults(movies)
-        }
+    func searchMovies(query: String) {
+        state = .loading
 
         Task {
-            let result = await apiService.searchMovies(query: query, page: nil, filters: searchFilters.hasActiveFilters ? searchFilters : nil)
+            let result = await apiService.searchMovies(
+                query: query,
+                page: nil,
+                filters: searchFilters.hasActiveFilters ? searchFilters : nil
+            )
             await MainActor.run {
                 switch result {
                 case let .success(response):
@@ -236,7 +275,7 @@ public class MovieFeedViewModel: ObservableObject {
               searchQuery.isEmpty else { return }
 
         Task {
-            self.analyticsTracker?.trackEvent(
+            analyticsTracker?.trackEvent(
                 name: "load_more",
                 parameters: EventParameters(
                     method: "scroll",
@@ -246,53 +285,55 @@ public class MovieFeedViewModel: ObservableObject {
             )
 
             let result: Result<MovieListResponse, Error>
-
             switch currentFeedType {
             case .nowPlaying:
-                result = await apiService.fetchNowPlayingMovies(
-                    page: currentPage + 1,
-                    additionalParams: additionalParams
-                )
+                result = await apiService.fetchNowPlayingMovies(page: currentPage + 1, additionalParams: additionalParams)
             case .popular:
-                result = await apiService.fetchPopularMovies(
-                    page: currentPage + 1,
-                    additionalParams: additionalParams
-                )
+                result = await apiService.fetchPopularMovies(page: currentPage + 1, additionalParams: additionalParams)
             case .topRated:
-                result = await apiService.fetchTopRatedMovies(
-                    page: currentPage + 1,
-                    additionalParams: additionalParams
-                )
+                result = await apiService.fetchTopRatedMovies(page: currentPage + 1, additionalParams: additionalParams)
             case .upcoming:
-                result = await apiService.fetchUpcomingMovies(
-                    page: currentPage + 1,
-                    additionalParams: additionalParams
-                )
+                result = await apiService.fetchUpcomingMovies(page: currentPage + 1, additionalParams: additionalParams)
             }
 
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    // Append to the appropriate array based on feed type
-                    switch currentFeedType {
-                    case .nowPlaying:
-                        self.nowPlayingMovies.append(contentsOf: response.results)
-                        self.state = .loaded(self.nowPlayingMovies)
-                    case .popular:
-                        self.popularMovies.append(contentsOf: response.results)
-                        self.state = .loaded(self.popularMovies)
-                    case .topRated:
-                        self.topRatedMovies.append(contentsOf: response.results)
-                        self.state = .loaded(self.topRatedMovies)
-                    case .upcoming:
-                        self.upcomingMovies.append(contentsOf: response.results)
-                        self.state = .loaded(self.upcomingMovies)
-                    }
-                    self.currentPage += 1
+                    let combined = cachedMovies(for: currentFeedType) + response.results
+                    storeMovies(combined, for: currentFeedType)
+                    cache.saveMovies(combined, for: currentFeedType)
+                    state = .loaded(combined)
+                    currentPage += 1
                 case .failure:
                     break
                 }
             }
+        }
+    }
+
+    private func hydrateFromDiskCache() {
+        for feedType in MovieFeedType.allCases {
+            if let movies = cache.loadMovies(for: feedType) {
+                storeMovies(movies, for: feedType)
+            }
+        }
+    }
+
+    private func cachedMovies(for feedType: MovieFeedType) -> [Movie] {
+        switch feedType {
+        case .nowPlaying: return nowPlayingMovies
+        case .popular: return popularMovies
+        case .topRated: return topRatedMovies
+        case .upcoming: return upcomingMovies
+        }
+    }
+
+    private func storeMovies(_ movies: [Movie], for feedType: MovieFeedType) {
+        switch feedType {
+        case .nowPlaying: nowPlayingMovies = movies
+        case .popular: popularMovies = movies
+        case .topRated: topRatedMovies = movies
+        case .upcoming: upcomingMovies = movies
         }
     }
 }

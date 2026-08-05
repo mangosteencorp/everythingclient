@@ -9,7 +9,7 @@ extension BaseTestCase {
     
     /// Verify TMDB Feed demo is showing correctly
     func verifyTMDBFeedDemo() {
-        // Take screenshot
+        waitForElement(withIdentifier: "movies_list", timeout: 15)
         takeScreenshot(name: "TMDBFeed_demo")
     }
     
@@ -100,8 +100,15 @@ extension BaseTestCase {
             // Perform basic navigation actions
             switch demoName {
             case "TMDBFeed":
-                switchContentType(to: "TV Shows")
-                switchContentType(to: "Movies")
+                // Switch to Search tab via tab bar if present
+                let searchTab = app.tabBars.buttons["Search"]
+                if searchTab.exists {
+                    searchTab.tap()
+                }
+                let nowPlayingTab = app.tabBars.buttons["Now Playing"]
+                if nowPlayingTab.exists {
+                    nowPlayingTab.tap()
+                }
             case "TMDBDiscover":
                 // Add discover-specific navigation
                 break

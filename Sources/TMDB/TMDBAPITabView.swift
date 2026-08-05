@@ -19,7 +19,7 @@ public enum TabStyle: CaseIterable {
 
 @available(iOS 16, *)
 public enum NavigationWrapStyle: Int, CaseIterable {
-    case navigationView
+    case navigationSplit
     case plain
 
     func next() -> NavigationWrapStyle {
@@ -29,8 +29,8 @@ public enum NavigationWrapStyle: Int, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .navigationView:
-            return "Navigation View"
+        case .navigationSplit:
+            return "Split View"
         case .plain:
             return "Plain"
         }
@@ -40,19 +40,19 @@ public enum NavigationWrapStyle: Int, CaseIterable {
 @available(iOS 16, *)
 public enum TabNavCombination: CaseIterable {
     case normalTabPlainNav
-    case normalTabNavigationViewNav
+    case normalTabNavigationSplitNav
     case sidebarTabPlainNav
-    case sidebarTabNavigationViewNav
+    case sidebarTabNavigationSplitNav
     case floatingTabPlainNav
-    case floatingTabNavigationViewNav
+    case floatingTabNavigationSplitNav
 
     var tabStyle: TabStyle {
         switch self {
-        case .normalTabPlainNav, .normalTabNavigationViewNav:
+        case .normalTabPlainNav, .normalTabNavigationSplitNav:
             return .normal
-        case .sidebarTabPlainNav, .sidebarTabNavigationViewNav:
+        case .sidebarTabPlainNav, .sidebarTabNavigationSplitNav:
             return .sidebar
-        case .floatingTabPlainNav, .floatingTabNavigationViewNav:
+        case .floatingTabPlainNav, .floatingTabNavigationSplitNav:
             return .floating
         }
     }
@@ -61,8 +61,8 @@ public enum TabNavCombination: CaseIterable {
         switch self {
         case .normalTabPlainNav, .sidebarTabPlainNav, .floatingTabPlainNav:
             return .plain
-        case .normalTabNavigationViewNav, .sidebarTabNavigationViewNav, .floatingTabNavigationViewNav:
-            return .navigationView
+        case .normalTabNavigationSplitNav, .sidebarTabNavigationSplitNav, .floatingTabNavigationSplitNav:
+            return .navigationSplit
         }
     }
 
@@ -70,22 +70,22 @@ public enum TabNavCombination: CaseIterable {
         switch self {
         case .normalTabPlainNav:
             return "Normal Tab + Plain Nav"
-        case .normalTabNavigationViewNav:
-            return "Normal Tab + Navigation View"
+        case .normalTabNavigationSplitNav:
+            return "Normal Tab + Split View"
         case .sidebarTabPlainNav:
             return "Sidebar Tab + Plain Nav"
-        case .sidebarTabNavigationViewNav:
-            return "Sidebar Tab + Navigation View"
+        case .sidebarTabNavigationSplitNav:
+            return "Sidebar Tab + Split View"
         case .floatingTabPlainNav:
             return "Floating Tab + Plain Nav"
-        case .floatingTabNavigationViewNav:
-            return "Floating Tab + Navigation View"
+        case .floatingTabNavigationSplitNav:
+            return "Floating Tab + Split View"
         }
     }
 
     var isValid: Bool {
-        // NavigationView is only valid on iPad for split view purposes
-        if navigationStyle == .navigationView && UIDevice.current.userInterfaceIdiom != .pad {
+        // Split navigation is intended for iPad two-column layout
+        if navigationStyle == .navigationSplit && UIDevice.current.userInterfaceIdiom != .pad {
             return false
         }
 
@@ -101,7 +101,7 @@ public enum TabNavCombination: CaseIterable {
     }
 
     static var validCases: [TabNavCombination] {
-        return allCases.filter { $0.isValid }
+        allCases.filter(\.isValid)
     }
 }
 
@@ -202,7 +202,6 @@ public struct TMDBAPITabView: View {
         } tvShowDetailRouteBuilder: { tvShow in
             TMDBRoute.tvShowDetail(tvShow.id)
         }
-        .withTMDBNavigationDestinations(container: container)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 SwitchTabNavDesignToolbarItem(tabNavCombination: $tabNavCombination)
@@ -210,7 +209,12 @@ public struct TMDBAPITabView: View {
         }
 
         movieFeedContent
-            .withTabNavCombination(tabNavCombination, coordinator: coordinator, tabRoute: .movieFeed)
+            .withTabNavCombination(
+                tabNavCombination,
+                coordinator: coordinator,
+                tabRoute: .movieFeed,
+                container: container
+            )
     }
 
     @ViewBuilder
@@ -432,27 +436,73 @@ private struct TabNavCombinationModifier: ViewModifier {
     let tabNavCombination: TabNavCombination
     let coordinator: Coordinator
     let tabRoute: TabRoute
+    let container: Container
 
     func body(content: Content) -> some View {
         switch tabNavCombination {
         case .normalTabPlainNav, .sidebarTabPlainNav, .floatingTabPlainNav:
             NavigationStack(path: coordinator.path(for: tabRoute)) {
                 content
+                    .withTMDBNavigationDestinations(container: container)
             }
-        case .normalTabNavigationViewNav, .sidebarTabNavigationViewNav, .floatingTabNavigationViewNav:
-            NavigationStack(path: coordinator.path(for: tabRoute)) {
-                NavigationView {
-                    content
-                }
+        case .normalTabNavigationSplitNav, .sidebarTabNavigationSplitNav, .floatingTabNavigationSplitNav:
+            // Why the old setup failed on iPad:
+            // 1) `NavigationView { singleChild }` is always stack-style (one column).
+            // 2) Nesting that inside `NavigationStack` collapsed any column layout.
+            // NavigationSplitView provides an explicit sidebar + detail column pair;
+            // destinations on the sidebar content appear in the detail column.
+            NavigationSplitView {
+                content
+                    .withTMDBNavigationDestinations(container: container)
+            } detail: {
+                FeedSplitDetailPlaceholder()
             }
+            .navigationSplitViewStyle(.balanced)
         }
     }
 }
 
 @available(iOS 16, *)
+private struct FeedSplitDetailPlaceholder: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "film")
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary)
+            Text(L10nFeedSelect.title)
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text(L10nFeedSelect.prompt)
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier("feed.split.detail.placeholder")
+    }
+}
+
+/// Local strings for the split-detail placeholder (TMDB module may not import TMDB_Feed L10n).
+private enum L10nFeedSelect {
+    static let title = "Select a title"
+    static let prompt = "Choose a movie or TV show to see details."
+}
+
+@available(iOS 16, *)
 private extension View {
-    func withTabNavCombination(_ combination: TabNavCombination, coordinator: Coordinator, tabRoute: TabRoute) -> some View {
-        modifier(TabNavCombinationModifier(tabNavCombination: combination, coordinator: coordinator, tabRoute: tabRoute))
+    func withTabNavCombination(
+        _ combination: TabNavCombination,
+        coordinator: Coordinator,
+        tabRoute: TabRoute,
+        container: Container
+    ) -> some View {
+        modifier(TabNavCombinationModifier(
+            tabNavCombination: combination,
+            coordinator: coordinator,
+            tabRoute: tabRoute,
+            container: container
+        ))
     }
 
     @ViewBuilder

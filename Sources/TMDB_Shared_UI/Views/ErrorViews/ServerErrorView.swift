@@ -1,9 +1,18 @@
 import SwiftUI
 
 public struct ServerErrorView: View {
+    var message: String?
     var retryAction: () -> Void
-    public init(retryAction: @escaping () -> Void) {
+    var cancelAction: (() -> Void)?
+
+    public init(
+        message: String? = nil,
+        retryAction: @escaping () -> Void,
+        cancelAction: (() -> Void)? = nil
+    ) {
+        self.message = message
         self.retryAction = retryAction
+        self.cancelAction = cancelAction
     }
 
     public var body: some View {
@@ -16,7 +25,7 @@ public struct ServerErrorView: View {
                 .font(.title2)
                 .fontWeight(.bold)
 
-            Text("We're having trouble connecting to our servers.\nPlease try again later.")
+            Text(message ?? "We're having trouble connecting to our servers.\nPlease try again later.")
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
@@ -33,10 +42,19 @@ public struct ServerErrorView: View {
             }
             .padding(.horizontal, 30)
             .padding(.top, 10)
+            .accessibilityIdentifier("error.retry.button")
+
+            if let cancelAction {
+                Button("Cancel Search", action: cancelAction)
+                    .fontWeight(.medium)
+                    .padding(.top, 4)
+                    .accessibilityIdentifier("error.cancelSearch.button")
+            }
         }
+        .accessibilityIdentifier("error.server")
     }
 }
 
 #Preview {
-    ServerErrorView(retryAction: {})
+    ServerErrorView(retryAction: {}, cancelAction: {})
 }

@@ -18,6 +18,20 @@ public enum L10n {
   public static let feedTopRated = L10n.tr("Localizable", "feed_top_rated", fallback: "Top Rated")
   /// Upcoming
   public static let feedUpcoming = L10n.tr("Localizable", "feed_upcoming", fallback: "Upcoming")
+  /// On the Air
+  public static let feedOnTheAir = L10n.tr("Localizable", "feed_on_the_air", fallback: "On the Air")
+  /// Airing Today
+  public static let feedAiringToday = L10n.tr("Localizable", "feed_airing_today", fallback: "Airing Today")
+  /// Search
+  public static let feedSearch = L10n.tr("Localizable", "feed_search", fallback: "Search")
+  /// Movies
+  public static let feedSearchMovies = L10n.tr("Localizable", "feed_search_movies", fallback: "Movies")
+  /// TV Shows
+  public static let feedSearchTv = L10n.tr("Localizable", "feed_search_tv", fallback: "TV Shows")
+  /// Select a title
+  public static let feedSelectItem = L10n.tr("Localizable", "feed_select_item", fallback: "Select a title")
+  /// Choose a movie or TV show to see details.
+  public static let feedSelectItemPrompt = L10n.tr("Localizable", "feed_select_item_prompt", fallback: "Choose a movie or TV show to see details.")
   /// Any Language
   public static let filterAnyLanguage = L10n.tr("Localizable", "filter_any_language", fallback: "Any Language")
   /// Any Region

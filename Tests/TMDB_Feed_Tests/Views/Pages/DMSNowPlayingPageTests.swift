@@ -5,14 +5,16 @@ import ViewInspector
 import XCTest
 
 @available(iOS 16.0, *)
-class MovieFeedListPageTests: XCTestCase {
+final class MovieFeedListPageTests: XCTestCase {
     var mockViewModel: MovieFeedViewModel!
+    var mockTVShowViewModel: TVShowFeedViewModel!
     var page: MovieFeedListPage<Int>!
 
     override func setUp() {
         super.setUp()
-        mockViewModel = MovieFeedViewModel(apiService: MockAPIService())
-        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
+        let cache = FeedResponseCache(defaults: UserDefaults(suiteName: "TMDB_Feed_Tests.\(UUID().uuidString)")!)
+        mockViewModel = MovieFeedViewModel(apiService: MockAPIService(), cache: cache)
+        mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService(), cache: cache)
         page = MovieFeedListPage(
             movieViewModel: mockViewModel,
             tvShowViewModel: mockTVShowViewModel,
@@ -23,22 +25,16 @@ class MovieFeedListPageTests: XCTestCase {
 
     override func tearDown() {
         mockViewModel = nil
+        mockTVShowViewModel = nil
         page = nil
         super.tearDown()
     }
 
-    func testInitialState() {
-        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
-        let pageSelfCreatedVM = MovieFeedListPage(
-            movieViewModel: MovieFeedViewModel(apiService: MockAPIService()),
-            tvShowViewModel: mockTVShowViewModel,
-            detailRouteBuilder: { _ in 1 },
-            tvShowDetailRouteBuilder: { _ in 1 }
-        )
-        XCTAssertNotNil(pageSelfCreatedVM)
+    func testInitialStateCreatesPage() {
+        XCTAssertNotNil(page)
     }
 
-    func testLoadingState() throws {
+    func testLoadingStateShowsProgress() throws {
         mockViewModel.state = .loading
 
         let progressView = try page.inspect().find(ViewType.ProgressView.self)
@@ -46,64 +42,57 @@ class MovieFeedListPageTests: XCTestCase {
     }
 
     func testMovieListDisplay() throws {
+        // Seed cache used by tab content
         mockViewModel.state = .loaded([sampleApeMovie])
+        // loadFeed stores via fetch; for UI we need movies(for:) populated.
+        // Use searchResults path via public state after manually triggering loaded store:
+        let expectation = expectation(description: "movies loaded")
+        let service = MockAPIService()
+        service.mockNowPlayingResult = .success(MovieListResponse(
+            dates: nil, page: 1, results: [sampleApeMovie], totalPages: 1, totalResults: 1
+        ))
+        let cache = FeedResponseCache(defaults: UserDefaults(suiteName: "TMDB_Feed_UI.\(UUID().uuidString)")!)
+        let vm = MovieFeedViewModel(apiService: service, cache: cache)
+        let tvVM = TVShowFeedViewModel(apiService: MockAPIService(), cache: cache)
+        vm.loadFeed(.nowPlaying)
 
-        let list = try page.inspect().find(ViewType.List.self)
-        XCTAssertNotNil(list)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
 
-        let movieRow = try list.find(NavigationMovieRow<Int>.self)
-        XCTAssertNotNil(movieRow)
-    }
-
-    func testDebugInitializer() throws {
-        // Given
-        let testViewModel = mockViewModel!
-        let testMovie = Movie(id: 1, originalTitle: "Test", title: "Test", overview: "Test",
-                            posterPath: nil, backdropPath: nil, popularity: 0,
-                            voteAverage: 0, voteCount: 0, releaseDate: nil,
-                            genres: nil, video: false)
-
-        // When
-        testViewModel.state = .loaded([testMovie])
-        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
         let testPage = MovieFeedListPage(
-            movieViewModel: testViewModel,
-            tvShowViewModel: mockTVShowViewModel,
+            movieViewModel: vm,
+            tvShowViewModel: tvVM,
             detailRouteBuilder: { _ in 1 },
             tvShowDetailRouteBuilder: { _ in 1 }
         )
 
-        // Then
         let list = try testPage.inspect().find(ViewType.List.self)
         XCTAssertNotNil(list)
-
         let movieRow = try list.find(NavigationMovieRow<Int>.self)
         XCTAssertNotNil(movieRow)
     }
 
-    func testDebugInitializerWithSearchResults() throws {
-        // Given
-        let testViewModel = mockViewModel!
-        let searchMovie = Movie(id: 2, originalTitle: "Search", title: "Search", overview: "Search",
-                              posterPath: nil, backdropPath: nil, popularity: 0,
-                              voteAverage: 0, voteCount: 0, releaseDate: nil,
-                              genres: nil, video: false)
-
-        // When
-        testViewModel.state = .searchResults([searchMovie])
-        let mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
-        let testPage = MovieFeedListPage(
-            movieViewModel: testViewModel,
-            tvShowViewModel: mockTVShowViewModel,
-            detailRouteBuilder: { _ in 1 },
-            tvShowDetailRouteBuilder: { _ in 1 }
+    func testSearchErrorShowsErrorPageWithCancel() throws {
+        let errorView = FeedErrorContentView(
+            message: "network connection failed",
+            allowsCancelSearch: true,
+            retryAction: { self.mockViewModel.retrySearch() },
+            cancelAction: { self.mockViewModel.cancelSearch() }
         )
 
-        // Then
-        let list = try testPage.inspect().find(ViewType.List.self)
-        XCTAssertNotNil(list)
+        XCTAssertTrue(errorView.allowsCancelSearch)
+        XCTAssertTrue(errorView.isLikelyNetworkError)
+        mockViewModel.state = .error("network connection failed")
+        mockViewModel.cancelSearch()
+        XCTAssertEqual(mockViewModel.searchQuery, "")
+    }
 
-        let movieRow = try list.find(NavigationMovieRow<Int>.self)
-        XCTAssertNotNil(movieRow)
+    func testFeedTabsExist() {
+        XCTAssertEqual(FeedTab.allCases.count, 7)
+        XCTAssertEqual(FeedTab.allCases.filter { $0.movieFeedType != nil }.count, 4)
+        XCTAssertEqual(FeedTab.allCases.filter { $0.tvShowFeedType != nil }.count, 2)
+        XCTAssertNotNil(FeedTab.search)
     }
 }

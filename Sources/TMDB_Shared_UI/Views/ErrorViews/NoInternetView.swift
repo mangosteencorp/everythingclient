@@ -1,9 +1,15 @@
 import SwiftUI
 
-struct NoInternetView: View {
+public struct NoInternetView: View {
     var retryAction: () -> Void
+    var cancelAction: (() -> Void)?
 
-    var body: some View {
+    public init(retryAction: @escaping () -> Void, cancelAction: (() -> Void)? = nil) {
+        self.retryAction = retryAction
+        self.cancelAction = cancelAction
+    }
+
+    public var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "wifi.slash")
                 .font(.system(size: 70))
@@ -30,10 +36,19 @@ struct NoInternetView: View {
             }
             .padding(.horizontal, 30)
             .padding(.top, 10)
+            .accessibilityIdentifier("error.retry.button")
+
+            if let cancelAction {
+                Button("Cancel Search", action: cancelAction)
+                    .fontWeight(.medium)
+                    .padding(.top, 4)
+                    .accessibilityIdentifier("error.cancelSearch.button")
+            }
         }
+        .accessibilityIdentifier("error.noInternet")
     }
 }
 
 #Preview {
-    NoInternetView(retryAction: {})
+    NoInternetView(retryAction: {}, cancelAction: {})
 }
