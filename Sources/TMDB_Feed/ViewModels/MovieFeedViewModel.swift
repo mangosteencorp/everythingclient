@@ -70,14 +70,13 @@ public class MovieFeedViewModel: ObservableObject {
     private var topRatedMovies: [Movie] = []
     private var upcomingMovies: [Movie] = []
     private var currentPage: Int = 1
-    private let cache: FeedResponseCache
 
     var hasCachedMovies: Bool {
         !nowPlayingMovies.isEmpty || !popularMovies.isEmpty || !topRatedMovies.isEmpty || !upcomingMovies.isEmpty
     }
 
     func movies(for feedType: MovieFeedType) -> [Movie] {
-        cachedMovies(for: feedType)
+        memoryMovies(for: feedType)
     }
 
     func isLoading(for feedType: MovieFeedType) -> Bool {
@@ -94,30 +93,14 @@ public class MovieFeedViewModel: ObservableObject {
     private let additionalParams: AdditionalMovieListParams?
     let analyticsTracker: AnalyticsTracker?
 
-    public convenience init(
+    public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         analyticsTracker: AnalyticsTracker? = nil
     ) {
-        self.init(
-            apiService: apiService,
-            additionalParams: additionalParams,
-            analyticsTracker: analyticsTracker,
-            cache: .shared
-        )
-    }
-
-    init(
-        apiService: APIServiceProtocol,
-        additionalParams: AdditionalMovieListParams? = nil,
-        analyticsTracker: AnalyticsTracker? = nil,
-        cache: FeedResponseCache
-    ) {
         self.apiService = apiService
         self.additionalParams = additionalParams
         self.analyticsTracker = analyticsTracker
-        self.cache = cache
-        hydrateFromDiskCache()
 
         $searchQuery
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
@@ -161,7 +144,7 @@ public class MovieFeedViewModel: ObservableObject {
     func loadFeed(_ feedType: MovieFeedType) {
         currentFeedType = feedType
         currentPage = 1
-        let cached = cachedMovies(for: feedType)
+        let cached = memoryMovies(for: feedType)
         if !cached.isEmpty {
             state = .loaded(cached)
         }
@@ -188,7 +171,7 @@ public class MovieFeedViewModel: ObservableObject {
     @MainActor
     private func fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: Bool) async {
         let feedType = currentFeedType
-        let cached = cachedMovies(for: feedType)
+        let cached = memoryMovies(for: feedType)
         if showLoadingIfEmpty && cached.isEmpty {
             state = .loading
         } else if !cached.isEmpty, case .initial = state {
@@ -215,10 +198,11 @@ public class MovieFeedViewModel: ObservableObject {
                 contentType: "movie_list"
             ))
             storeMovies(response.results, for: feedType)
-            cache.saveMovies(response.results, for: feedType)
             currentPage = 1
             state = .loaded(response.results)
         case let .failure(error):
+            // URLSession cache may already have satisfied the request when enabled;
+            // otherwise fall back to in-memory list from this session.
             if !cached.isEmpty {
                 state = .loaded(cached)
             } else {
@@ -228,7 +212,7 @@ public class MovieFeedViewModel: ObservableObject {
     }
 
     func loadCurrentFeedMovies() {
-        state = .loaded(cachedMovies(for: currentFeedType))
+        state = .loaded(memoryMovies(for: currentFeedType))
     }
 
     func clearSearchAndRetry() {
@@ -299,9 +283,8 @@ public class MovieFeedViewModel: ObservableObject {
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    let combined = cachedMovies(for: currentFeedType) + response.results
+                    let combined = memoryMovies(for: currentFeedType) + response.results
                     storeMovies(combined, for: currentFeedType)
-                    cache.saveMovies(combined, for: currentFeedType)
                     state = .loaded(combined)
                     currentPage += 1
                 case .failure:
@@ -311,15 +294,7 @@ public class MovieFeedViewModel: ObservableObject {
         }
     }
 
-    private func hydrateFromDiskCache() {
-        for feedType in MovieFeedType.allCases {
-            if let movies = cache.loadMovies(for: feedType) {
-                storeMovies(movies, for: feedType)
-            }
-        }
-    }
-
-    private func cachedMovies(for feedType: MovieFeedType) -> [Movie] {
+    private func memoryMovies(for feedType: MovieFeedType) -> [Movie] {
         switch feedType {
         case .nowPlaying: return nowPlayingMovies
         case .popular: return popularMovies

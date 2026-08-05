@@ -1,6 +1,8 @@
 Refer to me as Mr. Client.
 
 List all the skills and MCP you're planing to use before starting and what you used after completing a response.
+Do not put yourself as co-author.
+When you finish a response with code changes, add a one-liner of summary so I can use as commit message.
 
 ## Build Commands
 When building for testing, use the Xcode build script instead of `swift build`, replace `EverythingClient` with the target I'm currently working on:

@@ -14,14 +14,13 @@ public class TVShowFeedViewModel: ObservableObject {
     private var airingTodayShows: [TVShow] = []
     private var onTheAirShows: [TVShow] = []
     private var currentPage: Int = 1
-    private let cache: FeedResponseCache
 
     var hasCachedShows: Bool {
         !airingTodayShows.isEmpty || !onTheAirShows.isEmpty
     }
 
     func shows(for feedType: TVShowFeedType) -> [TVShow] {
-        cachedShows(for: feedType)
+        memoryShows(for: feedType)
     }
 
     func isLoading(for feedType: TVShowFeedType) -> Bool {
@@ -38,30 +37,14 @@ public class TVShowFeedViewModel: ObservableObject {
     private let additionalParams: AdditionalMovieListParams?
     let analyticsTracker: AnalyticsTracker?
 
-    public convenience init(
+    public init(
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         analyticsTracker: AnalyticsTracker? = nil
     ) {
-        self.init(
-            apiService: apiService,
-            additionalParams: additionalParams,
-            analyticsTracker: analyticsTracker,
-            cache: .shared
-        )
-    }
-
-    init(
-        apiService: APIServiceProtocol,
-        additionalParams: AdditionalMovieListParams? = nil,
-        analyticsTracker: AnalyticsTracker? = nil,
-        cache: FeedResponseCache
-    ) {
         self.apiService = apiService
         self.additionalParams = additionalParams
         self.analyticsTracker = analyticsTracker
-        self.cache = cache
-        hydrateFromDiskCache()
 
         $searchQuery
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
@@ -105,7 +88,7 @@ public class TVShowFeedViewModel: ObservableObject {
     func loadFeed(_ feedType: TVShowFeedType) {
         currentFeedType = feedType
         currentPage = 1
-        let cached = cachedShows(for: feedType)
+        let cached = memoryShows(for: feedType)
         if !cached.isEmpty {
             state = .loaded(cached)
         }
@@ -132,7 +115,7 @@ public class TVShowFeedViewModel: ObservableObject {
     @MainActor
     private func fetchTVShowsForCurrentFeedTypeAsync(showLoadingIfEmpty: Bool) async {
         let feedType = currentFeedType
-        let cached = cachedShows(for: feedType)
+        let cached = memoryShows(for: feedType)
         if showLoadingIfEmpty && cached.isEmpty {
             state = .loading
         } else if !cached.isEmpty, case .initial = state {
@@ -155,7 +138,6 @@ public class TVShowFeedViewModel: ObservableObject {
                 contentType: "tvshow_list"
             ))
             storeShows(response.results, for: feedType)
-            cache.saveTVShows(response.results, for: feedType)
             currentPage = 1
             state = .loaded(response.results)
         case let .failure(error):
@@ -168,7 +150,7 @@ public class TVShowFeedViewModel: ObservableObject {
     }
 
     func loadCurrentFeedTVShows() {
-        state = .loaded(cachedShows(for: currentFeedType))
+        state = .loaded(memoryShows(for: currentFeedType))
     }
 
     func clearSearchAndRetry() {
@@ -235,9 +217,8 @@ public class TVShowFeedViewModel: ObservableObject {
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    let combined = cachedShows(for: currentFeedType) + response.results
+                    let combined = memoryShows(for: currentFeedType) + response.results
                     storeShows(combined, for: currentFeedType)
-                    cache.saveTVShows(combined, for: currentFeedType)
                     state = .loaded(combined)
                     currentPage += 1
                 case .failure:
@@ -247,15 +228,7 @@ public class TVShowFeedViewModel: ObservableObject {
         }
     }
 
-    private func hydrateFromDiskCache() {
-        for feedType in TVShowFeedType.allCases {
-            if let shows = cache.loadTVShows(for: feedType) {
-                storeShows(shows, for: feedType)
-            }
-        }
-    }
-
-    private func cachedShows(for feedType: TVShowFeedType) -> [TVShow] {
+    private func memoryShows(for feedType: TVShowFeedType) -> [TVShow] {
         switch feedType {
         case .airingToday: return airingTodayShows
         case .onTheAir: return onTheAirShows

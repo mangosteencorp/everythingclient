@@ -149,7 +149,11 @@ public struct TMDBAPITabView: View {
         self.navigationInterceptor = navigationInterceptor
         self.analyticsTracker = analyticsTracker
         let container = Container()
-        TMDB_Shared_Backend.configure(container: container, apiKey: tmdbKey)
+        TMDB_Shared_Backend.configure(
+            container: container,
+            apiKey: tmdbKey,
+            urlCacheOptions: .enabled
+        )
         if let interceptor = self.navigationInterceptor {
             container.register(TMDBNavigationInterceptor.self) { _ in interceptor }.inObjectScope(.container)
         }

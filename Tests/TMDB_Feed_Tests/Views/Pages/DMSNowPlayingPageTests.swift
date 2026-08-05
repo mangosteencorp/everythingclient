@@ -1,6 +1,5 @@
 import SwiftUI
 @testable import TMDB_Feed
-import TMDB_Shared_UI
 import ViewInspector
 import XCTest
 
@@ -12,9 +11,8 @@ final class MovieFeedListPageTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let cache = FeedResponseCache(defaults: UserDefaults(suiteName: "TMDB_Feed_Tests.\(UUID().uuidString)")!)
-        mockViewModel = MovieFeedViewModel(apiService: MockAPIService(), cache: cache)
-        mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService(), cache: cache)
+        mockViewModel = MovieFeedViewModel(apiService: MockAPIService())
+        mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
         page = MovieFeedListPage(
             movieViewModel: mockViewModel,
             tvShowViewModel: mockTVShowViewModel,
@@ -42,18 +40,13 @@ final class MovieFeedListPageTests: XCTestCase {
     }
 
     func testMovieListDisplay() throws {
-        // Seed cache used by tab content
-        mockViewModel.state = .loaded([sampleApeMovie])
-        // loadFeed stores via fetch; for UI we need movies(for:) populated.
-        // Use searchResults path via public state after manually triggering loaded store:
         let expectation = expectation(description: "movies loaded")
         let service = MockAPIService()
         service.mockNowPlayingResult = .success(MovieListResponse(
             dates: nil, page: 1, results: [sampleApeMovie], totalPages: 1, totalResults: 1
         ))
-        let cache = FeedResponseCache(defaults: UserDefaults(suiteName: "TMDB_Feed_UI.\(UUID().uuidString)")!)
-        let vm = MovieFeedViewModel(apiService: service, cache: cache)
-        let tvVM = TVShowFeedViewModel(apiService: MockAPIService(), cache: cache)
+        let vm = MovieFeedViewModel(apiService: service)
+        let tvVM = TVShowFeedViewModel(apiService: MockAPIService())
         vm.loadFeed(.nowPlaying)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -87,6 +80,20 @@ final class MovieFeedListPageTests: XCTestCase {
         mockViewModel.state = .error("network connection failed")
         mockViewModel.cancelSearch()
         XCTAssertEqual(mockViewModel.searchQuery, "")
+    }
+
+    func testSearchTabShowsSearchBarAndFilters() throws {
+        let searchPage = FeedSearchTabContent(
+            movieViewModel: mockViewModel,
+            tvShowViewModel: mockTVShowViewModel,
+            detailRouteBuilder: { _ in 1 },
+            tvShowDetailRouteBuilder: { _ in 1 },
+            useFancyDesign: .constant(true)
+        )
+
+        XCTAssertNoThrow(try searchPage.inspect().find(ViewType.Picker.self))
+        XCTAssertNoThrow(try searchPage.inspect().find(ViewType.TextField.self))
+        XCTAssertNoThrow(try searchPage.inspect().find(FilterChipsView.self))
     }
 
     func testFeedTabsExist() {

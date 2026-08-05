@@ -12,6 +12,20 @@ struct FeedSearchTabContent<Route: Hashable>: View {
     @Binding var useFancyDesign: Bool
     @State private var searchContentType: ContentFeedType = .movies
 
+    private var activeSearchQuery: Binding<String> {
+        switch searchContentType {
+        case .movies: return $movieViewModel.searchQuery
+        case .tvShows: return $tvShowViewModel.searchQuery
+        }
+    }
+
+    private var activeSearchFilters: Binding<SearchFilters> {
+        switch searchContentType {
+        case .movies: return movieViewModel.searchFiltersBinding
+        case .tvShows: return tvShowViewModel.searchFiltersBinding
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Picker("Search Type", selection: $searchContentType) {
@@ -21,15 +35,43 @@ struct FeedSearchTabContent<Route: Hashable>: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.top, 8)
             .accessibilityIdentifier("search_content_type_picker")
             .onChange(of: searchContentType) { _ in
-                activeViewModelCancelIfNeeded()
+                movieViewModel.cancelSearch()
+                tvShowViewModel.cancelSearch()
             }
+
+            FeedSearchBar(
+                text: activeSearchQuery,
+                prompt: searchContentType == .movies ? L10n.feedSearchMovies : L10n.feedSearchTv
+            )
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+
+            FilterChipsView(
+                filters: activeSearchFilters,
+                onFilterTap: { filterType in
+                    switch searchContentType {
+                    case .movies:
+                        movieViewModel.updateSelectedFilterToShow(filterType)
+                    case .tvShows:
+                        tvShowViewModel.updateSelectedFilterToShow(filterType)
+                    }
+                }
+            )
 
             searchBody
         }
         .accessibilityIdentifier("feed_search_tab")
+        .sheet(isPresented: searchSheetBinding) {
+            if let filterType = selectedFilterType {
+                FilterConfigurationView(
+                    filters: activeSearchFilters,
+                    filterType: filterType
+                )
+            }
+        }
     }
 
     @ViewBuilder
@@ -50,9 +92,55 @@ struct FeedSearchTabContent<Route: Hashable>: View {
         }
     }
 
-    private func activeViewModelCancelIfNeeded() {
-        movieViewModel.cancelSearch()
-        tvShowViewModel.cancelSearch()
+    private var searchSheetBinding: Binding<Bool> {
+        switch searchContentType {
+        case .movies:
+            return $movieViewModel.showingFilterSheet
+        case .tvShows:
+            return $tvShowViewModel.showingFilterSheet
+        }
+    }
+
+    private var selectedFilterType: FilterType? {
+        switch searchContentType {
+        case .movies: return movieViewModel.selectedFilterType
+        case .tvShows: return tvShowViewModel.selectedFilterType
+        }
+    }
+}
+
+@available(iOS 16, *)
+private struct FeedSearchBar: View {
+    @Binding var text: String
+    let prompt: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField(prompt, text: $text)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+                .accessibilityIdentifier("feed_search_field")
+
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityIdentifier("feed_search_clear")
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .accessibilityIdentifier("feed_search_bar")
     }
 }
 
@@ -78,48 +166,29 @@ private struct MovieSearchResultsContent<Route: Hashable>: View {
                     cancelAction: { viewModel.cancelSearch() }
                 )
             case .loaded(let movies), .searchResults(let movies):
-                VStack(spacing: 0) {
-                    if !viewModel.searchQuery.isEmpty {
-                        FilterChipsView(
-                            filters: $viewModel.searchFilters,
-                            onFilterTap: { filterType in
-                                viewModel.updateSelectedFilterToShow(filterType)
+                if movies.isEmpty {
+                    CommonNoResultView(
+                        configuration: NoResultViewConfiguration(
+                            primaryButtonAction: { [weak viewModel] in
+                                viewModel?.retrySearch()
+                            },
+                            secondaryButtonAction: { [weak viewModel] in
+                                viewModel?.cancelSearch()
                             }
-                        )
+                        ),
+                        useFancyDesign: $useFancyDesign
+                    )
+                } else {
+                    List(movies) { movie in
+                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
                     }
-                    if movies.isEmpty {
-                        CommonNoResultView(
-                            configuration: NoResultViewConfiguration(
-                                primaryButtonAction: { [weak viewModel] in
-                                    viewModel?.retrySearch()
-                                },
-                                secondaryButtonAction: { [weak viewModel] in
-                                    viewModel?.cancelSearch()
-                                }
-                            ),
-                            useFancyDesign: $useFancyDesign
-                        )
-                    } else {
-                        List(movies) { movie in
-                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                        }
-                        .accessibilityIdentifier("movies_search_results")
-                    }
+                    .accessibilityIdentifier("movies_search_results")
                 }
             }
         }
-        .searchable(text: $viewModel.searchQuery, prompt: L10n.feedSearchMovies)
         .refreshable {
             guard !viewModel.searchQuery.isEmpty else { return }
             viewModel.retrySearch()
-        }
-        .sheet(isPresented: $viewModel.showingFilterSheet) {
-            if let filterType = viewModel.selectedFilterType {
-                FilterConfigurationView(
-                    filters: viewModel.searchFiltersBinding,
-                    filterType: filterType
-                )
-            }
         }
     }
 }
@@ -146,48 +215,29 @@ private struct TVShowSearchResultsContent<Route: Hashable>: View {
                     cancelAction: { viewModel.cancelSearch() }
                 )
             case .loaded(let shows), .searchResults(let shows):
-                VStack(spacing: 0) {
-                    if !viewModel.searchQuery.isEmpty {
-                        FilterChipsView(
-                            filters: $viewModel.searchFilters,
-                            onFilterTap: { filterType in
-                                viewModel.updateSelectedFilterToShow(filterType)
+                if shows.isEmpty {
+                    CommonNoResultView(
+                        configuration: NoResultViewConfiguration(
+                            primaryButtonAction: { [weak viewModel] in
+                                viewModel?.retrySearch()
+                            },
+                            secondaryButtonAction: { [weak viewModel] in
+                                viewModel?.cancelSearch()
                             }
-                        )
+                        ),
+                        useFancyDesign: $useFancyDesign
+                    )
+                } else {
+                    List(shows) { show in
+                        NavigationTVShowRow(viewModel: viewModel, show: show, routeBuilder: detailRouteBuilder)
                     }
-                    if shows.isEmpty {
-                        CommonNoResultView(
-                            configuration: NoResultViewConfiguration(
-                                primaryButtonAction: { [weak viewModel] in
-                                    viewModel?.retrySearch()
-                                },
-                                secondaryButtonAction: { [weak viewModel] in
-                                    viewModel?.cancelSearch()
-                                }
-                            ),
-                            useFancyDesign: $useFancyDesign
-                        )
-                    } else {
-                        List(shows) { show in
-                            NavigationTVShowRow(viewModel: viewModel, show: show, routeBuilder: detailRouteBuilder)
-                        }
-                        .accessibilityIdentifier("tvshows_search_results")
-                    }
+                    .accessibilityIdentifier("tvshows_search_results")
                 }
             }
         }
-        .searchable(text: $viewModel.searchQuery, prompt: L10n.feedSearchTv)
         .refreshable {
             guard !viewModel.searchQuery.isEmpty else { return }
             viewModel.retrySearch()
-        }
-        .sheet(isPresented: $viewModel.showingFilterSheet) {
-            if let filterType = viewModel.selectedFilterType {
-                FilterConfigurationView(
-                    filters: viewModel.searchFiltersBinding,
-                    filterType: filterType
-                )
-            }
         }
     }
 }

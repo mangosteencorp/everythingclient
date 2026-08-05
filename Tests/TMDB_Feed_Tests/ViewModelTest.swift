@@ -53,13 +53,11 @@ final class MovieFeedViewModelTests: XCTestCase {
     var viewModel: MovieFeedViewModel!
     var mockAPIService: MockAPIService!
     var cancellables: Set<AnyCancellable>!
-    var cache: FeedResponseCache!
 
     override func setUp() {
         super.setUp()
         mockAPIService = MockAPIService()
-        cache = FeedResponseCache(defaults: UserDefaults(suiteName: "MovieFeedVM.\(UUID().uuidString)")!)
-        viewModel = MovieFeedViewModel(apiService: mockAPIService, cache: cache)
+        viewModel = MovieFeedViewModel(apiService: mockAPIService)
         cancellables = Set<AnyCancellable>()
     }
 
@@ -67,7 +65,6 @@ final class MovieFeedViewModelTests: XCTestCase {
         viewModel = nil
         mockAPIService = nil
         cancellables = nil
-        cache = nil
         super.tearDown()
     }
 
@@ -228,18 +225,33 @@ final class MovieFeedViewModelTests: XCTestCase {
         }
     }
 
-    func testCacheFallbackOnNetworkFailure() async {
-        cache.saveMovies([sampleApeMovie], for: .popular)
-        let vm = MovieFeedViewModel(apiService: mockAPIService, cache: cache)
+    func testInMemoryFallbackOnNetworkFailure() async {
+        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
+            dates: nil,
+            page: 1,
+            results: [sampleApeMovie],
+            totalPages: 1,
+            totalResults: 1
+        ))
+        viewModel.loadFeed(.popular)
+
+        let loaded = XCTestExpectation(description: "loaded")
+        viewModel.$state
+            .dropFirst()
+            .sink { state in
+                if case .loaded = state { loaded.fulfill() }
+            }
+            .store(in: &cancellables)
+        await fulfillment(of: [loaded], timeout: 1.0)
+
         mockAPIService.mockNowPlayingResult = .failure(NSError(domain: "Test", code: -2))
+        await viewModel.refresh(.popular)
 
-        await vm.refresh(.popular)
-
-        XCTAssertEqual(vm.movies(for: .popular).first?.id, sampleApeMovie.id)
-        if case .loaded(let movies) = vm.state {
+        XCTAssertEqual(viewModel.movies(for: .popular).first?.id, sampleApeMovie.id)
+        if case .loaded(let movies) = viewModel.state {
             XCTAssertEqual(movies.first?.id, sampleApeMovie.id)
         } else {
-            XCTFail("Expected loaded from cache")
+            XCTFail("Expected loaded from in-memory cache")
         }
     }
 }

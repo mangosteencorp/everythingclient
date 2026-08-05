@@ -5,10 +5,6 @@ import XCTest
 
 @available(iOS 16.0, *)
 final class MovieFeedSnapshotTests: XCTestCase {
-    private func makeCache() -> FeedResponseCache {
-        FeedResponseCache(defaults: UserDefaults(suiteName: "TMDB_Feed_Snapshot.\(UUID().uuidString)")!)
-    }
-
     func testErrorViewSnapshotHierarchy() throws {
         let view = FeedErrorContentView(
             message: "network connection lost",
@@ -19,7 +15,6 @@ final class MovieFeedSnapshotTests: XCTestCase {
 
         XCTAssertTrue(view.allowsCancelSearch)
         XCTAssertTrue(view.isLikelyNetworkError)
-        // Structural fingerprint for network search failure UI
         XCTAssertEqual(
             [view.allowsCancelSearch, view.isLikelyNetworkError],
             [true, true]
@@ -47,7 +42,7 @@ final class MovieFeedSnapshotTests: XCTestCase {
         service.mockNowPlayingResult = .success(MovieListResponse(
             dates: nil, page: 1, results: [sampleApeMovie], totalPages: 1, totalResults: 1
         ))
-        let vm = MovieFeedViewModel(apiService: service, cache: makeCache())
+        let vm = MovieFeedViewModel(apiService: service)
         vm.loadFeed(.nowPlaying)
 
         let expectation = expectation(description: "load")
@@ -69,10 +64,9 @@ final class MovieFeedSnapshotTests: XCTestCase {
     }
 
     func testSearchPlaceholderSnapshot() throws {
-        let cache = makeCache()
         let view = FeedSearchTabContent(
-            movieViewModel: MovieFeedViewModel(apiService: MockAPIService(), cache: cache),
-            tvShowViewModel: TVShowFeedViewModel(apiService: MockAPIService(), cache: cache),
+            movieViewModel: MovieFeedViewModel(apiService: MockAPIService()),
+            tvShowViewModel: TVShowFeedViewModel(apiService: MockAPIService()),
             detailRouteBuilder: { _ in 1 },
             tvShowDetailRouteBuilder: { _ in 1 },
             useFancyDesign: .constant(true)
@@ -80,6 +74,7 @@ final class MovieFeedSnapshotTests: XCTestCase {
 
         let pickers = try view.inspect().findAll(ViewType.Picker.self)
         XCTAssertFalse(pickers.isEmpty)
+        XCTAssertNoThrow(try view.inspect().find(ViewType.TextField.self))
     }
 
     func testFeedTabFingerprintSnapshot() {
@@ -108,10 +103,7 @@ final class MovieFeedUITests: XCTestCase {
             code: NSURLErrorNotConnectedToInternet,
             userInfo: [NSLocalizedDescriptionKey: "network connection failed"]
         ))
-        let vm = MovieFeedViewModel(
-            apiService: service,
-            cache: FeedResponseCache(defaults: UserDefaults(suiteName: "TMDB_Feed_UICancel.\(UUID().uuidString)")!)
-        )
+        let vm = MovieFeedViewModel(apiService: service)
 
         vm.searchQuery = "batman"
 
@@ -132,17 +124,21 @@ final class MovieFeedUITests: XCTestCase {
         }
     }
 
-    func testRefreshFallsBackToCacheOnFailure() async {
-        let defaults = UserDefaults(suiteName: "TMDB_Feed_CacheRefresh.\(UUID().uuidString)")!
-        let cache = FeedResponseCache(defaults: defaults)
-        cache.saveMovies([sampleApeMovie], for: .nowPlaying)
-
+    func testRefreshFallsBackToInMemoryOnFailure() async {
         let service = MockAPIService()
+        service.mockNowPlayingResult = .success(MovieListResponse(
+            dates: nil, page: 1, results: [sampleApeMovie], totalPages: 1, totalResults: 1
+        ))
+        let vm = MovieFeedViewModel(apiService: service)
+        vm.loadFeed(.nowPlaying)
+
+        let loaded = expectation(description: "loaded")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            loaded.fulfill()
+        }
+        await fulfillment(of: [loaded], timeout: 1.0)
+
         service.mockNowPlayingResult = .failure(NSError(domain: "Test", code: -1))
-
-        let vm = MovieFeedViewModel(apiService: service, cache: cache)
-        XCTAssertEqual(vm.movies(for: .nowPlaying).count, 1)
-
         await vm.refresh(.nowPlaying)
         XCTAssertEqual(vm.movies(for: .nowPlaying).count, 1)
         if case .loaded(let movies) = vm.state {

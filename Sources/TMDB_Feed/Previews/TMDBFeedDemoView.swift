@@ -9,7 +9,7 @@ public struct TMDBFeedDemoView: View {
     public var body: some View {
         NavigationStack {
             MovieFeedListPage(
-                apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
+                apiService: TMDBAPIService(apiKey: debugTMDBAPIKey, urlCacheOptions: .enabled),
                 detailRouteBuilder: { _ in 1 },
                 tvShowDetailRouteBuilder: { _ in 1 }
             )

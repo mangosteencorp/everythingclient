@@ -4,7 +4,16 @@ import Swinject
 public class TMDB_Shared_Backend {
     static var container: Container?
 
-    public static func configure(container: Container, apiKey: String) {
+    /// - Parameters:
+    ///   - container: DI container
+    ///   - apiKey: TMDB API key
+    ///   - urlCacheOptions: URLSession cache settings. Defaults to **disabled**.
+    ///     When enabled, GET requests without auth use `URLCache` (offline-friendly).
+    public static func configure(
+        container: Container,
+        apiKey: String,
+        urlCacheOptions: TMDBURLCacheOptions = .disabled
+    ) {
         TMDB_Shared_Backend.container = container
         // Register API key
         container.register(String.self, name: "tmdbApiKey") { _ in apiKey }.inObjectScope(.container)
@@ -20,7 +29,8 @@ public class TMDB_Shared_Backend {
         container.register(TMDBAPIService.self) { r in
             TMDBAPIService(
                 apiKey: apiKey,
-                authRepository: r.resolve(AuthRepository.self)!
+                authRepository: r.resolve(AuthRepository.self)!,
+                urlCacheOptions: urlCacheOptions
             )
         }.inObjectScope(.container)
 
