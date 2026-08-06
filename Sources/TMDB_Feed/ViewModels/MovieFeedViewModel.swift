@@ -70,6 +70,8 @@ public class MovieFeedViewModel: ObservableObject {
     private var topRatedMovies: [Movie] = []
     private var upcomingMovies: [Movie] = []
     private var currentPage: Int = 1
+    private var loadingFeedTypes: Set<MovieFeedType> = []
+    private var feedErrors: [MovieFeedType: String] = [:]
 
     var hasCachedMovies: Bool {
         !nowPlayingMovies.isEmpty || !popularMovies.isEmpty || !topRatedMovies.isEmpty || !upcomingMovies.isEmpty
@@ -80,12 +82,11 @@ public class MovieFeedViewModel: ObservableObject {
     }
 
     func isLoading(for feedType: MovieFeedType) -> Bool {
-        currentFeedType == feedType && state == .loading
+        loadingFeedTypes.contains(feedType)
     }
 
     func errorMessage(for feedType: MovieFeedType) -> String? {
-        guard currentFeedType == feedType, case .error(let message) = state else { return nil }
-        return message
+        feedErrors[feedType]
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -131,14 +132,11 @@ public class MovieFeedViewModel: ObservableObject {
     }
 
     func fetchNowPlayingMovies() {
-        currentFeedType = .nowPlaying
-        fetchMoviesForCurrentFeedType()
+        loadFeed(.nowPlaying)
     }
 
     func switchFeedType(_ feedType: MovieFeedType) {
-        currentFeedType = feedType
-        currentPage = 1
-        fetchMoviesForCurrentFeedType()
+        loadFeed(feedType)
     }
 
     func loadFeed(_ feedType: MovieFeedType) {
@@ -147,34 +145,45 @@ public class MovieFeedViewModel: ObservableObject {
         let cached = memoryMovies(for: feedType)
         if !cached.isEmpty {
             state = .loaded(cached)
+            feedErrors[feedType] = nil
+        } else {
+            guard !loadingFeedTypes.contains(feedType) else { return }
+            loadingFeedTypes.insert(feedType)
+            feedErrors[feedType] = nil
+            state = .loading
+            objectWillChange.send()
         }
-        fetchMoviesForCurrentFeedType(showLoadingIfEmpty: cached.isEmpty)
+        fetchMovies(for: feedType, showLoadingIfEmpty: cached.isEmpty)
     }
 
     @MainActor
     func refresh() async {
-        await fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: false)
+        await fetchMoviesAsync(for: currentFeedType, showLoadingIfEmpty: false)
     }
 
     @MainActor
     func refresh(_ feedType: MovieFeedType) async {
         currentFeedType = feedType
-        await fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: false)
+        await fetchMoviesAsync(for: feedType, showLoadingIfEmpty: false)
     }
 
-    private func fetchMoviesForCurrentFeedType(showLoadingIfEmpty: Bool = true) {
-        Task {
-            await fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: showLoadingIfEmpty)
+    private func fetchMovies(for feedType: MovieFeedType, showLoadingIfEmpty: Bool = true) {
+        Task { @MainActor in
+            await fetchMoviesAsync(for: feedType, showLoadingIfEmpty: showLoadingIfEmpty)
         }
     }
 
     @MainActor
-    private func fetchMoviesForCurrentFeedTypeAsync(showLoadingIfEmpty: Bool) async {
-        let feedType = currentFeedType
+    private func fetchMoviesAsync(for feedType: MovieFeedType, showLoadingIfEmpty: Bool) async {
         let cached = memoryMovies(for: feedType)
         if showLoadingIfEmpty && cached.isEmpty {
-            state = .loading
-        } else if !cached.isEmpty, case .initial = state {
+            loadingFeedTypes.insert(feedType)
+            feedErrors[feedType] = nil
+            if currentFeedType == feedType {
+                state = .loading
+            }
+            objectWillChange.send()
+        } else if !cached.isEmpty, currentFeedType == feedType, case .initial = state {
             state = .loaded(cached)
         }
 
@@ -190,6 +199,8 @@ public class MovieFeedViewModel: ObservableObject {
             result = await apiService.fetchUpcomingMovies(page: nil, additionalParams: additionalParams)
         }
 
+        loadingFeedTypes.remove(feedType)
+
         switch result {
         case let .success(response):
             analyticsTracker?.trackPageView(parameters: PageViewParameters(
@@ -198,17 +209,26 @@ public class MovieFeedViewModel: ObservableObject {
                 contentType: "movie_list"
             ))
             storeMovies(response.results, for: feedType)
-            currentPage = 1
-            state = .loaded(response.results)
+            feedErrors[feedType] = nil
+            if currentFeedType == feedType {
+                currentPage = 1
+                state = .loaded(response.results)
+            }
         case let .failure(error):
             // URLSession cache may already have satisfied the request when enabled;
             // otherwise fall back to in-memory list from this session.
             if !cached.isEmpty {
-                state = .loaded(cached)
+                if currentFeedType == feedType {
+                    state = .loaded(cached)
+                }
             } else {
-                state = .error(error.localizedDescription)
+                feedErrors[feedType] = error.localizedDescription
+                if currentFeedType == feedType {
+                    state = .error(error.localizedDescription)
+                }
             }
         }
+        objectWillChange.send()
     }
 
     func loadCurrentFeedMovies() {
@@ -229,7 +249,7 @@ public class MovieFeedViewModel: ObservableObject {
         if !searchQuery.isEmpty {
             searchMovies(query: searchQuery)
         } else {
-            fetchMoviesForCurrentFeedType()
+            fetchMovies(for: currentFeedType)
         }
     }
 
@@ -258,6 +278,7 @@ public class MovieFeedViewModel: ObservableObject {
               currentMovieId == state.movies.last?.id,
               searchQuery.isEmpty else { return }
 
+        let feedType = currentFeedType
         Task {
             analyticsTracker?.trackEvent(
                 name: "load_more",
@@ -269,7 +290,7 @@ public class MovieFeedViewModel: ObservableObject {
             )
 
             let result: Result<MovieListResponse, Error>
-            switch currentFeedType {
+            switch feedType {
             case .nowPlaying:
                 result = await apiService.fetchNowPlayingMovies(page: currentPage + 1, additionalParams: additionalParams)
             case .popular:
@@ -283,10 +304,12 @@ public class MovieFeedViewModel: ObservableObject {
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    let combined = memoryMovies(for: currentFeedType) + response.results
-                    storeMovies(combined, for: currentFeedType)
-                    state = .loaded(combined)
-                    currentPage += 1
+                    let combined = memoryMovies(for: feedType) + response.results
+                    storeMovies(combined, for: feedType)
+                    if currentFeedType == feedType {
+                        state = .loaded(combined)
+                        currentPage += 1
+                    }
                 case .failure:
                     break
                 }

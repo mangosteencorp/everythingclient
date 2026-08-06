@@ -49,8 +49,10 @@ struct TVShowFeedTabContent<Route: Hashable>: View {
         .refreshable {
             await viewModel.refresh(feedType)
         }
-        .onFirstAppear {
-            viewModel.loadFeed(feedType)
+        .onAppear {
+            if shows.isEmpty, !viewModel.isLoading(for: feedType) {
+                viewModel.loadFeed(feedType)
+            }
         }
     }
 }

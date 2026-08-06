@@ -11,6 +11,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
     @StateObject var movieViewModel: MovieFeedViewModel
     @StateObject var tvShowViewModel: TVShowFeedViewModel
     @State private var selectedTab: FeedTab = .nowPlaying
+    @State private var visibleTab: FeedTab = .nowPlaying
     @State private var useFancyDesign: Bool = true
     let detailRouteBuilder: (Movie) -> Route
     let tvShowDetailRouteBuilder: (TVShow) -> Route
@@ -51,22 +52,80 @@ public struct MovieFeedListPage<Route: Hashable>: View {
 #endif
 
     public var body: some View {
-        TabView(selection: $selectedTab) {
-            ForEach(FeedTab.allCases) { tab in
-                tabRoot(for: tab)
-                    .tabItem {
-                        Label(tab.title, systemImage: tab.systemImage)
+        Group {
+            // There are more tabs than the tab bar can show, so iOS moves the overflow
+            // into its "More" list. The legacy `.tabItem` bridge renders those overflow
+            // tabs into a detached controller that never redraws, so they stay frozen on
+            // whatever was on screen when the More list was built (an empty feed showing
+            // "No Results Found"). The iOS 18 `Tab` API keeps them live.
+            if #available(iOS 18, *) {
+                TabView(selection: $selectedTab) {
+                    ForEach(FeedTab.allCases) { tab in
+                        Tab(tab.title, systemImage: tab.systemImage, value: tab) {
+                            tabRoot(for: tab)
+                        }
                     }
-                    .tag(tab)
+                }
+            } else {
+                TabView(selection: $selectedTab) {
+                    ForEach(FeedTab.allCases) { tab in
+                        tabRoot(for: tab)
+                            .tabItem {
+                                Label(tab.title, systemImage: tab.systemImage)
+                            }
+                            .tag(tab)
+                    }
+                }
             }
         }
         .accessibilityIdentifier("movies_list")
-        .navigationTitle(selectedTab.title)
+        .navigationTitle(visibleTab.title)
         .navigationBarTitleDisplayMode(.inline)
+        // Tabs moved into iOS's More menu can be created without appearing first.
+        .onAppear {
+            loadInitialFeeds()
+        }
+        .onChange(of: selectedTab) { tab in
+            visibleTab = tab
+            loadFeed(for: tab)
+        }
+    }
+
+    private func loadInitialFeeds() {
+        for feedType in TVShowFeedType.allCases {
+            if tvShowViewModel.shows(for: feedType).isEmpty,
+               !tvShowViewModel.isLoading(for: feedType) {
+                tvShowViewModel.loadFeed(feedType)
+            }
+        }
+
+        loadFeed(for: selectedTab)
+    }
+
+    private func loadFeed(for tab: FeedTab) {
+        if let feedType = tab.movieFeedType {
+            if movieViewModel.movies(for: feedType).isEmpty,
+               !movieViewModel.isLoading(for: feedType) {
+                movieViewModel.loadFeed(feedType)
+            }
+        } else if let feedType = tab.tvShowFeedType {
+            if tvShowViewModel.shows(for: feedType).isEmpty,
+               !tvShowViewModel.isLoading(for: feedType) {
+                tvShowViewModel.loadFeed(feedType)
+            }
+        }
+    }
+
+    private func tabRoot(for tab: FeedTab) -> some View {
+        // iOS never updates the `selection` binding for tabs opened from the More list,
+        // so the visible tab has to be tracked from the content itself to keep the
+        // navigation title in sync.
+        tabContent(for: tab)
+            .onAppear { visibleTab = tab }
     }
 
     @ViewBuilder
-    private func tabRoot(for tab: FeedTab) -> some View {
+    private func tabContent(for tab: FeedTab) -> some View {
         switch tab {
         case .nowPlaying, .popular, .topRated, .upcoming:
             if let feedType = tab.movieFeedType {

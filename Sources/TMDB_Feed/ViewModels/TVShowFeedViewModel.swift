@@ -14,6 +14,8 @@ public class TVShowFeedViewModel: ObservableObject {
     private var airingTodayShows: [TVShow] = []
     private var onTheAirShows: [TVShow] = []
     private var currentPage: Int = 1
+    private var loadingFeedTypes: Set<TVShowFeedType> = []
+    private var feedErrors: [TVShowFeedType: String] = [:]
 
     var hasCachedShows: Bool {
         !airingTodayShows.isEmpty || !onTheAirShows.isEmpty
@@ -24,12 +26,11 @@ public class TVShowFeedViewModel: ObservableObject {
     }
 
     func isLoading(for feedType: TVShowFeedType) -> Bool {
-        currentFeedType == feedType && state == .loading
+        loadingFeedTypes.contains(feedType)
     }
 
     func errorMessage(for feedType: TVShowFeedType) -> String? {
-        guard currentFeedType == feedType, case .error(let message) = state else { return nil }
-        return message
+        feedErrors[feedType]
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -75,14 +76,11 @@ public class TVShowFeedViewModel: ObservableObject {
     }
 
     func fetchAiringTodayTVShows() {
-        currentFeedType = .airingToday
-        fetchTVShowsForCurrentFeedType()
+        loadFeed(.airingToday)
     }
 
     func switchFeedType(_ feedType: TVShowFeedType) {
-        currentFeedType = feedType
-        currentPage = 1
-        fetchTVShowsForCurrentFeedType()
+        loadFeed(feedType)
     }
 
     func loadFeed(_ feedType: TVShowFeedType) {
@@ -91,34 +89,45 @@ public class TVShowFeedViewModel: ObservableObject {
         let cached = memoryShows(for: feedType)
         if !cached.isEmpty {
             state = .loaded(cached)
+            feedErrors[feedType] = nil
+        } else {
+            guard !loadingFeedTypes.contains(feedType) else { return }
+            loadingFeedTypes.insert(feedType)
+            feedErrors[feedType] = nil
+            state = .loading
+            objectWillChange.send()
         }
-        fetchTVShowsForCurrentFeedType(showLoadingIfEmpty: cached.isEmpty)
+        fetchTVShows(for: feedType, showLoadingIfEmpty: cached.isEmpty)
     }
 
     @MainActor
     func refresh() async {
-        await fetchTVShowsForCurrentFeedTypeAsync(showLoadingIfEmpty: false)
+        await fetchTVShowsAsync(for: currentFeedType, showLoadingIfEmpty: false)
     }
 
     @MainActor
     func refresh(_ feedType: TVShowFeedType) async {
         currentFeedType = feedType
-        await fetchTVShowsForCurrentFeedTypeAsync(showLoadingIfEmpty: false)
+        await fetchTVShowsAsync(for: feedType, showLoadingIfEmpty: false)
     }
 
-    private func fetchTVShowsForCurrentFeedType(showLoadingIfEmpty: Bool = true) {
-        Task {
-            await fetchTVShowsForCurrentFeedTypeAsync(showLoadingIfEmpty: showLoadingIfEmpty)
+    private func fetchTVShows(for feedType: TVShowFeedType, showLoadingIfEmpty: Bool = true) {
+        Task { @MainActor in
+            await fetchTVShowsAsync(for: feedType, showLoadingIfEmpty: showLoadingIfEmpty)
         }
     }
 
     @MainActor
-    private func fetchTVShowsForCurrentFeedTypeAsync(showLoadingIfEmpty: Bool) async {
-        let feedType = currentFeedType
+    private func fetchTVShowsAsync(for feedType: TVShowFeedType, showLoadingIfEmpty: Bool) async {
         let cached = memoryShows(for: feedType)
         if showLoadingIfEmpty && cached.isEmpty {
-            state = .loading
-        } else if !cached.isEmpty, case .initial = state {
+            loadingFeedTypes.insert(feedType)
+            feedErrors[feedType] = nil
+            if currentFeedType == feedType {
+                state = .loading
+            }
+            objectWillChange.send()
+        } else if !cached.isEmpty, currentFeedType == feedType, case .initial = state {
             state = .loaded(cached)
         }
 
@@ -130,6 +139,8 @@ public class TVShowFeedViewModel: ObservableObject {
             result = await apiService.fetchOnTheAirTVShows(page: nil, additionalParams: additionalParams)
         }
 
+        loadingFeedTypes.remove(feedType)
+
         switch result {
         case let .success(response):
             analyticsTracker?.trackPageView(parameters: PageViewParameters(
@@ -138,15 +149,24 @@ public class TVShowFeedViewModel: ObservableObject {
                 contentType: "tvshow_list"
             ))
             storeShows(response.results, for: feedType)
-            currentPage = 1
-            state = .loaded(response.results)
+            feedErrors[feedType] = nil
+            if currentFeedType == feedType {
+                currentPage = 1
+                state = .loaded(response.results)
+            }
         case let .failure(error):
             if !cached.isEmpty {
-                state = .loaded(cached)
+                if currentFeedType == feedType {
+                    state = .loaded(cached)
+                }
             } else {
-                state = .error(error.localizedDescription)
+                feedErrors[feedType] = error.localizedDescription
+                if currentFeedType == feedType {
+                    state = .error(error.localizedDescription)
+                }
             }
         }
+        objectWillChange.send()
     }
 
     func loadCurrentFeedTVShows() {
@@ -167,7 +187,7 @@ public class TVShowFeedViewModel: ObservableObject {
         if !searchQuery.isEmpty {
             searchTVShows(query: searchQuery)
         } else {
-            fetchTVShowsForCurrentFeedType()
+            fetchTVShows(for: currentFeedType)
         }
     }
 
@@ -196,6 +216,7 @@ public class TVShowFeedViewModel: ObservableObject {
               currentShowId == state.shows.last?.id,
               searchQuery.isEmpty else { return }
 
+        let feedType = currentFeedType
         Task {
             analyticsTracker?.trackEvent(
                 name: "load_more",
@@ -207,7 +228,7 @@ public class TVShowFeedViewModel: ObservableObject {
             )
 
             let result: Result<TVShowListResponse, Error>
-            switch currentFeedType {
+            switch feedType {
             case .airingToday:
                 result = await apiService.fetchAiringTodayTVShows(page: currentPage + 1, additionalParams: additionalParams)
             case .onTheAir:
@@ -217,10 +238,12 @@ public class TVShowFeedViewModel: ObservableObject {
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    let combined = memoryShows(for: currentFeedType) + response.results
-                    storeShows(combined, for: currentFeedType)
-                    state = .loaded(combined)
-                    currentPage += 1
+                    let combined = memoryShows(for: feedType) + response.results
+                    storeShows(combined, for: feedType)
+                    if currentFeedType == feedType {
+                        state = .loaded(combined)
+                        currentPage += 1
+                    }
                 case .failure:
                     break
                 }

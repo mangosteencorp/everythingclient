@@ -32,10 +32,22 @@ final class MovieFeedListPageTests: XCTestCase {
         XCTAssertNotNil(page)
     }
 
-    func testLoadingStateShowsProgress() throws {
-        mockViewModel.state = .loading
+    // The page hosts its tabs in a `Tab` container that ViewInspector cannot traverse,
+    // so the feed rendering is inspected on the tab content itself.
+    private func movieTabContent(_ viewModel: MovieFeedViewModel) -> MovieFeedTabContent<Int> {
+        MovieFeedTabContent(
+            viewModel: viewModel,
+            feedType: .nowPlaying,
+            detailRouteBuilder: { _ in 1 },
+            useFancyDesign: .constant(true)
+        )
+    }
 
-        let progressView = try page.inspect().find(ViewType.ProgressView.self)
+    func testLoadingStateShowsProgress() throws {
+        // `loadFeed` marks the feed as loading synchronously before the request starts.
+        mockViewModel.loadFeed(.nowPlaying)
+
+        let progressView = try movieTabContent(mockViewModel).inspect().find(ViewType.ProgressView.self)
         XCTAssertNotNil(progressView)
     }
 
@@ -46,7 +58,6 @@ final class MovieFeedListPageTests: XCTestCase {
             dates: nil, page: 1, results: [sampleApeMovie], totalPages: 1, totalResults: 1
         ))
         let vm = MovieFeedViewModel(apiService: service)
-        let tvVM = TVShowFeedViewModel(apiService: MockAPIService())
         vm.loadFeed(.nowPlaying)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -54,14 +65,7 @@ final class MovieFeedListPageTests: XCTestCase {
         }
         wait(for: [expectation], timeout: 1.0)
 
-        let testPage = MovieFeedListPage(
-            movieViewModel: vm,
-            tvShowViewModel: tvVM,
-            detailRouteBuilder: { _ in 1 },
-            tvShowDetailRouteBuilder: { _ in 1 }
-        )
-
-        let list = try testPage.inspect().find(ViewType.List.self)
+        let list = try movieTabContent(vm).inspect().find(ViewType.List.self)
         XCTAssertNotNil(list)
         let movieRow = try list.find(NavigationMovieRow<Int>.self)
         XCTAssertNotNil(movieRow)

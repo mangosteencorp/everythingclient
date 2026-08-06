@@ -24,6 +24,42 @@ final class DemoTests: BaseTestCase {
         // Then
         verifyTMDBFeedDemo()
     }
+
+    @MainActor
+    func testTMDBFeedMoreOnTheAirShowsResults() throws {
+        verifyHiddenTVFeed("On the Air")
+    }
+
+    @MainActor
+    func testTMDBFeedMoreAiringTodayShowsResults() throws {
+        verifyHiddenTVFeed("Airing Today")
+    }
+
+    private func verifyHiddenTVFeed(_ feedTitle: String, file: StaticString = #filePath, line: UInt = #line) {
+        launchAppAndWait(withDemo: "TMDBFeed", timeout: 30)
+
+        let moreButton = app.tabBars.buttons["More"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 15), "The More tab was not found", file: file, line: line)
+        moreButton.tap()
+
+        let menuItem = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", feedTitle))
+            .firstMatch
+        XCTAssertTrue(menuItem.waitForExistence(timeout: 10), "The More menu item '\(feedTitle)' was not found", file: file, line: line)
+        menuItem.tap()
+
+        let content = app.descendants(matching: .any)["tvshows_list_content"]
+        XCTAssertTrue(content.waitForExistence(timeout: 20), "TV feed content did not appear for '\(feedTitle)'", file: file, line: line)
+
+        let tvShowRows = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "tvshowlist1.tvshowrow"))
+            .firstMatch
+        if !tvShowRows.waitForExistence(timeout: 30) {
+            takeScreenshot(name: "TMDBFeed_\(feedTitle.replacingOccurrences(of: " ", with: "_"))_failure")
+            print("TMDB Feed UI hierarchy for '\(feedTitle)':\n\(app.debugDescription)")
+            XCTFail("No TV show rows appeared for '\(feedTitle)'", file: file, line: line)
+        }
+    }
     
     // MARK: - TMDB Discover Tests
     

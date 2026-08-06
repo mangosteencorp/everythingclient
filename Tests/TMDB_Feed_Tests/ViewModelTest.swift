@@ -1,12 +1,17 @@
 import Combine
+import Foundation
 @testable import TMDB_Feed
+import TMDB_Shared_Backend
 import XCTest
 
 final class MockAPIService: APIServiceProtocol {
     var mockNowPlayingResult: Result<MovieListResponse, Error>?
     var mockSearchResult: Result<MovieListResponse, Error>?
     var mockTVResult: Result<TVShowListResponse, Error>?
+    var mockAiringTodayResult: Result<TVShowListResponse, Error>?
+    var mockOnTheAirResult: Result<TVShowListResponse, Error>?
     var mockTVSearchResult: Result<TVShowListResponse, Error>?
+    var tvFetchDelayNanoseconds: UInt64 = 0
 
     func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> {
         mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
@@ -33,11 +38,17 @@ final class MockAPIService: APIServiceProtocol {
     }
 
     func fetchAiringTodayTVShows(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
-        mockTVResult ?? .failure(NSError(domain: "Test", code: -1))
+        if tvFetchDelayNanoseconds > 0 {
+            try? await Task.sleep(nanoseconds: tvFetchDelayNanoseconds)
+        }
+        return mockAiringTodayResult ?? mockTVResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
     func fetchOnTheAirTVShows(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
-        mockTVResult ?? .failure(NSError(domain: "Test", code: -1))
+        if tvFetchDelayNanoseconds > 0 {
+            try? await Task.sleep(nanoseconds: tvFetchDelayNanoseconds)
+        }
+        return mockOnTheAirResult ?? mockTVResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
     func searchTVShows(query: String, page: Int?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
@@ -47,6 +58,66 @@ final class MockAPIService: APIServiceProtocol {
     func searchTVShows(query: String, page: Int?, filters: TMDB_Feed.SearchFilters?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
         mockTVSearchResult ?? .failure(NSError(domain: "Test", code: -1))
     }
+}
+
+final class TVShowFeedViewModelTests: XCTestCase {
+    func testConcurrentFeedLoadsUseTheirRequestedFeedType() async {
+        let service = MockAPIService()
+        service.tvFetchDelayNanoseconds = 80_000_000
+        service.mockOnTheAirResult = .success(TVShowListResponse(
+            page: 1,
+            results: [sampleTVShow(id: 1, name: "On The Air Show")],
+            totalPages: 1,
+            totalResults: 1
+        ))
+        service.mockAiringTodayResult = .success(TVShowListResponse(
+            page: 1,
+            results: [sampleTVShow(id: 2, name: "Airing Today Show")],
+            totalPages: 1,
+            totalResults: 1
+        ))
+
+        let viewModel = TVShowFeedViewModel(apiService: service)
+        viewModel.loadFeed(.onTheAir)
+        viewModel.loadFeed(.airingToday)
+
+        let deadline = Date().addingTimeInterval(2)
+        while Date() < deadline {
+            if viewModel.shows(for: .onTheAir).map(\.id) == [1],
+               viewModel.shows(for: .airingToday).map(\.id) == [2] {
+                break
+            }
+            try? await Task.sleep(nanoseconds: 40_000_000)
+        }
+
+        XCTAssertEqual(viewModel.shows(for: .onTheAir).map(\.id), [1])
+        XCTAssertEqual(viewModel.shows(for: .airingToday).map(\.id), [2])
+        XCTAssertNil(viewModel.errorMessage(for: .onTheAir))
+        XCTAssertNil(viewModel.errorMessage(for: .airingToday))
+    }
+}
+
+private func sampleTVShow(id: Int, name: String) -> TVShow {
+    let json = """
+    {
+      "adult": false,
+      "backdrop_path": null,
+      "genre_ids": [],
+      "id": \(id),
+      "origin_country": ["US"],
+      "original_language": "en",
+      "original_name": "\(name)",
+      "overview": "overview",
+      "popularity": 1,
+      "poster_path": null,
+      "first_air_date": "2024-01-01",
+      "name": "\(name)",
+      "vote_average": 1,
+      "vote_count": 1
+    }
+    """
+    // swiftlint:disable:next force_try
+    return try! JSONDecoder().decode(TVShow.self, from: Data(json.utf8))
 }
 
 final class MovieFeedViewModelTests: XCTestCase {

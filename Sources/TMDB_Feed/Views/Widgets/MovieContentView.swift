@@ -48,8 +48,10 @@ struct MovieFeedTabContent<Route: Hashable>: View {
         .refreshable {
             await viewModel.refresh(feedType)
         }
-        .onFirstAppear {
-            viewModel.loadFeed(feedType)
+        .onAppear {
+            if movies.isEmpty, !viewModel.isLoading(for: feedType) {
+                viewModel.loadFeed(feedType)
+            }
         }
     }
 }

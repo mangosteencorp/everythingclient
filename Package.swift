@@ -110,7 +110,10 @@ let package = Package(
         ),
         .target(
             name: "TMDB_Shared_Backend",
-            dependencies: ["Swinject"]
+            dependencies: ["Swinject"],
+            // Keep the debug API key file on disk for local/DEBUG loading, but do not
+            // compile/index it into the Swift module.
+            exclude: ["Preview/DebugPreview.swift"]
         ),
         .target(
             name: "TMDB_Shared_UI",
@@ -174,7 +177,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_Feed_Tests",
-            dependencies: ["TMDB_Feed", "ViewInspector", "Tests_Shared_Helpers"],
+            dependencies: ["TMDB_Feed", "TMDB_Shared_Backend", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
         ),
         // Discover feed - clean architecture
