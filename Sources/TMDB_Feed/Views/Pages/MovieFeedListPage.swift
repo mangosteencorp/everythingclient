@@ -58,7 +58,16 @@ public struct MovieFeedListPage<Route: Hashable>: View {
             // tabs into a detached controller that never redraws, so they stay frozen on
             // whatever was on screen when the More list was built (an empty feed showing
             // "No Results Found"). The iOS 18 `Tab` API keeps them live.
-            if #available(iOS 18, *) {
+            if #available(iOS 26, *) {
+                TabView(selection: $selectedTab) {
+                    ForEach(FeedTab.allCases) { tab in
+                        Tab(tab.title, systemImage: tab.systemImage, value: tab) {
+                            tabRoot(for: tab)
+                        }
+                    }
+                }
+                .tabBarMinimizeBehavior(.onScrollDown)
+            } else if #available(iOS 18, *) {
                 TabView(selection: $selectedTab) {
                     ForEach(FeedTab.allCases) { tab in
                         Tab(tab.title, systemImage: tab.systemImage, value: tab) {
