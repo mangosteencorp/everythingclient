@@ -17,6 +17,14 @@ struct TVShowDetailContentView: View {
                 TVShowWatchProvidersSection(tvShowId: tvShow.id, apiService: apiService)
 
                 TVShowSeasonsView(tvShow: tvShow)
+                if #available(iOS 17, *) {
+                    SimilarTVSection(
+                        viewModel: SimilarTVViewModel(
+                            apiService: apiService,
+                            tvShowId: tvShow.id
+                        )
+                    )
+                }
             }
             .padding()
         }

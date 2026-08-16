@@ -52,6 +52,10 @@ let package = Package(
             name: "TMDB_Person",
             targets: ["TMDB_Person"]
         ),
+        .library(
+            name: "third_party",
+            targets: ["third_party"]
+        ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
@@ -104,6 +108,7 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
+                "third_party",
                 "Pokedex",
                 "Swinject",
             ]
@@ -148,6 +153,7 @@ let package = Package(
                 "CoreFeatures",
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
+                "Shared_UI_Support",
             ]
         ),
         .target(
@@ -157,7 +163,6 @@ let package = Package(
                 "TMDB_Shared_UI",
                 "Shared_UI_Support",
                 "CoreFeatures",
-                .product(name: "SwiftfinLib", package: "Swiftfin"),
             ],
             resources: [
                 .process("Resources"),
@@ -281,6 +286,15 @@ let package = Package(
             ]
         ),
 
+        // MARK: Third Party
+
+        .target(
+            name: "third_party",
+            dependencies: [
+                .product(name: "SwiftfinLib", package: "Swiftfin"),
+            ]
+        ),
+
         // MARK: Integration Tests
 
         .target(
@@ -296,6 +310,7 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
+                "third_party",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",

@@ -22,7 +22,7 @@
 "tvshow.detail.average_vote" = "%.1f (%d votes)";
 "tvshow.detail.seasons" = "Seasons";
 "tvshow.detail.tba" = "TBA";
-
+"tvshow.detail.similar_headline" = "Similar";
 // ErrorStateView
 "tvshow.detail.something_went_wrong" = "Something went wrong";
 "tvshow.detail.try_again" = "Try Again";

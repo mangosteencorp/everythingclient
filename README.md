@@ -213,7 +213,7 @@ Tracking:
 
 Media:
 - ✅ Apple Music / MusicKit on movie detail (`MovieOSTViewModel` + `MovieOSTSection`): request authorization, search for soundtrack albums, and deep-link into Apple Music.
-- ✅ Jellyfin via Swiftfin (`TMDB_Person/SwiftfinLaunchView`, launched from the Settings tab): embeds a Swiftfin client as a full-screen cover. Swiftfin is a local SwiftPM dependency (`quangDecember/Swiftfin`, `swiftpm` branch).
+- ✅ Jellyfin via Swiftfin (`third_party/SwiftfinLaunchView`, launched from the Settings tab): embeds a Swiftfin client as a full-screen cover. Swiftfin is a local SwiftPM dependency (`quangDecember/Swiftfin`, `swiftpm` branch).
 - ✅ Photo carousel + full-screen slides (`PhotoListViewer`): horizontal backdrop strip on movie detail, tapping opens `PhotoSlidesPage`.
 - ✅ iPod-style CoverFlow (`Shared_UI_Support/Views/CoverFlow`, iOS 18+): used as an alternate filmography layout on the person page (toggle via the design-switch toolbar button).
 
@@ -359,6 +359,7 @@ Quick reference for each Swift package module — UI stack, reactive layer, arch
 - **Pokedex_Shared_Backend**: no UI — async/await + Apollo GraphQL — tests: 🔴
 - **CoreFeatures**: SwiftUI + UIKit — theming & analytics abstractions — tests: 🔴
 - **Shared_UI_Support**: SwiftUI + UIKit — cross-feature UI helpers, including CoverFlow — tests: 🔴
+- **third_party**: SwiftUI — wrappers for third-party clients (Swiftfin/Jellyfin) — tests: 🔴
 
 **Gaps to fill** (patterns or coverage not yet represented):
 
@@ -370,9 +371,9 @@ Quick reference for each Swift package module — UI stack, reactive layer, arch
 
 #### Module Architecture Layers
 
-Below are the folder structures showing the architectural layers for each module:
+Folder structure for each module. Headings list **architecture**, then **UI** (SwiftUI / UIKit), then **state** (Combine / RxSwift / `ObservableObject`).
 
-**Pokedex** (Coordinator Pattern)
+**Pokedex** (Coordinator · SwiftUI + UIKit · Combine)
 ```
 Pokedex/
 ├── PokedexView.swift
@@ -380,7 +381,7 @@ Pokedex/
     └── PokelistRouter.swift
 ```
 
-**Pokedex_Detail** (MVVM)
+**Pokedex_Detail** (MVVM · UIKit · RxSwift)
 ```
 Pokedex_Detail/
 ├── View/
@@ -391,7 +392,7 @@ Pokedex_Detail/
     └── PokemonDetailViewModel.swift
 ```
 
-**Pokedex_Pokelist** (VIPER)
+**Pokedex_Pokelist** (VIPER · UIKit · async/await)
 ```
 Pokedex_Pokelist/
 ├── Entities/
@@ -407,7 +408,7 @@ Pokedex_Pokelist/
     └── PokelistProtocols.swift
 ```
 
-**TMDB_Discover** (Clean Architecture)
+**TMDB_Discover** (Clean Architecture · SwiftUI + UIKit · Combine / ObservableObject)
 ```
 TMDB_Discover/
 ├── app/ (DI)
@@ -425,7 +426,7 @@ TMDB_Discover/
     └── widgets/
 ```
 
-**TMDB_Feed** (MVVM)
+**TMDB_Feed** (MVVM · SwiftUI · Combine / ObservableObject)
 ```
 TMDB_Feed/
 ├── Backend/
@@ -441,7 +442,7 @@ TMDB_Feed/
     └── Widgets/
 ```
 
-**TMDB_MovieDetail** (MVVM)
+**TMDB_MovieDetail** (MVVM · SwiftUI · Combine / ObservableObject)
 ```
 TMDB_MovieDetail/
 ├── Domain/
@@ -461,7 +462,7 @@ TMDB_MovieDetail/
     └── StaticViews/
 ```
 
-**TMDB_Person** (Data Store Pattern - SwiftUI)
+**TMDB_Person** (Data Store · SwiftUI · ObservableObject)
 ```
 TMDB_Person/
 ├── Views/
@@ -471,12 +472,18 @@ TMDB_Person/
 │   ├── PersonFactGrid.swift
 │   ├── PersonBiographySection.swift
 │   ├── PersonFilmographySection.swift
-│   ├── PersonFilmographyCarouselSection.swift  // CoverFlow, iOS 18+
-│   └── SwiftfinLaunchView.swift               // Jellyfin client
+│   └── PersonFilmographyCarouselSection.swift  // CoverFlow, iOS 18+
 └── Resources/
 ```
 
-**PhotoListViewer** (simple SwiftUI view module)
+**third_party** (client wrapper · SwiftUI · none)
+```
+third_party/
+└── Views/
+    └── SwiftfinLaunchView.swift               // Jellyfin client
+```
+
+**PhotoListViewer** (view module · SwiftUI · none)
 ```
 PhotoListViewer/
 └── Views/
@@ -484,7 +491,7 @@ PhotoListViewer/
     └── PhotoSlidesPage.swift
 ```
 
-**TMDB_Profile** (Clean Architecture)
+**TMDB_Profile** (Clean Architecture · UIKit · RxSwift, Combine for auth)
 ```
 TMDB_Profile/
 ├── DI/
@@ -501,7 +508,7 @@ TMDB_Profile/
     └── Views/
 ```
 
-**TMDB_TVShowDetail** (Data Store Pattern - SwiftUI)
+**TMDB_TVShowDetail** (Data Store · SwiftUI · ObservableObject)
 ```
 TMDB_TVShowDetail/
 ├── Views/

@@ -62,6 +62,8 @@ public enum L10n {
       public static let rent = L10n.tr("Localizable", "tvshow.detail.rent", fallback: "Rent")
       /// Seasons
       public static let seasons = L10n.tr("Localizable", "tvshow.detail.seasons", fallback: "Seasons")
+      /// Similar
+      public static let similarHeadline = L10n.tr("Localizable", "tvshow.detail.similar_headline", fallback: "Similar")
       /// Something went wrong
       public static let somethingWentWrong = L10n.tr("Localizable", "tvshow.detail.something_went_wrong", fallback: "Something went wrong")
       /// Status: %@

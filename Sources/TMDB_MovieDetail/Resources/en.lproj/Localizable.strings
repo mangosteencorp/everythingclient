@@ -24,6 +24,7 @@
 
 // Error messages
 "error_format" = "Error: %@";
+"retry_button_title" = "Try Again";
 
 // Ratings
 "ratings_format" = "%@ ratings";

@@ -1,5 +1,5 @@
 import SwiftUI
-import TMDB_Person
+import third_party
 
 @available(iOS 16.0, *)
 public struct SettingsPageView: View {
