@@ -8,13 +8,25 @@ public struct TVShowDetailView: View {
     // MARK: - Store / StateObject
 
     public enum ViewState {
+        case initial
         case loading
         case loaded(TVShowDetailModel)
         case error(String)
+
+        var isInitial: Bool {
+            if case .initial = self { return true }
+            return false
+        }
+
+        var isLoading: Bool {
+            if case .loading = self { return true }
+            return false
+        }
     }
 
+    @MainActor
     final class Store: ObservableObject {
-        @Published var state: ViewState = .loading
+        @Published var state: ViewState = .initial
 
         private let apiService: TMDBAPIService
         private let tvShowId: Int
@@ -24,15 +36,30 @@ public struct TVShowDetailView: View {
             self.tvShowId = tvShowId
         }
 
-        @MainActor
-        func fetch() async {
-            // Log to help detect unexpected re-entrancy
-            print("[TVShowDetail] fetch called for id=\(tvShowId) at \(Date())")
+        /// Entry point for `.task`: nothing happens unless the show has never been loaded.
+        func load() async {
+            guard state.isInitial else { return }
+            await fetch()
+        }
+
+        /// Pull to refresh and the error view's retry. Refuses to stack on an in-flight request.
+        func reload() async {
+            guard !state.isLoading else { return }
+            await fetch()
+        }
+
+        private func fetch() async {
             state = .loading
             do {
                 let result: TVShowDetailModel = try await apiService.request(.tvShowDetail(show: tvShowId))
                 state = .loaded(result)
             } catch {
+                // Leaving the screen cancels the request; going back to `initial` lets the next
+                // appearance load again instead of showing a cancellation as a failure.
+                guard !Task.isCancelled else {
+                    state = .initial
+                    return
+                }
                 state = .error(error.localizedDescription)
             }
         }
@@ -62,11 +89,8 @@ public struct TVShowDetailView: View {
                 await refreshTVShowDetail()
             }
             .task(id: tvShowId) {
-                await store.fetch()
+                await store.load()
             }
-//            .onChange(of: store.state) { newValue in
-//                print("[TVShowDetail] state changed: \(newValue)")
-//            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -80,14 +104,14 @@ public struct TVShowDetailView: View {
     @ViewBuilder
     private var contentView: some View {
         switch store.state {
-        case .loading:
+        case .initial, .loading:
             LoadingStateView()
         case .loaded(let tvShow):
             TVShowDetailContentView(apiService: apiService, tvShow: tvShow)
         case .error(let message):
             ErrorStateView(
                 message: message,
-                retryAction: { await store.fetch() }
+                retryAction: { await store.reload() }
             )
         }
     }
@@ -97,7 +121,7 @@ public struct TVShowDetailView: View {
     private func refreshTVShowDetail() async {
         defer { isRefreshing = false }
         isRefreshing = true
-        await store.fetch()
+        await store.reload()
     }
 }
 

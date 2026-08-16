@@ -15,6 +15,11 @@ class TVFeedViewModel: ObservableObject {
     private let authViewModel: (any AuthenticationViewModelProtocol)?
 
     private var discoverParams: DiscoverMoviesParams?
+    private var loadTask: Task<Void, Never>?
+
+    deinit {
+        loadTask?.cancel()
+    }
 
     init(fetchMoviesUseCase: FetchMoviesUseCase? = nil,
          fetchDiscoverMoviesUseCase: FetchDiscoverMoviesUseCase? = nil,
@@ -32,55 +37,79 @@ class TVFeedViewModel: ObservableObject {
         self.discoverParams = discoverParams
     }
 
+    /// Entry point for `.task`: awaited directly so SwiftUI cancels the request when the list goes
+    /// away, and a no-op while a load is already in flight.
+    @MainActor
+    func load() async {
+        guard !isLoading else { return }
+        await fetch()
+    }
+
+    /// Bridge for the UIKit call sites, which cannot await. The handle is kept so the request can
+    /// be cancelled when the controller goes away.
     func fetchMovies() {
+        guard loadTask == nil else { return }
+        loadTask = Task { @MainActor [weak self] in
+            await self?.fetch()
+            self?.loadTask = nil
+        }
+    }
+
+    /// Stops an in-flight load started through `fetchMovies()`.
+    func cancelLoad() {
+        loadTask?.cancel()
+        loadTask = nil
+    }
+
+    @MainActor
+    private func fetch() async {
         isLoading = true
         errorMessage = nil
 
-        Task {
-            // Step 1: Load favorites first (if use case is available)
-            var favoriteIds: Set<Int> = []
-            if let favoritesUseCase = fetchFavoriteTVShowsUseCase {
-                let favoritesResult = await favoritesUseCase.execute()
-                switch favoritesResult {
-                case let .success(favorites):
-                    favoriteIds = Set(favorites)
-                case let .failure(error):
-                    // Log favorites error but continue loading movies
-                    print("Failed to load favorites: \(error.localizedDescription)")
-                }
+        // Step 1: Load favorites first (if use case is available)
+        var favoriteIds: Set<Int> = []
+        if let favoritesUseCase = fetchFavoriteTVShowsUseCase {
+            let favoritesResult = await favoritesUseCase.execute()
+            switch favoritesResult {
+            case let .success(favorites):
+                favoriteIds = Set(favorites)
+            case let .failure(error):
+                // Log favorites error but continue loading movies
+                print("Failed to load favorites: \(error.localizedDescription)")
             }
+        }
 
-            // Step 2: Load movies
-            // Prefer the discover API when available. If no params are set, use empty/default discover params.
-            let result: Result<[Movie], Error>
+        // Step 2: Load movies
+        // Prefer the discover API when available. If no params are set, use empty/default discover params.
+        let result: Result<[Movie], Error>
 
-            if let discoverUseCase = fetchDiscoverMoviesUseCase {
-                let params = self.discoverParams ?? DiscoverMoviesParams()
-                result = await discoverUseCase.execute(params: params)
-            } else if let fetchUseCase = fetchMoviesUseCase {
-                result = await fetchUseCase.execute()
-            } else {
-                result = .failure(NSError(domain: "TVFeedViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "No use case available"]))
+        if let discoverUseCase = fetchDiscoverMoviesUseCase {
+            let params = discoverParams ?? DiscoverMoviesParams()
+            result = await discoverUseCase.execute(params: params)
+        } else if let fetchUseCase = fetchMoviesUseCase {
+            result = await fetchUseCase.execute()
+        } else {
+            result = .failure(NSError(domain: "TVFeedViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "No use case available"]))
+        }
+
+        isLoading = false
+        // A cancelled load leaves the list untouched so the next appearance starts over.
+        guard !Task.isCancelled else { return }
+
+        switch result {
+        case let .success(movies):
+            // Merge favorite status into movies
+            self.movies = movies.map { movie in
+                var updatedMovie = movie
+                updatedMovie.isFavorite = favoriteIds.contains(movie.id)
+                return updatedMovie
             }
-            let capturedFavoriteIds = favoriteIds
-            await MainActor.run {
-                self.isLoading = false
-                switch result {
-                case let .success(movies):
-                    // Merge favorite status into movies
-                    self.movies = movies.map { movie in
-                        var updatedMovie = movie
-                        updatedMovie.isFavorite = capturedFavoriteIds.contains(movie.id)
-                        return updatedMovie
-                    }
-                    analyticsTracker?.trackPageView(parameters: PageViewParameters(
-                        screenName: "ListTVShows",
-                        screenClass: "TVShowListContent"
-                    ))
-                case let .failure(error):
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+            analyticsTracker?.trackPageView(parameters: PageViewParameters(
+                screenName: "ListTVShows",
+                screenClass: "TVShowListContent"
+            ))
+        case let .failure(error):
+            errorMessage = error.localizedDescription
         }
     }
 

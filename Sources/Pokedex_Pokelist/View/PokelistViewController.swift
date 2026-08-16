@@ -40,6 +40,15 @@ public final class PokelistViewController: UIViewController {
         presenter?.viewDidLoad()
     }
 
+    override public func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Only when leaving for good: `viewWillDisappear` also fires when a detail page is pushed
+        // on top, and the list should keep its page request in that case.
+        if isMovingFromParent || isBeingDismissed {
+            presenter?.cancelLoading()
+        }
+    }
+
     private func setupUI() {
         view.backgroundColor = .black
         view.addSubview(collectionView)

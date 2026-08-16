@@ -18,7 +18,7 @@ public struct MovieWatchProvidersSection: View {
                 .padding(.horizontal)
 
             switch watchProvidersViewModel.state {
-            case .loading:
+            case .initial, .loading:
                 HStack {
                     ProgressView()
                         .scaleEffect(0.8)
@@ -43,9 +43,10 @@ public struct MovieWatchProvidersSection: View {
                 }
 
             case .error(let error):
-                Text("Error loading watch providers: \(error)")
-                    .foregroundColor(.red)
-                    .padding()
+                SectionRetryView(message: "Error loading watch providers: \(error)") {
+                    await watchProvidersViewModel.reload(movieId: movieId)
+                }
+                .padding(.horizontal)
             }
         }
     }

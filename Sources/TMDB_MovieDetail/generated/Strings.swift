@@ -22,14 +22,14 @@ public enum L10n {
   public static let keywordsTitle = L10n.tr("Localizable", "keywords_title", fallback: "Keywords")
   /// Locations
   public static let locationsTitle = L10n.tr("Localizable", "locations_title", fallback: "Locations")
-  /// Photos
-  public static let photosSectionTitle = L10n.tr("Localizable", "photos_section_title", fallback: "Photos")
   /// %@ minutes
   public static func minutesFormat(_ p1: Any) -> String {
     return L10n.tr("Localizable", "minutes_format", String(describing: p1), fallback: "%@ minutes")
   }
   /// Overview:
   public static let overviewTitle = L10n.tr("Localizable", "overview_title", fallback: "Overview:")
+  /// Photos
+  public static let photosSectionTitle = L10n.tr("Localizable", "photos_section_title", fallback: "Photos")
   /// %@ ratings
   public static func ratingsFormat(_ p1: Any) -> String {
     return L10n.tr("Localizable", "ratings_format", String(describing: p1), fallback: "%@ ratings")
@@ -38,6 +38,8 @@ public enum L10n {
   public static let readLess = L10n.tr("Localizable", "read_less", fallback: "Less")
   /// Read more
   public static let readMore = L10n.tr("Localizable", "read_more", fallback: "Read more")
+  /// Try Again
+  public static let retryButtonTitle = L10n.tr("Localizable", "retry_button_title", fallback: "Try Again")
   /// See all
   public static let seeAll = L10n.tr("Localizable", "see_all", fallback: "See all")
   /// •

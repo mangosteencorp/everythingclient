@@ -26,7 +26,7 @@ public struct MovieOSTSection: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Button("Connect Apple Music") {
-                        ostViewModel.requestAuthorization()
+                        Task { await ostViewModel.requestAuthorization() }
                     }
                     .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("movieDetail.ost.requestPermission.button")

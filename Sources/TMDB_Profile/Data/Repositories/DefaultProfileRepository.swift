@@ -12,121 +12,89 @@ class DefaultProfileRepository: ProfileRepositoryProtocol {
     }
 
     func getAccountInfo() -> Single<AccountInfoEntity> {
-        Single.create { [weak self] observer in
-            guard let self = self else {
-                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
-                return Disposables.create()
-            }
-
-            Task {
-                do {
-                    let accountInfo: AccountInfoModel = try await self.apiService.request(.accountInfo)
-                    let entity = AccountInfoEntity(
-                        id: accountInfo.id,
-                        name: accountInfo.name,
-                        username: accountInfo.username,
-                        avatarPath: accountInfo.avatar.tmdb.avatar_path
-                    )
-                    observer(.success(entity))
-                } catch {
-                    observer(.failure(error))
-                }
-            }
-
-            return Disposables.create()
+        asyncSingle { [weak self] in
+            guard let self else { throw Self.deallocatedError }
+            let accountInfo: AccountInfoModel = try await self.apiService.request(.accountInfo)
+            return AccountInfoEntity(
+                id: accountInfo.id,
+                name: accountInfo.name,
+                username: accountInfo.username,
+                avatarPath: accountInfo.avatar.tmdb.avatar_path
+            )
         }
     }
 
     func getFavoriteMovies(accountId: String) -> Single<[MovieEntity]> {
-        Single.create { [weak self] observer in
-            guard let self = self else {
-                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
-                return Disposables.create()
+        asyncSingle { [weak self] in
+            guard let self else { throw Self.deallocatedError }
+            let response: MovieListResultModel = try await self.apiService
+                .request(.getFavoriteMovies(accountId: accountId))
+            return response.results.map { movie in
+                MovieEntity(
+                    id: movie.id,
+                    title: movie.title,
+                    overview: movie.overview,
+                    posterPath: movie.poster_path,
+                    voteAverage: movie.vote_average,
+                    releaseDate: movie.release_date
+                )
             }
-
-            Task {
-                do {
-                    let response: MovieListResultModel = try await self.apiService
-                        .request(.getFavoriteMovies(accountId: accountId))
-                    let entities = response.results.map { movie in
-                        MovieEntity(
-                            id: movie.id,
-                            title: movie.title,
-                            overview: movie.overview,
-                            posterPath: movie.poster_path,
-                            voteAverage: movie.vote_average,
-                            releaseDate: movie.release_date
-                        )
-                    }
-                    observer(.success(entities))
-                } catch {
-                    observer(.failure(error))
-                }
-            }
-
-            return Disposables.create()
         }
     }
 
     func getFavoriteTVShows(accountId: String) -> Single<[TVShowEntity]> {
-        Single.create { [weak self] observer in
-            guard let self = self else {
-                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
-                return Disposables.create()
-            }
-
-            Task {
-                do {
-                    let response: TVShowListResultModel = try await self.apiService
-                        .request(.getFavoriteTVShows(accountId: accountId))
-                    let entities = response.results.map { show in
-                        TVShowEntity(
-                            id: show.id,
-                            name: show.name,
-                            overview: show.overview,
-                            posterPath: show.poster_path,
-                            firstAirDate: show.first_air_date,
-                            voteAverage: show.vote_average
-                        )
-                    }
-                    observer(.success(entities))
-                } catch {
-                    observer(.failure(error))
-                }
-            }
-
-            return Disposables.create()
+        asyncSingle { [weak self] in
+            guard let self else { throw Self.deallocatedError }
+            let response: TVShowListResultModel = try await self.apiService
+                .request(.getFavoriteTVShows(accountId: accountId))
+            return response.results.map(Self.tvShowEntity)
         }
     }
 
     func getWatchlistTVShows(accountId: String) -> Single<[TVShowEntity]> {
-        Single.create { [weak self] observer in
-            guard let self = self else {
-                observer(.failure(NSError(domain: "ProfileRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil"])))
-                return Disposables.create()
-            }
+        asyncSingle { [weak self] in
+            guard let self else { throw Self.deallocatedError }
+            let response: TVShowListResultModel = try await self.apiService
+                .request(.getWatchlistTVShows(accountId: accountId))
+            return response.results.map(Self.tvShowEntity)
+        }
+    }
 
-            Task {
+    // MARK: - Helpers
+
+    /// Bridges an async request into a `Single` whose disposal actually cancels the request.
+    /// Returning a bare `Disposables.create()` would let a disposed subscription — `DisposeBag`
+    /// teardown, `flatMapLatest`, `take(until:)` — leave the network call running.
+    private func asyncSingle<T>(_ work: @escaping () async throws -> T) -> Single<T> {
+        Single.create { observer in
+            let task = Task {
                 do {
-                    let response: TVShowListResultModel = try await self.apiService
-                        .request(.getWatchlistTVShows(accountId: accountId))
-                    let entities = response.results.map { show in
-                        TVShowEntity(
-                            id: show.id,
-                            name: show.name,
-                            overview: show.overview,
-                            posterPath: show.poster_path,
-                            firstAirDate: show.first_air_date,
-                            voteAverage: show.vote_average
-                        )
-                    }
-                    observer(.success(entities))
+                    let value = try await work()
+                    guard !Task.isCancelled else { return }
+                    observer(.success(value))
                 } catch {
+                    guard !Task.isCancelled else { return }
                     observer(.failure(error))
                 }
             }
-
-            return Disposables.create()
+            return Disposables.create { task.cancel() }
         }
+    }
+
+    private static let deallocatedError = NSError(
+        domain: "ProfileRepository",
+        code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Self is nil"]
+    )
+
+    private static func tvShowEntity(from show: TVShow) -> TVShowEntity {
+        TVShowEntity(
+            id: show.id,
+            name: show.name,
+            overview: show.overview,
+            posterPath: show.poster_path,
+            firstAirDate: show.first_air_date,
+            voteAverage: show.vote_average
+        )
     }
 }

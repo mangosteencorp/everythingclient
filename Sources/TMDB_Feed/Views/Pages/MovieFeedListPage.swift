@@ -96,16 +96,19 @@ public struct MovieFeedListPage<Route: Hashable>: View {
         }
         .onChange(of: selectedTab) { tab in
             visibleTab = tab
+            // Flipping tabs quickly should not leave the previous tab's request running: these
+            // preloads belong to no view, so nothing else would cancel them.
+            movieViewModel.cancelLoads()
+            tvShowViewModel.cancelLoads()
             loadFeed(for: tab)
         }
     }
 
+    // The view models decide what actually needs a request: cached feeds are served from memory and
+    // a feed that is already loading is not requested twice.
     private func loadInitialFeeds() {
         for feedType in TVShowFeedType.allCases {
-            if tvShowViewModel.shows(for: feedType).isEmpty,
-               !tvShowViewModel.isLoading(for: feedType) {
-                tvShowViewModel.loadFeed(feedType)
-            }
+            tvShowViewModel.loadFeed(feedType)
         }
 
         loadFeed(for: selectedTab)
@@ -113,15 +116,9 @@ public struct MovieFeedListPage<Route: Hashable>: View {
 
     private func loadFeed(for tab: FeedTab) {
         if let feedType = tab.movieFeedType {
-            if movieViewModel.movies(for: feedType).isEmpty,
-               !movieViewModel.isLoading(for: feedType) {
-                movieViewModel.loadFeed(feedType)
-            }
+            movieViewModel.loadFeed(feedType)
         } else if let feedType = tab.tvShowFeedType {
-            if tvShowViewModel.shows(for: feedType).isEmpty,
-               !tvShowViewModel.isLoading(for: feedType) {
-                tvShowViewModel.loadFeed(feedType)
-            }
+            tvShowViewModel.loadFeed(feedType)
         }
     }
 

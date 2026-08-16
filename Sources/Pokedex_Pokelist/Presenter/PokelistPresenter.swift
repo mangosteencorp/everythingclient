@@ -22,6 +22,15 @@ public final class PokelistPresenter: PokelistPresenterProtocol {
         interactor?.fetchPokemons(limit: 20, offset: pokemons.count)
     }
 
+    /// Called when the list is dismissed: stops the request and clears the loading flag, which
+    /// otherwise stays `true` forever and blocks any later page.
+    public func cancelLoading() {
+        guard isLoading else { return }
+        interactor?.cancelFetch()
+        isLoading = false
+        view?.hideLoading()
+    }
+
     public func getPokemons() -> [PokemonEntity] {
         return pokemons
     }

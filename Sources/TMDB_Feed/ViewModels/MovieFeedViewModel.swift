@@ -72,6 +72,13 @@ public class MovieFeedViewModel: ObservableObject {
     private var currentPage: Int = 1
     private var loadingFeedTypes: Set<MovieFeedType> = []
     private var feedErrors: [MovieFeedType: String] = [:]
+    private var loadTasks: [MovieFeedType: Task<Void, Never>] = [:]
+    private var searchTask: Task<Void, Never>?
+
+    deinit {
+        loadTasks.values.forEach { $0.cancel() }
+        searchTask?.cancel()
+    }
 
     var hasCachedMovies: Bool {
         !nowPlayingMovies.isEmpty || !popularMovies.isEmpty || !topRatedMovies.isEmpty || !upcomingMovies.isEmpty
@@ -139,21 +146,37 @@ public class MovieFeedViewModel: ObservableObject {
         loadFeed(feedType)
     }
 
+    /// Single entry point for the views: safe to call on every appearance and on every tab switch.
+    /// Already-cached feeds are served from memory and in-flight feeds are not requested twice, so
+    /// callers no longer need their own `isEmpty` / `isLoading` checks. `refresh(_:)` is the
+    /// deliberate bypass for pull-to-refresh.
     func loadFeed(_ feedType: MovieFeedType) {
         currentFeedType = feedType
         currentPage = 1
+        feedErrors[feedType] = nil
+
         let cached = memoryMovies(for: feedType)
         if !cached.isEmpty {
             state = .loaded(cached)
-            feedErrors[feedType] = nil
-        } else {
-            guard !loadingFeedTypes.contains(feedType) else { return }
-            loadingFeedTypes.insert(feedType)
-            feedErrors[feedType] = nil
-            state = .loading
-            objectWillChange.send()
+            return
         }
-        fetchMovies(for: feedType, showLoadingIfEmpty: cached.isEmpty)
+
+        loadingFeedTypes.insert(feedType)
+        state = .loading
+        objectWillChange.send()
+
+        guard loadTasks[feedType] == nil else { return }
+        loadTasks[feedType] = Task { @MainActor [weak self] in
+            await self?.fetchMoviesAsync(for: feedType, showLoadingIfEmpty: true)
+            self?.loadTasks[feedType] = nil
+        }
+    }
+
+    /// Stops feeds that are still loading. The preloads started by the feed page belong to no view,
+    /// so `.task` cancellation cannot reach them.
+    func cancelLoads() {
+        loadTasks.values.forEach { $0.cancel() }
+        loadTasks.removeAll()
     }
 
     @MainActor
@@ -165,12 +188,6 @@ public class MovieFeedViewModel: ObservableObject {
     func refresh(_ feedType: MovieFeedType) async {
         currentFeedType = feedType
         await fetchMoviesAsync(for: feedType, showLoadingIfEmpty: false)
-    }
-
-    private func fetchMovies(for feedType: MovieFeedType, showLoadingIfEmpty: Bool = true) {
-        Task { @MainActor in
-            await fetchMoviesAsync(for: feedType, showLoadingIfEmpty: showLoadingIfEmpty)
-        }
     }
 
     @MainActor
@@ -201,6 +218,22 @@ public class MovieFeedViewModel: ObservableObject {
 
         loadingFeedTypes.remove(feedType)
 
+        // Cancelled by a tab switch or by the page going away: drop the response and leave the feed
+        // back at `initial` so the next appearance loads it again instead of showing a stuck spinner.
+        guard !Task.isCancelled else {
+            if currentFeedType == feedType, state.movies.isEmpty {
+                state = .initial
+            }
+            objectWillChange.send()
+            return
+        }
+
+        apply(result, for: feedType, cached: cached)
+        objectWillChange.send()
+    }
+
+    @MainActor
+    private func apply(_ result: Result<MovieListResponse, Error>, for feedType: MovieFeedType, cached: [Movie]) {
         switch result {
         case let .success(response):
             analyticsTracker?.trackPageView(parameters: PageViewParameters(
@@ -228,7 +261,6 @@ public class MovieFeedViewModel: ObservableObject {
                 }
             }
         }
-        objectWillChange.send()
     }
 
     func loadCurrentFeedMovies() {
@@ -249,27 +281,31 @@ public class MovieFeedViewModel: ObservableObject {
         if !searchQuery.isEmpty {
             searchMovies(query: searchQuery)
         } else {
-            fetchMovies(for: currentFeedType)
+            loadFeed(currentFeedType)
         }
     }
 
     func searchMovies(query: String) {
         state = .loading
 
-        Task {
+        // Started from a debounced Combine sink, which cannot cancel a Task on its own: fast typing
+        // would otherwise leave several searches racing to write the results.
+        searchTask?.cancel()
+        searchTask = Task { @MainActor [weak self] in
+            guard let self else { return }
             let result = await apiService.searchMovies(
                 query: query,
                 page: nil,
                 filters: searchFilters.hasActiveFilters ? searchFilters : nil
             )
-            await MainActor.run {
-                switch result {
-                case let .success(response):
-                    self.state = .searchResults(response.results)
-                case let .failure(error):
-                    self.state = .error(error.localizedDescription)
-                }
+            guard !Task.isCancelled else { return }
+            switch result {
+            case let .success(response):
+                self.state = .searchResults(response.results)
+            case let .failure(error):
+                self.state = .error(error.localizedDescription)
             }
+            self.searchTask = nil
         }
     }
 

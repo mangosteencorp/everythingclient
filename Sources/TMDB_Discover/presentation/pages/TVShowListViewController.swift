@@ -43,6 +43,15 @@ class TVShowListViewController: UIViewController {
         navigationItem.title = "TV Shows"
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Only when leaving for good: plain `viewWillDisappear` also fires when another controller
+        // is pushed on top, and the list should keep loading in that case.
+        if isMovingFromParent || isBeingDismissed {
+            viewModel.cancelLoad()
+        }
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         navigationController?.hidesBarsOnSwipe = true
