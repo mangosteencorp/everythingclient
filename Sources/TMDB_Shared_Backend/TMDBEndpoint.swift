@@ -93,6 +93,7 @@ public enum TMDBEndpoint {
 
     // TV Show Details
     case tvShowDetail(show: Int)
+    case similarTVShows(show: Int, page: Int? = nil)
 
     // Watch Providers
     case movieWatchProviders(watchRegion: String? = nil)
@@ -189,6 +190,8 @@ public enum TMDBEndpoint {
         // TV Show Details
         case let .tvShowDetail(show):
             return "tv/\(show)"
+        case let .similarTVShows(show, _):
+            return "tv/\(show)/similar"
         // Watch Providers
         case .movieWatchProviders:
             return "watch/providers/movie"
@@ -287,7 +290,8 @@ public enum TMDBEndpoint {
                 language: language,
                 page: page
             )
-        case let .tvAiringToday(page), let .tvOnTheAir(page), let .airingTodayTVShows(page), let .onTheAirTVShows(page):
+        case let .tvAiringToday(page), let .tvOnTheAir(page), let .airingTodayTVShows(page), let .onTheAirTVShows(page),
+             let .similarTVShows(_, page):
             if let page = page {
                 return ["page": String(page)]
             }
@@ -482,7 +486,7 @@ public enum TMDBEndpoint {
             return TVShowListResultModel.self
         case .discoverTV:
             return TVShowListResultModel.self
-        case .tvAiringToday, .tvOnTheAir, .airingTodayTVShows, .onTheAirTVShows:
+        case .tvAiringToday, .tvOnTheAir, .airingTodayTVShows, .onTheAirTVShows, .similarTVShows:
             return TVShowListResultModel.self
         case .tvShowDetail:
             return TVShowDetailModel.self

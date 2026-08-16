@@ -34,7 +34,7 @@ struct SeasonCardView: View {
                     .foregroundColor(themeManager.currentTheme.labelColor)
                     .lineLimit(2)
 
-                Text("\(season.episodeCount) episodes")
+                Text(L10n.Tvshow.Detail.episodesCount(season.episodeCount))
                     .font(.caption2)
                     .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7))
 

@@ -10,18 +10,14 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
-  /// Now Playing
-  public static let feedNowPlaying = L10n.tr("Localizable", "feed_now_playing", fallback: "Now Playing")
-  /// Popular
-  public static let feedPopular = L10n.tr("Localizable", "feed_popular", fallback: "Popular")
-  /// Top Rated
-  public static let feedTopRated = L10n.tr("Localizable", "feed_top_rated", fallback: "Top Rated")
-  /// Upcoming
-  public static let feedUpcoming = L10n.tr("Localizable", "feed_upcoming", fallback: "Upcoming")
-  /// On the Air
-  public static let feedOnTheAir = L10n.tr("Localizable", "feed_on_the_air", fallback: "On the Air")
   /// Airing Today
   public static let feedAiringToday = L10n.tr("Localizable", "feed_airing_today", fallback: "Airing Today")
+  /// Now Playing
+  public static let feedNowPlaying = L10n.tr("Localizable", "feed_now_playing", fallback: "Now Playing")
+  /// On the Air
+  public static let feedOnTheAir = L10n.tr("Localizable", "feed_on_the_air", fallback: "On the Air")
+  /// Popular
+  public static let feedPopular = L10n.tr("Localizable", "feed_popular", fallback: "Popular")
   /// Search
   public static let feedSearch = L10n.tr("Localizable", "feed_search", fallback: "Search")
   /// Movies
@@ -32,6 +28,10 @@ public enum L10n {
   public static let feedSelectItem = L10n.tr("Localizable", "feed_select_item", fallback: "Select a title")
   /// Choose a movie or TV show to see details.
   public static let feedSelectItemPrompt = L10n.tr("Localizable", "feed_select_item_prompt", fallback: "Choose a movie or TV show to see details.")
+  /// Top Rated
+  public static let feedTopRated = L10n.tr("Localizable", "feed_top_rated", fallback: "Top Rated")
+  /// Upcoming
+  public static let feedUpcoming = L10n.tr("Localizable", "feed_upcoming", fallback: "Upcoming")
   /// Any Language
   public static let filterAnyLanguage = L10n.tr("Localizable", "filter_any_language", fallback: "Any Language")
   /// Any Region
