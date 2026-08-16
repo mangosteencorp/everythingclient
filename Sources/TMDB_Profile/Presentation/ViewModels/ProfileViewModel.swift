@@ -9,6 +9,10 @@ class ProfileViewModel {
     var state: Observable<ProfileViewState> { return stateRelay.asObservable() }
 
     private let disposeBag = DisposeBag()
+    // Holds the profile request on its own: assigning a new subscription disposes the previous one,
+    // so a refresh cannot race the load it replaces, and `cancelLoad()` can stop it outright. The
+    // shared `disposeBag` would only drain when this view model is deallocated.
+    private let profileRequest = SerialDisposable()
     private let getProfileUseCase: GetProfileUseCaseProtocol
     private let authViewModel: any AuthenticationViewModelProtocol
     private var cancellables = Set<AnyCancellable>()
@@ -32,22 +36,20 @@ class ProfileViewModel {
 
     func fetchProfile() {
         stateRelay.accept(.loading)
-
-        getProfileUseCase.execute()
-            .observe(on: MainScheduler.instance)
-            .subscribe(
-                onSuccess: { [weak self] profile in
-                    self?.stateRelay.accept(.loaded(profile))
-                },
-                onFailure: { [weak self] error in
-                    self?.stateRelay.accept(.error(error))
-                }
-            )
-            .disposed(by: disposeBag)
+        loadProfile()
     }
 
     func refreshProfile() {
-        getProfileUseCase.execute()
+        loadProfile()
+    }
+
+    /// Stops an in-flight profile request, for when the screen is dismissed.
+    func cancelLoad() {
+        profileRequest.disposable = Disposables.create()
+    }
+
+    private func loadProfile() {
+        profileRequest.disposable = getProfileUseCase.execute()
             .observe(on: MainScheduler.instance)
             .subscribe(
                 onSuccess: { [weak self] profile in
@@ -57,7 +59,6 @@ class ProfileViewModel {
                     self?.stateRelay.accept(.error(error))
                 }
             )
-            .disposed(by: disposeBag)
     }
 
     func signOut() {

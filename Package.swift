@@ -52,6 +52,10 @@ let package = Package(
             name: "TMDB_Person",
             targets: ["TMDB_Person"]
         ),
+        .library(
+            name: "third_party",
+            targets: ["third_party"]
+        ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
@@ -104,13 +108,17 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
+                "third_party",
                 "Pokedex",
                 "Swinject",
             ]
         ),
         .target(
             name: "TMDB_Shared_Backend",
-            dependencies: ["Swinject"]
+            dependencies: ["Swinject"],
+            // Keep the debug API key file on disk for local/DEBUG loading, but do not
+            // compile/index it into the Swift module.
+            exclude: ["Preview/DebugPreview.swift"]
         ),
         .target(
             name: "TMDB_Shared_UI",
@@ -145,6 +153,7 @@ let package = Package(
                 "CoreFeatures",
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
+                "Shared_UI_Support",
             ]
         ),
         .target(
@@ -154,7 +163,6 @@ let package = Package(
                 "TMDB_Shared_UI",
                 "Shared_UI_Support",
                 "CoreFeatures",
-                .product(name: "SwiftfinLib", package: "Swiftfin"),
             ],
             resources: [
                 .process("Resources"),
@@ -174,7 +182,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_Feed_Tests",
-            dependencies: ["TMDB_Feed", "ViewInspector", "Tests_Shared_Helpers"],
+            dependencies: ["TMDB_Feed", "TMDB_Shared_Backend", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
         ),
         // Discover feed - clean architecture
@@ -278,11 +286,21 @@ let package = Package(
             ]
         ),
 
+        // MARK: Third Party
+
+        .target(
+            name: "third_party",
+            dependencies: [
+                .product(name: "SwiftfinLib", package: "Swiftfin"),
+            ]
+        ),
+
         // MARK: Integration Tests
 
         .target(
             name: "Integration_test",
             dependencies: [
+                "everythingclient",
                 "TMDB",
                 "Pokedex",
                 "TMDB_Feed",
@@ -292,6 +310,7 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
+                "third_party",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",

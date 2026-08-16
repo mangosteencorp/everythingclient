@@ -22,4 +22,20 @@
 "tvshow.detail.average_vote" = "%.1f (%d votes)";
 "tvshow.detail.seasons" = "Seasons";
 "tvshow.detail.tba" = "TBA";
+"tvshow.detail.similar_headline" = "Similar";
+// ErrorStateView
+"tvshow.detail.something_went_wrong" = "Something went wrong";
+"tvshow.detail.try_again" = "Try Again";
 
+// SeasonCardView
+"tvshow.detail.episodes_count" = "%d episodes";
+
+// TVShowWatchProvidersSection
+"tvshow.detail.where_to_watch" = "Where to Watch";
+"tvshow.detail.loading_watch_providers" = "Loading watch providers...";
+"tvshow.detail.no_watch_providers" = "No watch providers available";
+"tvshow.detail.watch_providers_error" = "Error: %@";
+"tvshow.detail.streaming" = "Streaming";
+"tvshow.detail.free" = "Free";
+"tvshow.detail.rent" = "Rent";
+"tvshow.detail.buy" = "Buy";

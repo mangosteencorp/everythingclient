@@ -1,84 +1,55 @@
 import Shared_UI_Support
 import SwiftUI
+import TMDB_Shared_UI
 
-// MARK: - Movie Content View
-
-@available(iOS 16, macOS 10.15, *)
-struct MovieContentView<Route: Hashable>: View {
+@available(iOS 16, *)
+struct MovieFeedTabContent<Route: Hashable>: View {
     @ObservedObject var viewModel: MovieFeedViewModel
+    let feedType: MovieFeedType
     let detailRouteBuilder: (Movie) -> Route
     @Binding var useFancyDesign: Bool
 
     var body: some View {
+        let movies = viewModel.movies(for: feedType)
         Group {
-            switch viewModel.state {
-            case .initial:
-                EmptyView()
-            case .loading where viewModel.searchQuery.isEmpty:
+            if viewModel.isLoading(for: feedType), movies.isEmpty {
                 ProgressView(L10n.playingLoading)
-            case .error(let message):
-                Text(message)
-            case .loaded(let movies), .searchResults(let movies):
-                VStack(spacing: 0) {
-                    // Show filter chips when searching
-                    if !viewModel.searchQuery.isEmpty {
-                        FilterChipsView(
-                            filters: $viewModel.searchFilters,
-                            onFilterTap: { filterType in
-                                viewModel.updateSelectedFilterToShow(filterType)
-                            }
-                        )
-                    }
-                    if movies.isEmpty {
-                        CommonNoResultView(
-                            configuration: NoResultViewConfiguration(
-                                primaryButtonAction: { [weak viewModel] in
-                                    viewModel?.retrySearch()
-                                },
-                                secondaryButtonAction: { [weak viewModel] in
-                                    viewModel?.clearSearchAndRetry()
-                                }
-                            ),
-                            useFancyDesign: $useFancyDesign
-                        )
-                    } else {
-                        List(movies) { movie in
-                            NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let message = viewModel.errorMessage(for: feedType), movies.isEmpty {
+                FeedErrorContentView(
+                    message: message,
+                    allowsCancelSearch: false,
+                    retryAction: { viewModel.loadFeed(feedType) },
+                    cancelAction: nil
+                )
+            } else if movies.isEmpty {
+                CommonNoResultView(
+                    configuration: NoResultViewConfiguration(
+                        primaryButtonAction: { [weak viewModel] in
+                            viewModel?.loadFeed(feedType)
                         }
-                        .accessibilityIdentifier("movies_list_content")
-                        .searchable(text: $viewModel.searchQuery)
-                        .overlay {
-                            if case .loading = viewModel.state {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                    .background(Color.black.opacity(0.1))
-                            }
-                        }
-                    }
+                    ),
+                    useFancyDesign: $useFancyDesign
+                )
+            } else {
+                List(movies) { movie in
+                    NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
                 }
-            case .loading:
-                VStack(spacing: 0) {
-                    // Show filter chips when searching
-                    if !viewModel.searchQuery.isEmpty {
-                        FilterChipsView(
-                            filters: $viewModel.searchFilters,
-                            onFilterTap: { filterType in
-                                viewModel.updateSelectedFilterToShow(filterType)
-                            }
-                        )
-                    }
-
-                    List([] as [Movie]) { movie in
-                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                    }
-                    .searchable(text: $viewModel.searchQuery)
-                    .overlay {
+                .overlay {
+                    if viewModel.isLoading(for: feedType) {
                         ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                            .background(Color.black.opacity(0.1))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.black.opacity(0.05))
                     }
                 }
             }
+        }
+        .accessibilityIdentifier("movies_list_content")
+        .refreshable {
+            await viewModel.refresh(feedType)
+        }
+        .onAppear {
+            viewModel.loadFeed(feedType)
         }
     }
 }

@@ -1,0 +1,9 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+default_permissions = "workspace_without_xcconfig"
+
+[permissions.workspace_without_xcconfig]
+extends = ":workspace"
+
+[permissions.workspace_without_xcconfig.filesystem.":workspace_roots"]
+"**/*.xcconfig" = "deny"

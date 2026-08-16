@@ -1,4 +1,6 @@
 import CoreFeatures
+import everythingclient
+import Pokedex
 import Pokedex_Detail
 import Pokedex_Pokelist
 import Shared_UI_Support
@@ -15,6 +17,10 @@ import TMDB_TVShowDetail
 @available(iOS 16, *)
 public struct IntegrationTestLauncher {
     public enum DemoTest: String, CaseIterable {
+        case appRoot = "AppRoot"
+        case tmdbTabsNormal = "TMDBTabsNormal"
+        case tmdbTabsPage = "TMDBTabsPage"
+        case tmdbTabsEmbedded = "TMDBTabsEmbedded"
         case tmdbFeed = "TMDBFeed"
         case tmdbDiscover = "TMDBDiscover"
         case tmdbMovieDetail = "TMDBMovieDetail"
@@ -23,10 +29,16 @@ public struct IntegrationTestLauncher {
         case tmdbPersonDetail = "TMDBPersonDetail"
         case pokedexList = "PokedexList"
         case pokedexDetail = "PokedexDetail"
+        case pokedexTab = "PokedexTab"
         case themeSwitcher = "ThemeSwitcher"
+        case demoLauncher = "DemoLauncher"
 
-        var displayName: String {
+        public var displayName: String {
             switch self {
+            case .appRoot: return "App Root"
+            case .tmdbTabsNormal: return "TMDB Tabs — Normal"
+            case .tmdbTabsPage: return "TMDB Tabs — Page"
+            case .tmdbTabsEmbedded: return "TMDB Tabs — Embedded"
             case .tmdbFeed: return "TMDB Feed"
             case .tmdbDiscover: return "TMDB Discover"
             case .tmdbMovieDetail: return "TMDB Movie Detail"
@@ -35,47 +47,79 @@ public struct IntegrationTestLauncher {
             case .tmdbPersonDetail: return "TMDB Person Detail"
             case .pokedexList: return "Pokedex List"
             case .pokedexDetail: return "Pokedex Detail"
+            case .pokedexTab: return "Pokedex Tab"
             case .themeSwitcher: return "Theme Switcher"
+            case .demoLauncher: return "Demo Launcher"
             }
         }
+
+        public var accessibilityIdentifier: String {
+            "integration.preview.\(rawValue)"
+        }
     }
 
+    @ViewBuilder
     public static func launch(named testName: String) -> some View {
-        guard let demoTest = DemoTest(rawValue: testName) else {
-            return AnyView(IntegrationTestErrorView(message: "Unknown test: \(testName)"))
+        if let demoTest = DemoTest(rawValue: testName) {
+            launch(demoTest)
+        } else {
+            IntegrationTestErrorView(message: "Unknown test: \(testName)")
+                .accessibilityIdentifier("integration.preview.unknown")
         }
-
-        return AnyView(launch(demoTest))
     }
 
+    @ViewBuilder
     public static func launch(_ demoTest: DemoTest) -> some View {
-        switch demoTest {
-        case .tmdbFeed:
-            AnyView(TMDBFeedDemoView())
-
-        case .tmdbDiscover:
-            AnyView(TMDBDiscoverDemoView())
-
-        case .tmdbMovieDetail:
-            AnyView(TMDBMovieDetailDemoView())
-        case .tmdbTVShowDetail:
-            AnyView(TMDBTVShowDetailDemoView())
-        case .tmdbSettings:
-            AnyView(TMDBSettingsDemoView())
-        case .tmdbPersonDetail:
-            AnyView(TMDBPersonDetailDemoView())
-
-        case .pokedexList:
-            AnyView(PokedexListDemoView())
-        case .pokedexDetail:
-            AnyView(PokedexDetailDemoView())
-        case .themeSwitcher:
-            AnyView(ThemeSwitcherDemoView())
-        }
+        previewContent(for: demoTest)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(demoTest.accessibilityIdentifier)
     }
 
     public static func getAvailableTests() -> [DemoTest] {
-        return DemoTest.allCases
+        DemoTest.allCases
+    }
+
+    @ViewBuilder
+    // This is the exhaustive runtime equivalent of the app's top-level preview catalog.
+    // swiftlint:disable:next cyclomatic_complexity
+    private static func previewContent(for demoTest: DemoTest) -> some View {
+        switch demoTest {
+        case .appRoot:
+            RootContentView(TMDBApiKey: debugTMDBAPIKey, isAppStoreOrTestFlight: false)
+        case .tmdbTabsNormal:
+            TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .normal)
+        case .tmdbTabsPage:
+            TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .page)
+        case .tmdbTabsEmbedded:
+            TabView {
+                TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
+                    .tabItem {
+                        Label("TMDB", systemImage: "film")
+                    }
+            }
+        case .tmdbFeed:
+            TMDBFeedDemoView()
+        case .tmdbDiscover:
+            TMDBDiscoverDemoView()
+        case .tmdbMovieDetail:
+            TMDBMovieDetailDemoView()
+        case .tmdbTVShowDetail:
+            TMDBTVShowDetailDemoView()
+        case .tmdbSettings:
+            TMDBSettingsDemoView()
+        case .tmdbPersonDetail:
+            TMDBPersonDetailDemoView()
+        case .pokedexList:
+            PokedexListDemoView()
+        case .pokedexDetail:
+            PokedexDetailDemoView()
+        case .pokedexTab:
+            PokedexTabView()
+        case .themeSwitcher:
+            ThemeSwitcherDemoView()
+        case .demoLauncher:
+            DemoLauncherView()
+        }
     }
 }
 

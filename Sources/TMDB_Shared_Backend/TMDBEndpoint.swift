@@ -93,6 +93,7 @@ public enum TMDBEndpoint {
 
     // TV Show Details
     case tvShowDetail(show: Int)
+    case similarTVShows(show: Int, page: Int? = nil)
 
     // Watch Providers
     case movieWatchProviders(watchRegion: String? = nil)
@@ -189,6 +190,8 @@ public enum TMDBEndpoint {
         // TV Show Details
         case let .tvShowDetail(show):
             return "tv/\(show)"
+        case let .similarTVShows(show, _):
+            return "tv/\(show)/similar"
         // Watch Providers
         case .movieWatchProviders:
             return "watch/providers/movie"
@@ -287,7 +290,8 @@ public enum TMDBEndpoint {
                 language: language,
                 page: page
             )
-        case let .tvAiringToday(page), let .tvOnTheAir(page), let .airingTodayTVShows(page), let .onTheAirTVShows(page):
+        case let .tvAiringToday(page), let .tvOnTheAir(page), let .airingTodayTVShows(page), let .onTheAirTVShows(page),
+             let .similarTVShows(_, page):
             if let page = page {
                 return ["page": String(page)]
             }
@@ -459,9 +463,14 @@ public enum TMDBEndpoint {
         }
     }
 
+    // Keeping the exhaustive endpoint contract in one switch makes additions fail to compile
+    // until their response model is selected.
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     public func returnType() throws -> Decodable.Type {
         switch self {
-        case .popular, .nowPlaying, .upcoming, .getFavoriteMovies:
+        case .popular, .topRated, .upcoming, .nowPlaying, .trending,
+             .recommended, .similar, .searchMovie, .discoverMovie,
+             .topRatedMovies, .getFavoriteMovies:
             return MovieListResultModel.self
         case .accountInfo:
             return AccountInfoModel.self
@@ -473,35 +482,42 @@ public enum TMDBEndpoint {
             return MovieDetailModel.self
         case .credits:
             return MovieCreditsModel.self
-        case .searchMovie:
-            return MovieListResultModel.self
         case .searchTVShows:
             return TVShowListResultModel.self
-        case .discoverMovie:
-            return MovieListResultModel.self
         case .discoverTV:
-            // Return TVShowListResultModel (from this module, TMDB_Shared_Backend)
             return TVShowListResultModel.self
-        case .tvAiringToday, .tvOnTheAir, .airingTodayTVShows, .onTheAirTVShows:
+        case .tvAiringToday, .tvOnTheAir, .airingTodayTVShows, .onTheAirTVShows, .similarTVShows:
             return TVShowListResultModel.self
         case .tvShowDetail:
             return TVShowDetailModel.self
         case .genres, .tvGenres:
             return GenreListModel.self
-        case .popularPersons:
+        case .popularPersons, .searchPerson:
             return PersonListResultModel.self
         case .personDetail:
             return PersonDetail.self
         case .personMovieCredits:
             return PersonMovieCredits.self
+        case .personImages:
+            return PersonImagesResponse.self
         case .trendingAll:
             return TrendingAllResultModel.self
         case .movieWatchProviders, .tvWatchProviders:
             return WatchProviderListModel.self
         case .watchProviders, .tvShowWatchProviders:
             return WatchProviderResponse.self
-        default:
-            throw TMDBAPIError.unsupportedEndpoint
+        case .videos:
+            return MovieVideosResponse.self
+        case .review:
+            return MovieReviewsResponse.self
+        case .searchKeyword:
+            return KeywordSearchResultModel.self
+        case .authStep1:
+            return RequestTokenResponse.self
+        case .authNewSession:
+            return SessionResponse.self
+        case .logOut:
+            return TMDBSuccessResponse.self
         }
     }
 }

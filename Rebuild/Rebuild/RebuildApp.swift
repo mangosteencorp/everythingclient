@@ -3,7 +3,7 @@ import Integration_test
 import SwiftUI
 
 @main
-struct RebuildApp: App {
+struct GlenMoviesApp: App {
     let usingFirebase = false
 #if DEBUG
     let isAppStoreOrTestFlight = false

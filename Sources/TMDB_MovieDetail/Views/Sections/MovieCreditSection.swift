@@ -23,7 +23,7 @@ struct MovieCreditSection<Route: Hashable>: View {
     var body: some View {
         Section {
             switch creditsViewModel.state {
-            case .loading:
+            case .initial, .loading:
                 RedactedMovieCrosslinePeopleRow()
             case let .success(credits):
                 // Display the credits information
@@ -38,11 +38,13 @@ struct MovieCreditSection<Route: Hashable>: View {
                     personRouteBuilder: personRouteBuilder
                 )
             case let .error(errorMessage):
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
+                SectionRetryView(message: L10n.errorFormat(errorMessage)) {
+                    await creditsViewModel.reload(movieId: movieId)
+                }
             }
-        }.onFirstAppear {
-            creditsViewModel.fetchMovieCredits(movieId: movieId)
+        }
+        .task(id: movieId) {
+            await creditsViewModel.load(movieId: movieId)
         }
     }
 }

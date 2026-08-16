@@ -12,7 +12,7 @@ Please search for a Pokemon film and click on "Pocket Monster" keyword from deta
 
 <details>
 <summary>Getting started</summary>
-Create a xcconfig file with this pattern in Build.xcconfig:
+Copy `Rebuild/Rebuild/Build.xcconfig.template` to `Rebuild/Rebuild/Build.xcconfig` (gitignored) and fill in:
 
 ```
 TMDB_API_KEY=
@@ -20,6 +20,8 @@ PRODUCT_BUNDLE_IDENTIFIER=
 ```
 
 Also adding a GoogleService-Info.plist file to the root of the project for Firebase Analytics. (Or setting the false flag in Rebuild/Rebuild/RebuildApp.swift to skip Firebase Analytics)
+
+Movie detail soundtrack search needs Apple Music access (`NSAppleMusicUsageDescription` is already in `Rebuild/Rebuild/Info.plist`).
 
 </details>
 
@@ -59,6 +61,7 @@ What you'll find looking at this repo:
 - feature based modularization with Swift packages
 - VIPER, Clean & MVVM, SwiftUI & UIKit
 - REST API & GraphQL networking & OAuth 
+- MusicKit soundtrack search, Swiftfin/Jellyfin client, CoverFlow carousel
 - SwiftGen, SwiftLint, SwiftFormat
 - GitHub CI build & test
 
@@ -173,6 +176,7 @@ What you'll find looking at this repo:
 - ✅ 100% code coverage for TMDB_Discover module. For testabbility purpose:
     - Data layer & domain layer should be wrapped in protocol for easy mocking. Mocking `URLProtocol` is for testing URLSession Task creation.
     - Using ViewInspector library for SwiftUI unit testing.
+- 🚧 `TMDB_MovieDetail_Tests` covers MusicKit soundtrack query building (`MovieOSTSearchQueryBuilder`).
 
 ## Development Tools, Build tools & Automation
 
@@ -207,20 +211,26 @@ Tracking:
 - ✅  Using Firebase Analytics for tracking events with abstraction to avoid direct dependency of each module.
   - GoogleService-Info.plist is ignored by Git and should be set as a secret in GitHub.
 
+Media:
+- ✅ Apple Music / MusicKit on movie detail (`MovieOSTViewModel` + `MovieOSTSection`): request authorization, search for soundtrack albums, and deep-link into Apple Music.
+- ✅ Jellyfin via Swiftfin (`third_party/SwiftfinLaunchView`, launched from the Settings tab): embeds a Swiftfin client as a full-screen cover. Swiftfin is a local SwiftPM dependency (`quangDecember/Swiftfin`, `swiftpm` branch).
+- ✅ Photo carousel + full-screen slides (`PhotoListViewer`): horizontal backdrop strip on movie detail, tapping opens `PhotoSlidesPage`.
+- ✅ iPod-style CoverFlow (`Shared_UI_Support/Views/CoverFlow`, iOS 18+): used as an alternate filmography layout on the person page (toggle via the design-switch toolbar button).
+
 # Project Structure
 ## CI/CD
 
-Using GitHub Actions for CI/CD.
-- ✅ ios.yml and test.sh files can generate coverage report for modules with tests. 3 actions workflow:
-  - SwiftLint run
-  - Build project
-  - Test pre-defined schemes on available simulators
+Using GitHub Actions for CI/CD (macos-26 runners).
+- ✅ Split workflows:
+  - SwiftLint (`swiftlint.yml`)
+  - Build (`ios.yml` + `build.sh`)
+  - Test (`ios-test.yml` + `test-only.sh`) then a separate coverage job (`coverage-check.sh`) that downloads the test artifact
 - 🔴 upload to TestFlight (or BrowserStack, Remote Testkit, etc.)
 
 ## Collaboration
 
 Setup on GitHub for team collaboration:
-- ✅ automatically running unit tests and code coverage on newly opened pull requests. (Due to SwiftPM limitation mentioned above, test.sh using a custom command of `xcrun llvm-cov` instead of a normal xctestplan file) 
+- ✅ automatically running unit tests and code coverage on newly opened pull requests. (Due to SwiftPM limitation mentioned above, `coverage-check.sh` uses a custom `xcrun llvm-cov` command instead of a normal xctestplan file) 
 - 🚧 Block merging pull requests unless certain conditions are met (e.g. code coverage is 100%, 2 approvals from other team members, etc.)
 
 
@@ -242,6 +252,7 @@ The TMDB section uses a Coordinator pattern with NavigationStack for routing bet
 - Movie Feed (`movieFeed`)
 - Marketplace/Discover (`marketplace`)
 - Profile (`profile`)
+- Settings (`settings`) — launches Swiftfin/Jellyfin
 
 **Navigation Destinations**
 
@@ -252,16 +263,18 @@ The TMDB section uses a Coordinator pattern with NavigationStack for routing bet
 | **Movie Feed** | Movie List (Filtered) | `TMDBRoute.movieList` | ✅ | Apply filters/search |
 | **Marketplace/Discover** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap on trending movie |
 | **Marketplace/Discover** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap on trending TV show |
-| **Marketplace/Discover** | TV Show List | `TMDBRoute.tvShowList` | ✅ | Tap genre/cast/on-the-air |
+| **Marketplace/Discover** | Person Detail | `TMDBRoute.personDetail` | ✅ | Tap cast chip or trending person |
+| **Marketplace/Discover** | TV Show List | `TMDBRoute.tvShowList` | ✅ | Tap genre/on-the-air |
 | **Profile** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap favorite/watchlist movie |
 | **Profile** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap favorite/watchlist TV show |
 | **Movie Detail** | Movie List (by Keyword) | `TMDBRoute.movieList(.keyword)` | ✅ | Tap keyword tag |
-| **Movie Detail** | Cast/Crew Detail | 🔴 | Not implemented | No route for person detail |
+| **Movie Detail** | Person Detail | `TMDBRoute.personDetail` | ✅ | Tap cast/crew member |
+| **Movie Detail** | Photo Slides | `TMDBRoute.photoSlides` | ✅ | Tap backdrop in photo carousel |
+| **Person Detail** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap a filmography credit |
 | **TV Show Detail** | Season Detail | 🔴 | Not implemented | Internal to TVShowDetail |
-| **TV Show Detail** | Cast Detail | 🔴 | Not implemented | No route for person detail |
+| **TV Show Detail** | Cast Detail | 🔴 | Not implemented | No person route from TV detail yet |
 | **TV Show List** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap TV show in filtered list |
 | **Movie List** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap movie in filtered list |
-| **Any Screen** | Person/Cast Detail | 🔴 | Missing | Would need `TMDBRoute.personDetail` |
 
 **Navigation Parameters**
 
@@ -279,8 +292,16 @@ The TMDB section uses a Coordinator pattern with NavigationStack for routing bet
 4. **`TMDBRoute.tvShowList(TVShowFeedType)`**
    - Supports: `.onTheAir`, `.discoverWithGenre`, `.discoverWithTVGenre`, `.discoverWithCast`
 
+5. **`TMDBRoute.personDetail(Int)`**
+   - Required: person ID
+   - Loads biography + movie credits (`TMDB_Person`)
+
+6. **`TMDBRoute.photoSlides(PhotoSlidesRouteModel)`**
+   - Required: image paths + initial index
+   - Full-screen pager (`PhotoListViewer`)
+
 **Missing Navigation Routes**
-- 🔴 Person/Cast Detail page (tap on actor/crew member)
+- 🔴 Person/Cast Detail from TV show detail (movie detail and Discover already route to `TMDBRoute.personDetail`)
 - 🔴 Season Detail page (separate from TV show detail)
 - 🔴 Episode Detail page
 - 🔴 Reviews/Comments page
@@ -319,11 +340,11 @@ Quick reference for each Swift package module — UI stack, reactive layer, arch
 
 - **TMDB_Feed**: SwiftUI + Combine + async/await — MVVM — tests: ✅
 - **TMDB_Discover**: SwiftUI + UIKit (mixed) + async/await — Clean Architecture — tests: ✅
-- **TMDB_MovieDetail**: SwiftUI + Combine + async/await — MVVM — tests: 🔴
+- **TMDB_MovieDetail**: SwiftUI + Combine + async/await — MVVM — tests: 🚧 (OST query-builder tests only)
 - **TMDB_TVShowDetail**: SwiftUI + async/await — Data Store — tests: 🔴
-- **TMDB_Person**: SwiftUI + async/await — Data Store — tests: 🔴
+- **TMDB_Person**: SwiftUI + async/await — Data Store — person biography, facts, filmography (list or CoverFlow) — tests: 🔴
 - **TMDB_Profile**: UIKit + RxSwift (+ Combine for auth) — Clean Architecture — tests: 🔴
-- **PhotoListViewer**: SwiftUI — simple view module — tests: 🔴
+- **PhotoListViewer**: SwiftUI — photo carousel + full-screen slides, used from movie detail — tests: 🔴
 
 **Pokedex feature modules**
 
@@ -337,7 +358,8 @@ Quick reference for each Swift package module — UI stack, reactive layer, arch
 - **TMDB_Shared_UI**: SwiftUI + Combine — shared UI components — tests: 🔴
 - **Pokedex_Shared_Backend**: no UI — async/await + Apollo GraphQL — tests: 🔴
 - **CoreFeatures**: SwiftUI + UIKit — theming & analytics abstractions — tests: 🔴
-- **Shared_UI_Support**: SwiftUI + UIKit — cross-feature UI helpers — tests: 🔴
+- **Shared_UI_Support**: SwiftUI + UIKit — cross-feature UI helpers, including CoverFlow — tests: 🔴
+- **third_party**: SwiftUI — wrappers for third-party clients (Swiftfin/Jellyfin) — tests: 🔴
 
 **Gaps to fill** (patterns or coverage not yet represented):
 
@@ -345,13 +367,13 @@ Quick reference for each Swift package module — UI stack, reactive layer, arch
 - 🔴 UIKit + Combine feature module (Profile uses RxSwift; Discover home is UIKit but driven by Clean Architecture)
 - 🔴 Clean Architecture + SwiftUI-only (Discover mixes UIKit; Profile is UIKit)
 - 🔴 Tests for most feature modules except `TMDB_Feed`, `TMDB_Discover`, and `TMDB_Shared_Backend`
-- 🔴 Person detail navigation from movie/TV screens (see [Navigation Matrix](#tmdb-navigation-matrix))
+- 🔴 Person detail navigation from TV show screens (movie detail and Discover already route; see [Navigation Matrix](#tmdb-navigation-matrix))
 
 #### Module Architecture Layers
 
-Below are the folder structures showing the architectural layers for each module:
+Folder structure for each module. Headings list **architecture**, then **UI** (SwiftUI / UIKit), then **state** (Combine / RxSwift / `ObservableObject`).
 
-**Pokedex** (Coordinator Pattern)
+**Pokedex** (Coordinator · SwiftUI + UIKit · Combine)
 ```
 Pokedex/
 ├── PokedexView.swift
@@ -359,7 +381,7 @@ Pokedex/
     └── PokelistRouter.swift
 ```
 
-**Pokedex_Detail** (MVVM)
+**Pokedex_Detail** (MVVM · UIKit · RxSwift)
 ```
 Pokedex_Detail/
 ├── View/
@@ -370,7 +392,7 @@ Pokedex_Detail/
     └── PokemonDetailViewModel.swift
 ```
 
-**Pokedex_Pokelist** (VIPER)
+**Pokedex_Pokelist** (VIPER · UIKit · async/await)
 ```
 Pokedex_Pokelist/
 ├── Entities/
@@ -386,7 +408,7 @@ Pokedex_Pokelist/
     └── PokelistProtocols.swift
 ```
 
-**TMDB_Discover** (Clean Architecture)
+**TMDB_Discover** (Clean Architecture · SwiftUI + UIKit · Combine / ObservableObject)
 ```
 TMDB_Discover/
 ├── app/ (DI)
@@ -404,7 +426,7 @@ TMDB_Discover/
     └── widgets/
 ```
 
-**TMDB_Feed** (MVVM)
+**TMDB_Feed** (MVVM · SwiftUI · Combine / ObservableObject)
 ```
 TMDB_Feed/
 ├── Backend/
@@ -420,9 +442,11 @@ TMDB_Feed/
     └── Widgets/
 ```
 
-**TMDB_MovieDetail** (MVVM)
+**TMDB_MovieDetail** (MVVM · SwiftUI · Combine / ObservableObject)
 ```
 TMDB_MovieDetail/
+├── Domain/
+│   └── MovieOSTSearchQueryBuilder.swift
 ├── Model/
 │   ├── Movie.swift
 │   ├── People.swift
@@ -430,14 +454,44 @@ TMDB_MovieDetail/
 ├── ViewModels/
 │   ├── MovieDetailViewModel.swift
 │   ├── MovieCastingViewModel.swift
-│   └── MovieWatchProvidersViewModel.swift
+│   ├── MovieWatchProvidersViewModel.swift
+│   └── MovieOSTViewModel.swift   // MusicKit soundtrack search
 └── Views/
     ├── Pages/
-    ├── Sections/
+    ├── Sections/                 // includes MovieOSTSection
     └── StaticViews/
 ```
 
-**TMDB_Profile** (Clean Architecture)
+**TMDB_Person** (Data Store · SwiftUI · ObservableObject)
+```
+TMDB_Person/
+├── Views/
+│   ├── PersonDetailPage.swift
+│   ├── PersonDetailContent.swift
+│   ├── PersonDetailHeaderView.swift
+│   ├── PersonFactGrid.swift
+│   ├── PersonBiographySection.swift
+│   ├── PersonFilmographySection.swift
+│   └── PersonFilmographyCarouselSection.swift  // CoverFlow, iOS 18+
+└── Resources/
+```
+
+**third_party** (client wrapper · SwiftUI · none)
+```
+third_party/
+└── Views/
+    └── SwiftfinLaunchView.swift               // Jellyfin client
+```
+
+**PhotoListViewer** (view module · SwiftUI · none)
+```
+PhotoListViewer/
+└── Views/
+    ├── PhotoCarouselView.swift
+    └── PhotoSlidesPage.swift
+```
+
+**TMDB_Profile** (Clean Architecture · UIKit · RxSwift, Combine for auth)
 ```
 TMDB_Profile/
 ├── DI/
@@ -454,7 +508,7 @@ TMDB_Profile/
     └── Views/
 ```
 
-**TMDB_TVShowDetail** (Data Store Pattern - SwiftUI)
+**TMDB_TVShowDetail** (Data Store · SwiftUI · ObservableObject)
 ```
 TMDB_TVShowDetail/
 ├── Views/

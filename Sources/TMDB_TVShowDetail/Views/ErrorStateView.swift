@@ -14,7 +14,7 @@ struct ErrorStateView: View {
                 .font(.system(size: 48))
                 .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.6))
 
-            Text("Something went wrong")
+            Text(L10n.Tvshow.Detail.somethingWentWrong)
                 .font(.headline)
                 .foregroundColor(themeManager.currentTheme.labelColor)
 
@@ -24,7 +24,7 @@ struct ErrorStateView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Try Again") {
+            Button(L10n.Tvshow.Detail.tryAgain) {
                 Task { await retryAction() }
             }
             .buttonStyle(.borderedProminent)

@@ -6,15 +6,15 @@ import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
-@available(iOS 16, macOS 10.15, *)
+@available(iOS 16, *)
 public struct MovieFeedListPage<Route: Hashable>: View {
     @StateObject var movieViewModel: MovieFeedViewModel
     @StateObject var tvShowViewModel: TVShowFeedViewModel
-    @State private var selectedContentType: ContentFeedType = .movies
+    @State private var selectedTab: FeedTab = .nowPlaying
+    @State private var visibleTab: FeedTab = .nowPlaying
+    @State private var useFancyDesign: Bool = true
     let detailRouteBuilder: (Movie) -> Route
     let tvShowDetailRouteBuilder: (TVShow) -> Route
-    private var cancellables = Set<AnyCancellable>()
-    @State private var useFancyDesign: Bool = true
 
     public init(
         apiService: APIServiceProtocol,
@@ -52,194 +52,133 @@ public struct MovieFeedListPage<Route: Hashable>: View {
 #endif
 
     public var body: some View {
-        VStack(spacing: 0) {
-            // Segmented Control
-            Picker("Content Type", selection: $selectedContentType) {
-                ForEach(ContentFeedType.allCases) { contentType in
-                    Text(contentType.localizedTitle).tag(contentType)
+        Group {
+            // There are more tabs than the tab bar can show, so iOS moves the overflow
+            // into its "More" list. The legacy `.tabItem` bridge renders those overflow
+            // tabs into a detached controller that never redraws, so they stay frozen on
+            // whatever was on screen when the More list was built (an empty feed showing
+            // "No Results Found"). The iOS 18 `Tab` API keeps them live.
+            if #available(iOS 26, *) {
+                TabView(selection: $selectedTab) {
+                    ForEach(FeedTab.allCases) { tab in
+                        Tab(tab.title, systemImage: tab.systemImage, value: tab) {
+                            tabRoot(for: tab)
+                        }
+                    }
                 }
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding(.horizontal)
-            .padding(.top, 8)
-            .accessibilityIdentifier("content_type_picker")
-
-            // Content based on selected type
-            Group {
-                switch selectedContentType {
-                case .movies:
-                    MovieContentView(
-                        viewModel: movieViewModel,
-                        detailRouteBuilder: detailRouteBuilder,
-                        useFancyDesign: $useFancyDesign
-                    )
-                case .tvShows:
-                    TVShowContentView(
-                        viewModel: tvShowViewModel,
-                        detailRouteBuilder: tvShowDetailRouteBuilder,
-                        useFancyDesign: $useFancyDesign
-                    )
+                .tabBarMinimizeBehavior(.onScrollDown)
+            } else if #available(iOS 18, *) {
+                TabView(selection: $selectedTab) {
+                    ForEach(FeedTab.allCases) { tab in
+                        Tab(tab.title, systemImage: tab.systemImage, value: tab) {
+                            tabRoot(for: tab)
+                        }
+                    }
+                }
+            } else {
+                TabView(selection: $selectedTab) {
+                    ForEach(FeedTab.allCases) { tab in
+                        tabRoot(for: tab)
+                            .tabItem {
+                                Label(tab.title, systemImage: tab.systemImage)
+                            }
+                            .tag(tab)
+                    }
                 }
             }
         }
         .accessibilityIdentifier("movies_list")
-        .navigationTitle(currentFeedTypeTitle)
+        .navigationTitle(visibleTab.title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    switch selectedContentType {
-                    case .movies:
-                        ForEach(MovieFeedType.allCases) { feedType in
-                            Button(action: {
-                                movieViewModel.switchFeedType(feedType)
-                            }) {
-                                HStack {
-                                    Text(feedType.localizedTitle)
-                                    if movieViewModel.currentFeedType == feedType {
-                                        Image(systemName: "checkmark")
-                                    }
-                                }
-                            }
-                        }
-                    case .tvShows:
-                        ForEach(TVShowFeedType.allCases) { feedType in
-                            Button(action: {
-                                tvShowViewModel.switchFeedType(feedType)
-                            }) {
-                                HStack {
-                                    Text(feedType.localizedTitle)
-                                    if tvShowViewModel.currentFeedType == feedType {
-                                        Image(systemName: "checkmark")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "chevron.up.chevron.down.square")
-                        .foregroundColor(.primary)
-                }
-            }
+        // Tabs moved into iOS's More menu can be created without appearing first.
+        .onAppear {
+            loadInitialFeeds()
         }
-        .sheet(isPresented: Binding(
-            get: { currentViewModel.showingFilterSheet },
-            set: { newValue in
-                switch selectedContentType {
-                case .movies:
-                    movieViewModel.showingFilterSheet = newValue
-                case .tvShows:
-                    tvShowViewModel.showingFilterSheet = newValue
-                }
-            }
-        )) {
-            if let filterType = currentViewModel.selectedFilterType {
-                FilterConfigurationView(
-                    filters: currentViewModel.searchFiltersBinding,
-                    filterType: filterType
+        .onChange(of: selectedTab) { tab in
+            visibleTab = tab
+            // Flipping tabs quickly should not leave the previous tab's request running: these
+            // preloads belong to no view, so nothing else would cancel them.
+            movieViewModel.cancelLoads()
+            tvShowViewModel.cancelLoads()
+            loadFeed(for: tab)
+        }
+    }
+
+    // The view models decide what actually needs a request: cached feeds are served from memory and
+    // a feed that is already loading is not requested twice.
+    private func loadInitialFeeds() {
+        for feedType in TVShowFeedType.allCases {
+            tvShowViewModel.loadFeed(feedType)
+        }
+
+        loadFeed(for: selectedTab)
+    }
+
+    private func loadFeed(for tab: FeedTab) {
+        if let feedType = tab.movieFeedType {
+            movieViewModel.loadFeed(feedType)
+        } else if let feedType = tab.tvShowFeedType {
+            tvShowViewModel.loadFeed(feedType)
+        }
+    }
+
+    private func tabRoot(for tab: FeedTab) -> some View {
+        // iOS never updates the `selection` binding for tabs opened from the More list,
+        // so the visible tab has to be tracked from the content itself to keep the
+        // navigation title in sync.
+        tabContent(for: tab)
+            .onAppear { visibleTab = tab }
+    }
+
+    @ViewBuilder
+    private func tabContent(for tab: FeedTab) -> some View {
+        switch tab {
+        case .nowPlaying, .popular, .topRated, .upcoming:
+            if let feedType = tab.movieFeedType {
+                MovieFeedTabContent(
+                    viewModel: movieViewModel,
+                    feedType: feedType,
+                    detailRouteBuilder: detailRouteBuilder,
+                    useFancyDesign: $useFancyDesign
                 )
             }
-        }
-        .onFirstAppear {
-            loadInitialContent()
-        }
-        .onChange(of: selectedContentType) { _ in
-            loadInitialContent()
-        }
-    }
-
-    private var currentViewModel: (showingFilterSheet: Bool, selectedFilterType: FilterType?, searchFiltersBinding: Binding<SearchFilters>) {
-        switch selectedContentType {
-        case .movies:
-            return (
-                showingFilterSheet: movieViewModel.showingFilterSheet,
-                selectedFilterType: movieViewModel.selectedFilterType,
-                searchFiltersBinding: movieViewModel.searchFiltersBinding
-            )
-        case .tvShows:
-            return (
-                showingFilterSheet: tvShowViewModel.showingFilterSheet,
-                selectedFilterType: tvShowViewModel.selectedFilterType,
-                searchFiltersBinding: tvShowViewModel.searchFiltersBinding
-            )
-        }
-    }
-
-    private var currentFeedTypeTitle: String {
-        switch selectedContentType {
-        case .movies:
-            return movieViewModel.currentFeedType.localizedTitle
-        case .tvShows:
-            return tvShowViewModel.currentFeedType.localizedTitle
-        }
-    }
-
-    private func loadInitialContent() {
-        switch selectedContentType {
-        case .movies:
-            // Only fetch if we don't have any movies loaded for the current feed type
-            if case .initial = movieViewModel.state {
-                movieViewModel.fetchNowPlayingMovies()
-            } else if !movieViewModel.hasCachedMovies {
-                // If we have no cached data, fetch it
-                movieViewModel.fetchNowPlayingMovies()
-            } else {
-                // If we have data but it's not for the current feed type, load the cached data
-                movieViewModel.loadCurrentFeedMovies()
+        case .onTheAir, .airingToday:
+            if let feedType = tab.tvShowFeedType {
+                TVShowFeedTabContent(
+                    viewModel: tvShowViewModel,
+                    feedType: feedType,
+                    detailRouteBuilder: tvShowDetailRouteBuilder,
+                    useFancyDesign: $useFancyDesign
+                )
             }
-        case .tvShows:
-            // Always fetch TV shows if we're in initial state or if we don't have any shows loaded
-            if case .initial = tvShowViewModel.state {
-                tvShowViewModel.fetchAiringTodayTVShows()
-            } else if !tvShowViewModel.hasCachedShows {
-                // If we have no cached data, fetch it
-                tvShowViewModel.fetchAiringTodayTVShows()
-            } else {
-                // If we have data but it's not for the current feed type, load the cached data
-                tvShowViewModel.loadCurrentFeedTVShows()
-            }
+        case .search:
+            FeedSearchTabContent(
+                movieViewModel: movieViewModel,
+                tvShowViewModel: tvShowViewModel,
+                detailRouteBuilder: detailRouteBuilder,
+                tvShowDetailRouteBuilder: tvShowDetailRouteBuilder,
+                useFancyDesign: $useFancyDesign
+            )
         }
     }
 }
 
-// MARK: - TV Show Row Entity
-
 extension TVShow {
     func toMovieRowEntity() -> MovieRowEntity {
-        return MovieRowEntity(
+        MovieRowEntity(
             id: id,
             posterPath: poster_path,
             title: name,
             voteAverage: Double(vote_average),
-            releaseDate: nil, // TV shows don't have release dates like movies
+            releaseDate: nil,
             overview: overview
-        )
-    }
-}
-
-// MARK: - Extensions for View Models
-
-extension MovieFeedViewModel {
-    var searchFiltersBinding: Binding<SearchFilters> {
-        Binding(
-            get: { self.searchFilters },
-            set: { self.searchFilters = $0 }
-        )
-    }
-}
-
-extension TVShowFeedViewModel {
-    var searchFiltersBinding: Binding<SearchFilters> {
-        Binding(
-            get: { self.searchFilters },
-            set: { self.searchFilters = $0 }
         )
     }
 }
 
 #if DEBUG
 // swiftlint:disable all
-@available(iOS 16, macOS 10.15, *)
+@available(iOS 16, *)
 #Preview {
     MovieFeedListPage(
         apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
@@ -248,18 +187,13 @@ extension TVShowFeedViewModel {
     )
 }
 
-@available(iOS 16, macOS 10.15, *)
-struct MovieFeedListPage_Previews : PreviewProvider {
+@available(iOS 16, *)
+struct MovieFeedListPage_Previews: PreviewProvider {
     static var previews: some View {
-        let movieViewModel = MovieFeedViewModel.init(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
-        let tvShowViewModel = TVShowFeedViewModel.init(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
+        let movieViewModel = MovieFeedViewModel(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
+        let tvShowViewModel = TVShowFeedViewModel(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            movieViewModel.state = .searchResults([])
-            tvShowViewModel.state = .searchResults([])
-        }
-
-        return NavigationView {
+        return NavigationStack {
             MovieFeedListPage(
                 movieViewModel: movieViewModel,
                 tvShowViewModel: tvShowViewModel,
@@ -269,6 +203,5 @@ struct MovieFeedListPage_Previews : PreviewProvider {
         }
     }
 }
-
 // swiftlint:enable all
 #endif

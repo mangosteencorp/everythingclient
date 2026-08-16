@@ -1,5 +1,6 @@
 import SwiftfinLib
 import SwiftUI
+import UIKit
 
 @available(iOS 16.0, *)
 public struct SwiftfinLaunchView: View {
@@ -25,6 +26,19 @@ public struct SwiftfinLaunchView: View {
             .accessibilityLabel("Close Swiftfin")
             .accessibilityIdentifier("swiftfin.close.button")
         }
+        .onDisappear {
+            // Swiftfin forces the app's key window into dark mode
+            // (overrideUserInterfaceStyle) on launch and never reverts it.
+            resetInterfaceStyle()
+        }
+    }
+
+    private func resetInterfaceStyle() {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }?
+            .overrideUserInterfaceStyle = .unspecified
     }
 }
 

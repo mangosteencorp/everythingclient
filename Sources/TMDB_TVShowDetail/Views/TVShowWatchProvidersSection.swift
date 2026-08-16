@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 
@@ -5,6 +6,8 @@ import TMDB_Shared_Backend
 struct TVShowWatchProvidersSection: View {
     let tvShowId: Int
     let apiService: TMDBAPIService
+
+    @EnvironmentObject private var themeManager: ThemeManager
 
     enum ViewState {
         case loading
@@ -16,8 +19,9 @@ struct TVShowWatchProvidersSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Where to Watch")
+            Text(L10n.Tvshow.Detail.whereToWatch)
                 .font(.headline)
+                .foregroundColor(themeManager.currentTheme.labelColor)
                 .padding(.horizontal)
 
             contentView
@@ -34,26 +38,27 @@ struct TVShowWatchProvidersSection: View {
             HStack {
                 ProgressView()
                     .scaleEffect(0.8)
-                Text("Loading watch providers...")
-                    .foregroundColor(.secondary)
+                    .tint(themeManager.currentTheme.labelColor)
+                Text(L10n.Tvshow.Detail.loadingWatchProviders)
+                    .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7))
             }
             .padding()
 
         case .success(let response):
-            if let userRegion = Locale.current.regionCode,
+            if let userRegion = Locale.current.region?.identifier,
                let regionData = response.results[userRegion] {
                 WatchProvidersView(regionData: regionData)
             } else if let firstRegion = response.results.first {
                 WatchProvidersView(regionData: firstRegion.value)
             } else {
-                Text("No watch providers available")
-                    .foregroundColor(.secondary)
+                Text(L10n.Tvshow.Detail.noWatchProviders)
+                    .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7))
                     .padding()
             }
 
         case .error(let message):
-            Text("Error: \(message)")
-                .foregroundColor(.red)
+            Text(L10n.Tvshow.Detail.watchProvidersError(message))
+                .foregroundColor(themeManager.currentTheme.labelColor)
                 .padding()
         }
     }
@@ -77,22 +82,22 @@ private struct WatchProvidersView: View {
         VStack(alignment: .leading, spacing: 16) {
             // Streaming services (flatrate)
             if let flatrate = regionData.flatrate, !flatrate.isEmpty {
-                ProviderCategoryView(title: "Streaming", providers: flatrate, regionLink: regionData.link)
+                ProviderCategoryView(title: L10n.Tvshow.Detail.streaming, providers: flatrate, regionLink: regionData.link)
             }
 
             // Free services
             if let free = regionData.free, !free.isEmpty {
-                ProviderCategoryView(title: "Free", providers: free, regionLink: regionData.link)
+                ProviderCategoryView(title: L10n.Tvshow.Detail.free, providers: free, regionLink: regionData.link)
             }
 
             // Rent services
             if let rent = regionData.rent, !rent.isEmpty {
-                ProviderCategoryView(title: "Rent", providers: rent, regionLink: regionData.link)
+                ProviderCategoryView(title: L10n.Tvshow.Detail.rent, providers: rent, regionLink: regionData.link)
             }
 
             // Buy services
             if let buy = regionData.buy, !buy.isEmpty {
-                ProviderCategoryView(title: "Buy", providers: buy, regionLink: regionData.link)
+                ProviderCategoryView(title: L10n.Tvshow.Detail.buy, providers: buy, regionLink: regionData.link)
             }
         }
     }
@@ -100,6 +105,8 @@ private struct WatchProvidersView: View {
 
 @available(iOS 15.0, *)
 private struct ProviderCategoryView: View {
+    @EnvironmentObject private var themeManager: ThemeManager
+
     let title: String
     let providers: [WatchProvider]
     let regionLink: String
@@ -109,6 +116,7 @@ private struct ProviderCategoryView: View {
             Text(title)
                 .font(.subheadline)
                 .fontWeight(.medium)
+                .foregroundColor(themeManager.currentTheme.labelColor)
                 .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -125,6 +133,8 @@ private struct ProviderCategoryView: View {
 
 @available(iOS 15.0, *)
 private struct ProviderLogoView: View {
+    @EnvironmentObject private var themeManager: ThemeManager
+
     let provider: WatchProvider
     let regionLink: String
 
@@ -144,7 +154,7 @@ private struct ProviderLogoView: View {
                     .overlay(
                         Text(provider.providerName.prefix(1))
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundColor(themeManager.currentTheme.labelColor.opacity(0.7))
                     )
             }
             .frame(width: 50, height: 50)

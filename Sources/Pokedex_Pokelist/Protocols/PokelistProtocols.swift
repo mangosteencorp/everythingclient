@@ -20,6 +20,7 @@ public protocol PokelistPresenterProtocol: AnyObject {
 
     func viewDidLoad()
     func loadMorePokemons()
+    func cancelLoading()
     func getPokemons() -> [PokemonEntity]
     func didSelectPokemon(at index: Int)
 }
@@ -29,6 +30,7 @@ public protocol PokelistPresenterProtocol: AnyObject {
 public protocol PokelistInteractorProtocol: AnyObject {
     var presenter: PokelistInteractorOutputProtocol? { get set }
     func fetchPokemons(limit: Int, offset: Int)
+    func cancelFetch()
 }
 
 // MARK: - Interactor Output

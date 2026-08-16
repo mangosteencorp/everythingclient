@@ -6,7 +6,7 @@ public enum HTTPMethod: String {
     case put
     case delete
     public func method() -> String {
-        return rawValue.uppercased()
+        rawValue.uppercased()
     }
 }
 
@@ -16,15 +16,22 @@ public struct TMDBAPIService {
     let decoder = JSONDecoder()
     let session: URLSession
     let authRepository: AuthRepository
+    let urlCacheOptions: TMDBURLCacheOptions
 
     public init(
         apiKey: String,
-        session: URLSession = .shared,
-        authRepository: AuthRepository = DefaultAuthRepository()
+        session: URLSession? = nil,
+        authRepository: AuthRepository = DefaultAuthRepository(),
+        urlCacheOptions: TMDBURLCacheOptions = .disabled
     ) {
         self.apiKey = apiKey
-        self.session = session
         self.authRepository = authRepository
+        self.urlCacheOptions = urlCacheOptions
+        if let session {
+            self.session = session
+        } else {
+            self.session = Self.makeSession(urlCacheEnabled: urlCacheOptions.isEnabled)
+        }
     }
 
     public func request<T: Decodable>(_ endpoint: TMDBEndpoint) async throws -> T {
@@ -56,6 +63,7 @@ public struct TMDBAPIService {
         var request = URLRequest(url: url)
         request.httpMethod = endpoint.httpMethod().method()
         request.httpBody = endpoint.body()
+        request.cachePolicy = cachePolicy(for: endpoint)
 
         if endpoint.body() != nil {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -84,5 +92,35 @@ public struct TMDBAPIService {
         } catch {
             return .failure(.networkError(error: error))
         }
+    }
+
+    /// GET + unauthenticated requests use URL cache when options are enabled; otherwise bypass.
+    func cachePolicy(for endpoint: TMDBEndpoint) -> URLRequest.CachePolicy {
+        if shouldUseURLCache(for: endpoint) {
+            return .returnCacheDataElseLoad
+        }
+        return .reloadIgnoringLocalCacheData
+    }
+
+    func shouldUseURLCache(for endpoint: TMDBEndpoint) -> Bool {
+        urlCacheOptions.isEnabled
+            && endpoint.httpMethod() == .get
+            && !endpoint.needAuthentication()
+    }
+
+    private static func makeSession(urlCacheEnabled: Bool) -> URLSession {
+        let configuration = URLSessionConfiguration.default
+        if urlCacheEnabled {
+            configuration.urlCache = URLCache(
+                memoryCapacity: 20 * 1024 * 1024,
+                diskCapacity: 100 * 1024 * 1024,
+                directory: nil
+            )
+            configuration.requestCachePolicy = .returnCacheDataElseLoad
+        } else {
+            configuration.urlCache = nil
+            configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        }
+        return URLSession(configuration: configuration)
     }
 }

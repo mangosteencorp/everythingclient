@@ -1,34 +1,44 @@
-import Combine
 import SwiftUI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 
-enum MovieDetailState {
-    case loading
-    case success(Movie)
-    case error(String)
-}
+typealias MovieDetailState = LoadState<Movie>
 
+@MainActor
 class MovieDetailViewModel: ObservableObject {
-    @Published var state: MovieDetailState = .loading
+    @Published var state: MovieDetailState = .initial
 
-    private var cancellables = Set<AnyCancellable>()
     private let apiService: TMDBAPIService
     init(apiService: TMDBAPIService) {
         self.apiService = apiService
     }
 
-    func fetchMovieDetail(movieId: Int) {
+    /// No-op unless nothing has been attempted yet, so several `.task` modifiers can call it safely.
+    func load(movieId: Int) async {
+        guard state.isInitial else { return }
+        await fetch(movieId: movieId)
+    }
+
+    /// User driven retry. Refuses to stack on a request that is already in flight.
+    func reload(movieId: Int) async {
+        guard !state.isLoading else { return }
+        await fetch(movieId: movieId)
+    }
+
+    private func fetch(movieId: Int) async {
         state = .loading
-        Task {
-            let result: Result<Movie, TMDBAPIError> = await apiService.request(.movieDetail(movie: movieId))
-            DispatchQueue.main.async {
-                switch result {
-                case let .success(movieDetail):
-                    self.state = .success(movieDetail)
-                case let .failure(error):
-                    self.state = .error(error.localizedDescription)
-                }
-            }
+        let result: Result<Movie, TMDBAPIError> = await apiService.request(.movieDetail(movie: movieId))
+        // A cancelled request comes back as a failure. Storing it would leave `load` permanently
+        // blocked, so go back to `initial` and let the next appearance start over.
+        guard !Task.isCancelled else {
+            state = .initial
+            return
+        }
+        switch result {
+        case let .success(movieDetail):
+            state = .success(movieDetail)
+        case let .failure(error):
+            state = .error(error.localizedDescription)
         }
     }
 }

@@ -12,6 +12,13 @@
 "feed_popular" = "Popular";
 "feed_top_rated" = "Top Rated";
 "feed_upcoming" = "Upcoming";
+"feed_on_the_air" = "On the Air";
+"feed_airing_today" = "Airing Today";
+"feed_search" = "Search";
+"feed_search_movies" = "Movies";
+"feed_search_tv" = "TV Shows";
+"feed_select_item" = "Select a title";
+"feed_select_item_prompt" = "Choose a movie or TV show to see details.";
 
 // Filter strings
 "filter_include_adult" = "Include Adult";

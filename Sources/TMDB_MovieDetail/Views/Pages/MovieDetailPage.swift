@@ -6,10 +6,12 @@ import TMDB_Shared_UI
 @available(iOS 16.0, *)
 public struct MovieDetailPage<Route: Hashable>: View {
     var movie: Movie
-    @ObservedObject var movieDetailViewModel: MovieDetailViewModel
-    @ObservedObject var creditsViewModel: MovieCastingViewModel
-    @ObservedObject var watchProvidersViewModel: MovieWatchProvidersViewModel
-    @ObservedObject var ostViewModel: MovieOSTViewModel
+    // Owned by the page: an @ObservedObject created in `init` is thrown away on every parent
+    // redraw, which would reset each view model to `.initial` without `.task` running again.
+    @StateObject var movieDetailViewModel: MovieDetailViewModel
+    @StateObject var creditsViewModel: MovieCastingViewModel
+    @StateObject var watchProvidersViewModel: MovieWatchProvidersViewModel
+    @StateObject var ostViewModel: MovieOSTViewModel
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
     let personRouteBuilder: ((Int) -> Route)?
@@ -23,16 +25,18 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
                 pokedexRouteBuilder: (() -> Route)? = nil) {
         // Convert MovieRouteModel to Movie
-        movie = movieRoute
-        self.apiService = apiService
-        movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
-        creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
-        watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
-        ostViewModel = MovieOSTViewModel()
-        self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
-        self.personRouteBuilder = personRouteBuilder
-        self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
-        self.pokedexRouteBuilder = pokedexRouteBuilder
+        self.init(
+            movie: movieRoute,
+            apiService: apiService,
+            movieDetailViewModel: MovieDetailViewModel(apiService: apiService),
+            creditsViewModel: MovieCastingViewModel(apiService: apiService),
+            watchProvidersViewModel: MovieWatchProvidersViewModel(apiService: apiService),
+            ostViewModel: MovieOSTViewModel(),
+            discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder,
+            personRouteBuilder: personRouteBuilder,
+            photoSlidesRouteBuilder: photoSlidesRouteBuilder,
+            pokedexRouteBuilder: pokedexRouteBuilder
+        )
     }
 
     public init(movieId: Int,
@@ -41,12 +45,33 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 personRouteBuilder: ((Int) -> Route)? = nil,
                 photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
                 pokedexRouteBuilder: (() -> Route)? = nil) {
-        movie = Movie.placeholder(id: movieId)
+        self.init(
+            movieRoute: Movie.placeholder(id: movieId),
+            apiService: apiService,
+            discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder,
+            personRouteBuilder: personRouteBuilder,
+            photoSlidesRouteBuilder: photoSlidesRouteBuilder,
+            pokedexRouteBuilder: pokedexRouteBuilder
+        )
+    }
+
+    /// Designated initializer, also used by previews to inject view models in a chosen state.
+    init(movie: Movie,
+         apiService: TMDBAPIService,
+         movieDetailViewModel: MovieDetailViewModel,
+         creditsViewModel: MovieCastingViewModel,
+         watchProvidersViewModel: MovieWatchProvidersViewModel,
+         ostViewModel: MovieOSTViewModel,
+         discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
+         personRouteBuilder: ((Int) -> Route)? = nil,
+         photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
+         pokedexRouteBuilder: (() -> Route)? = nil) {
+        self.movie = movie
         self.apiService = apiService
-        movieDetailViewModel = MovieDetailViewModel(apiService: self.apiService)
-        creditsViewModel = MovieCastingViewModel(apiService: self.apiService)
-        watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: self.apiService)
-        ostViewModel = MovieOSTViewModel()
+        _movieDetailViewModel = StateObject(wrappedValue: movieDetailViewModel)
+        _creditsViewModel = StateObject(wrappedValue: creditsViewModel)
+        _watchProvidersViewModel = StateObject(wrappedValue: watchProvidersViewModel)
+        _ostViewModel = StateObject(wrappedValue: ostViewModel)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
         self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
@@ -57,35 +82,42 @@ public struct MovieDetailPage<Route: Hashable>: View {
         ZStack(alignment: .bottom) {
             List {
                 Section {
-                    MovieCoverRow(movie: getMovie())
+                    MovieCoverRow(movie: displayedMovie)
                         .frame(height: 250)
                 }
+                if let errorMessage = movieDetailViewModel.state.errorMessage {
+                    Section {
+                        SectionRetryView(message: errorMessage) {
+                            await movieDetailViewModel.reload(movieId: movie.id)
+                        }
+                    }
+                }
                 Section {
-                    MovieOverview(movie: getMovie())
+                    MovieOverview(movie: displayedMovie)
                 }
                 Section {
                     MovieOSTSection(ostViewModel: ostViewModel)
                 }
-                if let photoSlidesRouteBuilder, !getMovie().photoPaths.isEmpty {
+                if let photoSlidesRouteBuilder, !displayedMovie.photoPaths.isEmpty {
                     Section {
                         PhotoCarouselView(
                             title: L10n.photosSectionTitle,
-                            imagePaths: getMovie().photoPaths,
+                            imagePaths: displayedMovie.photoPaths,
                             photoSlidesRouteBuilder: photoSlidesRouteBuilder
                         )
                     }
                 }
                 Section {
-                    if let kwList = getMovie().keywords?.keywords, !kwList.isEmpty {
+                    if let kwList = displayedMovie.keywords?.keywords, !kwList.isEmpty {
                         MovieKeywords(
                             keywords: kwList,
                             discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder
                         )
                     }
-                    if let locations = extractLocations(from: getMovie().overview), !locations.isEmpty {
+                    if let locations = extractLocations(from: displayedMovie.overview), !locations.isEmpty {
                         MovieLocations(locations: locations)
                     }
-                    if let pokedexRouteBuilder, PokemonMovieMatcher.shouldShowPokedexButton(for: getMovie()) {
+                    if let pokedexRouteBuilder, PokemonMovieMatcher.shouldShowPokedexButton(for: displayedMovie) {
                         NavigationLink(value: pokedexRouteBuilder()) {
                             Label("Open Pokédex", systemImage: "sparkles")
                         }
@@ -101,22 +133,25 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 }
             }
             .listStyle(PlainListStyle())
-            .navigationBarTitle(Text(getMovie().userTitle), displayMode: .large)
-        }.onFirstAppear {
-            movieDetailViewModel.fetchMovieDetail(movieId: movie.id)
-            watchProvidersViewModel.fetchWatchProviders(movieId: movie.id)
-            ostViewModel.load(for: getMovie().userTitle)
+            .navigationBarTitle(Text(displayedMovie.userTitle), displayMode: .large)
         }
-        .onChange(of: getMovie().userTitle) { newTitle in
-            ostViewModel.load(for: newTitle)
+        // Separate tasks so the two requests run concurrently instead of being serialised.
+        // SwiftUI cancels them when the page goes away, and each view model only loads once.
+        .task {
+            await movieDetailViewModel.load(movieId: movie.id)
+        }
+        .task {
+            await watchProvidersViewModel.load(movieId: movie.id)
+        }
+        // The title starts as the placeholder and changes once the detail resolves, which is what
+        // the previous `onChange` was for.
+        .task(id: displayedMovie.userTitle) {
+            await ostViewModel.load(for: displayedMovie.userTitle)
         }
     }
 
-    func getMovie() -> Movie {
-        if case let .success(mov) = movieDetailViewModel.state {
-            return mov
-        }
-        return movie
+    var displayedMovie: Movie {
+        movieDetailViewModel.state.value ?? movie
     }
 
     private func extractLocations(from overview: String) -> [String]? {
@@ -128,25 +163,27 @@ public struct MovieDetailPage<Route: Hashable>: View {
 #if DEBUG
 
 @available(iOS 16.0, *)
+@MainActor
 let exampleMovieDetailPage: MovieDetailPage = {
     let apiService = TMDBAPIService(apiKey: debugTMDBAPIKey)
-    var page = MovieDetailPage(
-        movieRoute: exampleMovieDetail,
-        apiService: apiService,
-        discoverMovieByKeywordRouteBuilder: {_ in 1},
-        photoSlidesRouteBuilder: { _, index in index }
-    )
-
     let movieDetailVM = MovieDetailViewModel(apiService: apiService)
-
     let creditVM = MovieCastingViewModel(apiService: apiService)
+
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         movieDetailVM.state = .success(exampleMovieDetail)
         creditVM.state = .success(exampleMovieCredits)
     }
-    page.creditsViewModel = creditVM
-    page.movieDetailViewModel = movieDetailVM
-    return page
+
+    return MovieDetailPage(
+        movie: exampleMovieDetail,
+        apiService: apiService,
+        movieDetailViewModel: movieDetailVM,
+        creditsViewModel: creditVM,
+        watchProvidersViewModel: MovieWatchProvidersViewModel(apiService: apiService),
+        ostViewModel: MovieOSTViewModel(),
+        discoverMovieByKeywordRouteBuilder: { _ in 1 },
+        photoSlidesRouteBuilder: { _, index in index }
+    )
 }()
 
 @available(iOS 16.0, *)

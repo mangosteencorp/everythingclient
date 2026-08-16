@@ -48,8 +48,8 @@ struct TVShowListPageContent<Route: Hashable>: View {
         }
         .navigationTitle(type.title)
         .accessibilityIdentifier("movieListPage.group")
-        .onFirstAppear {
-            viewModel.fetchMovies()
+        .task {
+            await viewModel.load()
         }
     }
 }

@@ -14,10 +14,30 @@ public class TVShowFeedViewModel: ObservableObject {
     private var airingTodayShows: [TVShow] = []
     private var onTheAirShows: [TVShow] = []
     private var currentPage: Int = 1
+    private var loadingFeedTypes: Set<TVShowFeedType> = []
+    private var feedErrors: [TVShowFeedType: String] = [:]
+    private var loadTasks: [TVShowFeedType: Task<Void, Never>] = [:]
+    private var searchTask: Task<Void, Never>?
 
-    // Computed property to check if we have any cached TV shows
+    deinit {
+        loadTasks.values.forEach { $0.cancel() }
+        searchTask?.cancel()
+    }
+
     var hasCachedShows: Bool {
-        return !airingTodayShows.isEmpty || !onTheAirShows.isEmpty
+        !airingTodayShows.isEmpty || !onTheAirShows.isEmpty
+    }
+
+    func shows(for feedType: TVShowFeedType) -> [TVShow] {
+        memoryShows(for: feedType)
+    }
+
+    func isLoading(for feedType: TVShowFeedType) -> Bool {
+        loadingFeedTypes.contains(feedType)
+    }
+
+    func errorMessage(for feedType: TVShowFeedType) -> String? {
+        feedErrors[feedType]
     }
 
     private var cancellables = Set<AnyCancellable>()
@@ -33,23 +53,26 @@ public class TVShowFeedViewModel: ObservableObject {
         self.apiService = apiService
         self.additionalParams = additionalParams
         self.analyticsTracker = analyticsTracker
+
         $searchQuery
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .sink { [weak self] query in
+                guard let self else { return }
                 if !query.isEmpty {
-                    self?.searchTVShows(query: query)
-                } else if let self = self {
-                    self.loadCurrentFeedTVShows()
+                    self.searchTVShows(query: query)
+                } else if case .error = self.state {
+                    // Keep error until cancel/retry.
+                } else {
+                    self.state = .initial
                 }
             }
             .store(in: &cancellables)
 
-        // Watch for filter changes and re-search if there's an active search
         $searchFilters
+            .dropFirst()
             .sink { [weak self] _ in
-                if let self = self, !self.searchQuery.isEmpty {
-                    self.searchTVShows(query: self.searchQuery)
-                }
+                guard let self, !self.searchQuery.isEmpty else { return }
+                self.searchTVShows(query: self.searchQuery)
             }
             .store(in: &cancellables)
     }
@@ -60,99 +83,165 @@ public class TVShowFeedViewModel: ObservableObject {
     }
 
     func fetchAiringTodayTVShows() {
-        currentFeedType = .airingToday
-        fetchTVShowsForCurrentFeedType()
+        loadFeed(.airingToday)
     }
 
     func switchFeedType(_ feedType: TVShowFeedType) {
-        currentFeedType = feedType
-        fetchTVShowsForCurrentFeedType()
+        loadFeed(feedType)
     }
 
-    private func fetchTVShowsForCurrentFeedType() {
+    /// Single entry point for the views: safe to call on every appearance and on every tab switch.
+    /// Already-cached feeds are served from memory and in-flight feeds are not requested twice.
+    /// `refresh(_:)` is the deliberate bypass for pull-to-refresh.
+    func loadFeed(_ feedType: TVShowFeedType) {
+        currentFeedType = feedType
+        currentPage = 1
+        feedErrors[feedType] = nil
+
+        let cached = memoryShows(for: feedType)
+        if !cached.isEmpty {
+            state = .loaded(cached)
+            return
+        }
+
+        loadingFeedTypes.insert(feedType)
         state = .loading
+        objectWillChange.send()
 
-        Task {
-            let result: Result<TVShowListResponse, Error>
+        guard loadTasks[feedType] == nil else { return }
+        loadTasks[feedType] = Task { @MainActor [weak self] in
+            await self?.fetchTVShowsAsync(for: feedType, showLoadingIfEmpty: true)
+            self?.loadTasks[feedType] = nil
+        }
+    }
 
-            switch currentFeedType {
-            case .airingToday:
-                result = await apiService.fetchAiringTodayTVShows(
-                    page: nil,
-                    additionalParams: additionalParams
-                )
-            case .onTheAir:
-                result = await apiService.fetchOnTheAirTVShows(
-                    page: nil,
-                    additionalParams: additionalParams
-                )
+    /// Stops feeds that are still loading; the feed page preloads shows that no view owns.
+    func cancelLoads() {
+        loadTasks.values.forEach { $0.cancel() }
+        loadTasks.removeAll()
+    }
+
+    @MainActor
+    func refresh() async {
+        await fetchTVShowsAsync(for: currentFeedType, showLoadingIfEmpty: false)
+    }
+
+    @MainActor
+    func refresh(_ feedType: TVShowFeedType) async {
+        currentFeedType = feedType
+        await fetchTVShowsAsync(for: feedType, showLoadingIfEmpty: false)
+    }
+
+    @MainActor
+    private func fetchTVShowsAsync(for feedType: TVShowFeedType, showLoadingIfEmpty: Bool) async {
+        let cached = memoryShows(for: feedType)
+        if showLoadingIfEmpty && cached.isEmpty {
+            loadingFeedTypes.insert(feedType)
+            feedErrors[feedType] = nil
+            if currentFeedType == feedType {
+                state = .loading
             }
+            objectWillChange.send()
+        } else if !cached.isEmpty, currentFeedType == feedType, case .initial = state {
+            state = .loaded(cached)
+        }
 
-            await MainActor.run {
-                switch result {
-                case let .success(response):
-                    self.analyticsTracker?.trackPageView(parameters: PageViewParameters(
-                        screenName: currentFeedType.rawValue,
-                        screenClass: "TVShowFeedPage",
-                        contentType: "tvshow_list"
-                    ))
+        let result: Result<TVShowListResponse, Error>
+        switch feedType {
+        case .airingToday:
+            result = await apiService.fetchAiringTodayTVShows(page: nil, additionalParams: additionalParams)
+        case .onTheAir:
+            result = await apiService.fetchOnTheAirTVShows(page: nil, additionalParams: additionalParams)
+        }
 
-                    // Store shows based on feed type
-                    switch currentFeedType {
-                    case .airingToday:
-                        self.airingTodayShows = response.results
-                    case .onTheAir:
-                        self.onTheAirShows = response.results
-                    }
+        loadingFeedTypes.remove(feedType)
 
-                    self.state = .loaded(response.results)
-                case let .failure(error):
-                    self.state = .error(error.localizedDescription)
+        // Cancelled by a tab switch or by the page going away: drop the response and leave the feed
+        // back at `initial` so the next appearance loads it again instead of showing a stuck spinner.
+        guard !Task.isCancelled else {
+            if currentFeedType == feedType, state.shows.isEmpty {
+                state = .initial
+            }
+            objectWillChange.send()
+            return
+        }
+
+        apply(result, for: feedType, cached: cached)
+        objectWillChange.send()
+    }
+
+    @MainActor
+    private func apply(_ result: Result<TVShowListResponse, Error>, for feedType: TVShowFeedType, cached: [TVShow]) {
+        switch result {
+        case let .success(response):
+            analyticsTracker?.trackPageView(parameters: PageViewParameters(
+                screenName: feedType.rawValue,
+                screenClass: "TVShowFeedPage",
+                contentType: "tvshow_list"
+            ))
+            storeShows(response.results, for: feedType)
+            feedErrors[feedType] = nil
+            if currentFeedType == feedType {
+                currentPage = 1
+                state = .loaded(response.results)
+            }
+        case let .failure(error):
+            if !cached.isEmpty {
+                if currentFeedType == feedType {
+                    state = .loaded(cached)
+                }
+            } else {
+                feedErrors[feedType] = error.localizedDescription
+                if currentFeedType == feedType {
+                    state = .error(error.localizedDescription)
                 }
             }
         }
     }
 
     func loadCurrentFeedTVShows() {
-        let shows: [TVShow]
-        switch currentFeedType {
-        case .airingToday:
-            shows = airingTodayShows
-        case .onTheAir:
-            shows = onTheAirShows
-        }
-        state = .loaded(shows)
+        state = .loaded(memoryShows(for: currentFeedType))
     }
 
     func clearSearchAndRetry() {
         searchQuery = ""
         searchFilters = SearchFilters()
-        loadCurrentFeedTVShows()
+        state = .initial
+    }
+
+    func cancelSearch() {
+        clearSearchAndRetry()
     }
 
     func retrySearch() {
         if !searchQuery.isEmpty {
             searchTVShows(query: searchQuery)
         } else {
-            fetchTVShowsForCurrentFeedType()
+            loadFeed(currentFeedType)
         }
     }
 
-    private func searchTVShows(query: String) {
-        if case .loaded(let shows) = state {
-            state = .searchResults(shows)
-        }
+    func searchTVShows(query: String) {
+        state = .loading
 
-        Task {
-            let result = await apiService.searchTVShows(query: query, page: nil, filters: searchFilters.hasActiveFilters ? searchFilters : nil)
-            await MainActor.run {
-                switch result {
-                case let .success(response):
-                    self.state = .searchResults(response.results)
-                case let .failure(error):
-                    self.state = .error(error.localizedDescription)
-                }
+        // Started from a debounced Combine sink, which cannot cancel a Task on its own: fast typing
+        // would otherwise leave several searches racing to write the results.
+        searchTask?.cancel()
+        searchTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            let result = await apiService.searchTVShows(
+                query: query,
+                page: nil,
+                filters: searchFilters.hasActiveFilters ? searchFilters : nil
+            )
+            guard !Task.isCancelled else { return }
+            switch result {
+            case let .success(response):
+                self.state = .searchResults(response.results)
+            case let .failure(error):
+                self.state = .error(error.localizedDescription)
             }
+            self.searchTask = nil
         }
     }
 
@@ -161,8 +250,9 @@ public class TVShowFeedViewModel: ObservableObject {
               currentShowId == state.shows.last?.id,
               searchQuery.isEmpty else { return }
 
+        let feedType = currentFeedType
         Task {
-            self.analyticsTracker?.trackEvent(
+            analyticsTracker?.trackEvent(
                 name: "load_more",
                 parameters: EventParameters(
                     method: "scroll",
@@ -172,37 +262,40 @@ public class TVShowFeedViewModel: ObservableObject {
             )
 
             let result: Result<TVShowListResponse, Error>
-
-            switch currentFeedType {
+            switch feedType {
             case .airingToday:
-                result = await apiService.fetchAiringTodayTVShows(
-                    page: currentPage + 1,
-                    additionalParams: additionalParams
-                )
+                result = await apiService.fetchAiringTodayTVShows(page: currentPage + 1, additionalParams: additionalParams)
             case .onTheAir:
-                result = await apiService.fetchOnTheAirTVShows(
-                    page: currentPage + 1,
-                    additionalParams: additionalParams
-                )
+                result = await apiService.fetchOnTheAirTVShows(page: currentPage + 1, additionalParams: additionalParams)
             }
 
             await MainActor.run {
                 switch result {
                 case let .success(response):
-                    // Append to the appropriate array based on feed type
-                    switch currentFeedType {
-                    case .airingToday:
-                        self.airingTodayShows.append(contentsOf: response.results)
-                        self.state = .loaded(self.airingTodayShows)
-                    case .onTheAir:
-                        self.onTheAirShows.append(contentsOf: response.results)
-                        self.state = .loaded(self.onTheAirShows)
+                    let combined = memoryShows(for: feedType) + response.results
+                    storeShows(combined, for: feedType)
+                    if currentFeedType == feedType {
+                        state = .loaded(combined)
+                        currentPage += 1
                     }
-                    self.currentPage += 1
                 case .failure:
                     break
                 }
             }
+        }
+    }
+
+    private func memoryShows(for feedType: TVShowFeedType) -> [TVShow] {
+        switch feedType {
+        case .airingToday: return airingTodayShows
+        case .onTheAir: return onTheAirShows
+        }
+    }
+
+    private func storeShows(_ shows: [TVShow], for feedType: TVShowFeedType) {
+        switch feedType {
+        case .airingToday: airingTodayShows = shows
+        case .onTheAir: onTheAirShows = shows
         }
     }
 }
@@ -251,5 +344,12 @@ public struct TVShowListResponse: Decodable {
         case page, results
         case totalPages = "total_pages"
         case totalResults = "total_results"
+    }
+
+    init(page: Int, results: [TVShow], totalPages: Int, totalResults: Int) {
+        self.page = page
+        self.results = results
+        self.totalPages = totalPages
+        self.totalResults = totalResults
     }
 }

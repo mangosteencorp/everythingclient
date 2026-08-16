@@ -44,20 +44,18 @@ public class MovieOSTViewModel: ObservableObject {
 
     public init() {}
 
-    func load(for movieTitle: String) {
+    func load(for movieTitle: String) async {
         let trimmedTitle = movieTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }
         guard loadedMovieTitle != trimmedTitle || shouldReloadForCurrentAuthorization else { return }
 
         loadedMovieTitle = trimmedTitle
-        refreshAuthorizationAndSearch(movieTitle: trimmedTitle)
+        await handleAuthorizationStatus(MusicAuthorization.currentStatus, movieTitle: trimmedTitle)
     }
 
-    func requestAuthorization() {
-        Task {
-            let status = await MusicAuthorization.request()
-            await handleAuthorizationStatus(status)
-        }
+    func requestAuthorization() async {
+        let status = await MusicAuthorization.request()
+        await handleAuthorizationStatus(status)
     }
 
     private var shouldReloadForCurrentAuthorization: Bool {
@@ -66,13 +64,6 @@ public class MovieOSTViewModel: ObservableObject {
             return true
         default:
             return false
-        }
-    }
-
-    private func refreshAuthorizationAndSearch(movieTitle: String) {
-        let status = MusicAuthorization.currentStatus
-        Task {
-            await handleAuthorizationStatus(status, movieTitle: movieTitle)
         }
     }
 
@@ -118,6 +109,12 @@ public class MovieOSTViewModel: ObservableObject {
 
             state = albums.isEmpty ? .empty : .success(Array(albums))
         } catch {
+            // Leaving the page cancels the search. Forget the title so re-entering searches again
+            // instead of showing a cancellation as a failure.
+            guard !Task.isCancelled else {
+                loadedMovieTitle = nil
+                return
+            }
             state = .error(error.localizedDescription)
         }
     }

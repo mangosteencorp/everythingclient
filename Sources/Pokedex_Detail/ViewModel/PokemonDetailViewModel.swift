@@ -33,16 +33,21 @@ public class PokemonDetailViewModel {
             .flatMapLatest { [weak self] id -> Observable<PokemonDetail?> in
                 guard let self = self else { return .just(nil) }
                 return Observable.create { observer in
-                    Task {
+                    let task = Task {
                         do {
                             let result = try await self.pokemonService.fetchPokemonDetail(id: id)
+                            guard !Task.isCancelled else { return }
                             observer.onNext(result)
                             observer.onCompleted()
                         } catch {
+                            guard !Task.isCancelled else { return }
                             observer.onError(error)
                         }
                     }
-                    return Disposables.create()
+                    // In Rx, cancellation is disposal. Without this the `flatMapLatest` above
+                    // disposes the previous sequence while its request keeps running, so switching
+                    // pokémon quickly leaves stale fetches in flight.
+                    return Disposables.create { task.cancel() }
                 }
             }
             .do(onNext: { [weak self] _ in
