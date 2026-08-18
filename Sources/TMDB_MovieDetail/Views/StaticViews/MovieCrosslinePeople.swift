@@ -100,7 +100,8 @@ struct PeopleRowItem<Route: Hashable>: View {
     var body: some View {
         if let routeBuilder = personRouteBuilder {
             NavigationLink(value: routeBuilder(people.id)) {
-                content
+                // Same value as the link's, so the person page zooms out of this item.
+                content.zoomTransitionSource(id: routeBuilder(people.id))
             }
         } else {
             content

@@ -8,6 +8,7 @@ import TMDB_Feed
 import TMDB_MovieDetail
 import TMDB_Person
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 import TMDB_TVShowDetail
 @available(iOS 16.0, *)
 public struct TMDBNavigationDestinations: ViewModifier {
@@ -54,6 +55,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
                     TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
                 }
             )
+            .zoomTransitionDestination(id: TMDBRoute.personDetail(personId))
         case let .photoSlides(model):
             PhotoSlidesPage(imagePaths: model.imagePaths, initialIndex: model.initialIndex)
         case .pokedex:

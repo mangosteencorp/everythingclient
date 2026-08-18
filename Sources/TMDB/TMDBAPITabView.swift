@@ -181,6 +181,9 @@ public struct TMDBAPITabView: View {
                 pageTabView
             }
         }
+        // Above every NavigationStack below: pushed pages inherit their stack's environment, so a
+        // namespace published inside a stack never reaches them.
+        .zoomTransitionNamespaceRoot()
     }
 
     // MARK: - Builders
