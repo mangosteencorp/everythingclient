@@ -10,15 +10,18 @@ struct MovieCoverRow: View {
             ZStack {
                 RemoteTMDBImage(
                     posterPath: movie.backdropPath,
-                    posterSize: PosterSize(width: geometry.size.width, height: 250),
-                    imageSize: .backdropSmall
+                    imageSize: .backdropSmall,
+                    contentMode: .fill
                 )
+                .frame(width: geometry.size.width, height: 250)
+                .clipped()
                 .blur(radius: 3)
                 .overlay(Color.black.opacity(0.6))
 
                 VStack(alignment: .leading) {
                     HStack(spacing: 16) {
-                        RemoteTMDBImage(posterPath: movie.posterPath, posterSize: .medium, imageSize: .posterLarge)
+                        RemoteTMDBImage(posterPath: movie.posterPath, imageSize: .posterLarge)
+                            .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
                             .padding(.leading, 16)
                             .adaptiveContainerCornerOffset(.horizontal, sizeToFit: true)
                         VStack(alignment: .leading, spacing: 16) {

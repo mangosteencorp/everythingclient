@@ -76,7 +76,8 @@ struct PeopleListItem<Route: Hashable>: View {
 
     private var content: some View {
         HStack {
-            RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
+            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium)
+                .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(people.name)
@@ -110,7 +111,8 @@ struct PeopleRowItem<Route: Hashable>: View {
 
     private var content: some View {
         VStack(alignment: .center) {
-            RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
+            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium)
+                .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
             Text(people.name)
                 .font(.footnote)
                 .foregroundColor(.primary)

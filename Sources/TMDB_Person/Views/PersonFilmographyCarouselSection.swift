@@ -36,9 +36,9 @@ struct PersonFilmographyCarouselSection<Route: Hashable>: View {
                         NavigationLink(value: movieRouteBuilder(credit.id)) {
                             RemoteTMDBImage(
                                 posterPath: credit.posterPath,
-                                posterSize: PosterSize(width: posterWidth, height: posterHeight),
                                 imageSize: .posterLarge
                             )
+                            .frame(width: posterWidth, height: posterHeight)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .buttonStyle(.plain)

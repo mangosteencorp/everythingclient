@@ -10,7 +10,6 @@ struct PersonMovieCreditRow: View {
         HStack(spacing: 12) {
             RemoteTMDBImage(
                 posterPath: credit.posterPath,
-                posterSize: PosterSize(width: 54, height: 82),
                 imageSize: .posterSmall
             )
             .frame(width: 54, height: 82)

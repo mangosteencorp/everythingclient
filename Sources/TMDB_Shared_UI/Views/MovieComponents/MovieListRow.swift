@@ -48,12 +48,11 @@ public struct MovieRow: View {
             ZStack(alignment: .topLeading) {
                 RemoteTMDBImage(
                     posterPath: movie.posterPath ?? "",
-                    posterSize: .medium,
                     imageSize: .posterLarge
                 )
+                .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
                 .redacted(if: movie.posterPath == nil)
             }
-            .fixedSize()
             VStack(alignment: .leading, spacing: 8) {
                 Text(movie.title)
                     .titleStyle()
