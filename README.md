@@ -278,27 +278,6 @@ The TMDB section uses a Coordinator pattern with NavigationStack for routing bet
 
 **Navigation Parameters**
 
-1. **`TMDBRoute.movieDetail(MovieRouteModel)`**
-   - Required: movie ID
-   - Optional: title, overview, poster path, backdrop path, vote average, etc.
-
-2. **`TMDBRoute.tvShowDetail(Int)`**
-   - Required: TV show ID
-
-3. **`TMDBRoute.movieList(AdditionalMovieListParams)`**
-   - Supports: keyword filtering, genre filtering, cast filtering
-   - Example: `.movieList(.keyword(123))`
-
-4. **`TMDBRoute.tvShowList(TVShowFeedType)`**
-   - Supports: `.onTheAir`, `.discoverWithGenre`, `.discoverWithTVGenre`, `.discoverWithCast`
-
-5. **`TMDBRoute.personDetail(Int)`**
-   - Required: person ID
-   - Loads biography + movie credits (`TMDB_Person`)
-
-6. **`TMDBRoute.photoSlides(PhotoSlidesRouteModel)`**
-   - Required: image paths + initial index
-   - Full-screen pager (`PhotoListViewer`)
 
 **Missing Navigation Routes**
 - 🔴 Person/Cast Detail from TV show detail (movie detail and Discover already route to `TMDBRoute.personDetail`)
@@ -317,57 +296,32 @@ Swinject are used for dependency injection.
 
 #### Module Architecture Overview
 
-Quick reference for each Swift package module — UI stack, reactive layer, architecture pattern, and test coverage.
+UI framework → architecture → reactive layer:
 
-**Patterns at a glance**
+- 🍏 **SwiftUI:**
+    - 🧩 **MVVM:**
+        - 🔗 **Combine:**
+            - **TMDB_Feed**
+            - **TMDB_MovieDetail**
+    - 🗄️ **Data Store** (👁️ `@Observable`):
+        - **TMDB_TVShowDetail**
+        - **TMDB_Person**
+    - 🧭 **Coordinator:** with 🔗 **Combine:**: **TMDB**, **everythingclient**
+- 🍏 **SwiftUI** + 📱 **UIKit:**
+    - 🏛️ **Clean Architecture:**
+        - **TMDB_Discover**
+- 📱 **UIKit:**
+    - ⚡ **VIPER:**
+        - **Pokedex & Pokedex_Pokelist**
+    - 🧩 **MVVM:**
+        - 🌀 **RxSwift:**
+            - **Pokedex_Detail**
+    - 🏛️ **Clean Architecture:**
+        - 🌀 **RxSwift:**
+            - **TMDB_Profile**
 
-| Pattern | Modules |
-|---------|---------|
-| MVVM | `TMDB_Feed`, `TMDB_MovieDetail`, `Pokedex_Detail` |
-| Clean Architecture | `TMDB_Discover`, `TMDB_Profile` |
-| VIPER | `Pokedex_Pokelist` |
-| Coordinator / Router | `TMDB`, `Pokedex` |
-| Data Store (inline `@Observable`/`Store`) | `TMDB_TVShowDetail`, `TMDB_Person` |
-| Shared / no UI pattern | `TMDB_Shared_Backend`, `Pokedex_Shared_Backend`, `CoreFeatures`, `Shared_UI_Support` |
+Shared and supporting packages: **PhotoListViewer**, **TMDB_Shared_UI**, **CoreFeatures**, **Shared_UI_Support**, **TMDB_Shared_Backend**, **Pokedex_Shared_Backend**, **third_party**, **Integration_test**.
 
-**App shell**
-
-- **everythingclient**: SwiftUI + Combine — app shell — tests: 🔴 (placeholder only)
-- **TMDB**: SwiftUI + Combine — Coordinator — tests: 🔴
-- **Integration_test**: SwiftUI — demo launcher (not a production feature) — tests: n/a
-
-**TMDB feature modules**
-
-- **TMDB_Feed**: SwiftUI + Combine + async/await — MVVM — tests: ✅
-- **TMDB_Discover**: SwiftUI + UIKit (mixed) + async/await — Clean Architecture — tests: ✅
-- **TMDB_MovieDetail**: SwiftUI + Combine + async/await — MVVM — tests: 🚧 (OST query-builder tests only)
-- **TMDB_TVShowDetail**: SwiftUI + async/await — Data Store — tests: 🔴
-- **TMDB_Person**: SwiftUI + async/await — Data Store — person biography, facts, filmography (list or CoverFlow) — tests: 🔴
-- **TMDB_Profile**: UIKit + RxSwift (+ Combine for auth) — Clean Architecture — tests: 🔴
-- **PhotoListViewer**: SwiftUI — photo carousel + full-screen slides, used from movie detail — tests: 🔴
-
-**Pokedex feature modules**
-
-- **Pokedex**: SwiftUI + UIKit bridge — Coordinator / Router — tests: 🔴
-- **Pokedex_Pokelist**: UIKit + async/await — VIPER — tests: 🔴
-- **Pokedex_Detail**: UIKit + RxSwift/RxCocoa — MVVM — tests: 🔴
-
-**Shared / infrastructure modules**
-
-- **TMDB_Shared_Backend**: no UI — Combine + async/await, light Clean (repository layer) — tests: ✅
-- **TMDB_Shared_UI**: SwiftUI + Combine — shared UI components — tests: 🔴
-- **Pokedex_Shared_Backend**: no UI — async/await + Apollo GraphQL — tests: 🔴
-- **CoreFeatures**: SwiftUI + UIKit — theming & analytics abstractions — tests: 🔴
-- **Shared_UI_Support**: SwiftUI + UIKit — cross-feature UI helpers, including CoverFlow — tests: 🔴
-- **third_party**: SwiftUI — wrappers for third-party clients (Swiftfin/Jellyfin) — tests: 🔴
-
-**Gaps to fill** (patterns or coverage not yet represented):
-
-- 🔴 VIPER with RxSwift (Pokedex list uses async/await instead)
-- 🔴 UIKit + Combine feature module (Profile uses RxSwift; Discover home is UIKit but driven by Clean Architecture)
-- 🔴 Clean Architecture + SwiftUI-only (Discover mixes UIKit; Profile is UIKit)
-- 🔴 Tests for most feature modules except `TMDB_Feed`, `TMDB_Discover`, and `TMDB_Shared_Backend`
-- 🔴 Person detail navigation from TV show screens (movie detail and Discover already route; see [Navigation Matrix](#tmdb-navigation-matrix))
 
 #### Module Architecture Layers
 
