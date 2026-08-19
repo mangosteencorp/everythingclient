@@ -24,7 +24,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
     }
 
     @ViewBuilder
-    fileprivate func destinationView(_ route: TMDBRoute) -> some View {
+    func destinationView(_ route: TMDBRoute) -> some View {
         switch route {
         case let .movieDetail(movie):
             MovieDetailPage(
@@ -89,6 +89,23 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 self.navigationInterceptor?.willNavigate(to: route)
                 return destinationView(route)
             }
+    }
+}
+
+/// Renders a route as a standalone page — used by the column-based shells, which show a route
+/// as the *root* of another column instead of pushing it onto a stack.
+@available(iOS 16.0, *)
+public struct TMDBRouteView: View {
+    let route: TMDBRoute
+    let container: Container
+
+    public init(route: TMDBRoute, container: Container) {
+        self.route = route
+        self.container = container
+    }
+
+    public var body: some View {
+        TMDBNavigationDestinations(container: container).destinationView(route)
     }
 }
 

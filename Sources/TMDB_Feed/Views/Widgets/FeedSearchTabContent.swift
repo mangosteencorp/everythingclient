@@ -9,7 +9,6 @@ struct FeedSearchTabContent<Route: Hashable>: View {
     @ObservedObject var tvShowViewModel: TVShowFeedViewModel
     let detailRouteBuilder: (Movie) -> Route
     let tvShowDetailRouteBuilder: (TVShow) -> Route
-    @Binding var useFancyDesign: Bool
     @State private var searchContentType: ContentFeedType = .movies
 
     private var activeSearchQuery: Binding<String> {
@@ -80,14 +79,12 @@ struct FeedSearchTabContent<Route: Hashable>: View {
         case .movies:
             MovieSearchResultsContent(
                 viewModel: movieViewModel,
-                detailRouteBuilder: detailRouteBuilder,
-                useFancyDesign: $useFancyDesign
+                detailRouteBuilder: detailRouteBuilder
             )
         case .tvShows:
             TVShowSearchResultsContent(
                 viewModel: tvShowViewModel,
-                detailRouteBuilder: tvShowDetailRouteBuilder,
-                useFancyDesign: $useFancyDesign
+                detailRouteBuilder: tvShowDetailRouteBuilder
             )
         }
     }
@@ -148,47 +145,45 @@ private struct FeedSearchBar: View {
 private struct MovieSearchResultsContent<Route: Hashable>: View {
     @ObservedObject var viewModel: MovieFeedViewModel
     let detailRouteBuilder: (Movie) -> Route
-    @Binding var useFancyDesign: Bool
 
     var body: some View {
-        Group {
-            switch viewModel.state {
-            case .initial:
-                ContentUnavailablePlaceholder(systemImage: "magnifyingglass", title: L10n.feedSearch)
-            case .loading:
-                ProgressView(L10n.playingLoading)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            case .error(let message):
-                FeedErrorContentView(
-                    message: message,
-                    allowsCancelSearch: true,
-                    retryAction: { viewModel.retrySearch() },
-                    cancelAction: { viewModel.cancelSearch() }
-                )
-            case .loaded(let movies), .searchResults(let movies):
-                if movies.isEmpty {
-                    CommonNoResultView(
-                        configuration: NoResultViewConfiguration(
-                            primaryButtonAction: { [weak viewModel] in
-                                viewModel?.retrySearch()
-                            },
-                            secondaryButtonAction: { [weak viewModel] in
-                                viewModel?.cancelSearch()
-                            }
-                        ),
-                        useFancyDesign: $useFancyDesign
-                    )
-                } else {
-                    List(movies) { movie in
-                        NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
-                    }
-                    .accessibilityIdentifier("movies_search_results")
+        FeedStateView(
+            phase: phase,
+            allowsCancel: true,
+            retryAction: { viewModel.retrySearch() },
+            cancelAction: { viewModel.cancelSearch() }
+        ) {
+            FeedItemsView(
+                items: results.map { $0.feedItem(route: detailRouteBuilder($0)) },
+                accessibilityIdentifier: "movies_search_results",
+                onItemAppear: { item in
+                    viewModel.fetchMoreContentIfNeeded(currentMovieId: item.id)
                 }
-            }
+            )
         }
         .refreshable {
             guard !viewModel.searchQuery.isEmpty else { return }
             viewModel.retrySearch()
+        }
+    }
+
+    private var results: [Movie] {
+        switch viewModel.state {
+        case let .loaded(movies), let .searchResults(movies): return movies
+        case .initial, .loading, .error: return []
+        }
+    }
+
+    private var phase: FeedLoadPhase {
+        switch viewModel.state {
+        case .initial:
+            return .placeholder(systemImage: "magnifyingglass", title: L10n.feedSearch)
+        case .loading:
+            return .loading
+        case let .error(message):
+            return .error(message: message)
+        case .loaded, .searchResults:
+            return results.isEmpty ? .empty : .loaded
         }
     }
 }
@@ -197,66 +192,46 @@ private struct MovieSearchResultsContent<Route: Hashable>: View {
 private struct TVShowSearchResultsContent<Route: Hashable>: View {
     @ObservedObject var viewModel: TVShowFeedViewModel
     let detailRouteBuilder: (TVShow) -> Route
-    @Binding var useFancyDesign: Bool
 
     var body: some View {
-        Group {
-            switch viewModel.state {
-            case .initial:
-                ContentUnavailablePlaceholder(systemImage: "magnifyingglass", title: L10n.feedSearch)
-            case .loading:
-                ProgressView(L10n.playingLoading)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            case .error(let message):
-                FeedErrorContentView(
-                    message: message,
-                    allowsCancelSearch: true,
-                    retryAction: { viewModel.retrySearch() },
-                    cancelAction: { viewModel.cancelSearch() }
-                )
-            case .loaded(let shows), .searchResults(let shows):
-                if shows.isEmpty {
-                    CommonNoResultView(
-                        configuration: NoResultViewConfiguration(
-                            primaryButtonAction: { [weak viewModel] in
-                                viewModel?.retrySearch()
-                            },
-                            secondaryButtonAction: { [weak viewModel] in
-                                viewModel?.cancelSearch()
-                            }
-                        ),
-                        useFancyDesign: $useFancyDesign
-                    )
-                } else {
-                    List(shows) { show in
-                        NavigationTVShowRow(viewModel: viewModel, show: show, routeBuilder: detailRouteBuilder)
-                    }
-                    .accessibilityIdentifier("tvshows_search_results")
+        FeedStateView(
+            phase: phase,
+            allowsCancel: true,
+            retryAction: { viewModel.retrySearch() },
+            cancelAction: { viewModel.cancelSearch() }
+        ) {
+            FeedItemsView(
+                items: results.map { $0.feedItem(route: detailRouteBuilder($0)) },
+                accessibilityIdentifier: "tvshows_search_results",
+                onItemAppear: { item in
+                    viewModel.fetchMoreContentIfNeeded(currentShowId: item.id)
                 }
-            }
+            )
         }
         .refreshable {
             guard !viewModel.searchQuery.isEmpty else { return }
             viewModel.retrySearch()
         }
     }
-}
 
-private struct ContentUnavailablePlaceholder: View {
-    let systemImage: String
-    let title: String
-
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
-            Text(title)
-                .font(.title3)
-                .foregroundStyle(.secondary)
+    private var results: [TVShow] {
+        switch viewModel.state {
+        case let .loaded(shows), let .searchResults(shows): return shows
+        case .initial, .loading, .error: return []
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityIdentifier("feed_search_placeholder")
+    }
+
+    private var phase: FeedLoadPhase {
+        switch viewModel.state {
+        case .initial:
+            return .placeholder(systemImage: "magnifyingglass", title: L10n.feedSearch)
+        case .loading:
+            return .loading
+        case let .error(message):
+            return .error(message: message)
+        case .loaded, .searchResults:
+            return results.isEmpty ? .empty : .loaded
+        }
     }
 }
 

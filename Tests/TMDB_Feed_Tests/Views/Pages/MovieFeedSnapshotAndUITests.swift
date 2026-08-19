@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 @testable import TMDB_Feed
 import ViewInspector
@@ -38,6 +39,7 @@ final class MovieFeedSnapshotTests: XCTestCase {
     }
 
     func testLoadedMovieTabSnapshot() throws {
+        DesignCoordinator.shared.select(FeedContentDesign.list)
         let service = MockAPIService()
         service.mockNowPlayingResult = .success(MovieListResponse(
             dates: nil, page: 1, results: [sampleApeMovie], totalPages: 1, totalResults: 1
@@ -54,12 +56,11 @@ final class MovieFeedSnapshotTests: XCTestCase {
         let view = MovieFeedTabContent(
             viewModel: vm,
             feedType: .nowPlaying,
-            detailRouteBuilder: { _ in 1 },
-            useFancyDesign: .constant(false)
+            detailRouteBuilder: { _ in 1 }
         )
 
         let list = try view.inspect().find(ViewType.List.self)
-        XCTAssertNoThrow(try list.find(NavigationMovieRow<Int>.self))
+        XCTAssertNoThrow(try list.find(FeedItemRow<Int>.self))
         XCTAssertEqual(vm.movies(for: .nowPlaying).count, 1)
     }
 
@@ -68,8 +69,7 @@ final class MovieFeedSnapshotTests: XCTestCase {
             movieViewModel: MovieFeedViewModel(apiService: MockAPIService()),
             tvShowViewModel: TVShowFeedViewModel(apiService: MockAPIService()),
             detailRouteBuilder: { _ in 1 },
-            tvShowDetailRouteBuilder: { _ in 1 },
-            useFancyDesign: .constant(true)
+            tvShowDetailRouteBuilder: { _ in 1 }
         )
 
         let pickers = try view.inspect().findAll(ViewType.Picker.self)

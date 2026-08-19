@@ -7,42 +7,23 @@ struct MovieFeedTabContent<Route: Hashable>: View {
     @ObservedObject var viewModel: MovieFeedViewModel
     let feedType: MovieFeedType
     let detailRouteBuilder: (Movie) -> Route
-    @Binding var useFancyDesign: Bool
 
     var body: some View {
         let movies = viewModel.movies(for: feedType)
-        Group {
-            if viewModel.isLoading(for: feedType), movies.isEmpty {
-                ProgressView(L10n.playingLoading)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let message = viewModel.errorMessage(for: feedType), movies.isEmpty {
-                FeedErrorContentView(
-                    message: message,
-                    allowsCancelSearch: false,
-                    retryAction: { viewModel.loadFeed(feedType) },
-                    cancelAction: nil
-                )
-            } else if movies.isEmpty {
-                CommonNoResultView(
-                    configuration: NoResultViewConfiguration(
-                        primaryButtonAction: { [weak viewModel] in
-                            viewModel?.loadFeed(feedType)
-                        }
-                    ),
-                    useFancyDesign: $useFancyDesign
-                )
-            } else {
-                List(movies) { movie in
-                    NavigationMovieRow(viewModel, movie: movie, routeBuilder: detailRouteBuilder)
+        let isLoading = viewModel.isLoading(for: feedType)
+
+        FeedStateView(
+            phase: phase(movies: movies, isLoading: isLoading),
+            isRefreshing: isLoading,
+            retryAction: { viewModel.loadFeed(feedType) }
+        ) {
+            FeedItemsView(
+                items: movies.map { $0.feedItem(route: detailRouteBuilder($0)) },
+                accessibilityIdentifier: "movies_list_items",
+                onItemAppear: { item in
+                    viewModel.fetchMoreContentIfNeeded(currentMovieId: item.id)
                 }
-                .overlay {
-                    if viewModel.isLoading(for: feedType) {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.black.opacity(0.05))
-                    }
-                }
-            }
+            )
         }
         .accessibilityIdentifier("movies_list_content")
         .refreshable {
@@ -51,5 +32,26 @@ struct MovieFeedTabContent<Route: Hashable>: View {
         .onAppear {
             viewModel.loadFeed(feedType)
         }
+    }
+
+    private func phase(movies: [Movie], isLoading: Bool) -> FeedLoadPhase {
+        if isLoading, movies.isEmpty {
+            return .loading
+        }
+        if let message = viewModel.errorMessage(for: feedType), movies.isEmpty {
+            return .error(message: message)
+        }
+        return movies.isEmpty ? .empty : .loaded
+    }
+}
+
+extension Movie {
+    func feedItem<Route: Hashable>(route: Route) -> FeedItem<Route> {
+        FeedItem(
+            id: id,
+            entity: toMovieRowEntity(),
+            route: route,
+            accessibilityIdentifier: "movielist1.movierow\(id)"
+        )
     }
 }
