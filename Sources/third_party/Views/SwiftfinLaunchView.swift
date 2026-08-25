@@ -1,4 +1,6 @@
+#if canImport(SwiftfinLib)
 import SwiftfinLib
+#endif
 import SwiftUI
 import UIKit
 
@@ -12,7 +14,11 @@ public struct SwiftfinLaunchView: View {
 
     public var body: some View {
         ZStack(alignment: .topLeading) {
+            #if canImport(SwiftfinLib)
             SwiftfinView()
+            #else
+            unavailablePlaceholder
+            #endif
 
             Button {
                 dismiss()
@@ -33,6 +39,22 @@ public struct SwiftfinLaunchView: View {
         }
     }
 
+    #if !canImport(SwiftfinLib)
+    // SwiftfinLib is dropped from the package graph on Swift 6.4+ toolchains
+    // (see Package.swift); keep the screen navigable until that port lands.
+    private var unavailablePlaceholder: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "play.tv")
+                .font(.system(size: 44, weight: .light))
+            Text("Swiftfin is unavailable in this build.")
+                .font(.headline)
+        }
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+    }
+    #endif
+
     private func resetInterfaceStyle() {
         UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
@@ -47,7 +69,9 @@ private enum SwiftfinLaunchConfiguration {
 
     static func configureIfNeeded() {
         guard !isConfigured else { return }
+        #if canImport(SwiftfinLib)
         SwiftfinLibrary.configure()
+        #endif
         isConfigured = true
     }
 }
