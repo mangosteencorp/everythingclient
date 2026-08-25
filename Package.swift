@@ -1,7 +1,35 @@
 // swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 // MLS=Movie List, MDT=Movie details,
+import Foundation
 import PackageDescription
+
+// MARK: - Optional private module (SampleKit)
+//
+// SampleKit is a private git submodule (git@github.com:quangDecember/SampleKit.git).
+// A clone made without submodule access still creates an EMPTY `SampleKit/` directory,
+// so probe for the nested manifest rather than the directory itself.
+//
+// Anchor on #filePath: the manifest's working directory is not guaranteed to be the
+// package root. Gating here (not on a `url:` dependency) keeps SampleKit out of
+// Package.resolved entirely, so contributors without access get a graph that simply
+// omits it instead of a resolution failure.
+//
+// NOTE: SwiftPM caches compiled manifests. After initialising or removing the
+// submodule, run `swift package reset` (Xcode: File > Packages > Reset Package Caches)
+// or the previous graph may be reused.
+let hasSampleKit = FileManager.default.fileExists(
+    atPath: URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()
+        .appendingPathComponent("SampleKit/Package.swift")
+        .path
+)
+
+let sampleKitPackageDependency: [Package.Dependency] =
+    hasSampleKit ? [.package(path: "SampleKit")] : []
+
+let sampleKitTargetDependency: [Target.Dependency] =
+    hasSampleKit ? [.product(name: "SampleKit", package: "SampleKit")] : []
 
 let package = Package(
     name: "everythingclient",
@@ -78,7 +106,7 @@ let package = Package(
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
         .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm"),
-    ],
+    ] + sampleKitPackageDependency,
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
@@ -111,7 +139,7 @@ let package = Package(
                 "third_party",
                 "Pokedex",
                 "Swinject",
-            ]
+            ] + sampleKitTargetDependency
         ),
         .target(
             name: "TMDB_Shared_Backend",
