@@ -1,5 +1,5 @@
 # File options
---exclude Pods,**/[Gg]enerated/**,Rebuild/Package.swift,Rebuild/**
+--exclude Pods,**/[Gg]enerated/**,Rebuild/Package.swift,Rebuild/**,SampleKit/**
 
 # Formatting options
 --ifdef outdent
