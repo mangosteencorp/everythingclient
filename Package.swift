@@ -375,6 +375,11 @@ let package = Package(
     ]
 )
 for target in package.targets {
+  target.swiftSettings = target.swiftSettings ?? []
+  target.swiftSettings?.append(
+    .enableExperimentalFeature("StrictConcurrency")
+  )
+
   target.linkerSettings = target.linkerSettings ?? []
   target.linkerSettings?.append(
     .unsafeFlags([

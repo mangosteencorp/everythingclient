@@ -5,6 +5,7 @@ import SwiftUI
 /// Every level of the UI reads the same object, so one mutation redraws the app shell, the
 /// inner feed tabs and the feed content inside a single SwiftUI transaction — which is what
 /// makes `shuffleAll()` change everything at once instead of level by level.
+@MainActor
 public final class DesignCoordinator: ObservableObject {
     /// A registered slot, flattened at registration time so the shuffle and the picker can
     /// work without knowing the concrete `DesignVariant` type.
