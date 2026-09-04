@@ -1,5 +1,5 @@
 {
-  "originHash" : "2f9524afaf2b082a9b80ae879ab8ff07cee60ebeb1218a458b428331d70b8973",
+  "originHash" : "4ce2ff327ce72f43b09c4a8f4d546cec3569d9992da195231d412ae3951e5b2a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -70,7 +70,7 @@
       "location" : "https://github.com/quangDecember/CoreStore.git",
       "state" : {
         "branch" : "xcode27",
-        "revision" : "0e548a8a7fbbb0a66c957d510593017ef5e1aff9"
+        "revision" : "003b6faa6f80e057aec036eb19674396e8340fcf"
       }
     },
     {
@@ -475,7 +475,7 @@
       "location" : "https://github.com/quangDecember/Swiftfin",
       "state" : {
         "branch" : "swiftpm",
-        "revision" : "31ff99fe1c72931524e284e6f5d7e1f8b07e10fc"
+        "revision" : "fb7aab89d49872b6511942c2e391bda7be912c9a"
       }
     },
     {

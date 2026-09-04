@@ -1,7 +1,7 @@
 import Foundation
 import Swinject
 // swiftlint:disable:next type_name
-public class TMDB_Shared_Backend {
+public final class TMDB_Shared_Backend: Sendable {
     static var container: Container?
 
     /// - Parameters:
@@ -46,17 +46,24 @@ public class TMDB_Shared_Backend {
             WebAuthenticationService()
         }.inObjectScope(.container)
 
+        // `AuthenticationViewModel` is @MainActor isolated while Swinject factories are
+        // nonisolated, so assume main actor isolation here. Every resolution site is UI
+        // code (SwiftUI views and view model assemblies) running on the main actor.
         container.register(AuthenticationViewModel.self) { r in
-            AuthenticationViewModel(
-                authService: r.resolve(AuthenticationServiceProtocol.self)!,
-                webAuthService: r.resolve(WebAuthenticationService.self)!
-            )
+            MainActor.assumeIsolated {
+                AuthenticationViewModel(
+                    authService: r.resolve(AuthenticationServiceProtocol.self)!,
+                    webAuthService: r.resolve(WebAuthenticationService.self)!
+                )
+            }
         }.inObjectScope(.container)
         container.register((any AuthenticationViewModelProtocol).self) { r in
-            AuthenticationViewModel(
-                authService: r.resolve(AuthenticationServiceProtocol.self)!,
-                webAuthService: r.resolve(WebAuthenticationService.self)!
-            )
+            MainActor.assumeIsolated {
+                AuthenticationViewModel(
+                    authService: r.resolve(AuthenticationServiceProtocol.self)!,
+                    webAuthService: r.resolve(WebAuthenticationService.self)!
+                )
+            }
         }.inObjectScope(.container)
         // swiftlint:enable identifier_name
     }

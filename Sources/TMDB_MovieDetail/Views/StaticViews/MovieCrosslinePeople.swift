@@ -76,7 +76,8 @@ struct PeopleListItem<Route: Hashable>: View {
 
     private var content: some View {
         HStack {
-            RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
+            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium)
+                .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(people.name)
@@ -100,7 +101,8 @@ struct PeopleRowItem<Route: Hashable>: View {
     var body: some View {
         if let routeBuilder = personRouteBuilder {
             NavigationLink(value: routeBuilder(people.id)) {
-                content
+                // Same value as the link's, so the person page zooms out of this item.
+                content.zoomTransitionSource(id: routeBuilder(people.id))
             }
         } else {
             content
@@ -109,7 +111,8 @@ struct PeopleRowItem<Route: Hashable>: View {
 
     private var content: some View {
         VStack(alignment: .center) {
-            RemoteTMDBImage(posterPath: people.profilePath, posterSize: .medium, imageSize: .profileMedium)
+            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium)
+                .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
             Text(people.name)
                 .font(.footnote)
                 .foregroundColor(.primary)

@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 @testable import TMDB_Feed
 import ViewInspector
@@ -11,6 +12,9 @@ final class MovieFeedListPageTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        // These assertions inspect a `List`, so pin the feed layout instead of inheriting
+        // whatever the last shuffle persisted.
+        DesignCoordinator.shared.select(FeedContentDesign.list)
         mockViewModel = MovieFeedViewModel(apiService: MockAPIService())
         mockTVShowViewModel = TVShowFeedViewModel(apiService: MockAPIService())
         page = MovieFeedListPage(
@@ -38,8 +42,7 @@ final class MovieFeedListPageTests: XCTestCase {
         MovieFeedTabContent(
             viewModel: viewModel,
             feedType: .nowPlaying,
-            detailRouteBuilder: { _ in 1 },
-            useFancyDesign: .constant(true)
+            detailRouteBuilder: { _ in 1 }
         )
     }
 
@@ -67,7 +70,7 @@ final class MovieFeedListPageTests: XCTestCase {
 
         let list = try movieTabContent(vm).inspect().find(ViewType.List.self)
         XCTAssertNotNil(list)
-        let movieRow = try list.find(NavigationMovieRow<Int>.self)
+        let movieRow = try list.find(FeedItemRow<Int>.self)
         XCTAssertNotNil(movieRow)
     }
 
@@ -91,8 +94,7 @@ final class MovieFeedListPageTests: XCTestCase {
             movieViewModel: mockViewModel,
             tvShowViewModel: mockTVShowViewModel,
             detailRouteBuilder: { _ in 1 },
-            tvShowDetailRouteBuilder: { _ in 1 },
-            useFancyDesign: .constant(true)
+            tvShowDetailRouteBuilder: { _ in 1 }
         )
 
         XCTAssertNoThrow(try searchPage.inspect().find(ViewType.Picker.self))

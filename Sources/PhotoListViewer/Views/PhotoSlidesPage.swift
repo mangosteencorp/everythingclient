@@ -21,7 +21,6 @@ public struct PhotoSlidesPage: View {
                     ForEach(Array(imagePaths.enumerated()), id: \.offset) { index, path in
                         RemoteTMDBImage(
                             posterPath: path,
-                            posterSize: PosterSize(width: geometry.size.width, height: geometry.size.height),
                             imageSize: .original,
                             contentMode: .fit
                         )

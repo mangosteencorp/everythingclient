@@ -10,6 +10,7 @@ excluded:
   - "**/helpers/**"
   - Sources/**/helpers/**
   - Tests/**/helpers/**
+  - SampleKit/**
 
 analyzer_rules:
   - unused_declaration

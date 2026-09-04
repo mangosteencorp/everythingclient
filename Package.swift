@@ -1,7 +1,61 @@
 // swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 // MLS=Movie List, MDT=Movie details,
+import Foundation
 import PackageDescription
+
+// MARK: - Optional private module (SampleKit)
+
+//
+// SampleKit is a private git submodule (git@github.com:quangDecember/SampleKit.git).
+// A clone made without submodule access still creates an EMPTY `SampleKit/` directory,
+// so probe for the nested manifest rather than the directory itself.
+//
+// Anchor on #filePath: the manifest's working directory is not guaranteed to be the
+// package root. Gating here (not on a `url:` dependency) keeps SampleKit out of
+// Package.resolved entirely, so contributors without access get a graph that simply
+// omits it instead of a resolution failure.
+//
+// NOTE: SwiftPM caches compiled manifests. After initialising or removing the
+// submodule, run `swift package reset` (Xcode: File > Packages > Reset Package Caches)
+// or the previous graph may be reused.
+let hasSampleKit = FileManager.default.fileExists(
+    atPath: URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()
+        .appendingPathComponent("SampleKit/Package.swift")
+        .path
+)
+
+let sampleKitPackageDependency: [Package.Dependency] =
+    hasSampleKit ? [.package(path: "SampleKit")] : []
+
+let sampleKitTargetDependency: [Target.Dependency] =
+    hasSampleKit ? [.product(name: "SampleKit", package: "SampleKit")] : []
+
+// MARK: - Optional dependency (Swiftfin)
+
+//
+// The `swiftpm` branch of Swiftfin does not build with the Swift 6.4 toolchain
+// (Xcode 27); that port lives on a separate branch. Until it lands, drop the
+// dependency entirely on newer compilers so the rest of the package still builds.
+//
+// This must be `compiler(...)`, not `swift(...)`: the tools version above makes
+// SwiftPM compile this manifest in Swift 5 language mode, so `#if swift(>=6.4)`
+// would always be false regardless of the toolchain. `compiler(...)` reflects the
+// actual toolchain version.
+//
+// Call sites guard their usage with `#if canImport(SwiftfinLib)`.
+#if compiler(>=6.4)
+let hasSwiftfin = false
+#else
+let hasSwiftfin = true
+#endif
+
+let swiftfinPackageDependency: [Package.Dependency] =
+    hasSwiftfin ? [.package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm")] : []
+
+let swiftfinTargetDependency: [Target.Dependency] =
+    hasSwiftfin ? [.product(name: "SwiftfinLib", package: "Swiftfin")] : []
 
 let package = Package(
     name: "everythingclient",
@@ -77,8 +131,7 @@ let package = Package(
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
         .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.0.1")),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "10.4.0")),
-        .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm"),
-    ],
+    ] + sampleKitPackageDependency + swiftfinPackageDependency,
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
@@ -111,7 +164,7 @@ let package = Package(
                 "third_party",
                 "Pokedex",
                 "Swinject",
-            ]
+            ] + sampleKitTargetDependency
         ),
         .target(
             name: "TMDB_Shared_Backend",
@@ -290,9 +343,7 @@ let package = Package(
 
         .target(
             name: "third_party",
-            dependencies: [
-                .product(name: "SwiftfinLib", package: "Swiftfin"),
-            ]
+            dependencies: swiftfinTargetDependency
         ),
 
         // MARK: Integration Tests
@@ -324,6 +375,11 @@ let package = Package(
     ]
 )
 for target in package.targets {
+  target.swiftSettings = target.swiftSettings ?? []
+  target.swiftSettings?.append(
+    .enableExperimentalFeature("StrictConcurrency")
+  )
+
   target.linkerSettings = target.linkerSettings ?? []
   target.linkerSettings?.append(
     .unsafeFlags([

@@ -44,9 +44,9 @@ struct SimilarPosterCellView: View {
     var body: some View {
         RemoteTMDBImage(
             posterPath: entity.tmdbImagePath,
-            posterSize: .medium,
             imageSize: .posterMedium
         )
+        .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
     }
 }
 

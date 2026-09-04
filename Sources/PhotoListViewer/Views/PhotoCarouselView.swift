@@ -30,11 +30,9 @@ public struct PhotoCarouselView<Route: Hashable>: View {
                         NavigationLink(value: photoSlidesRouteBuilder(imagePaths, index)) {
                             RemoteTMDBImage(
                                 posterPath: path,
-                                posterSize: PosterSize(width: 180, height: 100),
                                 imageSize: .backdropSmall,
                                 contentMode: .fill
                             )
-                            .frame(width: 180, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         .buttonStyle(.plain)
@@ -58,6 +56,8 @@ public struct PhotoCarouselView<Route: Hashable>: View {
                 imagePaths: [
                     "/AvIfrjJL9WRk3TziSvOZCTUHKEn.jpg",
                     "/1ffZAucqfvQu36x1C49XfOdjuOG.jpg",
+                    "/5rhTDKUhPYvpdQIijFIs5VoWsON.jpg",
+                    "/sSIzzVhhLfgLKVBcAUv0X6cLYz9.jpg",
                 ],
                 photoSlidesRouteBuilder: { _, index in index }
             )

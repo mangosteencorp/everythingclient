@@ -1,0 +1,3 @@
+[submodule "SampleKit"]
+	path = SampleKit
+	url = git@github.com:quangDecember/SampleKit.git
