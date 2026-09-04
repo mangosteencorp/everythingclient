@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
@@ -47,7 +48,7 @@ struct PersonMovieCreditRow: View {
                 .foregroundStyle(.tertiary)
         }
         .padding(10)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color.platformSecondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

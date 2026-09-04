@@ -54,15 +54,38 @@ let hasSwiftfin = true
 let swiftfinPackageDependency: [Package.Dependency] =
     hasSwiftfin ? [.package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm")] : []
 
+// Gated to iOS as well as to the toolchain: Swiftfin vendors `MobileVLCKit.xcframework`, which
+// has no macOS slice, and its own manifest declares macOS 10.13 — below the minimum of half its
+// dependencies. Without the condition, a macOS build fails while *linking*, before any of this
+// package's own code is even reached.
 let swiftfinTargetDependency: [Target.Dependency] =
-    hasSwiftfin ? [.product(name: "SwiftfinLib", package: "Swiftfin")] : []
+    hasSwiftfin ? [.product(name: "SwiftfinLib", package: "Swiftfin", condition: .when(platforms: [.iOS]))] : []
+
+// MARK: - Platform gating
+
+//
+// SwiftPM has no notion of an "iOS-only target": every target in the manifest exists on every
+// platform. What it does have is conditional *dependencies*, and a target that nothing in the
+// built product graph depends on is never compiled. So UIKit-backed modules stay in this
+// manifest and are simply unreachable from a macOS build.
+//
+// Precedent: `SampleKit/Package.swift` gates its `MapKitLookAround` target the same way.
+//
+// Caveat: `swift build` on macOS builds *all* targets regardless of reachability and will fail on
+// the UIKit ones. Reachability-driven builds (`xcodebuild`, Xcode) are unaffected — see
+// `.github/scripts/build.sh`. Extracting these targets into their own manifest removes the caveat.
+let iOSOnly: TargetDependencyCondition? = .when(platforms: [.iOS])
+let macOSOnly: TargetDependencyCondition? = .when(platforms: [.macOS])
 
 let package = Package(
     name: "everythingclient",
     defaultLocalization: "en",
     platforms: [
         .iOS(.v16),
-        //.macOS(.v11),
+        // Matches `MACOSX_DEPLOYMENT_TARGET = 14.2` in Rebuild.xcodeproj, which is already
+        // configured as a native macOS app target (`SDKROOT = auto`, `macosx` in
+        // SUPPORTED_PLATFORMS) rather than Mac Catalyst.
+        .macOS(.v14),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -110,7 +133,12 @@ let package = Package(
             name: "third_party",
             targets: ["third_party"]
         ),
+        .library(
+            name: "Shared_UI_Support_UIKit",
+            targets: ["Shared_UI_Support_UIKit"]
+        ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
+        .library(name: "Pokedex_AppKit", targets: ["Pokedex_AppKit"]),
         // for building purpose
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
         .library(name: "Pokedex_Detail", targets: ["Pokedex_Detail"]),
@@ -140,7 +168,9 @@ let package = Package(
             dependencies: [
                 "TMDB",
                 "CoreFeatures",
-                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+                // Firebase Analytics' macOS support is limited and needs a
+                // GoogleService-Info.plist; the Mac build ships without analytics.
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk", condition: iOSOnly),
             ]
         ),
         .testTarget(
@@ -153,17 +183,19 @@ let package = Package(
         .target(
             name: "TMDB",
             dependencies: [
+                "CoreFeatures",
                 "TMDB_Feed",
-                "TMDB_Discover",
-                "TMDB_Profile",
                 "TMDB_Shared_UI",
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
-                "third_party",
                 "Pokedex",
                 "Swinject",
+                // UIKit-backed. Call sites in `Sources/TMDB` are `#if os(iOS)`-guarded.
+                .target(name: "TMDB_Discover", condition: iOSOnly),
+                .target(name: "TMDB_Profile", condition: iOSOnly),
+                .target(name: "third_party", condition: iOSOnly),
             ] + sampleKitTargetDependency
         ),
         .target(
@@ -188,12 +220,13 @@ let package = Package(
                 "PhotoListViewer",
                 "Swinject",
                 "TMDB_Shared_Backend",
+                "CoreFeatures",
             ],
             resources: [
                 .process("Resources"),
             ],
             linkerSettings: [
-                .linkedFramework("MusicKit", .when(platforms: [.iOS, .macCatalyst])),
+                .linkedFramework("MusicKit", .when(platforms: [.iOS, .macCatalyst, .macOS])),
             ]
         ),
         .testTarget(
@@ -247,6 +280,7 @@ let package = Package(
                 "TMDB_Shared_Backend",
                 "CoreFeatures",
                 "Shared_UI_Support",
+                "Shared_UI_Support_UIKit",
                 .product(name: "SnapKit", package: "SnapKit"),
 
             ],
@@ -264,6 +298,7 @@ let package = Package(
                 "Swinject",
                 "Kingfisher",
                 "Shared_UI_Support",
+                "Shared_UI_Support_UIKit",
                 "TMDB_Shared_UI",
                 .product(name: "RxSwift", package: "RxSwift"),
                 .product(name: "RxCocoa", package: "RxSwift"),
@@ -278,12 +313,25 @@ let package = Package(
 
         // MARK: Pokedex
 
+        // Cross-platform façade. `PokedexView` mounts a UIKit VIPER module on iOS and an AppKit
+        // one on macOS; both sit on the same, untouched `Pokedex_Shared_Backend`.
         .target(
             name: "Pokedex",
             dependencies: [
-                "Pokedex_Pokelist",
-                "Pokedex_Detail",
                 "Pokedex_Shared_Backend",
+                .target(name: "Pokedex_Pokelist", condition: iOSOnly),
+                .target(name: "Pokedex_Detail", condition: iOSOnly),
+                .target(name: "Pokedex_AppKit", condition: macOSOnly),
+            ]
+        ),
+        // The AppKit counterpart of `Pokedex_Pokelist`: same VIPER roles, `NSCollectionView`
+        // instead of `UICollectionView`. The proof that the backend/UI seam is real.
+        .target(
+            name: "Pokedex_AppKit",
+            dependencies: [
+                "Kingfisher",
+                "Pokedex_Shared_Backend",
+                "Shared_UI_Support",
             ]
         ),
         .target(
@@ -292,6 +340,7 @@ let package = Package(
                 "Kingfisher",
                 "Pokedex_Shared_Backend",
                 "Shared_UI_Support",
+                "Shared_UI_Support_UIKit",
             ]
         ),
         .target(
@@ -303,6 +352,7 @@ let package = Package(
                 .product(name: "RxCocoa", package: "RxSwift"),
                 .product(name: "SnapKit", package: "SnapKit"),
                 "Shared_UI_Support",
+                "Shared_UI_Support_UIKit",
                 "CoreFeatures",
             ]
         ),
@@ -319,13 +369,21 @@ let package = Package(
             name: "Tests_Shared_Helpers",
             path: "Tests/Tests_Shared_Helpers"
         ),
+        // Portable half: pure SwiftUI + the cross-platform SwiftGen font shim.
         .target(
             name: "Shared_UI_Support",
+            resources: [.process("Resources")]
+        ),
+        // UIKit half: `MovieItemCell`, `FilterableFavouritableItemList`, `UIViewControllerPreview`.
+        // Consumed only by `TMDB_Discover`, `TMDB_Profile` and `Pokedex_*`, all of which are
+        // themselves iOS-only, so nothing portable reaches it.
+        .target(
+            name: "Shared_UI_Support_UIKit",
             dependencies: [
+                "Shared_UI_Support",
                 .product(name: "SnapKit", package: "SnapKit"),
                 .product(name: "Kingfisher", package: "Kingfisher"),
-            ],
-            resources: [.process("Resources")]
+            ]
         ),
         .target(
             name: "CoreFeatures"
@@ -336,6 +394,7 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_UI",
                 "TMDB_Shared_Backend",
+                "CoreFeatures",
             ]
         ),
 
@@ -353,23 +412,25 @@ let package = Package(
             dependencies: [
                 "everythingclient",
                 "TMDB",
-                "Pokedex",
                 "TMDB_Feed",
-                "TMDB_Discover",
-                "TMDB_Profile",
                 "TMDB_MovieDetail",
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
-                "third_party",
-                "Pokedex_Pokelist",
-                "Pokedex_Detail",
+                "Pokedex",
                 "Pokedex_Shared_Backend",
                 "TMDB_Shared_Backend",
                 "TMDB_Shared_UI",
                 "Shared_UI_Support",
                 "CoreFeatures",
                 "Swinject",
+                // UIKit-backed; the matching launcher cases are `#if os(iOS)`-guarded.
+                .target(name: "Pokedex_Pokelist", condition: iOSOnly),
+                .target(name: "Pokedex_Detail", condition: iOSOnly),
+                .target(name: "TMDB_Discover", condition: iOSOnly),
+                .target(name: "TMDB_Profile", condition: iOSOnly),
+                .target(name: "third_party", condition: iOSOnly),
+                .target(name: "Shared_UI_Support_UIKit", condition: iOSOnly),
             ]
         ),
     ]

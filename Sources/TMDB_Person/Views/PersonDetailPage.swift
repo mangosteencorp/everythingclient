@@ -85,7 +85,7 @@ public struct PersonDetailPage<Route: Hashable>: View {
 
     public var body: some View {
         content
-            .navigationBarTitleDisplayMode(.inline)
+            .platformNavigationBarTitleDisplayMode(.inline)
             .toolbar {
                 SwitchDesignToolbarItem(accessibilityIdentifier: "personDetail.switchDesign.button") {
                     useCarouselFilmography.toggle()

@@ -26,8 +26,12 @@ struct SystemTabShell<Page: View>: View {
 private extension View {
     @ViewBuilder
     func withDefaultSidebarTabBarPlacement(enabled: Bool) -> some View {
-        #if compiler(>=6.4)
-        if #available(iOS 27, *), enabled {
+        // `os(iOS)` as well as the compiler gate: `AdaptableTabBarPlacement.sidebar` is explicitly
+        // unavailable on macOS, and `anyAppleOS 27` matches macOS 27, so the availability check
+        // alone lets this through on a Mac build. `AppShellDesign.isAvailableOnThisDevice` already
+        // keeps `.sidebarTabBar` off macOS (it requires `PlatformIdiom.isPad`), so nothing is lost.
+        #if compiler(>=6.4) && os(iOS)
+        if #available(anyAppleOS 27, *), enabled {
             defaultTabBarPlacement(.sidebar)
         } else {
             self

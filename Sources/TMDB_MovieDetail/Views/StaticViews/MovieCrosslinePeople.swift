@@ -11,7 +11,7 @@ struct MovieCrosslinePeopleRow<Route: Hashable>: View {
     private var peoplesListView: some View {
         List(peoples) { cast in
             PeopleListItem(people: cast, personRouteBuilder: personRouteBuilder)
-        }.navigationBarTitle(title)
+        }.navigationTitle(title)
     }
 
     var body: some View {

@@ -28,7 +28,7 @@ public struct CoverFlowConfig {
     }
 }
 
-@available(iOS 18.0, *)
+@available(iOS 18.0, macOS 15.0, *)
 public struct CoverFlow<CardContent: View>: View {
     public var config: CoverFlowConfig
     @Binding public var currentPage: Int?
@@ -110,7 +110,7 @@ public struct CoverFlow<CardContent: View>: View {
 }
 
 #if DEBUG
-@available(iOS 18.0, *)
+@available(iOS 18.0, macOS 15.0, *)
 private struct CoverFlowExample: View {
     @State private var currentPage: Int? = 0
     let colors: [Color] = [.red, .blue, .green, .orange, .yellow, .pink, .purple, .gray, .black]
@@ -135,7 +135,7 @@ private struct CoverFlowExample: View {
     }
 }
 
-@available(iOS 18.0, *)
+@available(iOS 18.0, macOS 15.0, *)
 #Preview {
     CoverFlowExample()
 }

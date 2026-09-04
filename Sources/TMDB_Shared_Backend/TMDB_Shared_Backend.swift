@@ -42,8 +42,13 @@ public final class TMDB_Shared_Backend: Sendable {
             )
         }.inObjectScope(.container)
 
+        // `WebAuthenticationService` is @MainActor isolated (it drives
+        // `ASWebAuthenticationSession`) while Swinject factories are nonisolated. Every
+        // resolution site is UI code running on the main actor.
         container.register(WebAuthenticationService.self) { _ in
-            WebAuthenticationService()
+            MainActor.assumeIsolated {
+                WebAuthenticationService()
+            }
         }.inObjectScope(.container)
 
         // `AuthenticationViewModel` is @MainActor isolated while Swinject factories are

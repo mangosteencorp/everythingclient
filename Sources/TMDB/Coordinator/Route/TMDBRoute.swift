@@ -1,5 +1,8 @@
-import TMDB_Discover
 import TMDB_Feed
+#if os(iOS)
+import TMDB_Discover
+#endif
+
 public enum TMDBRoute: Route {
     case movieDetail(MovieRouteModel)
     case tvShowDetail(Int)
@@ -7,7 +10,10 @@ public enum TMDBRoute: Route {
     case photoSlides(PhotoSlidesRouteModel)
     case pokedex
     case movieList(AdditionalMovieListParams)
+    // `TMDB_Discover` is UIKit-backed and ships on iOS only; see `Package.swift`.
+    #if os(iOS)
     case tvShowList(TMDB_Discover.TVShowFeedType)
+    #endif
 
     public func hash(into hasher: inout Hasher) {
         switch self {
@@ -24,8 +30,10 @@ public enum TMDBRoute: Route {
             hasher.combine("pokedex")
         case let .movieList(params):
             hasher.combine(params)
+        #if os(iOS)
         case let .tvShowList(type):
             hasher.combine(type)
+        #endif
         }
     }
 
@@ -43,8 +51,10 @@ public enum TMDBRoute: Route {
             return true
         case let (.movieList(lParams), .movieList(rParams)):
             return lParams == rParams
+        #if os(iOS)
         case let (.tvShowList(lType), .tvShowList(rType)):
             return lType == rType
+        #endif
         default:
             return false
         }

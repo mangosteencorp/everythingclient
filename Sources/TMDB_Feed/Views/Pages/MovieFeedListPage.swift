@@ -60,7 +60,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
         }
         .accessibilityIdentifier("movies_list")
         .navigationTitle(visibleTab.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .platformNavigationBarTitleDisplayMode(.inline)
         // Tabs moved into iOS's More menu can be created without appearing first.
         .onAppear {
             loadInitialFeeds()

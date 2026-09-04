@@ -23,7 +23,7 @@ public enum AppShellDesign: String, DesignVariant {
     /// Mirrors what `TMDBAPITabView` used to compute inline: iPhone gets the floating bar,
     /// iPad prefers the sidebar when the OS can render one.
     static var deviceDefault: AppShellDesign {
-        guard UIDevice.current.userInterfaceIdiom == .pad else {
+        guard PlatformIdiom.isPad else {
             return .floatingTabBar
         }
 
@@ -48,10 +48,17 @@ public enum AppShellDesign: String, DesignVariant {
         case .sidebarTabBar:
             // `defaultTabBarPlacement(.sidebar)` only exists on iOS 27, and a sidebar on a
             // phone-width window collapses back to a bottom bar anyway.
-            guard UIDevice.current.userInterfaceIdiom == .pad else { return false }
+            guard PlatformIdiom.isPad else { return false }
             if #available(iOS 27, *) { return true }
             return false
-        case .bottomTabBar, .floatingTabBar, .pagedTabs:
+        case .pagedTabs:
+            // Backed by `PageTabViewStyle`, which does not exist on macOS.
+            #if os(iOS)
+            return true
+            #else
+            return false
+            #endif
+        case .bottomTabBar, .floatingTabBar:
             return true
         }
     }

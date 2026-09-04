@@ -319,8 +319,40 @@ UI framework → architecture → reactive layer:
     - 🏛️ **Clean Architecture:**
         - 🌀 **RxSwift:**
             - **TMDB_Profile**
+- 🖥️ **AppKit:**
+    - ⚡ **VIPER:**
+        - **Pokedex_AppKit** — the macOS counterpart of **Pokedex_Pokelist**: same VIPER roles,
+          `NSCollectionView` instead of `UICollectionView`, over the same unmodified
+          **Pokedex_Shared_Backend**.
 
-Shared and supporting packages: **PhotoListViewer**, **TMDB_Shared_UI**, **CoreFeatures**, **Shared_UI_Support**, **TMDB_Shared_Backend**, **Pokedex_Shared_Backend**, **third_party**, **Integration_test**.
+Shared and supporting packages: **PhotoListViewer**, **TMDB_Shared_UI**, **CoreFeatures**, **Shared_UI_Support**, **Shared_UI_Support_UIKit**, **TMDB_Shared_Backend**, **Pokedex_Shared_Backend**, **third_party**, **Integration_test**.
+
+#### Platforms
+
+The package builds for **iOS 16+** and **macOS 14+**; `Rebuild.xcodeproj` is a native multiplatform
+app target (not Mac Catalyst).
+
+The macOS build ships the SwiftUI feature set — Feed, Movie Detail, TV Show Detail, Person,
+Photo Slides, Settings — plus the AppKit Pokédex. Four modules stay iOS-only because their UI is
+UIKit end to end: **TMDB_Discover**, **TMDB_Profile**, **Pokedex_Pokelist**/**Pokedex_Detail**, and
+**third_party** (Swiftfin vendors a `MobileVLCKit.xcframework` with no macOS slice).
+
+Two mechanisms keep them out of a macOS build, and both are needed:
+
+1. **Conditional target dependencies** in `Package.swift`
+   (`.target(name: "TMDB_Profile", condition: .when(platforms: [.iOS]))`) — this is what keeps the
+   modules out of the macOS *link*.
+2. **`#if canImport(UIKit)` around each file** in those modules — Xcode compiles *every* target of
+   a local package regardless of whether anything reachable depends on it, so the conditional
+   dependency alone is not enough; the guard makes them compile to empty modules.
+
+Mechanism 2 disappears once these modules move into their own iOS-only `Package.swift`, since a
+manifest that declares only `.iOS` cannot be built for macOS at all.
+
+Cross-platform shims live in `CoreFeatures/Platform/` (`PlatformAppearance`, `PlatformIdiom`,
+`PlatformURLOpener`, `View+platform`, `Color+platform`). Prefer them over `#if os(iOS)` at call
+sites. Watch for `#available(iOS N, *)`: the `*` clause matches macOS, so an iOS-version check
+alone does **not** keep an iOS-only API out of the macOS build.
 
 
 #### Module Architecture Layers
@@ -333,6 +365,21 @@ Pokedex/
 ├── PokedexView.swift
 └── Router/
     └── PokelistRouter.swift
+```
+
+**Pokedex_AppKit** (VIPER · AppKit · async/await) — macOS only
+```
+Pokedex_AppKit/
+├── Entities/PokemonEntity.swift
+├── Protocols/PokelistProtocols.swift
+├── Interactor/PokelistInteractor.swift
+├── Presenter/PokelistPresenter.swift
+├── View/
+│   ├── PokelistViewController.swift        # NSViewController + NSCollectionView
+│   ├── PokemonCollectionViewItem.swift     # NSCollectionViewItem
+│   └── PokemonDetailViewController.swift   # presented as a sheet
+├── Router/PokelistRouter.swift
+└── helpers/NSImage+averageColor.swift
 ```
 
 **Pokedex_Detail** (MVVM · UIKit · RxSwift)

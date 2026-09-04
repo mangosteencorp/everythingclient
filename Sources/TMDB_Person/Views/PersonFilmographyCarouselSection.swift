@@ -3,7 +3,7 @@ import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
-@available(iOS 18.0, *)
+@available(iOS 18.0, macOS 15.0, *)
 struct PersonFilmographyCarouselSection<Route: Hashable>: View {
     let credits: [PersonMovieCredit]
     let movieRouteBuilder: (Int) -> Route

@@ -16,7 +16,7 @@ struct FloatingTabBar<Selection: Hashable>: View {
 
     var body: some View {
         ZStack {
-            if #available(iOS 26, *) {
+            if #available(iOS 26, macOS 26, *) {
                 liquidGlassTabBar
             } else {
                 legacyTabBar
@@ -28,7 +28,7 @@ struct FloatingTabBar<Selection: Hashable>: View {
 
     // MARK: - iOS 26+ Liquid Glass Tab Bar
 
-    @available(iOS 26, *)
+    @available(iOS 26, macOS 26, *)
     private var liquidGlassTabBar: some View {
         GlassEffectContainer(spacing: 0) {
             HStack(spacing: 0) {

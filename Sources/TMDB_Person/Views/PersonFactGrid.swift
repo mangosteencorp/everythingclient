@@ -1,3 +1,4 @@
+import CoreFeatures
 import Foundation
 import SwiftUI
 import TMDB_Shared_Backend
@@ -24,7 +25,7 @@ struct PersonFactGrid: View {
                     }
                     .frame(maxWidth: .infinity, minHeight: 72, alignment: .topLeading)
                     .padding(12)
-                    .background(Color(.secondarySystemGroupedBackground))
+                    .background(Color.platformSecondaryGroupedBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
             }

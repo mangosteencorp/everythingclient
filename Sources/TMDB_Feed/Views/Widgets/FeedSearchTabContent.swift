@@ -1,3 +1,4 @@
+import CoreFeatures
 import Shared_UI_Support
 import SwiftUI
 import TMDB_Shared_Backend
@@ -117,7 +118,7 @@ private struct FeedSearchBar: View {
                 .foregroundStyle(.secondary)
 
             TextField(prompt, text: $text)
-                .textInputAutocapitalization(.never)
+                .platformDisableAutocapitalization()
                 .disableAutocorrection(true)
                 .accessibilityIdentifier("feed_search_field")
 
@@ -135,7 +136,7 @@ private struct FeedSearchBar: View {
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(.secondarySystemBackground))
+                .fill(Color.platformSecondaryBackground)
         )
         .accessibilityIdentifier("feed_search_bar")
     }

@@ -10,7 +10,7 @@ public struct DesignShuffleToolbarItem: ToolbarContent {
     private let coordinator: DesignCoordinator
 
     public init(
-        placement: ToolbarItemPlacement = .navigationBarTrailing,
+        placement: ToolbarItemPlacement = .platformTrailing,
         accessibilityIdentifier: String = "design.shuffle.button",
         coordinator: DesignCoordinator = .shared
     ) {

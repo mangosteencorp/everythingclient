@@ -8,12 +8,14 @@ struct SystemFeedTabLayout<Content: View>: View {
     @Binding var visibleTab: FeedTab
     @ViewBuilder let content: (FeedTab) -> Content
 
+    @ViewBuilder
     var body: some View {
         // There are more tabs than the tab bar can show, so iOS moves the overflow
         // into its "More" list. The legacy `.tabItem` bridge renders those overflow
         // tabs into a detached controller that never redraws, so they stay frozen on
         // whatever was on screen when the More list was built (an empty feed showing
         // "No Results Found"). The iOS 18 `Tab` API keeps them live.
+        #if os(iOS)
         if #available(iOS 26, *) {
             TabView(selection: $selection) {
                 ForEach(tabs) { tab in
@@ -32,14 +34,25 @@ struct SystemFeedTabLayout<Content: View>: View {
                 }
             }
         } else {
-            TabView(selection: $selection) {
-                ForEach(tabs) { tab in
-                    tabRoot(for: tab)
-                        .tabItem {
-                            Label(tab.title, systemImage: tab.systemImage)
-                        }
-                        .tag(tab)
-                }
+            legacyTabView
+        }
+        #else
+        // This layout is iPad-only (`FeedTabDesign.isAvailableOnThisDevice`), so macOS never
+        // selects it; the legacy branch just keeps the file compiling. A bare `*` in the
+        // `#available` clauses above matches macOS, hence the `#if`.
+        legacyTabView
+        #endif
+    }
+
+    /// The `tabItem`-based `TabView`, which every supported OS understands.
+    private var legacyTabView: some View {
+        TabView(selection: $selection) {
+            ForEach(tabs) { tab in
+                tabRoot(for: tab)
+                    .tabItem {
+                        Label(tab.title, systemImage: tab.systemImage)
+                    }
+                    .tag(tab)
             }
         }
     }

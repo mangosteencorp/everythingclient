@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
@@ -28,12 +29,12 @@ public struct PhotoSlidesPage: View {
                         .tag(index)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: imagePaths.count > 1 ? .automatic : .never))
+                .platformPagedTabViewStyle(showsIndex: imagePaths.count > 1)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
+        .platformNavigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .platformNavigationBar)
+        .toolbarColorScheme(.dark, for: .platformNavigationBar)
     }
 }
 

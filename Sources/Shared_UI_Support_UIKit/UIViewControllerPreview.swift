@@ -1,4 +1,9 @@
+// This whole target is UIKit-only and is reachable from iOS builds alone (see
+// `Package.swift`). The guard keeps it compiling to an empty module if a toolchain or
+// IDE builds every target regardless of reachability, rather than failing on `import UIKit`.
+#if canImport(UIKit)
 import SwiftUI
+import UIKit
 
 #if DEBUG
 public struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControllerRepresentable {
@@ -14,4 +19,5 @@ public struct UIViewControllerPreview<ViewController: UIViewController>: UIViewC
 
     public func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
 }
+#endif
 #endif

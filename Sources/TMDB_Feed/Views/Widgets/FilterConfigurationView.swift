@@ -1,3 +1,4 @@
+import CoreFeatures
 import Foundation
 import SwiftUI
 
@@ -32,14 +33,14 @@ public struct FilterConfigurationView: View {
             }
             .padding()
             .navigationTitle(filterType.displayName)
-            .navigationBarTitleDisplayMode(.inline)
+            .platformNavigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .platformLeading) {
                     Button(L10n.filterCancel) {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .platformTrailing) {
                     Button(L10n.filterDone) {
                         dismiss()
                     }
@@ -83,7 +84,7 @@ public struct FilterConfigurationView: View {
                 Text("Korean").tag("ko" as String?)
                 Text("Chinese").tag("zh" as String?)
             }
-            .pickerStyle(.wheel)
+            .platformWheelPickerStyle()
         }
     }
 
@@ -106,7 +107,7 @@ public struct FilterConfigurationView: View {
                 Text("South Korea").tag("KR" as String?)
                 Text("China").tag("CN" as String?)
             }
-            .pickerStyle(.wheel)
+            .platformWheelPickerStyle()
         }
     }
 
@@ -121,7 +122,7 @@ public struct FilterConfigurationView: View {
                     set: { binding.wrappedValue = $0.isEmpty ? nil : $0 }
                 ))
                 .textFieldStyle(.roundedBorder)
-                .keyboardType(.numberPad)
+                .platformKeyboardType(.numberPad)
 
                 Button(L10n.filterClear) {
                     binding.wrappedValue = nil

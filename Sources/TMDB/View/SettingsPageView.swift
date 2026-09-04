@@ -1,17 +1,24 @@
+import CoreFeatures
 import SwiftUI
+// `third_party` wraps Swiftfin, which is UIKit-only; iOS only, see `Package.swift`.
+#if os(iOS)
 import third_party
+#endif
 #if canImport(SampleKit)
 import SampleKit
 #endif
 @available(iOS 16.0, *)
 public struct SettingsPageView: View {
+    #if os(iOS)
     @State private var showSwiftfin = false
+    #endif
     @State private var showSamples = false
     public init() {}
 
     public var body: some View {
         NavigationStack {
             Form {
+                #if os(iOS)
                 Section {
                     Button("Launch Jellyfin by Swiftfin") {
                         showSwiftfin = true
@@ -24,6 +31,7 @@ public struct SettingsPageView: View {
                     Text("Media Server")
                 }
                 .accessibilityIdentifier("settings.section.mediaServer")
+                #endif
 
                 Section {
                     Text("More settings coming soon.")
@@ -36,11 +44,13 @@ public struct SettingsPageView: View {
             .navigationTitle("Settings")
             .accessibilityIdentifier("settings.page")
         }
-        .fullScreenCover(isPresented: $showSwiftfin) {
+        #if os(iOS)
+        .platformFullScreenCover(isPresented: $showSwiftfin) {
             SwiftfinLaunchView()
         }
+        #endif
         #if canImport(SampleKit)
-        .fullScreenCover(isPresented: $showSamples) {
+        .platformFullScreenCover(isPresented: $showSamples) {
             SampleKitAllSamplesView()
         }
         #endif

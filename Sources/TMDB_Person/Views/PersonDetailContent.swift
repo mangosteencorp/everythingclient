@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 
@@ -15,7 +16,7 @@ struct PersonDetailContent<Route: Hashable>: View {
                 PersonFactGrid(person: person)
                 PersonBiographySection(biography: person.biography)
 
-                if #available(iOS 18.0, *), useCarouselFilmography {
+                if #available(iOS 18.0, macOS 15.0, *), useCarouselFilmography {
                     PersonFilmographyCarouselSection(
                         credits: credits,
                         movieRouteBuilder: movieRouteBuilder
@@ -31,7 +32,7 @@ struct PersonDetailContent<Route: Hashable>: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 18)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.platformGroupedBackground)
         .navigationTitle(person.name)
     }
 }

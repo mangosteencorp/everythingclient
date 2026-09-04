@@ -91,9 +91,9 @@ public struct TVShowDetailView: View {
             .task(id: tvShowId) {
                 await store.load()
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .platformNavigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .platformTrailing) {
                     ThemeSwitchButton()
                 }
             }

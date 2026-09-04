@@ -3,13 +3,16 @@ import PhotoListViewer
 import Pokedex
 import SwiftUI
 import Swinject
-import TMDB_Discover
 import TMDB_Feed
 import TMDB_MovieDetail
 import TMDB_Person
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 import TMDB_TVShowDetail
+// UIKit-backed module, iOS only; see `Package.swift`.
+#if os(iOS)
+import TMDB_Discover
+#endif
 @available(iOS 16.0, *)
 public struct TMDBNavigationDestinations: ViewModifier {
     let container: Container
@@ -67,6 +70,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
             } tvShowDetailRouteBuilder: { tvShow in
                 TMDBRoute.tvShowDetail(tvShow.id)
             }
+        #if os(iOS)
         case let .tvShowList(type):
             TMDB_Discover.DiscoverListPage(
                 container: container,
@@ -80,6 +84,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
                     TMDBRoute.tvShowDetail(id)
                 }
             }
+        #endif
         }
     }
 

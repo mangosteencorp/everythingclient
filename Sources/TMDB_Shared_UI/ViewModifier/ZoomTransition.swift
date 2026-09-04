@@ -34,11 +34,17 @@ private struct ZoomTransitionSource<ID: Hashable>: ViewModifier {
     let id: ID
 
     func body(content: Content) -> some View {
+        // The paired `.navigationTransition(.zoom(...))` below is unavailable on macOS, so the
+        // source marker would have nothing to match; both halves stay iOS-only.
+        #if os(iOS)
         if #available(iOS 18.0, *), let namespace {
             content.matchedTransitionSource(id: id, in: namespace)
         } else {
             content
         }
+        #else
+        content
+        #endif
     }
 }
 
@@ -48,11 +54,16 @@ private struct ZoomTransitionDestination<ID: Hashable>: ViewModifier {
     let id: ID
 
     func body(content: Content) -> some View {
+        // `NavigationTransition.zoom` is unavailable on macOS.
+        #if os(iOS)
         if #available(iOS 18.0, *), let namespace {
             content.navigationTransition(.zoom(sourceID: id, in: namespace))
         } else {
             content
         }
+        #else
+        content
+        #endif
     }
 }
 

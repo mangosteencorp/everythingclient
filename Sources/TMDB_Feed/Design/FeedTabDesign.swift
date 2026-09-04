@@ -27,7 +27,7 @@ public enum FeedTabDesign: String, DesignVariant {
         case .systemTabs:
             // On iPhone the app shell already owns the bottom edge; a second bottom bar inside
             // it is unusable. iPad puts both levels at the top, so it stays available there.
-            return UIDevice.current.userInterfaceIdiom == .pad
+            return PlatformIdiom.isPad
         case .topSegments:
             return true
         }

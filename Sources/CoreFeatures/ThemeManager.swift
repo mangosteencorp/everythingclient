@@ -1,4 +1,5 @@
 import SwiftUI
+
 @MainActor
 public class ThemeManager: ObservableObject {
     public static let shared = ThemeManager()
@@ -11,8 +12,7 @@ public class ThemeManager: ObservableObject {
 
     private init() {
         // Initialize with a default theme first
-        let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-        currentTheme = isDarkMode ? DarkTheme() : LightTheme()
+        currentTheme = PlatformAppearance.isDarkMode ? DarkTheme() : LightTheme()
 
         // Then check if user has already selected a theme and update if needed
         if hasUserSelectedTheme && userSelectedThemeIndex >= 0 && userSelectedThemeIndex < availableThemes().count {
@@ -55,31 +55,23 @@ public class ThemeManager: ObservableObject {
     }
 
     private func setupAppearanceChangeObserver() {
-        NotificationCenter.default.addObserver(
+        // `PlatformAppearance` owns which notifications actually signal an appearance change on
+        // each platform. The previous `NSNotification.Name("UITraitCollectionDidChangeNotification")`
+        // observer here was dead code: no such notification is ever posted, so it never fired.
+        PlatformAppearance.addAppearanceChangeObserver(
             self,
-            selector: #selector(handleTraitCollectionChange),
-            name: UIApplication.didBecomeActiveNotification,
-            object: nil
-        )
-
-        // Also observe for appearance changes while app is running
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleTraitCollectionChange),
-            name: NSNotification.Name("UITraitCollectionDidChangeNotification"),
-            object: nil
+            selector: #selector(handleAppearanceChange)
         )
     }
 
-    @objc private func handleTraitCollectionChange() {
+    @objc private func handleAppearanceChange() {
         // Only update theme based on system if user hasn't explicitly chosen a theme
         if !hasUserSelectedTheme {
-            let isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-            currentTheme = isDarkMode ? DarkTheme() : LightTheme()
+            currentTheme = PlatformAppearance.isDarkMode ? DarkTheme() : LightTheme()
         }
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(self)
+        PlatformAppearance.removeAppearanceChangeObserver(self)
     }
 }

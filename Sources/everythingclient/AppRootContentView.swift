@@ -14,7 +14,12 @@ public struct RootContentView: View {
         tmdbAPIKey = TMDBApiKey
         self.isAppStoreOrTestFlight = isAppStoreOrTestFlight
         initialTabs = isAppStoreOrTestFlight ? Set([.tmdb]) : Set(AppTab.allCases)
+        #if os(iOS)
         analyticsTracker = options3rdPartySDKs.firebase ? FirebaseAnalyticsTracker() : nil
+        #else
+        // Firebase Analytics ships iOS-only in this package; see `Package.swift`.
+        analyticsTracker = nil
+        #endif
         TabManager.shared.availableTabs = initialTabs
     }
 
@@ -35,6 +40,10 @@ public struct RootContentView: View {
 
     @ViewBuilder
     private var tabViewContent: some View {
+        // `#available(iOS 26, *)` is *true* on macOS — the `*` clause matches every non-iOS
+        // platform — so the iOS 26 branch needs an `#if os(iOS)` around it as well, or
+        // `tabBarMinimizeBehavior` would be compiled into the macOS build.
+        #if os(iOS)
         if #available(iOS 26, *) {
             // iOS 26: New Liquid Glass tab bar with minimize behavior
             TabView(selection: $selectedTab) {
@@ -46,15 +55,23 @@ public struct RootContentView: View {
             }
             .tabBarMinimizeBehavior(.onScrollDown)
         } else {
-            // Fallback for older iOS versions
-            TabView(selection: $selectedTab) {
-                ForEach(Array(tabManager.availableTabs)) { tab in
-                    tabContent(for: tab)
-                        .tabItem {
-                            Label(tab.label.0, systemImage: tab.label.1)
-                        }
-                        .tag(tab.rawValue)
-                }
+            classicTabViewContent
+        }
+        #else
+        classicTabViewContent
+        #endif
+    }
+
+    /// The `tabItem`-based `TabView`, which every supported OS understands.
+    @ViewBuilder
+    private var classicTabViewContent: some View {
+        TabView(selection: $selectedTab) {
+            ForEach(Array(tabManager.availableTabs)) { tab in
+                tabContent(for: tab)
+                    .tabItem {
+                        Label(tab.label.0, systemImage: tab.label.1)
+                    }
+                    .tag(tab.rawValue)
             }
         }
     }

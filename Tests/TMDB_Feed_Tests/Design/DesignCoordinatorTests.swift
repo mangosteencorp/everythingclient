@@ -16,6 +16,8 @@ private enum TestDesign: String, DesignVariant {
     var isAvailableOnThisDevice: Bool { self != .unavailable }
 }
 
+// `DesignCoordinator` and SwiftUI `View` inits are `@MainActor`.
+@MainActor
 final class DesignCoordinatorTests: XCTestCase {
     private var defaults: UserDefaults!
     private var suiteName: String!

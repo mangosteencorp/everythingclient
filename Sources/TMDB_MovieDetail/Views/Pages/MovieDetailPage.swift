@@ -1,3 +1,4 @@
+import CoreFeatures
 import PhotoListViewer
 import SwiftUI
 import TMDB_Shared_Backend
@@ -133,7 +134,8 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 }
             }
             .listStyle(PlainListStyle())
-            .navigationBarTitle(Text(displayedMovie.userTitle), displayMode: .large)
+            .navigationTitle(Text(displayedMovie.userTitle))
+            .platformNavigationBarTitleDisplayMode(.large)
         }
         // Separate tasks so the two requests run concurrently instead of being serialised.
         // SwiftUI cancels them when the page goes away, and each view model only loads once.

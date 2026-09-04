@@ -1,3 +1,4 @@
+#if os(iOS)
 import CoreFeatures
 import FirebaseAnalytics
 import FirebaseCore
@@ -80,3 +81,4 @@ public class FirebaseAnalyticsTracker: AnalyticsTracker {
         Analytics.logEvent(name, parameters: params)
     }
 }
+#endif

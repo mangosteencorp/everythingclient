@@ -39,7 +39,7 @@ public struct SwitchDesignToolbarItem: ToolbarContent {
     }
 
     public var body: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .platformTrailing) {
             Button(action: action) {
                 Image(systemName: "arrow.left.arrow.right")
             }

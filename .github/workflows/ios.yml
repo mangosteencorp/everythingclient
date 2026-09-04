@@ -42,3 +42,33 @@ jobs:
         run: |
           chmod +x ./.github/scripts/build.sh
           ./.github/scripts/build.sh
+
+  build-macos:
+    name: Build the macOS app
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select latest Xcode
+        run: |
+          chmod +x ./.github/scripts/select_xcode.sh
+          ./.github/scripts/select_xcode.sh
+      - name: Configure Xcode
+        run: |
+          chmod +x ./.github/scripts/configure_xcode.sh
+          ./.github/scripts/configure_xcode.sh
+      - name: Set up secrets in xcconfig
+        run: |
+          echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
+          echo "PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient" >> Rebuild/Rebuild/Build.xcconfig
+      # The `Rebuild` app scheme, not `EverythingClient`: the latter's test plan pulls in
+      # TMDB_Discover_Tests, which exercises UIKit view controllers and is iOS-only.
+      - name: Build
+        env:
+          scheme: ${{ 'Rebuild' }}
+          platform: ${{ 'macOS' }}
+          action: ${{ 'build' }}
+        run: |
+          chmod +x ./.github/scripts/build.sh
+          ./.github/scripts/build.sh

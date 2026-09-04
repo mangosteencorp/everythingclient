@@ -27,7 +27,7 @@ public enum AppNavigationDesign: String, DesignVariant {
         case .splitView:
             // Two columns in a phone-width window collapse to one, which is just `.plain`
             // with extra steps.
-            return UIDevice.current.userInterfaceIdiom == .pad
+            return PlatformIdiom.isPad
         }
     }
 }

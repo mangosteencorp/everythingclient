@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 
@@ -114,7 +115,7 @@ private struct ProviderLogoView: View {
     var body: some View {
         Button(action: {
             if let url = URL(string: regionLink) {
-                UIApplication.shared.open(url)
+                PlatformURLOpener.open(url)
             }
         }) {
             AsyncImage(url: URL(string: provider.logoURL ?? "")) { image in

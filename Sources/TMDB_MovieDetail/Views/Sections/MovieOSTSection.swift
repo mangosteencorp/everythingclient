@@ -1,8 +1,6 @@
+import CoreFeatures
 import MusicKit
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 @available(iOS 16.0, *)
 public struct MovieOSTSection: View {
@@ -38,7 +36,8 @@ public struct MovieOSTSection: View {
                     Text("Apple Music access is required to search for soundtracks.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    // macOS has no per-app settings deep link, so the button is simply absent there.
+                    if let settingsURL = PlatformURLOpener.appSettingsURL {
                         Link("Open Settings", destination: settingsURL)
                     }
                 }
@@ -135,7 +134,7 @@ private struct MovieOSTAlbumRow: View {
             }
         }
         .padding(10)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color.platformSecondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

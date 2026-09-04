@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 
 /// Scrollable segment header pinned above the content — the shape Mail, X and Podcasts all
@@ -52,7 +53,7 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .background(
-                    Capsule().fill(isSelected ? Color.accentColor.opacity(0.18) : Color(.secondarySystemBackground))
+                    Capsule().fill(isSelected ? Color.accentColor.opacity(0.18) : Color.platformSecondaryBackground)
                 )
                 .foregroundStyle(isSelected ? Color.accentColor : Color.primary)
         }

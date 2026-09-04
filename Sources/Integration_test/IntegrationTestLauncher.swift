@@ -1,18 +1,21 @@
 import CoreFeatures
 import everythingclient
 import Pokedex
-import Pokedex_Detail
-import Pokedex_Pokelist
 import Shared_UI_Support
 import SwiftUI
 import TMDB
-import TMDB_Discover
 import TMDB_Feed
 import TMDB_MovieDetail
 import TMDB_Person
-import TMDB_Profile
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
+// UIKit-backed modules, iOS only; see `Package.swift`.
+#if os(iOS)
+import Pokedex_Detail
+import Pokedex_Pokelist
+import TMDB_Discover
+import TMDB_Profile
+#endif
 #if DEBUG
 @available(iOS 16, *)
 public struct IntegrationTestLauncher {
@@ -76,8 +79,23 @@ public struct IntegrationTestLauncher {
     }
 
     public static func getAvailableTests() -> [DemoTest] {
+        #if os(iOS)
         DemoTest.allCases
+        #else
+        DemoTest.allCases.filter { !uiKitOnlyTests.contains($0) }
+        #endif
     }
+
+    /// Demos backed by UIKit modules, which ship on iOS only; see `Package.swift`.
+    private static let uiKitOnlyTests: Set<DemoTest> = [
+        .tmdbDiscover, .pokedexList, .pokedexDetail,
+    ]
+
+    #if !os(iOS)
+    private static var unavailableOnThisPlatform: some View {
+        IntegrationTestErrorView(message: "This demo is backed by a UIKit module and is iOS-only.")
+    }
+    #endif
 
     @ViewBuilder
     // This is the exhaustive runtime equivalent of the app's top-level preview catalog.
@@ -100,7 +118,11 @@ public struct IntegrationTestLauncher {
         case .tmdbFeed:
             TMDBFeedDemoView()
         case .tmdbDiscover:
+            #if os(iOS)
             TMDBDiscoverDemoView()
+            #else
+            unavailableOnThisPlatform
+            #endif
         case .tmdbMovieDetail:
             TMDBMovieDetailDemoView()
         case .tmdbTVShowDetail:
@@ -110,9 +132,17 @@ public struct IntegrationTestLauncher {
         case .tmdbPersonDetail:
             TMDBPersonDetailDemoView()
         case .pokedexList:
+            #if os(iOS)
             PokedexListDemoView()
+            #else
+            unavailableOnThisPlatform
+            #endif
         case .pokedexDetail:
+            #if os(iOS)
             PokedexDetailDemoView()
+            #else
+            unavailableOnThisPlatform
+            #endif
         case .pokedexTab:
             PokedexTabView()
         case .themeSwitcher:

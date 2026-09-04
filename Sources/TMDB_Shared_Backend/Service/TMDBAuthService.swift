@@ -96,49 +96,56 @@ public enum AuthenticationError: Error {
 
 // MARK: - Web Authentication Service
 
+/// Main actor isolated because `ASWebAuthenticationSession` must be started and
+/// presented from the main thread.
+@MainActor
 public class WebAuthenticationService: NSObject {
     private var authSession: ASWebAuthenticationSession?
     private var completionHandler: ((Result<String, Error>) -> Void)?
 
     public func authenticate(url: URL) async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
-            authSession = ASWebAuthenticationSession(
-                url: url,
-                callbackURLScheme: "tmdb-app"
-            ) { callbackURL, error in
-                if let error = error {
-                    continuation.resume(throwing: AuthenticationError.webAuthenticationFailed(error))
-                    return
+            if #available(iOS 17.4, macOS 14.4, watchOS 10.4, tvOS 17.4, visionOS 1.1, *) {
+                authSession = ASWebAuthenticationSession(url: url, callback: .customScheme("tmdb-app")) { callbackURL, error in
+                    continuation.resume(with: Self.requestToken(from: callbackURL, error: error))
                 }
-
-                guard let callbackURL = callbackURL else {
-                    continuation.resume(throwing: AuthenticationError.invalidCallbackURL)
-                    return
-                }
-
-                let queryItems = URLComponents(string: callbackURL.absoluteString)?.queryItems
-
-                // Check if user denied authorization
-                if (queryItems?.first(where: { $0.name == "denied" })?.value) != nil {
-                    continuation.resume(throwing: AuthenticationError.authorizationDenied)
-                    return
-                }
-
-                // Get request token from callback
-                if let token = queryItems?.first(where: { $0.name == "request_token" })?.value {
-                    continuation.resume(returning: token)
-                } else {
-                    continuation.resume(throwing: AuthenticationError.missingRequestToken)
+            } else {
+                authSession = ASWebAuthenticationSession(
+                    url: url,
+                    callbackURLScheme: "tmdb-app"
+                ) { callbackURL, error in
+                    continuation.resume(with: Self.requestToken(from: callbackURL, error: error))
                 }
             }
-
             authSession?.presentationContextProvider = self
             // authSession?.prefersEphemeralWebBrowserSession = true
-
-            if !authSession!.start() {
-                continuation.resume(throwing: AuthenticationError.authenticationCancelled)
-            }
+            authSession?.start()
         }
+    }
+
+    /// Maps the `ASWebAuthenticationSession` completion arguments to the request token,
+    /// or to the `AuthenticationError` describing why it could not be obtained.
+    private static func requestToken(from callbackURL: URL?, error: Error?) -> Result<String, Error> {
+        if let error = error {
+            return .failure(AuthenticationError.webAuthenticationFailed(error))
+        }
+
+        guard let callbackURL = callbackURL else {
+            return .failure(AuthenticationError.invalidCallbackURL)
+        }
+
+        let queryItems = URLComponents(string: callbackURL.absoluteString)?.queryItems
+
+        // Check if user denied authorization
+        if (queryItems?.first(where: { $0.name == "denied" })?.value) != nil {
+            return .failure(AuthenticationError.authorizationDenied)
+        }
+
+        // Get request token from callback
+        guard let token = queryItems?.first(where: { $0.name == "request_token" })?.value else {
+            return .failure(AuthenticationError.missingRequestToken)
+        }
+        return .success(token)
     }
 }
 

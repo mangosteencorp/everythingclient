@@ -2,12 +2,15 @@ import CoreFeatures
 import Shared_UI_Support
 import SwiftUI
 import Swinject
-import TMDB_Discover
 import TMDB_Feed
 import TMDB_MovieDetail
-import TMDB_Profile
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
+// UIKit-backed modules, iOS only; see `Package.swift`.
+#if os(iOS)
+import TMDB_Discover
+import TMDB_Profile
+#endif
 
 /// Legacy seed for the shell design, kept so existing call sites keep compiling.
 /// The live value lives in `DesignCoordinator` as `AppShellDesign`.
@@ -65,7 +68,12 @@ public struct TMDBAPITabView: View {
 
         self.container = container
 
+        #if os(iOS)
         let tabList: [TabRoute] = [.movieFeed, .marketplace, .profile, .settings]
+        #else
+        // `.marketplace` and `.profile` are UIKit-backed; they have no macOS page yet.
+        let tabList: [TabRoute] = [.movieFeed, .settings]
+        #endif
         _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
 
@@ -113,13 +121,21 @@ public struct TMDBAPITabView: View {
                     container: container
                 )
         case .marketplace:
+            #if os(iOS)
             NavigationStack(path: coordinator.path(for: .marketplace)) {
                 buildMarketplacePage()
             }
+            #else
+            EmptyView()
+            #endif
         case .profile:
+            #if os(iOS)
             NavigationStack(path: coordinator.path(for: .profile)) {
                 buildProfilePage()
             }
+            #else
+            EmptyView()
+            #endif
         case .settings:
             NavigationStack(path: coordinator.path(for: .settings)) {
                 buildSettingsPage()
@@ -151,10 +167,11 @@ public struct TMDBAPITabView: View {
             TMDBRoute.tvShowDetail(tvShow.id)
         }
         .toolbar {
-            DesignShuffleToolbarItem(placement: .topBarLeading)
+            DesignShuffleToolbarItem(placement: .platformLeading)
         }
     }
 
+    #if os(iOS)
     @ViewBuilder
     private func buildMarketplacePage() -> some View {
         let marketplaceContent = TMDB_Discover.HomeDiscoverView(
@@ -211,6 +228,7 @@ public struct TMDBAPITabView: View {
         }
         .withTMDBNavigationDestinations(container: container)
     }
+    #endif
 
     @ViewBuilder
     private func buildSettingsPage() -> some View {

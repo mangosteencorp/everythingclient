@@ -1,12 +1,12 @@
 // swiftlint:disable identifier_name
-public struct TVShowListResultModel: Codable {
+public struct TVShowListResultModel: Codable, Sendable {
     public let page: Int
     public let results: [TVShow]
     public let total_pages: Int
     public let total_results: Int
 }
 
-public struct TVShow: Codable, Identifiable {
+public struct TVShow: Codable, Identifiable, Sendable {
     public let adult: Bool
     public let backdrop_path: String?
     public let genre_ids: [Int]

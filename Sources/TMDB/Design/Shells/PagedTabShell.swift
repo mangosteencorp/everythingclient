@@ -13,6 +13,11 @@ struct PagedTabShell<Page: View>: View {
                     .tag(tab)
             }
         }
+        // `PageTabViewStyle` is iOS/tvOS/watchOS only. On macOS this degrades to a plain
+        // `TabView`; `AppShellDesign.isAvailableOnThisDevice` keeps the option out of the
+        // design picker there so the degraded state is never user-selectable.
+        #if os(iOS)
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+        #endif
     }
 }

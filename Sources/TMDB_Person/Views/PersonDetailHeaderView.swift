@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 
@@ -32,7 +33,7 @@ struct PersonDetailHeaderView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color.platformSecondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

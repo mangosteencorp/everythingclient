@@ -6,5 +6,8 @@
     <true/>
     <key>com.apple.security.files.user-selected.read-only</key>
     <true/>
+    <!-- Required for outbound TMDB / image requests once the app is sandboxed on macOS. -->
+    <key>com.apple.security.network.client</key>
+    <true/>
 </dict>
 </plist>
