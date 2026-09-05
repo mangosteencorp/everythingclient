@@ -115,7 +115,7 @@ public class TVShowFeedViewModel: ObservableObject {
         }
     }
 
-    /// Stops feeds that are still loading; the feed page preloads shows that no view owns.
+    /// Stops requests belonging to the previous tab selection.
     func cancelLoads() {
         loadTasks.values.forEach { $0.cancel() }
         loadTasks.removeAll()

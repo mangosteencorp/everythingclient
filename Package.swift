@@ -178,7 +178,12 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_Backend",
                 "Shared_UI_Support",
+                .product(name: "Kingfisher", package: "Kingfisher"),
             ]
+        ),
+        .testTarget(
+            name: "TMDB_Shared_UI_Tests",
+            dependencies: ["TMDB_Shared_UI"]
         ),
         // Detail page
         .target(

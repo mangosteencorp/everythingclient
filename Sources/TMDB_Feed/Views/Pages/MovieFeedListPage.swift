@@ -61,27 +61,15 @@ public struct MovieFeedListPage<Route: Hashable>: View {
         .accessibilityIdentifier("movies_list")
         .navigationTitle(visibleTab.title)
         .navigationBarTitleDisplayMode(.inline)
-        // Tabs moved into iOS's More menu can be created without appearing first.
         .onAppear {
-            loadInitialFeeds()
+            loadFeed(for: selectedTab)
         }
         .onChange(of: selectedTab) { tab in
-            // Flipping tabs quickly should not leave the previous tab's request running: these
-            // preloads belong to no view, so nothing else would cancel them.
+            // Stop requests belonging to the previous selection.
             movieViewModel.cancelLoads()
             tvShowViewModel.cancelLoads()
             loadFeed(for: tab)
         }
-    }
-
-    // The view models decide what actually needs a request: cached feeds are served from memory and
-    // a feed that is already loading is not requested twice.
-    private func loadInitialFeeds() {
-        for feedType in TVShowFeedType.allCases {
-            tvShowViewModel.loadFeed(feedType)
-        }
-
-        loadFeed(for: selectedTab)
     }
 
     private func loadFeed(for tab: FeedTab) {
