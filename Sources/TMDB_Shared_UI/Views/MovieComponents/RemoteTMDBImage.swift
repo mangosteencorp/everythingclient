@@ -13,7 +13,7 @@ public enum TMDBImageLoader: String, CaseIterable {
     var resolved: Self {
         if self == .asyncImage {
             #if compiler(>=6.4)
-            if #available(iOS 27, macOS 27, tvOS 27, watchOS 27, visionOS 27, *) {
+            if #available(anyAppleOS 27, *) {
                 return .asyncImage
             }
             #endif
@@ -54,22 +54,35 @@ public struct RemoteTMDBImage: View {
 
     @ViewBuilder
     private func remoteImage(url: URL) -> some View {
-        #if compiler(>=6.4)
-        if #available(iOS 27, macOS 27, tvOS 27, watchOS 27, visionOS 27, *), loader.resolved == .asyncImage {
-            AsyncImage(request: URLRequest(url: url)) { phase in
-                phaseContent(phase, url: url)
-            }
-            .asyncImageURLSession(TMDBImageDownload.session)
+        if loader.resolved == .kingfisher {
+            kingfisherImage(url: url)
         } else {
+            #if compiler(>=6.4)
+            if #available(anyAppleOS 27, *), loader.resolved == .asyncImage {
+                AsyncImage(request: URLRequest(url: url)) { phase in
+                    phaseContent(phase, url: url)
+                }
+                .asyncImageURLSession(TMDBImageDownload.session)
+            } else {
+                cachedImage(url: url)
+            }
+            #else
             cachedImage(url: url)
+            #endif
         }
-        #else
-        cachedImage(url: url)
-        #endif
+    }
+
+    /// Kingfisher drives its own download/cache lifecycle, so a recycled cell cannot get stuck on
+    /// `.empty` the way the hand-rolled `.task` loader can when SwiftUI cancels it without
+    /// re-running it.
+    private func kingfisherImage(url: URL) -> some View {
+        KingfisherTMDBImage(url: url, contentMode: contentMode) { reason in
+            placeholder(url: url, reason: reason)
+        }
     }
 
     private func cachedImage(url: URL) -> some View {
-        CachedTMDBImage(url: url, loader: loader.resolved) { phase in
+        CachedTMDBImage(url: url) { phase in
             phaseContent(phase, url: url)
         }
     }
@@ -110,9 +123,46 @@ public struct RemoteTMDBImage: View {
     }
 }
 
+private struct KingfisherTMDBImage<Failure: View>: View {
+    let url: URL
+    let contentMode: SwiftUI.ContentMode
+    @ViewBuilder let failure: (String) -> Failure
+
+    private enum LoadState: Equatable {
+        case loading
+        case loaded
+        case failed(String)
+    }
+
+    @State private var state: LoadState = .loading
+
+    var body: some View {
+        KFImage(url)
+            // Keep the w185 original in the shared memory/disk cache: every carousel showing the
+            // same person then renders from memory instead of re-decoding.
+            .cacheOriginalImage()
+            .placeholder {
+                switch state {
+                case .loading:
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                case let .failed(reason):
+                    failure(reason)
+                case .loaded:
+                    EmptyView()
+                }
+            }
+            .onSuccess { _ in state = .loaded }
+            .onFailure { error in state = .failed(String(reflecting: error)) }
+            .resizable()
+            .aspectRatio(contentMode: contentMode)
+            .cornerRadius(state == .loaded ? 10 : 0)
+            .shadow(radius: state == .loaded ? 5 : 0)
+    }
+}
+
 private struct CachedTMDBImage<Content: View>: View {
     let url: URL
-    let loader: TMDBImageLoader
     @ViewBuilder let content: (AsyncImagePhase) -> Content
     @State private var phase: AsyncImagePhase = .empty
 
@@ -121,13 +171,8 @@ private struct CachedTMDBImage<Content: View>: View {
             .task {
                 phase = .empty
                 do {
-                    let image: UIImage
-                    if loader == .kingfisher {
-                        // Kingfisher's default cache stores images in memory and on disk.
-                        image = try await KingfisherManager.shared.retrieveImage(with: url).image
-                    } else {
-                        image = try await TMDBImageDownload.loadUIImage(from: url)
-                    }
+                    // `.kingfisher` never reaches here: it is rendered by `KingfisherTMDBImage`.
+                    let image = try await TMDBImageDownload.loadUIImage(from: url)
                     try Task.checkCancellation()
                     phase = .success(Image(uiImage: image))
                 } catch {
