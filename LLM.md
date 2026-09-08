@@ -18,3 +18,10 @@ scheme=EverythingClient bash .github/scripts/build.sh
 ## Development Guidelines
 - when working on a module, look at the structure of the module to see if whether it is mainly SwiftUI or RxSwift or UIKit, and what the architecture is (MVVM, Clean, ...) before start writing code
 - look at root level **Package.swift** first to know the dependencies before start implementation
+
+## Style
+
+Follow YAGNI principles, and prefer one-liner solutions
+
+## Structures
+- at the end of the response, list out the Apple APIs or external APIs you used 
