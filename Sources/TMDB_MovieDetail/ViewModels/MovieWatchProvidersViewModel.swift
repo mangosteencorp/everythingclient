@@ -8,9 +8,9 @@ public typealias MovieWatchProvidersState = LoadState<WatchProviderResponse>
 public class MovieWatchProvidersViewModel: ObservableObject {
     @Published var state: MovieWatchProvidersState = .initial
 
-    private let apiService: TMDBAPIService
+    private let apiService: any TMDBAPIRequesting
 
-    public init(apiService: TMDBAPIService) {
+    public init(apiService: any TMDBAPIRequesting) {
         self.apiService = apiService
     }
 

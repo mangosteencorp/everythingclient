@@ -16,6 +16,7 @@ private enum TestDesign: String, DesignVariant {
     var isAvailableOnThisDevice: Bool { self != .unavailable }
 }
 
+@MainActor
 final class DesignCoordinatorTests: XCTestCase {
     private var defaults: UserDefaults!
     private var suiteName: String!
@@ -114,4 +115,14 @@ final class DesignCoordinatorTests: XCTestCase {
         XCTAssertFalse(FeedTabDesign.availableCases.contains(.systemTabs))
         XCTAssertTrue(FeedTabDesign.availableCases.contains(.topSegments))
     }
+
+    #if targetEnvironment(macCatalyst)
+    func testCatalystFallsBackFromStoredSystemTabs() {
+        let coordinator = makeCoordinator()
+        coordinator.select(FeedTabDesign.systemTabs)
+
+        XCTAssertEqual(coordinator.style(FeedTabDesign.self), .topSegments)
+        XCTAssertEqual(FeedTabDesign.availableCases, [.topSegments])
+    }
+    #endif
 }

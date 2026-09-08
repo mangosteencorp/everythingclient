@@ -101,7 +101,7 @@ public enum TMDBEndpoint {
     case tvShowWatchProviders(show: Int)
 
     // swiftlint:disable cyclomatic_complexity
-    func path() -> String {
+    public func path() -> String {
         switch self {
         // Movie Lists
         case .popular:

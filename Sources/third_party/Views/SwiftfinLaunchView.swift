@@ -9,7 +9,7 @@ public struct SwiftfinLaunchView: View {
     @Environment(\.dismiss) private var dismiss
 
     public init() {
-        SwiftfinLaunchConfiguration.configureIfNeeded()
+        SwiftfinRuntime.configureIfNeeded()
     }
 
     public var body: some View {
@@ -33,9 +33,12 @@ public struct SwiftfinLaunchView: View {
             .accessibilityIdentifier("swiftfin.close.button")
         }
         .onDisappear {
-            // Swiftfin forces the app's key window into dark mode
-            // (overrideUserInterfaceStyle) on launch and never reverts it.
-            resetInterfaceStyle()
+            // Swiftfin's SwiftfinAppValueObservation mutates the host app's key
+            // window on launch and never reverts it: it forces dark mode
+            // (overrideUserInterfaceStyle) and paints the window tint with its
+            // accent colour (.jellyfinPurple when signed out), which is what
+            // turns our Settings buttons purple once Swiftfin has been opened.
+            resetKeyWindowAppearance()
         }
     }
 
@@ -55,23 +58,15 @@ public struct SwiftfinLaunchView: View {
     }
     #endif
 
-    private func resetInterfaceStyle() {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first { $0.isKeyWindow }?
-            .overrideUserInterfaceStyle = .unspecified
-    }
-}
+    private func resetKeyWindowAppearance() {
+        guard let keyWindow = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow) else { return }
 
-private enum SwiftfinLaunchConfiguration {
-    private static var isConfigured = false
-
-    static func configureIfNeeded() {
-        guard !isConfigured else { return }
-        #if canImport(SwiftfinLib)
-        SwiftfinLibrary.configure()
-        #endif
-        isConfigured = true
+        keyWindow.overrideUserInterfaceStyle = .unspecified
+        // nil falls back to the app's AccentColor asset (unset here, so the
+        // system default), matching how the window looked before launching.
+        keyWindow.tintColor = nil
     }
 }

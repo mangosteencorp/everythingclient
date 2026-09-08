@@ -12,6 +12,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
     @StateObject var creditsViewModel: MovieCastingViewModel
     @StateObject var watchProvidersViewModel: MovieWatchProvidersViewModel
     @StateObject var ostViewModel: MovieOSTViewModel
+    @StateObject var jellyfinViewModel: MovieJellyfinViewModel
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
     let personRouteBuilder: ((Int) -> Route)?
@@ -32,6 +33,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
             creditsViewModel: MovieCastingViewModel(apiService: apiService),
             watchProvidersViewModel: MovieWatchProvidersViewModel(apiService: apiService),
             ostViewModel: MovieOSTViewModel(),
+            jellyfinViewModel: MovieJellyfinViewModel(),
             discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder,
             personRouteBuilder: personRouteBuilder,
             photoSlidesRouteBuilder: photoSlidesRouteBuilder,
@@ -62,6 +64,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
          creditsViewModel: MovieCastingViewModel,
          watchProvidersViewModel: MovieWatchProvidersViewModel,
          ostViewModel: MovieOSTViewModel,
+         jellyfinViewModel: MovieJellyfinViewModel,
          discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
          personRouteBuilder: ((Int) -> Route)? = nil,
          photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
@@ -72,6 +75,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         _creditsViewModel = StateObject(wrappedValue: creditsViewModel)
         _watchProvidersViewModel = StateObject(wrappedValue: watchProvidersViewModel)
         _ostViewModel = StateObject(wrappedValue: ostViewModel)
+        _jellyfinViewModel = StateObject(wrappedValue: jellyfinViewModel)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
         self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
@@ -131,6 +135,15 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 Section {
                     MovieWatchProvidersSection(movieId: movie.id, watchProvidersViewModel: watchProvidersViewModel)
                 }
+                if jellyfinViewModel.isVisible {
+                    Section {
+                        MovieJellyfinSection(
+                            movieTitle: displayedMovie.userTitle,
+                            movieId: movie.id,
+                            jellyfinViewModel: jellyfinViewModel
+                        )
+                    }
+                }
             }
             .listStyle(PlainListStyle())
             .navigationBarTitle(Text(displayedMovie.userTitle), displayMode: .large)
@@ -147,6 +160,11 @@ public struct MovieDetailPage<Route: Hashable>: View {
         // the previous `onChange` was for.
         .task(id: displayedMovie.userTitle) {
             await ostViewModel.load(for: displayedMovie.userTitle)
+        }
+        // Same story as the OST search: the Jellyfin library is searched by title, so the lookup
+        // waits for the placeholder title to resolve into the real one.
+        .task(id: displayedMovie.userTitle) {
+            await jellyfinViewModel.load(title: displayedMovie.userTitle, tmdbID: movie.id)
         }
     }
 
@@ -181,6 +199,7 @@ let exampleMovieDetailPage: MovieDetailPage = {
         creditsViewModel: creditVM,
         watchProvidersViewModel: MovieWatchProvidersViewModel(apiService: apiService),
         ostViewModel: MovieOSTViewModel(),
+        jellyfinViewModel: MovieJellyfinViewModel(),
         discoverMovieByKeywordRouteBuilder: { _ in 1 },
         photoSlidesRouteBuilder: { _, index in index }
     )

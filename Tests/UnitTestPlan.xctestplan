@@ -39,6 +39,27 @@
         "identifier" : "TMDB_MovieDetail_Tests",
         "name" : "TMDB_MovieDetail_Tests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TMDB_TVShowDetail_Tests",
+        "name" : "TMDB_TVShowDetail_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TMDB_Person_Tests",
+        "name" : "TMDB_Person_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TMDB_Profile_Tests",
+        "name" : "TMDB_Profile_Tests"
+      }
     }
   ],
   "version" : 1

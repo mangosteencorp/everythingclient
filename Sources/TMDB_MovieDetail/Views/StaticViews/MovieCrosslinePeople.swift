@@ -8,9 +8,19 @@ struct MovieCrosslinePeopleRow<Route: Hashable>: View {
     let peoples: [People]
     let personRouteBuilder: ((Int) -> Route)?
 
+    /// `/credits` returns one entry per credit, not per person: a crew member with two jobs — or an
+    /// actor credited for two roles — arrives twice with the same `People.id`. Keying `ForEach` on
+    /// `Identifiable` then hands SwiftUI duplicate identities, which is what makes the lazy stack
+    /// reuse the wrong cells and leave their image `.task` cancelled but never restarted.
+    private var identifiedPeoples: [(id: String, people: People)] {
+        peoples.enumerated().map { offset, people in
+            (id: "\(people.id)-\(people.character ?? people.department ?? "")-\(offset)", people: people)
+        }
+    }
+
     private var peoplesListView: some View {
-        List(peoples) { cast in
-            PeopleListItem(people: cast, personRouteBuilder: personRouteBuilder)
+        List(identifiedPeoples, id: \.id) { entry in
+            PeopleListItem(people: entry.people, personRouteBuilder: personRouteBuilder)
         }.navigationBarTitle(title)
     }
 
@@ -29,8 +39,8 @@ struct MovieCrosslinePeopleRow<Route: Hashable>: View {
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(peoples) { cast in
-                        PeopleRowItem(people: cast, personRouteBuilder: personRouteBuilder)
+                    ForEach(identifiedPeoples, id: \.id) { entry in
+                        PeopleRowItem(people: entry.people, personRouteBuilder: personRouteBuilder)
                     }
                 }.padding(.leading)
             }
@@ -76,7 +86,7 @@ struct PeopleListItem<Route: Hashable>: View {
 
     private var content: some View {
         HStack {
-            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium)
+            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium, loader: .kingfisher)
                 .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
 
             VStack(alignment: .leading, spacing: 8) {
@@ -111,7 +121,7 @@ struct PeopleRowItem<Route: Hashable>: View {
 
     private var content: some View {
         VStack(alignment: .center) {
-            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium)
+            RemoteTMDBImage(posterPath: people.profilePath, imageSize: .profileMedium, loader: .kingfisher)
                 .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
             Text(people.name)
                 .font(.footnote)

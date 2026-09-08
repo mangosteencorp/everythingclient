@@ -51,11 +51,21 @@ let hasSwiftfin = false
 let hasSwiftfin = true
 #endif
 
+// jellyfin-sdk-swift is already in the graph as a Swiftfin dependency; naming it here only makes
+// it importable by `third_party`, which needs `BaseItemDto` to read the library hit Swiftfin
+// returns. The version must stay pinned to whatever Swiftfin pins (`exact: "2.1.0"`) or resolution
+// fails.
 let swiftfinPackageDependency: [Package.Dependency] =
-    hasSwiftfin ? [.package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm")] : []
+    hasSwiftfin ? [
+        .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm"),
+        .package(url: "https://github.com/jellyfin/jellyfin-sdk-swift.git", exact: "2.1.0"),
+    ] : []
 
 let swiftfinTargetDependency: [Target.Dependency] =
-    hasSwiftfin ? [.product(name: "SwiftfinLib", package: "Swiftfin")] : []
+    hasSwiftfin ? [
+        .product(name: "SwiftfinLib", package: "Swiftfin"),
+        .product(name: "JellyfinAPI", package: "jellyfin-sdk-swift"),
+    ] : []
 
 let package = Package(
     name: "everythingclient",
@@ -178,7 +188,12 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_Backend",
                 "Shared_UI_Support",
+                .product(name: "Kingfisher", package: "Kingfisher"),
             ]
+        ),
+        .testTarget(
+            name: "TMDB_Shared_UI_Tests",
+            dependencies: ["TMDB_Shared_UI"]
         ),
         // Detail page
         .target(
@@ -188,6 +203,7 @@ let package = Package(
                 "PhotoListViewer",
                 "Swinject",
                 "TMDB_Shared_Backend",
+                "third_party",
             ],
             resources: [
                 .process("Resources"),
@@ -198,7 +214,11 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_MovieDetail_Tests",
-            dependencies: ["TMDB_MovieDetail"]
+            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party"]
+        ),
+        .testTarget(
+            name: "TMDB_TVShowDetail_Tests",
+            dependencies: ["TMDB_TVShowDetail", "Tests_Shared_Helpers"]
         ),
         .target(
             name: "TMDB_TVShowDetail",
@@ -208,6 +228,10 @@ let package = Package(
                 "TMDB_Shared_UI",
                 "Shared_UI_Support",
             ]
+        ),
+        .testTarget(
+            name: "TMDB_Person_Tests",
+            dependencies: ["TMDB_Person", "Tests_Shared_Helpers"]
         ),
         .target(
             name: "TMDB_Person",
@@ -271,6 +295,11 @@ let package = Package(
         ),
 
         .testTarget(
+            name: "TMDB_Profile_Tests",
+            dependencies: ["TMDB_Profile", "Tests_Shared_Helpers"]
+        ),
+
+        .testTarget(
             name: "TMDB_Shared_Backend_Tests",
             dependencies: ["TMDB_Shared_Backend"],
             resources: [.process("Resources")] // needed for Bundle.module
@@ -317,6 +346,7 @@ let package = Package(
 
         .target(
             name: "Tests_Shared_Helpers",
+            dependencies: ["TMDB_Shared_Backend"],
             path: "Tests/Tests_Shared_Helpers"
         ),
         .target(
