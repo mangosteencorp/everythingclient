@@ -5,6 +5,7 @@ import ViewInspector
 import XCTest
 
 @available(iOS 16.0, *)
+@MainActor
 final class MovieFeedListPageTests: XCTestCase {
     var mockViewModel: MovieFeedViewModel!
     var mockTVShowViewModel: TVShowFeedViewModel!

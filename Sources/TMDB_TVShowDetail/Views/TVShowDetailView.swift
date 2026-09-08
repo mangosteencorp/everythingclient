@@ -28,10 +28,10 @@ public struct TVShowDetailView: View {
     final class Store: ObservableObject {
         @Published var state: ViewState = .initial
 
-        private let apiService: TMDBAPIService
+        private let apiService: any TMDBAPIRequesting
         private let tvShowId: Int
 
-        init(apiService: TMDBAPIService, tvShowId: Int) {
+        init(apiService: any TMDBAPIRequesting, tvShowId: Int) {
             self.apiService = apiService
             self.tvShowId = tvShowId
         }

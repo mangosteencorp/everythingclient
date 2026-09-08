@@ -16,6 +16,7 @@ private enum TestDesign: String, DesignVariant {
     var isAvailableOnThisDevice: Bool { self != .unavailable }
 }
 
+@MainActor
 final class DesignCoordinatorTests: XCTestCase {
     private var defaults: UserDefaults!
     private var suiteName: String!
