@@ -41,5 +41,7 @@ public struct JellyfinMoviePlayerView: View {
             .accessibilityLabel("Close player")
             .accessibilityIdentifier("jellyfin.player.close.button")
         }
+        .onAppear { SwiftfinWindowAppearanceGuard.swiftfinWillAppear() }
+        .onDisappear { SwiftfinWindowAppearanceGuard.swiftfinDidDisappear() }
     }
 }

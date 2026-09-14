@@ -48,7 +48,7 @@ public enum JellyfinLibraryError: Error, LocalizedError, Equatable {
 
 /// The seam between a feature module and Swiftfin's signed-in Jellyfin session.
 public protocol JellyfinLibraryServicing: Sendable {
-    /// `false` when SwiftfinLib was dropped from this build (see `hasSwiftfin` in Package.swift).
+    /// `false` when SwiftfinLib isn't linked into this build (it's iOS-only; see Package.swift).
     var isAvailable: Bool { get }
 
     /// The library movie for `title`, or `nil` when the library has nothing for it.

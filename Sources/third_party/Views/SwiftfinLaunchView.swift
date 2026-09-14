@@ -32,19 +32,14 @@ public struct SwiftfinLaunchView: View {
             .accessibilityLabel("Close Swiftfin")
             .accessibilityIdentifier("swiftfin.close.button")
         }
-        .onDisappear {
-            // Swiftfin's SwiftfinAppValueObservation mutates the host app's key
-            // window on launch and never reverts it: it forces dark mode
-            // (overrideUserInterfaceStyle) and paints the window tint with its
-            // accent colour (.jellyfinPurple when signed out), which is what
-            // turns our Settings buttons purple once Swiftfin has been opened.
-            resetKeyWindowAppearance()
-        }
+        .onAppear { SwiftfinWindowAppearanceGuard.swiftfinWillAppear() }
+        // Swiftfin repaints the host window's tint and forces dark mode; see the guard for why a
+        // one-off reset here isn't enough.
+        .onDisappear { SwiftfinWindowAppearanceGuard.swiftfinDidDisappear() }
     }
 
     #if !canImport(SwiftfinLib)
-    // SwiftfinLib is dropped from the package graph on Swift 6.4+ toolchains
-    // (see Package.swift); keep the screen navigable until that port lands.
+    // SwiftfinLib is only linked on iOS (see Package.swift); keep the screen navigable elsewhere.
     private var unavailablePlaceholder: some View {
         VStack(spacing: 8) {
             Image(systemName: "play.tv")
@@ -57,16 +52,4 @@ public struct SwiftfinLaunchView: View {
         .background(Color(.systemBackground))
     }
     #endif
-
-    private func resetKeyWindowAppearance() {
-        guard let keyWindow = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap(\.windows)
-            .first(where: \.isKeyWindow) else { return }
-
-        keyWindow.overrideUserInterfaceStyle = .unspecified
-        // nil falls back to the app's AccentColor asset (unset here, so the
-        // system default), matching how the window looked before launching.
-        keyWindow.tintColor = nil
-    }
 }

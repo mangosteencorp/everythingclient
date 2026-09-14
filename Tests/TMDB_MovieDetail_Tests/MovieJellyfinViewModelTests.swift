@@ -1,5 +1,5 @@
-@testable import TMDB_MovieDetail
 import third_party
+@testable import TMDB_MovieDetail
 import XCTest
 
 @MainActor

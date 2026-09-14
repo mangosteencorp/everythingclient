@@ -32,46 +32,35 @@ let sampleKitPackageDependency: [Package.Dependency] =
 let sampleKitTargetDependency: [Target.Dependency] =
     hasSampleKit ? [.product(name: "SampleKit", package: "SampleKit")] : []
 
-// MARK: - Optional dependency (Swiftfin)
+// MARK: - Swiftfin
 
 //
-// The `swiftpm` branch of Swiftfin does not build with the Swift 6.4 toolchain
-// (Xcode 27); that port lives on a separate branch. Until it lands, drop the
-// dependency entirely on newer compilers so the rest of the package still builds.
+// quangDecember/Swiftfin@swiftpm-test-4 is Swiftfin's main branch built as a package. It sets
+// this package's iOS minimum: five of its dependencies (SwiftVLC, MPVUI, MediaAccessibilityKit,
+// CollectionHStack, CollectionVGrid) require iOS 18, and SwiftPM won't link a product whose
+// minimum is above the consumer's.
 //
-// This must be `compiler(...)`, not `swift(...)`: the tools version above makes
-// SwiftPM compile this manifest in Swift 5 language mode, so `#if swift(>=6.4)`
-// would always be false regardless of the toolchain. `compiler(...)` reflects the
-// actual toolchain version.
+// SwiftfinLib is iOS-only, so the dependency is conditioned on iOS (Mac Catalyst is untested);
+// call sites guard their usage with `#if canImport(SwiftfinLib)`.
 //
-// Call sites guard their usage with `#if canImport(SwiftfinLib)`.
-#if compiler(>=6.4)
-let hasSwiftfin = false
-#else
-let hasSwiftfin = true
-#endif
-
 // jellyfin-sdk-swift is already in the graph as a Swiftfin dependency; naming it here only makes
 // it importable by `third_party`, which needs `BaseItemDto` to read the library hit Swiftfin
-// returns. The version must stay pinned to whatever Swiftfin pins (`exact: "2.1.0"`) or resolution
-// fails.
-let swiftfinPackageDependency: [Package.Dependency] =
-    hasSwiftfin ? [
-        .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm"),
-        .package(url: "https://github.com/jellyfin/jellyfin-sdk-swift.git", exact: "2.1.0"),
-    ] : []
+// returns. The version must stay pinned to whatever Swiftfin pins or resolution fails.
+let swiftfinPackageDependency: [Package.Dependency] = [
+    .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm-test-4"),
+    .package(url: "https://github.com/jellyfin/jellyfin-sdk-swift.git", exact: "3.1.0"),
+]
 
-let swiftfinTargetDependency: [Target.Dependency] =
-    hasSwiftfin ? [
-        .product(name: "SwiftfinLib", package: "Swiftfin"),
-        .product(name: "JellyfinAPI", package: "jellyfin-sdk-swift"),
-    ] : []
+let swiftfinTargetDependency: [Target.Dependency] = [
+    .product(name: "SwiftfinLib", package: "Swiftfin", condition: .when(platforms: [.iOS])),
+    .product(name: "JellyfinAPI", package: "jellyfin-sdk-swift", condition: .when(platforms: [.iOS])),
+]
 
 let package = Package(
     name: "everythingclient",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v16),
+        .iOS("18.0"),
         //.macOS(.v11),
     ],
     products: [
