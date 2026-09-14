@@ -6,10 +6,12 @@ set -euo pipefail
 #
 # With no version cap, selects the newest stable Xcode installed on the runner.
 # Set ALLOW_XCODE_BETA=1 to include beta Xcode bundles.
+# Set XCODE_BETA_ONLY=1 to select the newest beta / release candidate and ignore stable bundles.
 
 MAX_MAJOR_VERSION="${1:-}"
 MAX_MINOR_VERSION="${2:-99}"
-ALLOW_XCODE_BETA="${ALLOW_XCODE_BETA:-0}"
+XCODE_BETA_ONLY="${XCODE_BETA_ONLY:-0}"
+ALLOW_XCODE_BETA="${ALLOW_XCODE_BETA:-$XCODE_BETA_ONLY}"
 
 if [ -n "$MAX_MAJOR_VERSION" ]; then
   echo "Selecting newest Xcode up to $MAX_MAJOR_VERSION.$MAX_MINOR_VERSION"
@@ -33,6 +35,11 @@ for xcode_path in "${xcode_paths[@]}"; do
 
   if [[ "$ALLOW_XCODE_BETA" != "1" && "$xcode_name" =~ [Bb]eta ]]; then
     echo "Skipping beta Xcode: $xcode_path"
+    continue
+  fi
+
+  if [[ "$XCODE_BETA_ONLY" == "1" && ! "$xcode_name" =~ [Bb]eta|[Rr]elease_[Cc]andidate ]]; then
+    echo "Skipping non-beta Xcode: $xcode_path"
     continue
   fi
 

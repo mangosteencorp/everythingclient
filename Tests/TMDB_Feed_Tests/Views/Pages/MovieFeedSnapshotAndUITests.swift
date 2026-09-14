@@ -5,6 +5,7 @@ import ViewInspector
 import XCTest
 
 @available(iOS 16.0, *)
+@MainActor
 final class MovieFeedSnapshotTests: XCTestCase {
     func testErrorViewSnapshotHierarchy() throws {
         let view = FeedErrorContentView(
@@ -95,6 +96,7 @@ final class MovieFeedSnapshotTests: XCTestCase {
 }
 
 @available(iOS 16.0, *)
+@MainActor
 final class MovieFeedUITests: XCTestCase {
     func testCancelSearchClearsErrorState() async {
         let service = MockAPIService()

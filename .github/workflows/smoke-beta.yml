@@ -1,0 +1,43 @@
+name: Smoke build (latest Xcode beta)
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: smoke-beta-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build default scheme with the newest Xcode beta on the runner
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select latest Xcode beta
+        env:
+          XCODE_BETA_ONLY: 1
+        run: |
+          chmod +x ./.github/scripts/select_xcode.sh
+          ./.github/scripts/select_xcode.sh
+      - name: Configure Xcode
+        run: |
+          chmod +x ./.github/scripts/configure_xcode.sh
+          ./.github/scripts/configure_xcode.sh
+      - name: Set up secrets in xcconfig
+        run: |
+          echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
+          echo "PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient" >> Rebuild/Rebuild/Build.xcconfig
+      - name: Set Default Scheme
+        run: |
+          chmod +x ./.github/scripts/set_scheme.sh
+          ./.github/scripts/set_scheme.sh
+      - name: Build
+        env:
+          scheme: default
+          platform: iOS Simulator
+        run: |
+          chmod +x ./.github/scripts/build.sh
+          ./.github/scripts/build.sh

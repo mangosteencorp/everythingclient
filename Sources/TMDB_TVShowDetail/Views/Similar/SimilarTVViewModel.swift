@@ -6,9 +6,9 @@ import TMDB_Shared_UI
 @MainActor
 final class SimilarTVViewModel {
     private(set) var state: LoadState<[SimilarTVShowEntity]> = .initial
-    let apiService: TMDBAPIService
+    let apiService: any TMDBAPIRequesting
     let tvShowId: Int
-    init(apiService: TMDBAPIService, tvShowId: Int) {
+    init(apiService: any TMDBAPIRequesting, tvShowId: Int) {
         self.apiService = apiService
         self.tvShowId = tvShowId
     }
