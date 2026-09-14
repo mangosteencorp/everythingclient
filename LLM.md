@@ -24,4 +24,7 @@ scheme=EverythingClient bash .github/scripts/build.sh
 Follow YAGNI principles, and prefer one-liner solutions
 
 ## Structures
-- at the end of the response, list out the Apple APIs or external APIs you used 
+- at the end of the response, list out the Apple APIs or external APIs you used
+
+## Vendored code
+- `ThirdParty/BrowserKit` is a copy of Firefox for iOS's BrowserKit trimmed to `Redux` (+ `Common`, which it needs). Don't edit it; read `ThirdParty/BROWSERKIT_SYNC.md` before touching or updating it.
