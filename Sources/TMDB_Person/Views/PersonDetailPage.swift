@@ -7,7 +7,7 @@ public struct PersonDetailPage<Route: Hashable>: View {
     private let personId: Int
     private let movieRouteBuilder: (Int) -> Route
     @StateObject private var store: PersonDetailViewModel
-    @State private var useCarouselFilmography = false
+    @State private var useCarouselFilmography = true
 
     public init(
         personId: Int,
