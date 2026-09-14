@@ -31,7 +31,7 @@ public struct MovieJellyfinSection: View {
             case let .found(match):
                 MovieJellyfinMatchView(match: match) { isPlaying = true }
                     .fullScreenCover(isPresented: $isPlaying) {
-                        JellyfinMoviePlayerView(movieTitle: match.title)
+                        JellyfinMoviePlayerView(match: match)
                     }
 
             case .error(let message):

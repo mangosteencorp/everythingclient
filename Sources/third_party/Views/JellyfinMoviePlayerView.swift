@@ -3,17 +3,17 @@ import SwiftfinLib
 #endif
 import SwiftUI
 
-/// Full-screen playback of a Jellyfin library movie, found by the library title.
+/// Full-screen playback of a Jellyfin library movie.
 ///
-/// It looks the movie up again rather than being handed the item found earlier: `BaseItemDto` would
-/// otherwise have to cross this module's public API and drag JellyfinAPI into every caller.
+/// Plays the exact item the library search matched. Only a match built outside this module (a
+/// preview or a test double) carries no item, and falls back to searching by its title.
 @available(iOS 16.0, *)
 public struct JellyfinMoviePlayerView: View {
     @Environment(\.dismiss) private var dismiss
-    private let movieTitle: String
+    private let match: JellyfinMovieMatch
 
-    public init(movieTitle: String) {
-        self.movieTitle = movieTitle
+    public init(match: JellyfinMovieMatch) {
+        self.match = match
         SwiftfinRuntime.configureIfNeeded()
     }
 
@@ -22,7 +22,7 @@ public struct JellyfinMoviePlayerView: View {
             Color.black.ignoresSafeArea()
 
             #if canImport(SwiftfinLib)
-            SwiftfinLibrary.moviePlayer(matching: .keyword(movieTitle))
+            match.item.map(SwiftfinLibrary.moviePlayer(for:)) ?? SwiftfinLibrary.moviePlayer(matching: .keyword(match.title))
             #else
             Text("Jellyfin playback is unavailable in this build.")
                 .foregroundStyle(.secondary)

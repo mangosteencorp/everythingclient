@@ -18,6 +18,12 @@ public struct JellyfinMovieMatch: Identifiable, Sendable, Equatable {
     public let resumeSeconds: Double
     public let isPlayed: Bool
 
+    #if canImport(SwiftfinLib)
+    /// The exact library item that matched, so playback starts on it instead of re-running a title
+    /// search that could land on a different movie with the same name.
+    private(set) var item: BaseItemDto?
+    #endif
+
     public init(
         id: String,
         title: String,
@@ -117,6 +123,7 @@ private extension JellyfinMovieMatch {
             resumeSeconds: resumeSeconds,
             isPlayed: item.userData?.isPlayed ?? false
         )
+        self.item = item
     }
 }
 
