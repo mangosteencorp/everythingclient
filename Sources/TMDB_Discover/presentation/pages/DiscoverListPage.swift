@@ -16,8 +16,7 @@ public struct DiscoverListPage<Route: Hashable>: View {
         type: TVShowFeedType,
         detailRouteBuilder: @escaping (Int, DiscoverMediaType) -> Route
     ) {
-        APIKeys.tmdbKey = apiKey
-        let movieAssembly = DiscoverAssembly()
+        let movieAssembly = DiscoverAssembly(apiKey: apiKey)
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
 
@@ -94,8 +93,4 @@ struct TVShowListViewControllerRepresentable: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: TVShowListViewController, context: Context) {
         // Updates handled by the view model
     }
-}
-
-enum APIKeys {
-    static var tmdbKey = ""
 }

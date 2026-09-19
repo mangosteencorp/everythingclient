@@ -21,8 +21,7 @@ public struct HomeDiscoverView<Route: Hashable>: View {
         onCastTapped: @escaping (PopularPerson) -> Void = { _ in },
         onTrendingItemTapped: @escaping (TrendingItem) -> Void = { _ in }
     ) {
-        APIKeys.tmdbKey = apiKey
-        let movieAssembly = DiscoverAssembly()
+        let movieAssembly = DiscoverAssembly(apiKey: apiKey)
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
         self.onItemTapped = onItemTapped
