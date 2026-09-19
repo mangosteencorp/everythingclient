@@ -100,10 +100,10 @@ extension BaseTestCase {
             // Perform basic navigation actions
             switch demoName {
             case "TMDBFeed":
-                // Switch to Search tab via tab bar if present
-                let searchTab = app.tabBars.buttons["Search"]
-                if searchTab.exists {
-                    searchTab.tap()
+                // The feed's own categories; search is a separate demo (TMDBSearch).
+                let popularTab = app.tabBars.buttons["Popular"]
+                if popularTab.exists {
+                    popularTab.tap()
                 }
                 let nowPlayingTab = app.tabBars.buttons["Now Playing"]
                 if nowPlayingTab.exists {

@@ -11,6 +11,7 @@ import TMDB_Feed
 import TMDB_MovieDetail
 import TMDB_Person
 import TMDB_Profile
+import TMDB_Search
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
 #if DEBUG
@@ -22,6 +23,7 @@ public struct IntegrationTestLauncher {
         case tmdbTabsPage = "TMDBTabsPage"
         case tmdbTabsEmbedded = "TMDBTabsEmbedded"
         case tmdbFeed = "TMDBFeed"
+        case tmdbSearch = "TMDBSearch"
         case tmdbDiscover = "TMDBDiscover"
         case tmdbMovieDetail = "TMDBMovieDetail"
         case tmdbTVShowDetail = "TMDBTVShowDetail"
@@ -40,6 +42,7 @@ public struct IntegrationTestLauncher {
             case .tmdbTabsPage: return "TMDB Tabs — Page"
             case .tmdbTabsEmbedded: return "TMDB Tabs — Embedded"
             case .tmdbFeed: return "TMDB Feed"
+            case .tmdbSearch: return "TMDB Search"
             case .tmdbDiscover: return "TMDB Discover"
             case .tmdbMovieDetail: return "TMDB Movie Detail"
             case .tmdbTVShowDetail: return "TMDB TV Show Detail"
@@ -99,6 +102,8 @@ public struct IntegrationTestLauncher {
             }
         case .tmdbFeed:
             TMDBFeedDemoView()
+        case .tmdbSearch:
+            TMDBSearchDemoView()
         case .tmdbDiscover:
             TMDBDiscoverDemoView()
         case .tmdbMovieDetail:

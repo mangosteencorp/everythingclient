@@ -66,17 +66,25 @@ public struct FilterChip: View {
 @available(iOS 16.0, *)
 public struct FilterChipsView: View {
     @Binding var filters: SearchFilters
+    /// Which chips to offer. Search narrows this per scope, because TMDB accepts a different
+    /// parameter set per endpoint; the feed passes every type.
+    let types: [FilterType]
     let onFilterTap: (FilterType) -> Void
 
-    public init(filters: Binding<SearchFilters>, onFilterTap: @escaping (FilterType) -> Void) {
+    public init(
+        filters: Binding<SearchFilters>,
+        types: [FilterType] = FilterType.allCases,
+        onFilterTap: @escaping (FilterType) -> Void
+    ) {
         _filters = filters
+        self.types = types
         self.onFilterTap = onFilterTap
     }
 
     public var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(FilterType.allCases) { filterType in
+                ForEach(types) { filterType in
                     FilterChip(
                         filterType: filterType,
                         isActive: isFilterActive(filterType),
@@ -86,7 +94,7 @@ public struct FilterChipsView: View {
                     )
                 }
 
-                if filters.hasActiveFilters {
+                if hasActiveVisibleFilters {
                     Button(L10n.filterClearAll) {
                         filters.clearAll()
                     }
@@ -103,6 +111,11 @@ public struct FilterChipsView: View {
             .padding(.horizontal, 16)
         }
         .padding(.vertical, 8)
+    }
+
+    /// "Clear all" should not appear because of a filter this scope is not even showing.
+    private var hasActiveVisibleFilters: Bool {
+        types.contains(where: isFilterActive)
     }
 
     private func isFilterActive(_ filterType: FilterType) -> Bool {

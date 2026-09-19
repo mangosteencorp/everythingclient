@@ -1,6 +1,7 @@
 import CoreFeatures
 import SwiftUI
 @testable import TMDB_Feed
+import TMDB_Shared_UI
 import ViewInspector
 import XCTest
 
@@ -90,23 +91,9 @@ final class MovieFeedListPageTests: XCTestCase {
         XCTAssertEqual(mockViewModel.searchQuery, "")
     }
 
-    func testSearchTabShowsSearchBarAndFilters() throws {
-        let searchPage = FeedSearchTabContent(
-            movieViewModel: mockViewModel,
-            tvShowViewModel: mockTVShowViewModel,
-            detailRouteBuilder: { _ in 1 },
-            tvShowDetailRouteBuilder: { _ in 1 }
-        )
-
-        XCTAssertNoThrow(try searchPage.inspect().find(ViewType.Picker.self))
-        XCTAssertNoThrow(try searchPage.inspect().find(ViewType.TextField.self))
-        XCTAssertNoThrow(try searchPage.inspect().find(FilterChipsView.self))
-    }
-
     func testFeedTabsExist() {
-        XCTAssertEqual(FeedTab.allCases.count, 7)
+        XCTAssertEqual(FeedTab.allCases.count, 6)
         XCTAssertEqual(FeedTab.allCases.filter { $0.movieFeedType != nil }.count, 4)
         XCTAssertEqual(FeedTab.allCases.filter { $0.tvShowFeedType != nil }.count, 2)
-        XCTAssertNotNil(FeedTab.search)
     }
 }

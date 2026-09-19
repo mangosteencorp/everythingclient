@@ -1,6 +1,6 @@
 import Tests_Shared_Helpers
-@testable import TMDB_Feed
-import TMDB_Shared_Backend
+@testable import TMDB_Search
+@testable import TMDB_Shared_Backend
 import XCTest
 
 /// Every scope has to reach its own TMDB endpoint and come back as the same row type — that is
@@ -76,6 +76,94 @@ final class TMDBSearchServiceTests: XCTestCase {
         XCTAssertEqual(page.page, 1)
         XCTAssertEqual(page.totalPages, 3)
         XCTAssertTrue(page.hasMore)
+    }
+
+    // MARK: - Filters
+
+    func testMovieScopeForwardsEveryFilterItSupports() async throws {
+        try seedAllScopes()
+        let filters = SearchFilters(
+            includeAdult: true,
+            language: "fr",
+            primaryReleaseYear: "2021",
+            region: "FR",
+            year: "2020"
+        )
+
+        _ = await service.search(scope: .movies, query: "dune", filters: filters, page: nil)
+
+        let query = try XCTUnwrap(requester.requestedEndpoints.first?.extraQuery())
+        XCTAssertEqual(query["include_adult"], "true")
+        XCTAssertEqual(query["language"], "fr")
+        XCTAssertEqual(query["primary_release_year"], "2021")
+        XCTAssertEqual(query["region"], "FR")
+        XCTAssertEqual(query["year"], "2020")
+    }
+
+    /// `search/keyword` takes nothing but `query` and `page`, so a filter left over from the
+    /// movie scope must not ride along.
+    func testScopesDropFiltersTheirEndpointCannotHonour() async throws {
+        try seedAllScopes()
+        let filters = SearchFilters(includeAdult: true, language: "fr", region: "FR", year: "2020")
+
+        _ = await service.search(scope: .keywords, query: "dune", filters: filters, page: nil)
+
+        let query = try XCTUnwrap(requester.requestedEndpoints.first?.extraQuery())
+        XCTAssertEqual(Set(query.keys), ["query"])
+    }
+
+    /// `search/person` accepts only `include_adult` and `language`; the year and region chips
+    /// are not offered there and must not be sent either.
+    func testPersonScopeSendsOnlyTheTwoFiltersItAccepts() async throws {
+        try seedAllScopes()
+        let filters = SearchFilters(includeAdult: true, language: "ja", region: "JP", year: "1999")
+
+        _ = await service.search(scope: .people, query: "dune", filters: filters, page: nil)
+
+        let query = try XCTUnwrap(requester.requestedEndpoints.first?.extraQuery())
+        XCTAssertEqual(query["include_adult"], "true")
+        XCTAssertEqual(query["language"], "ja")
+        XCTAssertNil(query["region"])
+        XCTAssertNil(query["year"])
+    }
+
+    /// The TV endpoint spells its year filter `first_air_date_year`, so the single year chip has
+    /// to reach both spellings rather than silently doing nothing.
+    func testTVScopeMapsTheYearChipOntoFirstAirDateYear() async throws {
+        try seedAllScopes()
+
+        _ = await service.search(
+            scope: .tvShows,
+            query: "dune",
+            filters: SearchFilters(year: "2020"),
+            page: nil
+        )
+
+        let query = try XCTUnwrap(requester.requestedEndpoints.first?.extraQuery())
+        XCTAssertEqual(query["first_air_date_year"], "2020")
+    }
+
+    func testEveryScopeOnlyOffersChipsItsEndpointAccepts() {
+        XCTAssertEqual(SearchScope.keywords.supportedFilters, [])
+        XCTAssertEqual(SearchScope.companies.supportedFilters, [])
+        XCTAssertFalse(SearchScope.tvShows.supportedFilters.contains(.primaryReleaseYear))
+        XCTAssertEqual(SearchScope.movies.supportedFilters.count, FilterType.allCases.count)
+    }
+
+    func testNarrowingClearsFiltersTheScopeDoesNotSupport() {
+        let filters = SearchFilters(
+            includeAdult: true,
+            language: "fr",
+            primaryReleaseYear: "2021",
+            region: "FR",
+            year: "2020"
+        )
+
+        XCTAssertEqual(filters.narrowed(to: .movies), filters)
+        XCTAssertFalse(filters.narrowed(to: .keywords).hasActiveFilters)
+        XCTAssertNil(filters.narrowed(to: .people).region)
+        XCTAssertNil(filters.narrowed(to: .tvShows).primaryReleaseYear)
+        XCTAssertEqual(filters.narrowed(to: .tvShows).year, "2020")
     }
 
     // MARK: - Fixtures

@@ -50,9 +50,9 @@ public enum ContentFeedType: String, CaseIterable, Identifiable {
     public var localizedTitle: String {
         switch self {
         case .movies:
-            return L10n.feedSearchMovies
+            return L10n.feedSectionMovies
         case .tvShows:
-            return L10n.feedSearchTv
+            return L10n.feedSectionTv
         }
     }
 }
@@ -61,9 +61,6 @@ public class MovieFeedViewModel: ObservableObject {
     @Published var state: NowPlayingViewState = .initial
     @Published var searchQuery = ""
     @Published var currentFeedType: MovieFeedType = .nowPlaying
-    @Published var searchFilters = SearchFilters()
-    @Published var showingFilterSheet = false
-    @Published var selectedFilterType: FilterType?
 
     private var nowPlayingMovies: [Movie] = []
     private var popularMovies: [Movie] = []
@@ -123,19 +120,6 @@ public class MovieFeedViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-
-        $searchFilters
-            .dropFirst()
-            .sink { [weak self] _ in
-                guard let self, !self.searchQuery.isEmpty else { return }
-                self.searchMovies(query: self.searchQuery)
-            }
-            .store(in: &cancellables)
-    }
-
-    @MainActor func updateSelectedFilterToShow(_ filterType: FilterType) {
-        selectedFilterType = filterType
-        showingFilterSheet = true
     }
 
     func fetchNowPlayingMovies() {
@@ -269,7 +253,6 @@ public class MovieFeedViewModel: ObservableObject {
 
     func clearSearchAndRetry() {
         searchQuery = ""
-        searchFilters = SearchFilters()
         state = .initial
     }
 
@@ -293,11 +276,7 @@ public class MovieFeedViewModel: ObservableObject {
         searchTask?.cancel()
         searchTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            let result = await apiService.searchMovies(
-                query: query,
-                page: nil,
-                filters: searchFilters.hasActiveFilters ? searchFilters : nil
-            )
+            let result = await apiService.searchMovies(query: query, page: nil)
             guard !Task.isCancelled else { return }
             switch result {
             case let .success(response):

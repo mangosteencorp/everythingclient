@@ -32,6 +32,22 @@ public struct SearchFilters: Equatable, Hashable {
         region = nil
         year = nil
     }
+
+    /// The subset of these filters a given scope's endpoint actually accepts.
+    ///
+    /// Filters outlive a scope change on purpose — flipping from Movies to TV and back should
+    /// not lose the year you typed — so the request has to drop what the new endpoint cannot
+    /// use rather than the model forgetting it.
+    public func narrowed(to scope: SearchScope) -> SearchFilters {
+        let supported = Set(scope.supportedFilters)
+        return SearchFilters(
+            includeAdult: supported.contains(.includeAdult) ? includeAdult : false,
+            language: supported.contains(.language) ? language : nil,
+            primaryReleaseYear: supported.contains(.primaryReleaseYear) ? primaryReleaseYear : nil,
+            region: supported.contains(.region) ? region : nil,
+            year: supported.contains(.year) ? year : nil
+        )
+    }
 }
 
 public enum FilterType: String, CaseIterable, Identifiable {

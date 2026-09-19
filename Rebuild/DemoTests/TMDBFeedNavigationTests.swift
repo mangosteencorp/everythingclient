@@ -35,7 +35,8 @@ final class TMDBFeedNavigationTests: XCTestCase {
         XCTAssertTrue(initialTab.waitForExistence(timeout: 15))
         XCTAssertTrue(initialTab.isSelected)
 
-        for tab in ["popular", "topRated", "upcoming", "onTheAir", "airingToday", "search", "nowPlaying"] {
+        // Search is no longer one of these: it is a root tab of its own (TMDB_Search).
+        for tab in ["popular", "topRated", "upcoming", "onTheAir", "airingToday", "nowPlaying"] {
             let button = app.buttons["feed_tab_segment_\(tab)"]
             XCTAssertTrue(button.waitForExistence(timeout: 5), "Missing category \(tab)")
             button.tap()
@@ -43,17 +44,6 @@ final class TMDBFeedNavigationTests: XCTestCase {
                 predicate: NSPredicate(format: "isSelected == true"), object: button
             )
             XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed, "Cannot select \(tab)")
-
-            // Catalyst propagates the page identifier onto its content. Query the
-            // field by type, and verify navigation without depending on API data.
-            if tab == "search" {
-                XCTAssertTrue(app.textFields.firstMatch.waitForExistence(timeout: 5))
-            } else if tab == "nowPlaying" {
-                let searchDismissed = XCTNSPredicateExpectation(
-                    predicate: NSPredicate(format: "exists == false"), object: app.textFields.firstMatch
-                )
-                XCTAssertEqual(XCTWaiter.wait(for: [searchDismissed], timeout: 5), .completed)
-            }
         }
     }
 }

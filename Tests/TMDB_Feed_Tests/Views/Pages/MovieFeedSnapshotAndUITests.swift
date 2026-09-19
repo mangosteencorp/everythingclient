@@ -1,6 +1,7 @@
 import CoreFeatures
 import SwiftUI
 @testable import TMDB_Feed
+import TMDB_Shared_UI
 import ViewInspector
 import XCTest
 
@@ -65,19 +66,6 @@ final class MovieFeedSnapshotTests: XCTestCase {
         XCTAssertEqual(vm.movies(for: .nowPlaying).count, 1)
     }
 
-    func testSearchPlaceholderSnapshot() throws {
-        let view = FeedSearchTabContent(
-            movieViewModel: MovieFeedViewModel(apiService: MockAPIService()),
-            tvShowViewModel: TVShowFeedViewModel(apiService: MockAPIService()),
-            detailRouteBuilder: { _ in 1 },
-            tvShowDetailRouteBuilder: { _ in 1 }
-        )
-
-        let pickers = try view.inspect().findAll(ViewType.Picker.self)
-        XCTAssertFalse(pickers.isEmpty)
-        XCTAssertNoThrow(try view.inspect().find(ViewType.TextField.self))
-    }
-
     func testFeedTabFingerprintSnapshot() {
         let fingerprint = FeedTab.allCases.map { "\($0.id):\($0.systemImage)" }
         XCTAssertEqual(
@@ -89,7 +77,6 @@ final class MovieFeedSnapshotTests: XCTestCase {
                 "upcoming:calendar",
                 "onTheAir:tv",
                 "airingToday:sun.max",
-                "search:magnifyingglass",
             ]
         )
     }

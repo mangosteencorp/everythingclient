@@ -1,15 +1,26 @@
 import Shared_UI_Support
 import SwiftUI
-import TMDB_Shared_UI
 
 /// Shared error presentation for feed list and search failures.
-struct FeedErrorContentView: View {
-    let message: String
-    let allowsCancelSearch: Bool
+public struct FeedErrorContentView: View {
+    public let message: String
+    public let allowsCancelSearch: Bool
     let retryAction: () -> Void
     let cancelAction: (() -> Void)?
 
-    var body: some View {
+    public init(
+        message: String,
+        allowsCancelSearch: Bool,
+        retryAction: @escaping () -> Void,
+        cancelAction: (() -> Void)? = nil
+    ) {
+        self.message = message
+        self.allowsCancelSearch = allowsCancelSearch
+        self.retryAction = retryAction
+        self.cancelAction = cancelAction
+    }
+
+    public var body: some View {
         Group {
             if isLikelyNetworkError {
                 NoInternetView(retryAction: retryAction, cancelAction: cancelButtonAction)
@@ -30,7 +41,7 @@ struct FeedErrorContentView: View {
         allowsCancelSearch ? cancelAction : nil
     }
 
-    var isLikelyNetworkError: Bool {
+    public var isLikelyNetworkError: Bool {
         let lowered = message.lowercased()
         return lowered.contains("internet")
             || lowered.contains("offline")

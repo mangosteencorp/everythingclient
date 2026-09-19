@@ -99,13 +99,6 @@ public struct MovieFeedListPage<Route: Hashable>: View {
                     detailRouteBuilder: tvShowDetailRouteBuilder
                 )
             }
-        case .search:
-            FeedSearchTabContent(
-                movieViewModel: movieViewModel,
-                tvShowViewModel: tvShowViewModel,
-                detailRouteBuilder: detailRouteBuilder,
-                tvShowDetailRouteBuilder: tvShowDetailRouteBuilder
-            )
         }
     }
 }

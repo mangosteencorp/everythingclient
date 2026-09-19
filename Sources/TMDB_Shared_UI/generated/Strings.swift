@@ -10,33 +10,11 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
-  /// Airing Today
-  public static let feedAiringToday = L10n.tr("Localizable", "feed_airing_today", fallback: "Airing Today")
-  /// Now Playing
-  public static let feedNowPlaying = L10n.tr("Localizable", "feed_now_playing", fallback: "Now Playing")
-  /// On the Air
-  public static let feedOnTheAir = L10n.tr("Localizable", "feed_on_the_air", fallback: "On the Air")
-  /// Popular
-  public static let feedPopular = L10n.tr("Localizable", "feed_popular", fallback: "Popular")
-  /// Movies
-  public static let feedSectionMovies = L10n.tr("Localizable", "feed_section_movies", fallback: "Movies")
-  /// TV Shows
-  public static let feedSectionTv = L10n.tr("Localizable", "feed_section_tv", fallback: "TV Shows")
-  /// Select a title
-  public static let feedSelectItem = L10n.tr("Localizable", "feed_select_item", fallback: "Select a title")
-  /// Choose a movie or TV show to see details.
-  public static let feedSelectItemPrompt = L10n.tr("Localizable", "feed_select_item_prompt", fallback: "Choose a movie or TV show to see details.")
-  /// Top Rated
-  public static let feedTopRated = L10n.tr("Localizable", "feed_top_rated", fallback: "Top Rated")
-  /// Upcoming
-  public static let feedUpcoming = L10n.tr("Localizable", "feed_upcoming", fallback: "Upcoming")
   /// Localizable.strings
   ///   everythingclient
   /// 
   ///   Created by Quang on 2024-09-30.
   public static let playingLoading = L10n.tr("Localizable", "playing_loading", fallback: "Loading...")
-  /// Now Playing
-  public static let playingTitle = L10n.tr("Localizable", "playing_title", fallback: "Now Playing")
 }
 // swiftlint:enable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:enable nesting type_body_length type_name vertical_whitespace_opening_braces

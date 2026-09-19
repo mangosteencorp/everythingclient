@@ -83,6 +83,11 @@ let package = Package(
             name: "TMDB_Feed",
             targets: ["TMDB_Feed"]
         ),
+        // Scoped TMDB search — its own root tab, not a feed category
+        .library(
+            name: "TMDB_Search",
+            targets: ["TMDB_Search"]
+        ),
         // Discover movies
         .library(
             name: "TMDB_Discover",
@@ -153,6 +158,7 @@ let package = Package(
             name: "TMDB",
             dependencies: [
                 "TMDB_Feed",
+                "TMDB_Search",
                 "TMDB_Discover",
                 "TMDB_Profile",
                 "TMDB_Shared_UI",
@@ -177,7 +183,11 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_Backend",
                 "Shared_UI_Support",
+                "CoreFeatures",
                 .product(name: "Kingfisher", package: "Kingfisher"),
+            ],
+            resources: [
+                .process("Resources"),
             ]
         ),
         .testTarget(
@@ -250,6 +260,22 @@ let package = Package(
             name: "TMDB_Feed_Tests",
             dependencies: ["TMDB_Feed", "TMDB_Shared_Backend", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
+        ),
+        // Search - its own root tab, deliberately independent of TMDB_Feed
+        .target(
+            name: "TMDB_Search",
+            dependencies: [
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
+                "Shared_UI_Support",
+            ],
+            resources: [
+                .process("Resources"),
+            ]
+        ),
+        .testTarget(
+            name: "TMDB_Search_Tests",
+            dependencies: ["TMDB_Search", "TMDB_Shared_Backend", "ViewInspector", "Tests_Shared_Helpers"]
         ),
         // Discover feed - clean architecture
         .target(
@@ -374,6 +400,7 @@ let package = Package(
                 "TMDB",
                 "Pokedex",
                 "TMDB_Feed",
+                "TMDB_Search",
                 "TMDB_Discover",
                 "TMDB_Profile",
                 "TMDB_MovieDetail",

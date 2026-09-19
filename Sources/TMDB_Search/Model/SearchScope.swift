@@ -16,8 +16,8 @@ public enum SearchScope: String, CaseIterable, Identifiable, Hashable {
     public var title: String {
         switch self {
         case .multi: return L10n.searchScopeAll
-        case .movies: return L10n.feedSearchMovies
-        case .tvShows: return L10n.feedSearchTv
+        case .movies: return L10n.searchScopeMovies
+        case .tvShows: return L10n.searchScopeTv
         case .people: return L10n.searchScopePeople
         case .collections: return L10n.searchScopeCollections
         case .companies: return L10n.searchScopeCompanies
@@ -34,6 +34,29 @@ public enum SearchScope: String, CaseIterable, Identifiable, Hashable {
         case .collections: return "square.stack"
         case .companies: return "building.2"
         case .keywords: return "tag"
+        }
+    }
+
+    /// Which filter chips this scope can actually act on.
+    ///
+    /// TMDB accepts a different query-parameter set per search endpoint — `search/keyword` and
+    /// `search/company` take nothing but `query` and `page`. Offering a chip that the request
+    /// would silently drop is worse than not offering it, so the picker only shows what the
+    /// endpoint honours.
+    public var supportedFilters: [FilterType] {
+        switch self {
+        case .movies:
+            return [.includeAdult, .language, .primaryReleaseYear, .region, .year]
+        case .tvShows:
+            // `search/tv` spells its year filter `first_air_date_year`; `SearchFilters.year`
+            // feeds it, and there is no separate primary-release year.
+            return [.includeAdult, .language, .region, .year]
+        case .multi, .people:
+            return [.includeAdult, .language]
+        case .collections:
+            return [.includeAdult, .language, .region]
+        case .keywords, .companies:
+            return []
         }
     }
 }

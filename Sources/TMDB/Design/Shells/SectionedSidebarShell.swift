@@ -3,7 +3,7 @@ import SwiftUI
 import TMDB_Feed
 
 /// Feed categories promoted out of the feed page and into the shell itself: sidebar sections on
-/// iPad, one pushable list per section on iPhone, plus a detached search tab.
+/// iPad, one pushable list per section on iPhone, plus `TMDB_Search` as its own search-role tab.
 ///
 /// All the `TabView` mechanics live in `SectionedTabView` (CoreFeatures). This file is only the
 /// translation layer between that generic view and this app's `Coordinator`.
@@ -24,7 +24,7 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
         SectionedTabView(
             roots: Self.roots,
             sections: FeedTab.sections,
-            searchRoot: .feedRow(.search),
+            searchRoot: .search,
             selection: $selection,
             customizationStorageKey: "tmdb.sectionedSidebar",
             rowPath: { coordinator.path(for: .feedRow($0)) },
@@ -46,7 +46,7 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
     }
 
     private func syncFromCoordinator() {
-        if case let .feedRow(tab) = coordinator.selectedTab, tab != .search {
+        if case let .feedRow(tab) = coordinator.selectedTab {
             selection = .row(tab)
         } else {
             selection = .root(coordinator.selectedTab)

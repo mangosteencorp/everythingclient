@@ -27,6 +27,9 @@ public final class StubTMDBAPIRequester: TMDBAPIRequesting, @unchecked Sendable 
 
     private var responses: [String: Result<Any, Error>] = [:]
     public private(set) var requestedPaths: [String] = []
+    /// The endpoints themselves, for assertions about the query parameters a caller built and
+    /// not just the path it hit.
+    public private(set) var requestedEndpoints: [TMDBEndpoint] = []
 
     public init() {}
 
@@ -50,6 +53,7 @@ public final class StubTMDBAPIRequester: TMDBAPIRequesting, @unchecked Sendable 
     public func request<T: Decodable>(_ endpoint: TMDBEndpoint) async throws -> T {
         let path = endpoint.path()
         requestedPaths.append(path)
+        requestedEndpoints.append(endpoint)
 
         guard let response = responses[path] else { throw StubError.notFound(path: path) }
         let value = try response.get()

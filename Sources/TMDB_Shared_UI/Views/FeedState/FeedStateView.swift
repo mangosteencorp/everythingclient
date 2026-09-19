@@ -2,9 +2,9 @@ import CoreFeatures
 import Shared_UI_Support
 import SwiftUI
 
-/// What a feed has to show right now. Each call site maps its own view-model state onto this,
-/// so the mapping stays visible while the rendering is shared.
-enum FeedLoadPhase: Equatable {
+/// What a list-backed page has to show right now. Each call site maps its own view-model state
+/// onto this, so the mapping stays visible while the rendering is shared.
+public enum FeedLoadPhase: Equatable {
     /// Nothing requested yet — search shows this before the first query.
     case placeholder(systemImage: String, title: String)
     case loading
@@ -13,9 +13,9 @@ enum FeedLoadPhase: Equatable {
     case loaded
 }
 
-/// The loading / error / empty / content ladder every feed repeats.
+/// The loading / error / empty / content ladder every feed and the search page repeat.
 @available(iOS 16, *)
-struct FeedStateView<Content: View>: View {
+public struct FeedStateView<Content: View>: View {
     let phase: FeedLoadPhase
     /// Spinner over already-visible content while the next page loads.
     var isRefreshing: Bool = false
@@ -26,7 +26,23 @@ struct FeedStateView<Content: View>: View {
 
     @DesignStyle private var emptyStateDesign: FeedEmptyStateDesign
 
-    var body: some View {
+    public init(
+        phase: FeedLoadPhase,
+        isRefreshing: Bool = false,
+        allowsCancel: Bool = false,
+        retryAction: @escaping () -> Void,
+        cancelAction: (() -> Void)? = nil,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.phase = phase
+        self.isRefreshing = isRefreshing
+        self.allowsCancel = allowsCancel
+        self.retryAction = retryAction
+        self.cancelAction = cancelAction
+        self.content = content
+    }
+
+    public var body: some View {
         switch phase {
         case let .placeholder(systemImage, title):
             FeedPlaceholderView(systemImage: systemImage, title: title)
@@ -61,11 +77,16 @@ struct FeedStateView<Content: View>: View {
     }
 }
 
-struct FeedPlaceholderView: View {
+public struct FeedPlaceholderView: View {
     let systemImage: String
     let title: String
 
-    var body: some View {
+    public init(systemImage: String, title: String) {
+        self.systemImage = systemImage
+        self.title = title
+    }
+
+    public var body: some View {
         VStack(spacing: 12) {
             Image(systemName: systemImage)
                 .font(.system(size: 48))
@@ -79,7 +100,7 @@ struct FeedPlaceholderView: View {
     }
 }
 
-extension Binding where Value == FeedEmptyStateDesign {
+public extension Binding where Value == FeedEmptyStateDesign {
     /// `CommonNoResultView` predates the design store and still speaks in booleans.
     var isFancy: Binding<Bool> {
         Binding<Bool>(

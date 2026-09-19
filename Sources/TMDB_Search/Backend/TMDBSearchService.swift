@@ -4,7 +4,19 @@ import TMDB_Shared_Backend
 /// One call for all seven TMDB search endpoints, returning rows the UI can render without
 /// knowing which endpoint produced them.
 public protocol TMDBSearchServicing {
-    func search(scope: SearchScope, query: String, page: Int?) async -> Result<SearchResultPage, Error>
+    func search(
+        scope: SearchScope,
+        query: String,
+        filters: SearchFilters,
+        page: Int?
+    ) async -> Result<SearchResultPage, Error>
+}
+
+public extension TMDBSearchServicing {
+    /// Unfiltered search, for call sites that have no filter UI.
+    func search(scope: SearchScope, query: String, page: Int?) async -> Result<SearchResultPage, Error> {
+        await search(scope: scope, query: query, filters: SearchFilters(), page: page)
+    }
 }
 
 public struct TMDBSearchService: TMDBSearchServicing {
@@ -14,19 +26,28 @@ public struct TMDBSearchService: TMDBSearchServicing {
         self.requester = requester
     }
 
-    public func search(scope: SearchScope, query: String, page: Int?) async -> Result<SearchResultPage, Error> {
+    public func search(
+        scope: SearchScope,
+        query: String,
+        filters: SearchFilters,
+        page: Int?
+    ) async -> Result<SearchResultPage, Error> {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return .success(SearchResultPage(items: [], page: 1, totalPages: 1))
         }
 
+        // A filter left over from another scope must not leak into a request that scope cannot
+        // honour — the picker hides those chips, but the values survive a scope switch.
+        let filters = filters.narrowed(to: scope)
+
         do {
             switch scope {
-            case .multi: return .success(try await multi(trimmed, page))
-            case .movies: return .success(try await movies(trimmed, page))
-            case .tvShows: return .success(try await tvShows(trimmed, page))
-            case .people: return .success(try await people(trimmed, page))
-            case .collections: return .success(try await collections(trimmed, page))
+            case .multi: return .success(try await multi(trimmed, filters, page))
+            case .movies: return .success(try await movies(trimmed, filters, page))
+            case .tvShows: return .success(try await tvShows(trimmed, filters, page))
+            case .people: return .success(try await people(trimmed, filters, page))
+            case .collections: return .success(try await collections(trimmed, filters, page))
             case .companies: return .success(try await companies(trimmed, page))
             case .keywords: return .success(try await keywords(trimmed, page))
             }
@@ -37,8 +58,13 @@ public struct TMDBSearchService: TMDBSearchServicing {
 
     // MARK: - One endpoint each
 
-    private func multi(_ query: String, _ page: Int?) async throws -> SearchResultPage {
-        let response: TrendingAllResultModel = try await requester.request(.searchMulti(query: query, page: page))
+    private func multi(_ query: String, _ filters: SearchFilters, _ page: Int?) async throws -> SearchResultPage {
+        let response: TrendingAllResultModel = try await requester.request(.searchMulti(
+            query: query,
+            includeAdult: filters.includeAdult,
+            language: filters.language,
+            page: page
+        ))
         return SearchResultPage(
             items: response.results.compactMap(SearchResultItem.init(multiItem:)),
             page: response.page,
@@ -46,8 +72,16 @@ public struct TMDBSearchService: TMDBSearchServicing {
         )
     }
 
-    private func movies(_ query: String, _ page: Int?) async throws -> SearchResultPage {
-        let response: MovieListResultModel = try await requester.request(.searchMovie(query: query, page: page))
+    private func movies(_ query: String, _ filters: SearchFilters, _ page: Int?) async throws -> SearchResultPage {
+        let response: MovieListResultModel = try await requester.request(.searchMovie(
+            query: query,
+            includeAdult: filters.includeAdult,
+            language: filters.language,
+            primaryReleaseYear: filters.primaryReleaseYear,
+            page: page,
+            region: filters.region,
+            year: filters.year
+        ))
         return SearchResultPage(
             items: response.results.map(SearchResultItem.init(movie:)),
             page: response.page,
@@ -55,8 +89,18 @@ public struct TMDBSearchService: TMDBSearchServicing {
         )
     }
 
-    private func tvShows(_ query: String, _ page: Int?) async throws -> SearchResultPage {
-        let response: TVShowListResultModel = try await requester.request(.searchTVShows(query: query, page: page))
+    private func tvShows(_ query: String, _ filters: SearchFilters, _ page: Int?) async throws -> SearchResultPage {
+        let response: TVShowListResultModel = try await requester.request(.searchTVShows(
+            query: query,
+            includeAdult: filters.includeAdult,
+            language: filters.language,
+            // `search/tv` has no `primary_release_year`; the one year chip it offers is the
+            // first-air-date year.
+            firstAirDateYear: filters.year,
+            page: page,
+            region: filters.region,
+            year: filters.year
+        ))
         return SearchResultPage(
             items: response.results.map(SearchResultItem.init(tvShow:)),
             page: response.page,
@@ -64,8 +108,13 @@ public struct TMDBSearchService: TMDBSearchServicing {
         )
     }
 
-    private func people(_ query: String, _ page: Int?) async throws -> SearchResultPage {
-        let response: PersonListResultModel = try await requester.request(.searchPerson(query: query, page: page))
+    private func people(_ query: String, _ filters: SearchFilters, _ page: Int?) async throws -> SearchResultPage {
+        let response: PersonListResultModel = try await requester.request(.searchPerson(
+            query: query,
+            includeAdult: filters.includeAdult,
+            language: filters.language,
+            page: page
+        ))
         return SearchResultPage(
             items: response.results.map(SearchResultItem.init(person:)),
             page: response.page,
@@ -73,9 +122,19 @@ public struct TMDBSearchService: TMDBSearchServicing {
         )
     }
 
-    private func collections(_ query: String, _ page: Int?) async throws -> SearchResultPage {
+    private func collections(
+        _ query: String,
+        _ filters: SearchFilters,
+        _ page: Int?
+    ) async throws -> SearchResultPage {
         let response: CollectionSearchResultModel = try await requester.request(
-            .searchCollection(query: query, page: page)
+            .searchCollection(
+                query: query,
+                includeAdult: filters.includeAdult,
+                language: filters.language,
+                page: page,
+                region: filters.region
+            )
         )
         return SearchResultPage(
             items: response.results.map(SearchResultItem.init(collection:)),

@@ -58,13 +58,7 @@ public struct FeedDestinationPage<Route: Hashable>: View {
                 feedType: feedType,
                 detailRouteBuilder: tvShowDetailRouteBuilder
             )
-        } else {
-            FeedSearchTabContent(
-                movieViewModel: movieViewModel,
-                tvShowViewModel: tvShowViewModel,
-                detailRouteBuilder: detailRouteBuilder,
-                tvShowDetailRouteBuilder: tvShowDetailRouteBuilder
-            )
         }
+        // No `else`: every `FeedTab` has either a movie or a TV feed type.
     }
 }
