@@ -11,7 +11,7 @@ concurrency:
 jobs:
   screenshots:
     name: Capture screenshots with fastlane
-    runs-on: macos-26
+    runs-on: xcode-27
     env:
       LC_ALL: en_US.UTF-8
       LANG: en_US.UTF-8
