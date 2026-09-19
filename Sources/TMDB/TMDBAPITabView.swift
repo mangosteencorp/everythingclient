@@ -80,9 +80,21 @@ public struct TMDBAPITabView: View {
                 FloatingTabShell(coordinator: coordinator, page: page(for:))
             case .pagedTabs:
                 PagedTabShell(coordinator: coordinator, page: page(for:))
+            case .sectionedSidebar:
+                if #available(iOS 18, *) {
+                    SectionedSidebarShell(coordinator: coordinator, page: page(for:), feedPage: feedPage(for:))
+                } else {
+                    SystemTabShell(coordinator: coordinator, usesSidebarPlacement: false, page: page(for:))
+                }
             }
         }
         .environmentObject(coordinator)
+        // Feed rows exist only in the sectioned shell; leaving one selected would give every
+        // other shell a tab that is not in `tabList`, and so a blank screen.
+        .onChange(of: shellDesign) { newDesign in
+            guard newDesign != .sectionedSidebar, case .feedRow = coordinator.selectedTab else { return }
+            coordinator.switchTab(to: .movieFeed)
+        }
         // Above every NavigationStack below: pushed pages inherit their stack's environment, so a
         // namespace published inside a stack never reaches them.
         .zoomTransitionNamespaceRoot()
@@ -124,7 +136,65 @@ public struct TMDBAPITabView: View {
             NavigationStack(path: coordinator.path(for: .settings)) {
                 buildSettingsPage()
             }
+        case let .feedRow(tab):
+            NavigationStack(path: coordinator.path(for: .feedRow(tab))) {
+                feedPage(for: tab)
+            }
         }
+    }
+
+    /// One feed category without a `NavigationStack`, so a shell can either wrap it or push it.
+    @ViewBuilder
+    private func feedPage(for tab: FeedTab) -> some View {
+        Group {
+            if tab == .search, #available(iOS 17, *) {
+                FeedSearchPage(
+                    service: TMDBSearchService(requester: container.resolve(TMDBAPIService.self)!),
+                    routeBuilder: Self.searchRoute(for:)
+                )
+            } else {
+                FeedDestinationPage(
+                    tab: tab,
+                    apiService: container.resolve(TMDBAPIService.self)!,
+                    analyticsTracker: analyticsTracker,
+                    detailRouteBuilder: Self.movieRoute(for:),
+                    tvShowDetailRouteBuilder: Self.tvShowRoute(for:)
+                )
+            }
+        }
+        .withTMDBNavigationDestinations(container: container)
+    }
+
+    /// Search spans more kinds than the app has pages for: collections, companies and keywords
+    /// return `nil` and render as plain rows.
+    private static func searchRoute(for item: SearchResultItem) -> TMDBRoute? {
+        switch item.kind {
+        case .movie: return .movieDetail(MovieRouteModel(id: item.tmdbID))
+        case .tvShow: return .tvShowDetail(item.tmdbID)
+        case .person: return .personDetail(item.tmdbID)
+        case .collection, .company, .keyword: return nil
+        }
+    }
+
+    /// Shared by the feed page and every feed row, so a poster leads to the same route
+    /// whichever shell is on screen.
+    private static func movieRoute(for movie: TMDB_Feed.Movie) -> TMDBRoute {
+        TMDBRoute.movieDetail(MovieRouteModel(
+            id: movie.id,
+            title: movie.title,
+            overview: movie.overview,
+            posterPath: movie.posterPath,
+            backdropPath: movie.backdropPath,
+            voteAverage: movie.voteAverage ?? 0.0,
+            voteCount: movie.voteCount ?? 0,
+            releaseDate: movie.releaseDate,
+            popularity: movie.popularity,
+            originalTitle: movie.originalTitle
+        ))
+    }
+
+    private static func tvShowRoute(for tvShow: TVShow) -> TMDBRoute {
+        TMDBRoute.tvShowDetail(tvShow.id)
     }
 
     // MARK: - Builders
@@ -135,20 +205,9 @@ public struct TMDBAPITabView: View {
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker
         ) { movie in
-            TMDBRoute.movieDetail(MovieRouteModel(
-                id: movie.id,
-                title: movie.title,
-                overview: movie.overview,
-                posterPath: movie.posterPath,
-                backdropPath: movie.backdropPath,
-                voteAverage: movie.voteAverage ?? 0.0,
-                voteCount: movie.voteCount ?? 0,
-                releaseDate: movie.releaseDate,
-                popularity: movie.popularity,
-                originalTitle: movie.originalTitle
-            ))
+            Self.movieRoute(for: movie)
         } tvShowDetailRouteBuilder: { tvShow in
-            TMDBRoute.tvShowDetail(tvShow.id)
+            Self.tvShowRoute(for: tvShow)
         }
         .toolbar {
             DesignShuffleToolbarItem(placement: .topBarLeading)

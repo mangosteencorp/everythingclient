@@ -1,3 +1,4 @@
+import CoreFeatures
 import Foundation
 
 /// Top-level tabs for the feed screen.
@@ -66,5 +67,31 @@ public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
         case .airingToday: return .airingToday
         case .nowPlaying, .popular, .topRated, .upcoming, .search: return nil
         }
+    }
+}
+
+// MARK: - Sectioned shell support
+
+extension FeedTab: ShellTabItem {
+    public var customizationID: String { "tab.feed.\(rawValue)" }
+
+    /// The feed categories grouped for a sectioned shell (sidebar on iPad, a pushable list on
+    /// iPhone). `.search` is deliberately absent: it is a root tab with the search role, not a
+    /// row inside a section.
+    public static var sections: [ShellSection<FeedTab>] {
+        [
+            ShellSection(
+                id: "movies",
+                title: L10n.feedSearchMovies,
+                systemImage: "film",
+                rows: [.nowPlaying, .popular, .topRated, .upcoming]
+            ),
+            ShellSection(
+                id: "tv",
+                title: L10n.feedSearchTv,
+                systemImage: "tv",
+                rows: [.onTheAir, .airingToday]
+            ),
+        ]
     }
 }
