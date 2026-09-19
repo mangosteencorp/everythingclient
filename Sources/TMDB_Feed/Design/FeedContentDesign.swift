@@ -11,6 +11,8 @@ public enum FeedContentDesign: String, DesignVariant {
     case grid
     /// Thumbnail, title, rating on one line — many more titles per screen.
     case compactRows
+    /// Cards tinted with the poster's own average colour, 1–3 columns by width.
+    case paletteCards
 
     public static var slotTitle: String { "Feed Content" }
 
@@ -21,6 +23,7 @@ public enum FeedContentDesign: String, DesignVariant {
         case .list: return "List"
         case .grid: return "Grid"
         case .compactRows: return "Compact Rows"
+        case .paletteCards: return "Palette Cards"
         }
     }
 }
