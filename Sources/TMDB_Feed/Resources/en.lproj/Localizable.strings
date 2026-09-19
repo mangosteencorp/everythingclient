@@ -37,3 +37,11 @@
 "filter_clear" = "Clear";
 "filter_cancel" = "Cancel";
 "filter_done" = "Done";
+
+// Search scopes
+"search_prompt" = "Movies, shows, people";
+"search_scope_all" = "All";
+"search_scope_collections" = "Collections";
+"search_scope_companies" = "Companies";
+"search_scope_keywords" = "Keywords";
+"search_scope_people" = "People";

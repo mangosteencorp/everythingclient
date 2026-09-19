@@ -71,6 +71,18 @@ public enum L10n {
   public static let playingLoading = L10n.tr("Localizable", "playing_loading", fallback: "Loading...")
   /// Now Playing
   public static let playingTitle = L10n.tr("Localizable", "playing_title", fallback: "Now Playing")
+  /// Movies, shows, people
+  public static let searchPrompt = L10n.tr("Localizable", "search_prompt", fallback: "Movies, shows, people")
+  /// All
+  public static let searchScopeAll = L10n.tr("Localizable", "search_scope_all", fallback: "All")
+  /// Collections
+  public static let searchScopeCollections = L10n.tr("Localizable", "search_scope_collections", fallback: "Collections")
+  /// Companies
+  public static let searchScopeCompanies = L10n.tr("Localizable", "search_scope_companies", fallback: "Companies")
+  /// Keywords
+  public static let searchScopeKeywords = L10n.tr("Localizable", "search_scope_keywords", fallback: "Keywords")
+  /// People
+  public static let searchScopePeople = L10n.tr("Localizable", "search_scope_people", fallback: "People")
 }
 // swiftlint:enable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:enable nesting type_body_length type_name vertical_whitespace_opening_braces
