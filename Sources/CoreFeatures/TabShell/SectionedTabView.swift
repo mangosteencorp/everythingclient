@@ -62,47 +62,21 @@ public struct SectionedTabView<
     public var body: some View {
         TabView(selection: $selection) {
             ForEach(roots) { root in
-                // Every `Tab` passes a title and a symbol: the `Tab(value:content:)` overload
-                // has no label, and renders sidebar rows as blank capsules.
-                Tab(root.title, systemImage: root.systemImage, value: Selection.root(root)) {
-                    rootContent(root)
-                }
-                .customizationID(root.customizationID)
+                rootTab(for: root)
             }
 
             if isCompact {
                 ForEach(sections) { section in
-                    Tab(section.title, systemImage: section.systemImage, value: Selection.sectionList(section.id)) {
-                        SectionRowList(section: section, content: rowContent)
-                    }
-                    .customizationID("section.\(section.id)")
+                    sectionListTab(for: section)
                 }
             } else {
                 ForEach(sections) { section in
-                    TabSection(section.title) {
-                        ForEach(section.rows) { row in
-                            Tab(row.title, systemImage: row.systemImage, value: Selection.row(row)) {
-                                rowStack(for: row)
-                            }
-                            .customizationID(row.customizationID)
-                        }
-                    }
-                    .customizationID("section.\(section.id)")
-                    // Sidebar-only. iOS still surfaces the section as a grouped tab while one of
-                    // its rows is selected, so the rows stay reachable in tab-bar mode.
-                    .defaultVisibility(.hidden, for: .tabBar)
+                    sidebarSection(for: section)
                 }
             }
 
             if let searchRoot {
-                Tab(
-                    searchRoot.title,
-                    systemImage: searchRoot.systemImage,
-                    value: Selection.root(searchRoot),
-                    role: .search
-                ) {
-                    rootContent(searchRoot)
-                }
+                searchTab(for: searchRoot)
             }
         }
         .tabViewStyle(.sidebarAdaptable)
@@ -114,6 +88,59 @@ public struct SectionedTabView<
     }
 
     private typealias Selection = ShellSelection<Root, Row>
+
+    // Each tab gets its own function so the type-checker solves several small expressions
+    // instead of one deeply nested `ForEach`/`TabSection`/`Tab` pile, which times out.
+
+    // Every `Tab` passes a title and a symbol: the `Tab(value:content:)` overload has no
+    // label, and renders sidebar rows as blank capsules.
+    private func rootTab(for root: Root) -> some TabContent<Selection> {
+        Tab(root.title, systemImage: root.systemImage, value: Selection.root(root)) {
+            rootContent(root)
+        }
+        .customizationID(root.customizationID)
+    }
+
+    private func searchTab(for root: Root) -> some TabContent<Selection> {
+        Tab(
+            root.title,
+            systemImage: root.systemImage,
+            value: Selection.root(root),
+            role: .search
+        ) {
+            rootContent(root)
+        }
+    }
+
+    private func sectionListTab(for section: ShellSection<Row>) -> some TabContent<Selection> {
+        Tab(
+            section.title,
+            systemImage: section.systemImage,
+            value: Selection.sectionList(section.id)
+        ) {
+            SectionRowList(section: section, content: rowContent)
+        }
+        .customizationID("section.\(section.id)")
+    }
+
+    private func sidebarSection(for section: ShellSection<Row>) -> some TabContent<Selection> {
+        TabSection(section.title) {
+            ForEach(section.rows) { row in
+                rowTab(for: row)
+            }
+        }
+        .customizationID("section.\(section.id)")
+        // Sidebar-only. iOS still surfaces the section as a grouped tab while one of its rows
+        // is selected, so the rows stay reachable in tab-bar mode.
+        .defaultVisibility(.hidden, for: .tabBar)
+    }
+
+    private func rowTab(for row: Row) -> some TabContent<Selection> {
+        Tab(row.title, systemImage: row.systemImage, value: Selection.row(row)) {
+            rowStack(for: row)
+        }
+        .customizationID(row.customizationID)
+    }
 
     @ViewBuilder
     private func rowStack(for row: Row) -> some View {
