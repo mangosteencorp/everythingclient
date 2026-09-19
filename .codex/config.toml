@@ -1,6 +1,7 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
 default_permissions = "workspace_without_xcconfig"
+developer_instructions = "Never edit LLM.md without Mr. Client's explicit permission in this conversation. Ask first and wait for a yes."
 
 [permissions.workspace_without_xcconfig]
 extends = ":workspace"

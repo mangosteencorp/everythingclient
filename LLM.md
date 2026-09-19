@@ -4,6 +4,8 @@ List all the skills and MCP you're planing to use before starting and what you u
 Do not put yourself as co-author.
 When you finish a response with code changes, add a one-liner of summary so I can use as commit message.
 
+Every time you start a session, make sure to ask me if I allow you to git commit & git push
+
 ## Build Commands
 When building for testing, use the Xcode build script instead of `swift build`, replace `EverythingClient` with the target I'm currently working on:
 ```bash
