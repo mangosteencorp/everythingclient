@@ -1,5 +1,6 @@
 import TMDB_Discover
 import TMDB_Feed
+import TMDB_Search
 public enum TMDBRoute: Route {
     case movieDetail(MovieRouteModel)
     case tvShowDetail(Int)
@@ -8,6 +9,19 @@ public enum TMDBRoute: Route {
     case pokedex
     case movieList(AdditionalMovieListParams)
     case tvShowList(TMDB_Discover.TVShowFeedType)
+
+    /// Where a search result leads.
+    ///
+    /// Search spans more kinds than the app has pages for: collections, companies and keywords
+    /// return `nil` and render as plain, non-pushing rows.
+    public static func search(for item: SearchResultItem) -> TMDBRoute? {
+        switch item.kind {
+        case .movie: return .movieDetail(MovieRouteModel(id: item.tmdbID))
+        case .tvShow: return .tvShowDetail(item.tmdbID)
+        case .person: return .personDetail(item.tmdbID)
+        case .collection, .company, .keyword: return nil
+        }
+    }
 
     public func hash(into hasher: inout Hasher) {
         switch self {

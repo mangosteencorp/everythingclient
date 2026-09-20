@@ -15,6 +15,9 @@ public enum AppShellDesign: String, DesignVariant {
     case floatingTabBar
     /// Full-bleed swipeable pages with a dot indicator, no bar.
     case pagedTabs
+    /// Feed categories promoted to sidebar sections (iPad) or one pushable list per section
+    /// (iPhone), with a detached search tab.
+    case sectionedSidebar
 
     public static var slotTitle: String { "App Shell" }
 
@@ -40,6 +43,7 @@ public enum AppShellDesign: String, DesignVariant {
         case .sidebarTabBar: return "Sidebar Tab Bar"
         case .floatingTabBar: return "Floating Tab Bar"
         case .pagedTabs: return "Paged Tabs"
+        case .sectionedSidebar: return "Sectioned Sidebar"
         }
     }
 
@@ -51,7 +55,7 @@ public enum AppShellDesign: String, DesignVariant {
             guard UIDevice.current.userInterfaceIdiom == .pad else { return false }
             if #available(iOS 27, *) { return true }
             return false
-        case .bottomTabBar, .floatingTabBar, .pagedTabs:
+        case .bottomTabBar, .floatingTabBar, .pagedTabs, .sectionedSidebar:
             return true
         }
     }

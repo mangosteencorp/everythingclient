@@ -9,7 +9,7 @@ public struct SwiftfinLaunchView: View {
     @Environment(\.dismiss) private var dismiss
 
     public init() {
-        SwiftfinLaunchConfiguration.configureIfNeeded()
+        SwiftfinRuntime.configureIfNeeded()
     }
 
     public var body: some View {
@@ -32,16 +32,14 @@ public struct SwiftfinLaunchView: View {
             .accessibilityLabel("Close Swiftfin")
             .accessibilityIdentifier("swiftfin.close.button")
         }
-        .onDisappear {
-            // Swiftfin forces the app's key window into dark mode
-            // (overrideUserInterfaceStyle) on launch and never reverts it.
-            resetInterfaceStyle()
-        }
+        .onAppear { SwiftfinWindowAppearanceGuard.swiftfinWillAppear() }
+        // Swiftfin repaints the host window's tint and forces dark mode; see the guard for why a
+        // one-off reset here isn't enough.
+        .onDisappear { SwiftfinWindowAppearanceGuard.swiftfinDidDisappear() }
     }
 
     #if !canImport(SwiftfinLib)
-    // SwiftfinLib is dropped from the package graph on Swift 6.4+ toolchains
-    // (see Package.swift); keep the screen navigable until that port lands.
+    // SwiftfinLib is only linked on iOS (see Package.swift); keep the screen navigable elsewhere.
     private var unavailablePlaceholder: some View {
         VStack(spacing: 8) {
             Image(systemName: "play.tv")
@@ -54,24 +52,4 @@ public struct SwiftfinLaunchView: View {
         .background(Color(.systemBackground))
     }
     #endif
-
-    private func resetInterfaceStyle() {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first { $0.isKeyWindow }?
-            .overrideUserInterfaceStyle = .unspecified
-    }
-}
-
-private enum SwiftfinLaunchConfiguration {
-    private static var isConfigured = false
-
-    static func configureIfNeeded() {
-        guard !isConfigured else { return }
-        #if canImport(SwiftfinLib)
-        SwiftfinLibrary.configure()
-        #endif
-        isConfigured = true
-    }
 }

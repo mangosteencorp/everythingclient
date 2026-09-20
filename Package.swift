@@ -32,36 +32,35 @@ let sampleKitPackageDependency: [Package.Dependency] =
 let sampleKitTargetDependency: [Target.Dependency] =
     hasSampleKit ? [.product(name: "SampleKit", package: "SampleKit")] : []
 
-// MARK: - Optional dependency (Swiftfin)
+// MARK: - Swiftfin
 
 //
-// The `swiftpm` branch of Swiftfin does not build with the Swift 6.4 toolchain
-// (Xcode 27); that port lives on a separate branch. Until it lands, drop the
-// dependency entirely on newer compilers so the rest of the package still builds.
+// quangDecember/Swiftfin@swiftpm-test-4 is Swiftfin's main branch built as a package. It sets
+// this package's iOS minimum: five of its dependencies (SwiftVLC, MPVUI, MediaAccessibilityKit,
+// CollectionHStack, CollectionVGrid) require iOS 18, and SwiftPM won't link a product whose
+// minimum is above the consumer's.
 //
-// This must be `compiler(...)`, not `swift(...)`: the tools version above makes
-// SwiftPM compile this manifest in Swift 5 language mode, so `#if swift(>=6.4)`
-// would always be false regardless of the toolchain. `compiler(...)` reflects the
-// actual toolchain version.
+// SwiftfinLib is iOS-only, so the dependency is conditioned on iOS (Mac Catalyst is untested);
+// call sites guard their usage with `#if canImport(SwiftfinLib)`.
 //
-// Call sites guard their usage with `#if canImport(SwiftfinLib)`.
-#if compiler(>=6.4)
-let hasSwiftfin = false
-#else
-let hasSwiftfin = true
-#endif
+// jellyfin-sdk-swift is already in the graph as a Swiftfin dependency; naming it here only makes
+// it importable by `third_party`, which needs `BaseItemDto` to read the library hit Swiftfin
+// returns. The version must stay pinned to whatever Swiftfin pins or resolution fails.
+let swiftfinPackageDependency: [Package.Dependency] = [
+    .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm-test-4"),
+    .package(url: "https://github.com/jellyfin/jellyfin-sdk-swift.git", exact: "3.1.0"),
+]
 
-let swiftfinPackageDependency: [Package.Dependency] =
-    hasSwiftfin ? [.package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm")] : []
-
-let swiftfinTargetDependency: [Target.Dependency] =
-    hasSwiftfin ? [.product(name: "SwiftfinLib", package: "Swiftfin")] : []
+let swiftfinTargetDependency: [Target.Dependency] = [
+    .product(name: "SwiftfinLib", package: "Swiftfin", condition: .when(platforms: [.iOS])),
+    .product(name: "JellyfinAPI", package: "jellyfin-sdk-swift", condition: .when(platforms: [.iOS])),
+]
 
 let package = Package(
     name: "everythingclient",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v16),
+        .iOS("18.0"),
         //.macOS(.v11),
     ],
     products: [
@@ -83,6 +82,11 @@ let package = Package(
         .library(
             name: "TMDB_Feed",
             targets: ["TMDB_Feed"]
+        ),
+        // Scoped TMDB search — its own root tab, not a feed category
+        .library(
+            name: "TMDB_Search",
+            targets: ["TMDB_Search"]
         ),
         // Discover movies
         .library(
@@ -154,6 +158,7 @@ let package = Package(
             name: "TMDB",
             dependencies: [
                 "TMDB_Feed",
+                "TMDB_Search",
                 "TMDB_Discover",
                 "TMDB_Profile",
                 "TMDB_Shared_UI",
@@ -178,7 +183,16 @@ let package = Package(
             dependencies: [
                 "TMDB_Shared_Backend",
                 "Shared_UI_Support",
+                "CoreFeatures",
+                .product(name: "Kingfisher", package: "Kingfisher"),
+            ],
+            resources: [
+                .process("Resources"),
             ]
+        ),
+        .testTarget(
+            name: "TMDB_Shared_UI_Tests",
+            dependencies: ["TMDB_Shared_UI"]
         ),
         // Detail page
         .target(
@@ -188,6 +202,7 @@ let package = Package(
                 "PhotoListViewer",
                 "Swinject",
                 "TMDB_Shared_Backend",
+                "third_party",
             ],
             resources: [
                 .process("Resources"),
@@ -198,7 +213,11 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_MovieDetail_Tests",
-            dependencies: ["TMDB_MovieDetail"]
+            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party"]
+        ),
+        .testTarget(
+            name: "TMDB_TVShowDetail_Tests",
+            dependencies: ["TMDB_TVShowDetail", "Tests_Shared_Helpers"]
         ),
         .target(
             name: "TMDB_TVShowDetail",
@@ -208,6 +227,10 @@ let package = Package(
                 "TMDB_Shared_UI",
                 "Shared_UI_Support",
             ]
+        ),
+        .testTarget(
+            name: "TMDB_Person_Tests",
+            dependencies: ["TMDB_Person", "Tests_Shared_Helpers"]
         ),
         .target(
             name: "TMDB_Person",
@@ -237,6 +260,22 @@ let package = Package(
             name: "TMDB_Feed_Tests",
             dependencies: ["TMDB_Feed", "TMDB_Shared_Backend", "ViewInspector", "Tests_Shared_Helpers"],
             resources: [.process("Resources")]
+        ),
+        // Search - its own root tab, deliberately independent of TMDB_Feed
+        .target(
+            name: "TMDB_Search",
+            dependencies: [
+                "TMDB_Shared_UI",
+                "TMDB_Shared_Backend",
+                "Shared_UI_Support",
+            ],
+            resources: [
+                .process("Resources"),
+            ]
+        ),
+        .testTarget(
+            name: "TMDB_Search_Tests",
+            dependencies: ["TMDB_Search", "TMDB_Shared_Backend", "ViewInspector", "Tests_Shared_Helpers"]
         ),
         // Discover feed - clean architecture
         .target(
@@ -268,6 +307,11 @@ let package = Package(
                 .product(name: "RxSwift", package: "RxSwift"),
                 .product(name: "RxCocoa", package: "RxSwift"),
             ]
+        ),
+
+        .testTarget(
+            name: "TMDB_Profile_Tests",
+            dependencies: ["TMDB_Profile", "Tests_Shared_Helpers"]
         ),
 
         .testTarget(
@@ -317,6 +361,7 @@ let package = Package(
 
         .target(
             name: "Tests_Shared_Helpers",
+            dependencies: ["TMDB_Shared_Backend"],
             path: "Tests/Tests_Shared_Helpers"
         ),
         .target(
@@ -355,6 +400,7 @@ let package = Package(
                 "TMDB",
                 "Pokedex",
                 "TMDB_Feed",
+                "TMDB_Search",
                 "TMDB_Discover",
                 "TMDB_Profile",
                 "TMDB_MovieDetail",

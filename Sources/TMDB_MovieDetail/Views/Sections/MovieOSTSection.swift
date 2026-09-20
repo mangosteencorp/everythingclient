@@ -88,6 +88,16 @@ private struct MovieOSTAlbumRow: View {
                 Link(destination: url) {
                     albumContent
                 }
+                // The whole section is a single `List` row, so every album `Link` lives in that
+                // one row. With the automatic button style the row becomes one tap target and
+                // activates the first link no matter which album is tapped; `.borderless` makes
+                // each link hit-test on its own.
+                .buttonStyle(.borderless)
+                // `.borderless` paints its label with the accent colour, and `.secondary` /
+                // `.tertiary` are *derived* from that base — so the artist line, the track count
+                // and the chevron all came out blue. Re-basing the tint on `.primary` leaves the
+                // row reading as content instead of as a link.
+                .tint(.primary)
             } else {
                 albumContent
             }
@@ -137,6 +147,9 @@ private struct MovieOSTAlbumRow: View {
         .padding(10)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        // Without an explicit shape only the drawn subviews are tappable, leaving the padding
+        // and the trailing spacer inert.
+        .contentShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

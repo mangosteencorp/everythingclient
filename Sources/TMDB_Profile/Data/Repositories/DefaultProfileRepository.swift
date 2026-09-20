@@ -3,10 +3,10 @@ import RxSwift
 import TMDB_Shared_Backend
 
 class DefaultProfileRepository: ProfileRepositoryProtocol {
-    private let apiService: TMDBAPIService
+    private let apiService: any TMDBAPIRequesting
     private let authRepository: AuthRepository
 
-    init(apiService: TMDBAPIService, authRepository: AuthRepository) {
+    init(apiService: any TMDBAPIRequesting, authRepository: AuthRepository) {
         self.apiService = apiService
         self.authRepository = authRepository
     }

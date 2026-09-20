@@ -21,10 +21,6 @@ final class MockAPIService: APIServiceProtocol {
         mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
-    func searchMovies(query: String, page: Int?, filters: TMDB_Feed.SearchFilters?) async -> Result<TMDB_Feed.MovieListResponse, any Error> {
-        mockSearchResult ?? .failure(NSError(domain: "Test", code: -1))
-    }
-
     func fetchUpcomingMovies(page: Int?, additionalParams: TMDB_Feed.AdditionalMovieListParams?) async -> Result<TMDB_Feed.MovieListResponse, any Error> {
         mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
@@ -52,10 +48,6 @@ final class MockAPIService: APIServiceProtocol {
     }
 
     func searchTVShows(query: String, page: Int?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
-        mockTVSearchResult ?? .failure(NSError(domain: "Test", code: -1))
-    }
-
-    func searchTVShows(query: String, page: Int?, filters: TMDB_Feed.SearchFilters?) async -> Result<TMDB_Feed.TVShowListResponse, Error> {
         mockTVSearchResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 }

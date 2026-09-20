@@ -1,0 +1,17 @@
+default_platform(:ios)
+
+# Resolving the Swiftfin/Firebase package graph makes `xcodebuild -showBuildSettings` far slower than fastlane's 3s default.
+ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] ||= "180"
+ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] ||= "1"
+
+platform :ios do
+  desc "Capture App Store screenshots of every demo into fastlane/screenshots"
+  lane :screenshots do
+    # Simulator names change with every Xcode, so take the newest App Store-sized ones installed.
+    available = JSON.parse(sh("xcrun simctl list devices available -j", log: false))["devices"].values.flatten.map { |d| d["name"] }.uniq
+    devices = [/^iPhone \d+ Pro Max$/, /^iPad Pro 13-inch/].map { |pattern| available.grep(pattern).max_by { |name| name.scan(/\d+/).map(&:to_i) } }.compact
+    UI.user_error!("No App Store-sized simulators found in: #{available.join(', ')}") if devices.empty?
+
+    capture_screenshots(devices: devices)
+  end
+end

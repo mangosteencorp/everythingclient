@@ -18,12 +18,10 @@ public enum L10n {
   public static let feedOnTheAir = L10n.tr("Localizable", "feed_on_the_air", fallback: "On the Air")
   /// Popular
   public static let feedPopular = L10n.tr("Localizable", "feed_popular", fallback: "Popular")
-  /// Search
-  public static let feedSearch = L10n.tr("Localizable", "feed_search", fallback: "Search")
   /// Movies
-  public static let feedSearchMovies = L10n.tr("Localizable", "feed_search_movies", fallback: "Movies")
+  public static let feedSectionMovies = L10n.tr("Localizable", "feed_section_movies", fallback: "Movies")
   /// TV Shows
-  public static let feedSearchTv = L10n.tr("Localizable", "feed_search_tv", fallback: "TV Shows")
+  public static let feedSectionTv = L10n.tr("Localizable", "feed_section_tv", fallback: "TV Shows")
   /// Select a title
   public static let feedSelectItem = L10n.tr("Localizable", "feed_select_item", fallback: "Select a title")
   /// Choose a movie or TV show to see details.
@@ -32,38 +30,6 @@ public enum L10n {
   public static let feedTopRated = L10n.tr("Localizable", "feed_top_rated", fallback: "Top Rated")
   /// Upcoming
   public static let feedUpcoming = L10n.tr("Localizable", "feed_upcoming", fallback: "Upcoming")
-  /// Any Language
-  public static let filterAnyLanguage = L10n.tr("Localizable", "filter_any_language", fallback: "Any Language")
-  /// Any Region
-  public static let filterAnyRegion = L10n.tr("Localizable", "filter_any_region", fallback: "Any Region")
-  /// Cancel
-  public static let filterCancel = L10n.tr("Localizable", "filter_cancel", fallback: "Cancel")
-  /// Clear
-  public static let filterClear = L10n.tr("Localizable", "filter_clear", fallback: "Clear")
-  /// Clear All
-  public static let filterClearAll = L10n.tr("Localizable", "filter_clear_all", fallback: "Clear All")
-  /// Done
-  public static let filterDone = L10n.tr("Localizable", "filter_done", fallback: "Done")
-  /// Enter year (e.g., 2024)
-  public static let filterEnterYear = L10n.tr("Localizable", "filter_enter_year", fallback: "Enter year (e.g., 2024)")
-  /// Include Adult
-  public static let filterIncludeAdult = L10n.tr("Localizable", "filter_include_adult", fallback: "Include Adult")
-  /// Include adult content in search results
-  public static let filterIncludeAdultDescription = L10n.tr("Localizable", "filter_include_adult_description", fallback: "Include adult content in search results")
-  /// Language
-  public static let filterLanguage = L10n.tr("Localizable", "filter_language", fallback: "Language")
-  /// Select language for search results
-  public static let filterLanguageDescription = L10n.tr("Localizable", "filter_language_description", fallback: "Select language for search results")
-  /// Release Year
-  public static let filterPrimaryReleaseYear = L10n.tr("Localizable", "filter_primary_release_year", fallback: "Release Year")
-  /// Region
-  public static let filterRegion = L10n.tr("Localizable", "filter_region", fallback: "Region")
-  /// Select region for search results
-  public static let filterRegionDescription = L10n.tr("Localizable", "filter_region_description", fallback: "Select region for search results")
-  /// Year
-  public static let filterYear = L10n.tr("Localizable", "filter_year", fallback: "Year")
-  /// Enter a 4-digit year (e.g., 2024)
-  public static let filterYearDescription = L10n.tr("Localizable", "filter_year_description", fallback: "Enter a 4-digit year (e.g., 2024)")
   /// Localizable.strings
   ///   everythingclient
   /// 

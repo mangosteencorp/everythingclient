@@ -1,0 +1,50 @@
+name: Smoke build (latest Xcode beta)
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: smoke-beta-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build default scheme with the newest Xcode beta on the runner
+    # Public-preview image: macOS 27 (Golden Gate) with the Xcode 27 release
+    # candidate. ALLOW_XCODE_BETA lets the selector take that RC; the rest of
+    # CI runs on the same image but sticks to whatever ships as stable.
+    runs-on: xcode-27
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select latest Xcode beta
+        env:
+          ALLOW_XCODE_BETA: 1
+        run: |
+          chmod +x ./.github/scripts/select_xcode.sh
+          ./.github/scripts/select_xcode.sh
+      - name: Install Metal toolchain
+        run: |
+          chmod +x ./.github/scripts/install_metal_toolchain.sh
+          ./.github/scripts/install_metal_toolchain.sh
+      - name: Configure Xcode
+        run: |
+          chmod +x ./.github/scripts/configure_xcode.sh
+          ./.github/scripts/configure_xcode.sh
+      - name: Set up secrets in xcconfig
+        run: |
+          echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
+          echo "PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient" >> Rebuild/Rebuild/Build.xcconfig
+      - name: Set Default Scheme
+        run: |
+          chmod +x ./.github/scripts/set_scheme.sh
+          ./.github/scripts/set_scheme.sh
+      - name: Build
+        env:
+          scheme: default
+          platform: iOS Simulator
+        run: |
+          chmod +x ./.github/scripts/build.sh
+          ./.github/scripts/build.sh

@@ -32,7 +32,9 @@ public class Coordinator: ObservableObject {
                 self?.navigationStates[tab]?.path ?? NavigationPath()
             },
             set: { [weak self] newValue in
-                self?.navigationStates[tab]?.path = newValue
+                // Created on demand: shells may address routes that are not in `tabList`,
+                // such as the feed rows of the sectioned sidebar.
+                self?.state(for: tab).path = newValue
                 // Update visibility based on navigation depth
                 if let path = self?.navigationStates[tab]?.path {
                     self?.tabBarHiddenStates[tab] = !path.isEmpty
@@ -55,11 +57,19 @@ public class Coordinator: ObservableObject {
     }
 
     public func navigate(to route: TMDBRoute, in tab: TabRoute) {
-        if let state = navigationStates[tab] {
-            state.navigate(to: route)
-            tabBarHiddenStates[tab] = true // Hide tab bar on navigation
-            objectWillChange.send()
+        state(for: tab).navigate(to: route)
+        tabBarHiddenStates[tab] = true // Hide tab bar on navigation
+        objectWillChange.send()
+    }
+
+    @discardableResult
+    private func state(for tab: TabRoute) -> NavigationState {
+        if let existing = navigationStates[tab] {
+            return existing
         }
+        let created = NavigationState()
+        navigationStates[tab] = created
+        return created
     }
 
     public func pop(in tab: TabRoute) {

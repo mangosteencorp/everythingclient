@@ -7,9 +7,6 @@ public class TVShowFeedViewModel: ObservableObject {
     @Published var state: TVShowViewState = .initial
     @Published var searchQuery = ""
     @Published var currentFeedType: TVShowFeedType = .airingToday
-    @Published var searchFilters = SearchFilters()
-    @Published var showingFilterSheet = false
-    @Published var selectedFilterType: FilterType?
 
     private var airingTodayShows: [TVShow] = []
     private var onTheAirShows: [TVShow] = []
@@ -67,19 +64,6 @@ public class TVShowFeedViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-
-        $searchFilters
-            .dropFirst()
-            .sink { [weak self] _ in
-                guard let self, !self.searchQuery.isEmpty else { return }
-                self.searchTVShows(query: self.searchQuery)
-            }
-            .store(in: &cancellables)
-    }
-
-    @MainActor func updateSelectedFilterToShow(_ filterType: FilterType) {
-        selectedFilterType = filterType
-        showingFilterSheet = true
     }
 
     func fetchAiringTodayTVShows() {
@@ -115,7 +99,7 @@ public class TVShowFeedViewModel: ObservableObject {
         }
     }
 
-    /// Stops feeds that are still loading; the feed page preloads shows that no view owns.
+    /// Stops requests belonging to the previous tab selection.
     func cancelLoads() {
         loadTasks.values.forEach { $0.cancel() }
         loadTasks.removeAll()
@@ -205,7 +189,6 @@ public class TVShowFeedViewModel: ObservableObject {
 
     func clearSearchAndRetry() {
         searchQuery = ""
-        searchFilters = SearchFilters()
         state = .initial
     }
 
@@ -229,11 +212,7 @@ public class TVShowFeedViewModel: ObservableObject {
         searchTask?.cancel()
         searchTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            let result = await apiService.searchTVShows(
-                query: query,
-                page: nil,
-                filters: searchFilters.hasActiveFilters ? searchFilters : nil
-            )
+            let result = await apiService.searchTVShows(query: query, page: nil)
             guard !Task.isCancelled else { return }
             switch result {
             case let .success(response):

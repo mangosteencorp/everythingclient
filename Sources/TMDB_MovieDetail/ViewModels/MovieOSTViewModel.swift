@@ -1,5 +1,4 @@
 import Combine
-import MusicKit
 import SwiftUI
 
 public enum MovieOSTState {
@@ -11,38 +10,20 @@ public enum MovieOSTState {
     case error(String)
 }
 
-public struct MovieOSTAlbumDisplayModel: Identifiable {
-    public let id: String
-    public let title: String
-    public let artistName: String
-    public let trackCount: Int?
-    public let artwork: Artwork?
-    public let url: URL?
-
-    public init(
-        id: String,
-        title: String,
-        artistName: String,
-        trackCount: Int?,
-        artwork: Artwork?,
-        url: URL?
-    ) {
-        self.id = id
-        self.title = title
-        self.artistName = artistName
-        self.trackCount = trackCount
-        self.artwork = artwork
-        self.url = url
-    }
-}
-
 @MainActor
 public class MovieOSTViewModel: ObservableObject {
+    /// How many catalog hits to ask for before soundtrack filtering, and how many to keep after.
+    private static let searchLimit = 10
+    private static let displayLimit = 5
+
     @Published var state: MovieOSTState = .notDetermined
 
+    private let catalogService: MusicCatalogServiceProtocol
     private var loadedMovieTitle: String?
 
-    public init() {}
+    public init(catalogService: MusicCatalogServiceProtocol = MusicKitCatalogService()) {
+        self.catalogService = catalogService
+    }
 
     func load(for movieTitle: String) async {
         let trimmedTitle = movieTitle.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -50,12 +31,11 @@ public class MovieOSTViewModel: ObservableObject {
         guard loadedMovieTitle != trimmedTitle || shouldReloadForCurrentAuthorization else { return }
 
         loadedMovieTitle = trimmedTitle
-        await handleAuthorizationStatus(MusicAuthorization.currentStatus, movieTitle: trimmedTitle)
+        await handleAuthorization(catalogService.currentAuthorization, movieTitle: trimmedTitle)
     }
 
     func requestAuthorization() async {
-        let status = await MusicAuthorization.request()
-        await handleAuthorizationStatus(status)
+        await handleAuthorization(await catalogService.requestAuthorization())
     }
 
     private var shouldReloadForCurrentAuthorization: Bool {
@@ -67,8 +47,8 @@ public class MovieOSTViewModel: ObservableObject {
         }
     }
 
-    private func handleAuthorizationStatus(_ status: MusicAuthorization.Status, movieTitle: String? = nil) async {
-        switch status {
+    private func handleAuthorization(_ authorization: MusicCatalogAuthorization, movieTitle: String? = nil) async {
+        switch authorization {
         case .authorized:
             guard let movieTitle = movieTitle ?? loadedMovieTitle else {
                 state = .notDetermined
@@ -77,9 +57,7 @@ public class MovieOSTViewModel: ObservableObject {
             await searchSoundtrack(for: movieTitle)
         case .notDetermined:
             state = .notDetermined
-        case .denied, .restricted:
-            state = .denied
-        @unknown default:
+        case .denied:
             state = .denied
         }
     }
@@ -88,24 +66,12 @@ public class MovieOSTViewModel: ObservableObject {
         state = .loading
 
         do {
-            let term = MovieOSTSearchQueryBuilder.searchTerm(for: movieTitle)
-            var request = MusicCatalogSearchRequest(term: term, types: [Album.self])
-            request.limit = 10
-            let response = try await request.response()
-
-            let albums = response.albums
-                .filter { MovieOSTSearchQueryBuilder.isLikelySoundtrackAlbum(title: $0.title) }
-                .prefix(5)
-                .map { album in
-                    MovieOSTAlbumDisplayModel(
-                        id: album.id.rawValue,
-                        title: album.title,
-                        artistName: album.artistName,
-                        trackCount: album.trackCount,
-                        artwork: album.artwork,
-                        url: album.url
-                    )
-                }
+            let albums = try await catalogService.searchAlbums(
+                term: MovieOSTSearchQueryBuilder.searchTerm(for: movieTitle),
+                limit: Self.searchLimit
+            )
+            .filter { MovieOSTSearchQueryBuilder.isLikelySoundtrackAlbum(title: $0.title) }
+            .prefix(Self.displayLimit)
 
             state = albums.isEmpty ? .empty : .success(Array(albums))
         } catch {
