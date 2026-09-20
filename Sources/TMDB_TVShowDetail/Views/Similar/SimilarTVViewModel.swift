@@ -51,6 +51,9 @@ final class SimilarTVViewModel {
 
     func toggleFavorite(at index: Int) async {
     }
+
+    func loadBookmarkTVItems() {
+    }
 }
 
 struct SimilarTVShowEntity: Identifiable {

@@ -93,6 +93,11 @@ private struct MovieOSTAlbumRow: View {
                 // activates the first link no matter which album is tapped; `.borderless` makes
                 // each link hit-test on its own.
                 .buttonStyle(.borderless)
+                // `.borderless` paints its label with the accent colour, and `.secondary` /
+                // `.tertiary` are *derived* from that base — so the artist line, the track count
+                // and the chevron all came out blue. Re-basing the tint on `.primary` leaves the
+                // row reading as content instead of as a link.
+                .tint(.primary)
             } else {
                 albumContent
             }

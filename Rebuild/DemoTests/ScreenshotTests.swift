@@ -6,6 +6,9 @@ final class ScreenshotTests: BaseTestCase {
     func testTMDBTabs() { capture("TMDBTabsNormal", waitingFor: "movies_list") }
 
     @MainActor
+    func testTMDBSearch() { capture("TMDBSearch", waitingFor: "search_results") }
+
+    @MainActor
     func testTMDBDiscover() { capture("TMDBDiscover") }
 
     @MainActor
