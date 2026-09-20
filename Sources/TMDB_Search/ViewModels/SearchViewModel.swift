@@ -67,17 +67,26 @@ public final class SearchViewModel: ObservableObject {
                     showingFilterSheet = false
                     selectedFilterType = nil
                 }
-                runSearch()
+                // `@Published` publishes from `willSet`, so `self.scope` here is still the scope
+                // the user just left. The request has to be built from the emitted value; reading
+                // it back off the view model is what made the results lag the picker by one step.
+                runSearch(scope: scope, filters: filters)
             }
             .store(in: &cancellables)
 
         // Only re-request when the change touches a filter this scope sends: toggling a movie
         // year while searching keywords must not fire a redundant request.
         $filters
+            .removeDuplicates { [weak self] old, new in
+                let scope = self?.scope ?? .multi
+                return old.narrowed(to: scope) == new.narrowed(to: scope)
+            }
             .dropFirst()
-            .map { [weak self] filters in filters.narrowed(to: self?.scope ?? .multi) }
-            .removeDuplicates()
-            .sink { [weak self] _ in self?.runSearch() }
+            .sink { [weak self] filters in
+                guard let self else { return }
+                // Same `willSet` trap as the scope sink: `self.filters` is still the old set.
+                runSearch(scope: scope, filters: filters)
+            }
             .store(in: &cancellables)
     }
 
@@ -100,6 +109,10 @@ public final class SearchViewModel: ObservableObject {
     }
 
     public func runSearch() {
+        runSearch(scope: scope, filters: filters)
+    }
+
+    private func runSearch(scope: SearchScope, filters: SearchFilters) {
         searchTask?.cancel()
         loadMoreTask?.cancel()
         loadMoreTask = nil
@@ -129,8 +142,6 @@ public final class SearchViewModel: ObservableObject {
         }
         errorMessage = nil
 
-        let scope = scope
-        let filters = filters
         searchTask = Task { [weak self] in
             guard let self else { return }
             let result = await service.search(scope: scope, query: trimmed, filters: filters, page: nil)
