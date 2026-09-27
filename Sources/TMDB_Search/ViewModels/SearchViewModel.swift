@@ -33,7 +33,16 @@ public final class SearchViewModel: ObservableObject {
     @Published public var showingFilterSheet = false
     @Published public private(set) var selectedFilterType: FilterType?
 
+    /// Queries the user committed to, newest first — what the page offers before anything is typed.
+    @Published public private(set) var recentSearches: [String]
+    /// Today's trending titles, shown under the recents on the idle page.
+    @Published public private(set) var trending: [SearchResultItem] = []
+
+    /// Enough to scan at a glance without the list turning into a history log.
+    static let maxRecentSearches = 8
+
     private let service: TMDBSearchServicing
+    private let recentsStore: RecentSearchesStoring
     private var page = 1
     private var totalPages = 1
     private var searchTask: Task<Void, Never>?
@@ -47,8 +56,21 @@ public final class SearchViewModel: ObservableObject {
     /// Only counts filters the current scope would actually send.
     public var hasActiveFilters: Bool { filters.narrowed(to: scope).hasActiveFilters }
 
-    public init(service: TMDBSearchServicing) {
+    /// Nothing typed: the page shows recents and trending instead of results.
+    public var isIdle: Bool { trimmedQuery.isEmpty }
+
+    /// More pages are waiting behind the last row.
+    public var canLoadMore: Bool { page < totalPages }
+
+    private var trimmedQuery: String { query.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+    public init(
+        service: TMDBSearchServicing,
+        recentsStore: RecentSearchesStoring = UserDefaultsRecentSearchesStore()
+    ) {
         self.service = service
+        self.recentsStore = recentsStore
+        recentSearches = recentsStore.load()
 
         // Same debounce the feed view models use: one request per pause, not per keystroke.
         $query
@@ -112,6 +134,46 @@ public final class SearchViewModel: ObservableObject {
         runSearch(scope: scope, filters: filters)
     }
 
+    // MARK: - Recent searches
+
+    /// Remembers the current query. Called when the user commits to it — submitting it or
+    /// opening one of its results — rather than per debounced keystroke, which would fill the
+    /// list with "d", "du", "dun".
+    public func saveRecentSearch() {
+        let trimmed = trimmedQuery
+        guard !trimmed.isEmpty else { return }
+        // Case-insensitive, so "dune" after "Dune" moves the entry up instead of duplicating it.
+        let others = recentSearches.filter { $0.caseInsensitiveCompare(trimmed) != .orderedSame }
+        updateRecentSearches(Array(([trimmed] + others).prefix(Self.maxRecentSearches)))
+    }
+
+    /// Runs a recent search again; the debounced query sink does the searching.
+    public func selectRecentSearch(_ recent: String) {
+        query = recent
+        saveRecentSearch()
+    }
+
+    public func removeRecentSearch(_ recent: String) {
+        updateRecentSearches(recentSearches.filter { $0 != recent })
+    }
+
+    public func clearRecentSearches() {
+        updateRecentSearches([])
+    }
+
+    private func updateRecentSearches(_ searches: [String]) {
+        recentSearches = searches
+        recentsStore.save(searches)
+    }
+
+    // MARK: - Trending
+
+    /// Loads once per page; a failure just leaves the idle page with the recents alone.
+    public func loadTrendingIfNeeded() async {
+        guard trending.isEmpty, case let .success(items) = await service.trending() else { return }
+        trending = items
+    }
+
     private func runSearch(scope: SearchScope, filters: SearchFilters) {
         searchTask?.cancel()
         loadMoreTask?.cancel()
@@ -119,7 +181,7 @@ public final class SearchViewModel: ObservableObject {
         page = 1
         totalPages = 1
 
-        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = trimmedQuery
         guard !trimmed.isEmpty else {
             apply {
                 items = []
@@ -179,7 +241,7 @@ public final class SearchViewModel: ObservableObject {
         let nextPage = page + 1
         let scope = scope
         let filters = filters
-        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = trimmedQuery
         loadMoreTask = Task { [weak self] in
             guard let self else { return }
             let result = await service.search(scope: scope, query: trimmed, filters: filters, page: nextPage)

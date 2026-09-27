@@ -26,7 +26,8 @@ final class TMDBSearchTabTests: XCTestCase {
     }
 
     /// On iPhone the sectioned shell has six tabs — three roots, the two feed sections and Search
-    /// — and a compact bar holds five, so Search lands behind "More".
+    /// — and a compact bar holds five, so Search lands behind "More". Opened from there it has no
+    /// tab-bar field, so the page pins its own under the title.
     @MainActor
     func testSectionedSidebarHasSearchTab() {
         let app = launch(shell: "sectionedSidebar")
@@ -43,12 +44,13 @@ final class TMDBSearchTabTests: XCTestCase {
         capture(app, "sectionedSidebar_02_more")
         searchRow.tap()
 
-        let page = app.descendants(matching: .any)["feed_search_page"].firstMatch
-        XCTAssertTrue(page.waitForExistence(timeout: 10), "sectionedSidebar did not open the search page")
-        capture(app, "sectionedSidebar_03_search")
-        // Strict: once the field shows up this fails, so whoever fixes it drops the expectation.
-        XCTExpectFailure("Pushed from the More list, the search page gets no search field")
-        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5), "sectionedSidebar shows no search field")
+        assertSearchPage(in: app, shell: "sectionedSidebar")
+        // Pinned under the title, not in the bottom toolbar the More list never shows.
+        let field = app.searchFields.firstMatch
+        XCTAssertLessThan(field.frame.midY, app.frame.midY, "The field is not pinned under the title")
+        field.tap()
+        field.typeText("dune")
+        XCTAssertEqual(field.value as? String, "dune", "The pinned field does not take typing")
     }
 
     /// Paged tabs have no bar to tap: Search is the last page.
@@ -102,6 +104,8 @@ final class TMDBSearchTabTests: XCTestCase {
         // 26+ system tab bars) without search-tab activation.
         let field = app.searchFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5), "\(shell) shows no search field")
+        // The scopes are part of the page, not something only a focused field reveals.
+        XCTAssertTrue(app.buttons["search_scope_movies"].exists, "\(shell) shows no scope bar")
         // System bars make room for the field themselves; nothing does that for the floating bar.
         if shell == "floatingTabBar" {
             XCTAssertFalse(field.frame.intersects(app.buttons["tab.search"].frame), "The floating bar covers the field")

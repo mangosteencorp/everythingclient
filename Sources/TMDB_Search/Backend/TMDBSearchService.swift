@@ -10,6 +10,9 @@ public protocol TMDBSearchServicing {
         filters: SearchFilters,
         page: Int?
     ) async -> Result<SearchResultPage, Error>
+
+    /// Today's trending movies, shows and people — what the page offers before anything is typed.
+    func trending() async -> Result<[SearchResultItem], Error>
 }
 
 public extension TMDBSearchServicing {
@@ -51,6 +54,16 @@ public struct TMDBSearchService: TMDBSearchServicing {
             case .companies: return .success(try await companies(trimmed, page))
             case .keywords: return .success(try await keywords(trimmed, page))
             }
+        } catch {
+            return .failure(error)
+        }
+    }
+
+    public func trending() async -> Result<[SearchResultItem], Error> {
+        do {
+            let response: TrendingAllResultModel = try await requester.request(.trendingAll())
+            // Same payload shape as `search/multi`, so it maps through the same rows.
+            return .success(response.results.compactMap(SearchResultItem.init(multiItem:)))
         } catch {
             return .failure(error)
         }
@@ -171,6 +184,7 @@ extension SearchResultItem {
             kind: .movie,
             title: movie.title,
             subtitle: movie.release_date,
+            overview: movie.overview,
             imagePath: movie.poster_path,
             voteAverage: Double(movie.vote_average)
         )
@@ -182,6 +196,7 @@ extension SearchResultItem {
             kind: .tvShow,
             title: tvShow.name,
             subtitle: tvShow.first_air_date,
+            overview: tvShow.overview,
             imagePath: tvShow.poster_path,
             voteAverage: tvShow.vote_average
         )
@@ -193,6 +208,7 @@ extension SearchResultItem {
             kind: .person,
             title: person.name,
             subtitle: person.knownForDepartment,
+            overview: person.knownFor.compactMap { $0.title ?? $0.name }.joined(separator: ", "),
             imagePath: person.profilePath
         )
     }
@@ -202,7 +218,7 @@ extension SearchResultItem {
             tmdbID: collection.id,
             kind: .collection,
             title: collection.name,
-            subtitle: collection.overview,
+            overview: collection.overview,
             imagePath: collection.posterPath
         )
     }
@@ -231,6 +247,7 @@ extension SearchResultItem {
                 kind: .movie,
                 title: multiItem.title ?? multiItem.originalTitle ?? "",
                 subtitle: multiItem.releaseDate,
+                overview: multiItem.overview,
                 imagePath: multiItem.posterPath,
                 voteAverage: multiItem.voteAverage
             )
@@ -240,6 +257,7 @@ extension SearchResultItem {
                 kind: .tvShow,
                 title: multiItem.name ?? multiItem.originalName ?? "",
                 subtitle: multiItem.firstAirDate,
+                overview: multiItem.overview,
                 imagePath: multiItem.posterPath,
                 voteAverage: multiItem.voteAverage
             )

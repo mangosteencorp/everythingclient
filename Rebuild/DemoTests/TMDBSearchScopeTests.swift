@@ -19,15 +19,15 @@ final class TMDBSearchScopeTests: XCTestCase {
         // all interleaved on screen.
         XCTAssertTrue(rows(in: app, startingWith: "Super Movie").firstMatch.waitForExistence(timeout: 30))
         XCTAssertTrue(rows(in: app, startingWith: "Super Series").firstMatch.exists)
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
 
-        // `.searchScopes` only renders once the search field has focus.
-        let searchField = app.searchFields.firstMatch
-        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
-        searchField.tap()
-
-        select("Movies", in: app, showing: "Super Movie", hiding: "Super Series")
-        select("TV Shows", in: app, showing: "Super Series", hiding: "Super Movie")
-        select("People", in: app, showing: "Super Star", hiding: "Super Series")
+        // The scope bar is always on screen — no need to focus the field first, which is all
+        // `.searchScopes` offered.
+        select("movies", in: app, showing: "Super Movie", hiding: "Super Series")
+        select("tvShows", in: app, showing: "Super Series", hiding: "Super Movie")
+        select("people", in: app, showing: "Super Star", hiding: "Super Series")
+        // The last three sit past the trailing edge of an iPhone-wide bar.
+        select("keywords", in: app, showing: "Super Theme", hiding: "Super Star")
     }
 
     @MainActor
@@ -38,9 +38,14 @@ final class TMDBSearchScopeTests: XCTestCase {
         hiding forbidden: String,
         line: UInt = #line
     ) {
-        let button = app.buttons[scope]
+        let button = app.buttons["search_scope_\(scope)"]
         XCTAssertTrue(button.waitForExistence(timeout: 5), "Missing scope \(scope)", line: line)
+        // `isHittable` throws for a button scrolled out of the bar, so check the frame instead.
+        for _ in 0..<3 where !app.frame.contains(CGPoint(x: button.frame.midX, y: button.frame.midY)) {
+            app.descendants(matching: .any)["search_scope_bar"].firstMatch.swipeLeft()
+        }
         button.tap()
+        XCTAssertTrue(button.isSelected, "\(scope) did not become the selected scope", line: line)
 
         XCTAssertTrue(
             rows(in: app, startingWith: expected).firstMatch.waitForExistence(timeout: 10),
@@ -55,8 +60,9 @@ final class TMDBSearchScopeTests: XCTestCase {
         )
     }
 
+    /// Each row is one accessibility element whose label starts with its title.
     @MainActor
     private func rows(in app: XCUIApplication, startingWith prefix: String) -> XCUIElementQuery {
-        app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", prefix))
+        app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", prefix))
     }
 }

@@ -47,6 +47,11 @@ public struct StubSearchService: TMDBSearchServicing {
         ))
     }
 
+    public func trending() async -> Result<[SearchResultItem], Error> {
+        if let failure { return .failure(failure) }
+        return .success(Self.items(for: .multi, query: "Trending", page: 1, count: itemsPerPage))
+    }
+
     static func items(
         for scope: SearchScope,
         query: String,
@@ -71,6 +76,7 @@ public struct StubSearchService: TMDBSearchServicing {
                 kind: kind,
                 title: "\(query.capitalized) \(kind.sampleNoun) \(page * count + index + 1)",
                 subtitle: kind.sampleSubtitle,
+                overview: kind.sampleOverview,
                 // Keywords and companies really have no artwork; the stub keeps that true so
                 // the icon fallback stays exercised.
                 imagePath: kind.hasArtwork ? "/stub\(index).jpg" : nil,
@@ -97,9 +103,17 @@ private extension SearchResultKind {
         switch self {
         case .movie, .tvShow: return "2024-05-17"
         case .person: return "Acting"
-        case .collection: return "Every film in the series, in order."
         case .company: return "US"
-        case .keyword: return nil
+        case .collection, .keyword: return nil
+        }
+    }
+
+    var sampleOverview: String? {
+        switch self {
+        case .movie, .tvShow: return "A hero rises, falls and rises again, in a story long enough to need two lines."
+        case .person: return "Super Movie, Super Series"
+        case .collection: return "Every film in the series, in order."
+        case .company, .keyword: return nil
         }
     }
 
@@ -116,6 +130,19 @@ private extension SearchResultKind {
         case .person, .collection, .company, .keyword: return false
         }
     }
+}
+
+/// Recent searches kept in memory, so a preview or UI test starts from a known list.
+public final class InMemoryRecentSearchesStore: RecentSearchesStoring {
+    private var searches: [String]
+
+    public init(_ searches: [String] = []) {
+        self.searches = searches
+    }
+
+    public func load() -> [String] { searches }
+
+    public func save(_ searches: [String]) { self.searches = searches }
 }
 
 /// The search demo the screenshot run captures.
@@ -136,8 +163,15 @@ public struct TMDBSearchDemoView: View {
         NavigationStack {
             SearchPage(
                 viewModel: SearchViewModel.previewLoaded(scope: scope, query: query),
-                routeBuilder: { _ in 1 }
+                routeBuilder: { $0 }
             )
+            // Opening a row shows which one was tapped, so UI tests can check the tap landed.
+            .navigationDestination(for: SearchResultItem.self) { item in
+                Text(item.title)
+                    .font(.largeTitle.bold())
+                    .navigationTitle(item.kind.title)
+                    .accessibilityIdentifier("search.demo.detail")
+            }
         }
         .accessibilityIdentifier("search.demo.page")
     }
@@ -145,13 +179,17 @@ public struct TMDBSearchDemoView: View {
 
 @available(iOS 16, *)
 extension SearchViewModel {
+    /// A few past queries, so the idle page has something to show.
+    static let previewRecents = ["Dune", "Christopher Nolan", "Breaking Bad"]
+
     /// A view model already holding results, so a preview does not open on a spinner.
     static func previewLoaded(
         scope: SearchScope = .multi,
         query: String = "super",
-        service: TMDBSearchServicing = StubSearchService()
+        service: TMDBSearchServicing = StubSearchService(),
+        recents: [String] = previewRecents
     ) -> SearchViewModel {
-        let viewModel = SearchViewModel(service: service)
+        let viewModel = SearchViewModel(service: service, recentsStore: InMemoryRecentSearchesStore(recents))
         viewModel.scope = scope
         viewModel.query = query
         viewModel.runSearch()
@@ -201,10 +239,24 @@ extension SearchViewModel {
 }
 
 @available(iOS 16, *)
-#Preview("Search — nothing typed yet") {
+#Preview("Search — idle, recents and trending") {
     NavigationStack {
         SearchPage(
-            viewModel: SearchViewModel(service: StubSearchService()),
+            viewModel: SearchViewModel.previewLoaded(query: ""),
+            routeBuilder: { _ in 1 }
+        )
+    }
+}
+
+@available(iOS 16, *)
+#Preview("Search — idle, first launch offline") {
+    NavigationStack {
+        SearchPage(
+            viewModel: SearchViewModel.previewLoaded(
+                query: "",
+                service: StubSearchService(failure: URLError(.notConnectedToInternet)),
+                recents: []
+            ),
             routeBuilder: { _ in 1 }
         )
     }
@@ -248,12 +300,24 @@ extension SearchViewModel {
 }
 
 @available(iOS 16, *)
+#Preview("Search — dark mode") {
+    TMDBSearchDemoView()
+        .preferredColorScheme(.dark)
+}
+
+@available(iOS 16, *)
+#Preview("Search — field pinned under the title") {
+    TMDBSearchDemoView(scope: .movies)
+        .environment(\.searchPageFieldPlacement, .navigationBarDrawer(displayMode: .always))
+}
+
+@available(iOS 16, *)
 #Preview("Search result rows — every kind") {
     List {
         ForEach(SearchScope.allCases) { scope in
             Section(scope.title) {
                 ForEach(StubSearchService.items(for: scope, query: "super", page: 1).prefix(2)) { item in
-                    SearchResultRow(item: item)
+                    SearchResultRow(item: item, showsKind: scope == .multi)
                 }
             }
         }

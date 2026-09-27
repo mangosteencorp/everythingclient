@@ -65,6 +65,18 @@ public enum SearchScope: String, CaseIterable, Identifiable, Hashable {
 public enum SearchResultKind: String, Hashable {
     case movie, tvShow, person, collection, company, keyword
 
+    /// The badge text that tells mixed "All" results apart.
+    public var title: String {
+        switch self {
+        case .movie: return L10n.searchKindMovie
+        case .tvShow: return L10n.searchKindTvShow
+        case .person: return L10n.searchKindPerson
+        case .collection: return L10n.searchKindCollection
+        case .company: return L10n.searchKindCompany
+        case .keyword: return L10n.searchKindKeyword
+        }
+    }
+
     public var systemImage: String {
         switch self {
         case .movie: return "film"
@@ -84,7 +96,11 @@ public struct SearchResultItem: Identifiable, Hashable {
     public let tmdbID: Int
     public let kind: SearchResultKind
     public let title: String
+    /// Release or first-air date for movies and shows, department for people, origin country
+    /// for companies.
     public let subtitle: String?
+    /// The synopsis; for people, the titles they are known for.
+    public let overview: String?
     /// Poster, profile or logo path — whichever this kind has.
     public let imagePath: String?
     public let voteAverage: Double?
@@ -94,6 +110,7 @@ public struct SearchResultItem: Identifiable, Hashable {
         kind: SearchResultKind,
         title: String,
         subtitle: String? = nil,
+        overview: String? = nil,
         imagePath: String? = nil,
         voteAverage: Double? = nil
     ) {
@@ -101,8 +118,16 @@ public struct SearchResultItem: Identifiable, Hashable {
         self.kind = kind
         self.title = title
         self.subtitle = subtitle
+        self.overview = overview
         self.imagePath = imagePath
         self.voteAverage = voteAverage
+    }
+
+    /// "2021" out of a "2021-10-22" release date; `nil` for kinds whose subtitle is not a date.
+    public var year: String? {
+        guard kind == .movie || kind == .tvShow, let year = subtitle?.prefix(4),
+              year.count == 4, year.allSatisfy(\.isNumber) else { return nil }
+        return String(year)
     }
 }
 

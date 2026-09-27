@@ -54,6 +54,112 @@ final class SearchViewModelTests: XCTestCase {
         XCTAssertEqual(spy.scopes.count, 1)
     }
 
+    // MARK: - Recent searches
+
+    func testSavingARecentSearchPutsItFirstAndPersistsIt() {
+        let store = InMemoryRecentSearchesStore(["Alien"])
+        let viewModel = SearchViewModel(service: SpySearchService(), recentsStore: store)
+
+        viewModel.query = "  Dune  "
+        viewModel.saveRecentSearch()
+
+        XCTAssertEqual(viewModel.recentSearches, ["Dune", "Alien"])
+        XCTAssertEqual(store.load(), ["Dune", "Alien"], "the list did not reach the store")
+    }
+
+    /// Searching "dune" again after "Dune" moves the entry up rather than listing it twice.
+    func testSavingAnExistingSearchMovesItUpCaseInsensitively() {
+        let viewModel = SearchViewModel(
+            service: SpySearchService(),
+            recentsStore: InMemoryRecentSearchesStore(["Alien", "Dune", "Heat"])
+        )
+
+        viewModel.query = "dune"
+        viewModel.saveRecentSearch()
+
+        XCTAssertEqual(viewModel.recentSearches, ["dune", "Alien", "Heat"])
+    }
+
+    func testRecentSearchesKeepOnlyTheNewest() {
+        let viewModel = SearchViewModel(service: SpySearchService(), recentsStore: InMemoryRecentSearchesStore())
+
+        for index in 1...(SearchViewModel.maxRecentSearches + 2) {
+            viewModel.query = "query \(index)"
+            viewModel.saveRecentSearch()
+        }
+
+        XCTAssertEqual(viewModel.recentSearches.count, SearchViewModel.maxRecentSearches)
+        XCTAssertEqual(viewModel.recentSearches.first, "query \(SearchViewModel.maxRecentSearches + 2)")
+    }
+
+    func testBlankQueryIsNeverSaved() {
+        let viewModel = SearchViewModel(service: SpySearchService(), recentsStore: InMemoryRecentSearchesStore())
+
+        viewModel.query = "   "
+        viewModel.saveRecentSearch()
+
+        XCTAssertEqual(viewModel.recentSearches, [])
+    }
+
+    func testSelectingARecentSearchRunsItAndMovesItUp() async {
+        let spy = SpySearchService()
+        let viewModel = SearchViewModel(service: spy, recentsStore: InMemoryRecentSearchesStore(["Alien", "Dune"]))
+
+        viewModel.selectRecentSearch("Dune")
+        await searchLanded(viewModel)
+
+        XCTAssertEqual(viewModel.query, "Dune")
+        XCTAssertEqual(spy.queries.last, "Dune")
+        XCTAssertEqual(viewModel.recentSearches, ["Dune", "Alien"])
+    }
+
+    func testRemovingAndClearingRecentSearches() {
+        let store = InMemoryRecentSearchesStore(["Alien", "Dune", "Heat"])
+        let viewModel = SearchViewModel(service: SpySearchService(), recentsStore: store)
+
+        viewModel.removeRecentSearch("Dune")
+        XCTAssertEqual(viewModel.recentSearches, ["Alien", "Heat"])
+
+        viewModel.clearRecentSearches()
+        XCTAssertEqual(viewModel.recentSearches, [])
+        XCTAssertEqual(store.load(), [])
+    }
+
+    func testUserDefaultsStoreRoundTrips() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { defaults.removePersistentDomain(forName: #function) }
+        let store = UserDefaultsRecentSearchesStore(defaults: defaults)
+
+        XCTAssertEqual(store.load(), [])
+        store.save(["Dune", "Alien"])
+        XCTAssertEqual(UserDefaultsRecentSearchesStore(defaults: defaults).load(), ["Dune", "Alien"])
+    }
+
+    // MARK: - Idle page
+
+    func testIdleUntilSomethingIsTyped() {
+        let viewModel = SearchViewModel(service: SpySearchService(), recentsStore: InMemoryRecentSearchesStore())
+        XCTAssertTrue(viewModel.isIdle)
+
+        viewModel.query = "  "
+        XCTAssertTrue(viewModel.isIdle, "whitespace alone is not a search")
+
+        viewModel.query = "dune"
+        XCTAssertFalse(viewModel.isIdle)
+    }
+
+    func testTrendingLoadsOnce() async {
+        let spy = SpySearchService()
+        spy.trendingItems = [SearchResultItem(tmdbID: 1, kind: .movie, title: "Dune")]
+        let viewModel = SearchViewModel(service: spy, recentsStore: InMemoryRecentSearchesStore())
+
+        await viewModel.loadTrendingIfNeeded()
+        await viewModel.loadTrendingIfNeeded()
+
+        XCTAssertEqual(viewModel.trending.map(\.title), ["Dune"])
+        XCTAssertEqual(spy.trendingCalls, 1, "trending was fetched again although it was already on screen")
+    }
+
     // MARK: - Helpers
 
     /// Waits for the next completed search: `resultsGeneration` is bumped once per result set,
@@ -71,15 +177,24 @@ final class SearchViewModelTests: XCTestCase {
 private final class SpySearchService: TMDBSearchServicing, @unchecked Sendable {
     private(set) var scopes: [SearchScope] = []
     private(set) var filters: [SearchFilters] = []
+    private(set) var queries: [String] = []
+    private(set) var trendingCalls = 0
+    var trendingItems: [SearchResultItem] = []
 
     func search(
         scope: SearchScope,
-        query _: String,
+        query: String,
         filters: SearchFilters,
         page _: Int?
     ) async -> Result<SearchResultPage, Error> {
         scopes.append(scope)
         self.filters.append(filters)
+        queries.append(query)
         return .success(SearchResultPage(items: [], page: 1, totalPages: 1))
+    }
+
+    func trending() async -> Result<[SearchResultItem], Error> {
+        trendingCalls += 1
+        return .success(trendingItems)
     }
 }

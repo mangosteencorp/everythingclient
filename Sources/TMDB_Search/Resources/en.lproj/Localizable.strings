@@ -35,3 +35,28 @@
 "search_scope_movies" = "Movies";
 "search_scope_people" = "People";
 "search_scope_tv" = "TV Shows";
+
+// Result kinds (badges in the "All" scope)
+"search_kind_movie" = "Movie";
+"search_kind_tv_show" = "TV Show";
+"search_kind_person" = "Person";
+"search_kind_collection" = "Collection";
+"search_kind_company" = "Company";
+"search_kind_keyword" = "Keyword";
+
+// Result rows
+"search_known_for" = "Known for %@";
+"search_rating_accessibility" = "Rated %@ out of 10";
+
+// Idle page
+"search_idle_prompt" = "Find movies, shows and people";
+"search_recents_title" = "Recent Searches";
+"search_recents_clear" = "Clear";
+"search_recents_remove" = "Remove";
+"search_trending_title" = "Trending Today";
+
+// No results
+"search_empty_title" = "No results for “%@”";
+"search_empty_message" = "Check the spelling, or try another category.";
+"search_empty_retry" = "Try Again";
+"search_empty_clear" = "Clear Search";

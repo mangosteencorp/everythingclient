@@ -11,7 +11,7 @@ import XCTest
 final class SearchPageTests: XCTestCase {
     func testShowsFilterChipsForScopesThatSupportThem() throws {
         let page = SearchPage(
-            viewModel: SearchViewModel(service: StubSearchService()),
+            viewModel: SearchViewModel(service: StubSearchService(), recentsStore: InMemoryRecentSearchesStore()),
             routeBuilder: { _ in 1 }
         )
 
@@ -20,23 +20,44 @@ final class SearchPageTests: XCTestCase {
 
     /// `search/keyword` takes nothing but a query, so offering chips there would be a lie.
     func testHidesFilterChipsForKeywordScope() throws {
-        let viewModel = SearchViewModel(service: StubSearchService())
+        let viewModel = SearchViewModel(service: StubSearchService(), recentsStore: InMemoryRecentSearchesStore())
         viewModel.scope = .keywords
         let page = SearchPage(viewModel: viewModel, routeBuilder: { _ in 1 })
 
         XCTAssertThrowsError(try page.inspect().find(FilterChipsView.self))
     }
 
-    /// Before a query is typed the page shows the placeholder, not an empty-results screen —
-    /// the distinction `SearchViewModel.hasSearched` exists for.
-    func testPlaceholderBeforeFirstQuery() throws {
+    /// Before a query is typed the page offers recents and trending, not an empty-results
+    /// screen or a spinner.
+    func testIdlePageBeforeFirstQuery() throws {
         let view = SearchPage(
-            viewModel: SearchViewModel(service: StubSearchService()),
+            viewModel: SearchViewModel(service: StubSearchService(), recentsStore: InMemoryRecentSearchesStore(["Dune"])),
+            routeBuilder: { _ in 1 }
+        )
+
+        XCTAssertNoThrow(try view.inspect().find(SearchIdleView<Int>.self))
+        XCTAssertNoThrow(try view.inspect().find(RecentSearchRow.self))
+        XCTAssertThrowsError(try view.inspect().find(SearchResultsList<Int>.self))
+    }
+
+    /// With no recents and no trending yet, the idle page is a one-line prompt, not a blank list.
+    func testIdlePageWithNothingToOfferShowsThePrompt() throws {
+        let view = SearchPage(
+            viewModel: SearchViewModel(service: StubSearchService(), recentsStore: InMemoryRecentSearchesStore()),
             routeBuilder: { _ in 1 }
         )
 
         XCTAssertNoThrow(try view.inspect().find(FeedPlaceholderView.self))
         XCTAssertThrowsError(try view.inspect().find(ViewType.List.self))
+    }
+
+    /// Every scope is one tap away in the bar, not hidden behind search focus.
+    func testScopeBarOffersEveryScope() throws {
+        let bar = SearchScopeBar(selection: .constant(.movies))
+
+        let buttons = try bar.inspect().findAll(SearchScopeButton.self)
+        XCTAssertEqual(try buttons.map { try $0.actualView().scope }, SearchScope.allCases)
+        XCTAssertEqual(try buttons.filter { try $0.actualView().isSelected }.map { try $0.actualView().scope }, [.movies])
     }
 
     /// The scope picker is the one place the seven endpoints are exposed, so its contents are

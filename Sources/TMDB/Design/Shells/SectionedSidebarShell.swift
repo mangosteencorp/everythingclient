@@ -1,6 +1,7 @@
 import CoreFeatures
 import SwiftUI
 import TMDB_Feed
+import TMDB_Search
 
 /// Feed categories promoted out of the feed page and into the shell itself: sidebar sections on
 /// iPad, one pushable list per section on iPhone, plus `TMDB_Search` as its own search-role tab.
@@ -17,6 +18,7 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
     @ViewBuilder let feedPage: (FeedTab) -> FeedPage
 
     @State private var selection: ShellSelection<TabRoute, FeedTab> = .root(.marketplace)
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     private static var roots: [TabRoute] { [.marketplace, .profile, .settings] }
 
@@ -28,7 +30,9 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
             selection: $selection,
             customizationStorageKey: "tmdb.sectionedSidebar",
             rowPath: { coordinator.path(for: .feedRow($0)) },
-            rootContent: { page($0) },
+            rootContent: { root in
+                page(root).environment(\.searchPageFieldPlacement, fieldPlacement(for: root))
+            },
             rowContent: { feedPage($0) },
             header: { Text(TabRoute.movieFeed.title).font(.title2.bold()) }
         )
@@ -43,6 +47,13 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
             guard !selection.matches(newValue) else { return }
             syncFromCoordinator()
         }
+    }
+
+    /// On iPhone the three roots, two sections and Search make six tabs, one more than a compact
+    /// bar holds, so Search lands in "More" — and a search tab opened from there gets no field
+    /// in the tab bar. Its page pins its own field under the title instead.
+    private func fieldPlacement(for root: TabRoute) -> SearchFieldPlacement {
+        root == .search && sizeClass == .compact ? .navigationBarDrawer(displayMode: .always) : .automatic
     }
 
     private func syncFromCoordinator() {

@@ -50,6 +50,60 @@ final class TMDBSearchServiceTests: XCTestCase {
         XCTAssertEqual(items.first?.tmdbID, 1)
     }
 
+    /// Trending feeds the idle page through the same row mapping as `search/multi`.
+    func testTrendingReadsTrendingAllIntoRows() async throws {
+        requester.stub(.trendingAll(), with: try JSONFixture.decode(
+            TrendingAllResultModel.self,
+            from: """
+            {
+              "page": 1, "total_pages": 1, "total_results": 2,
+              "results": [
+                {"adult": false, "id": 1, "title": "Dune", "media_type": "movie", "popularity": 10.0,
+                 "overview": "Spice.", "release_date": "2021-09-15", "poster_path": "/p.jpg"},
+                {"adult": false, "id": 3, "name": "Dune Collection", "media_type": "collection",
+                 "popularity": 8.0}
+              ]
+            }
+            """
+        ))
+
+        let items = try await service.trending().get()
+
+        XCTAssertEqual(requester.requestedPaths, ["trending/all/day"])
+        XCTAssertEqual(items.map(\.title), ["Dune"])
+        XCTAssertEqual(items.first?.overview, "Spice.")
+        XCTAssertEqual(items.first?.year, "2021")
+    }
+
+    /// A person row's second line is what they are known for.
+    func testPersonRowsCarryTheirKnownForTitles() async throws {
+        requester.stub(.searchPerson(query: "denis"), with: try JSONFixture.decode(
+            PersonListResultModel.self,
+            from: """
+            {
+              "page": 1, "total_pages": 1, "total_results": 1,
+              "results": [{"adult": false, "gender": 2, "id": 7, "known_for_department": "Directing",
+                           "name": "Denis", "original_name": "Denis", "popularity": 20.0,
+                           "profile_path": "/d.jpg", "known_for": [
+                             {"adult": false, "id": 1, "title": "Dune", "overview": "", "media_type": "movie",
+                              "original_language": "en", "genre_ids": [], "popularity": 1.0,
+                              "vote_average": 8.0, "vote_count": 1},
+                             {"adult": false, "id": 2, "name": "Arrival TV", "overview": "", "media_type": "tv",
+                              "original_language": "en", "genre_ids": [], "popularity": 1.0,
+                              "vote_average": 8.0, "vote_count": 1}
+                           ]}]
+            }
+            """
+        ))
+
+        let page = try await service.search(scope: .people, query: "denis", page: nil).get()
+        let item = try XCTUnwrap(page.items.first)
+
+        XCTAssertEqual(item.subtitle, "Directing")
+        XCTAssertEqual(item.overview, "Dune, Arrival TV")
+        XCTAssertNil(item.year, "a department is not a release date")
+    }
+
     func testEmptyQueryShortCircuitsWithoutCallingTheAPI() async {
         let result = await service.search(scope: .movies, query: "   ", page: nil)
 

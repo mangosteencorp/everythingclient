@@ -5,8 +5,6 @@ import SwiftUI
 /// What a list-backed page has to show right now. Each call site maps its own view-model state
 /// onto this, so the mapping stays visible while the rendering is shared.
 public enum FeedLoadPhase: Equatable {
-    /// Nothing requested yet — search shows this before the first query.
-    case placeholder(systemImage: String, title: String)
     case loading
     case error(message: String)
     case empty
@@ -20,6 +18,8 @@ public struct FeedStateView<Content: View>: View {
     /// Spinner over already-visible content while the next page loads.
     var isRefreshing: Bool = false
     var allowsCancel: Bool = false
+    /// Copy for the empty state; `nil` keeps the generic "No Results Found" wording.
+    var emptyConfiguration: NoResultViewConfiguration?
     let retryAction: () -> Void
     var cancelAction: (() -> Void)?
     @ViewBuilder let content: () -> Content
@@ -30,6 +30,7 @@ public struct FeedStateView<Content: View>: View {
         phase: FeedLoadPhase,
         isRefreshing: Bool = false,
         allowsCancel: Bool = false,
+        emptyConfiguration: NoResultViewConfiguration? = nil,
         retryAction: @escaping () -> Void,
         cancelAction: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content
@@ -37,6 +38,7 @@ public struct FeedStateView<Content: View>: View {
         self.phase = phase
         self.isRefreshing = isRefreshing
         self.allowsCancel = allowsCancel
+        self.emptyConfiguration = emptyConfiguration
         self.retryAction = retryAction
         self.cancelAction = cancelAction
         self.content = content
@@ -44,8 +46,6 @@ public struct FeedStateView<Content: View>: View {
 
     public var body: some View {
         switch phase {
-        case let .placeholder(systemImage, title):
-            FeedPlaceholderView(systemImage: systemImage, title: title)
         case .loading:
             ProgressView(L10n.playingLoading)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -58,7 +58,7 @@ public struct FeedStateView<Content: View>: View {
             )
         case .empty:
             CommonNoResultView(
-                configuration: NoResultViewConfiguration(
+                configuration: emptyConfiguration ?? NoResultViewConfiguration(
                     primaryButtonAction: retryAction,
                     secondaryButtonAction: cancelAction ?? {}
                 ),

@@ -23,32 +23,38 @@ public struct FilterChip: View {
     }
 
     public var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             Image(systemName: filterType.iconName)
-                .font(.caption)
 
             Text(displayText)
-                .font(.caption)
                 .fontWeight(.medium)
+                .lineLimit(1)
 
             if isActive {
                 Button(action: onRemove) {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
+            } else {
+                // Tapping opens a picker sheet; the chevron says so.
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .font(.footnote)
+        .foregroundStyle(isActive ? Color.accentColor : Color.primary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(isActive ? Color.accentColor.opacity(0.2) : Color.secondary.opacity(0.1))
+            Capsule()
+                .fill(isActive ? Color.accentColor.opacity(0.15) : Color(.secondarySystemFill))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 1)
+            Capsule()
+                .strokeBorder(isActive ? Color.accentColor.opacity(0.6) : Color.clear, lineWidth: 1)
         )
+        .contentShape(Capsule())
         .onTapGesture {
             onTap()
         }
@@ -98,19 +104,16 @@ public struct FilterChipsView: View {
                     Button(L10n.filterClearAll) {
                         filters.clearAll()
                     }
-                    .font(.caption)
+                    .font(.footnote.weight(.medium))
                     .foregroundColor(.red)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.red.opacity(0.1))
-                    )
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(Capsule().fill(Color.red.opacity(0.1)))
                 }
             }
             .padding(.horizontal, 16)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
     }
 
     /// "Clear all" should not appear because of a filter this scope is not even showing.
