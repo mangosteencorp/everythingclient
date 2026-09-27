@@ -19,34 +19,50 @@ public enum L10n {
   public static let filterAnyLanguage = L10n.tr("Localizable", "filter_any_language", fallback: "Any Language")
   /// Any Region
   public static let filterAnyRegion = L10n.tr("Localizable", "filter_any_region", fallback: "Any Region")
+  /// Any Year
+  public static let filterAnyYear = L10n.tr("Localizable", "filter_any_year", fallback: "Any Year")
   /// Cancel
   public static let filterCancel = L10n.tr("Localizable", "filter_cancel", fallback: "Cancel")
-  /// Clear
-  public static let filterClear = L10n.tr("Localizable", "filter_clear", fallback: "Clear")
+  /// %@: %@
+  public static func filterChipValue(_ p1: Any, _ p2: Any) -> String {
+    return L10n.tr("Localizable", "filter_chip_value", String(describing: p1), String(describing: p2), fallback: "%@: %@")
+  }
   /// Clear All
   public static let filterClearAll = L10n.tr("Localizable", "filter_clear_all", fallback: "Clear All")
   /// Done
   public static let filterDone = L10n.tr("Localizable", "filter_done", fallback: "Done")
-  /// Enter year (e.g., 2024)
-  public static let filterEnterYear = L10n.tr("Localizable", "filter_enter_year", fallback: "Enter year (e.g., 2024)")
+  /// First Air Year
+  public static let filterFirstAirDateYear = L10n.tr("Localizable", "filter_first_air_date_year", fallback: "First Air Year")
+  /// Only shows that first aired in this year
+  public static let filterFirstAirDateYearDescription = L10n.tr("Localizable", "filter_first_air_date_year_description", fallback: "Only shows that first aired in this year")
   /// Include Adult
   public static let filterIncludeAdult = L10n.tr("Localizable", "filter_include_adult", fallback: "Include Adult")
   /// Include adult content in search results
   public static let filterIncludeAdultDescription = L10n.tr("Localizable", "filter_include_adult_description", fallback: "Include adult content in search results")
+  /// When on, results can include titles and people TMDB marks as adult.
+  public static let filterIncludeAdultFootnote = L10n.tr("Localizable", "filter_include_adult_footnote", fallback: "When on, results can include titles and people TMDB marks as adult.")
   /// Language
   public static let filterLanguage = L10n.tr("Localizable", "filter_language", fallback: "Language")
-  /// Select language for search results
-  public static let filterLanguageDescription = L10n.tr("Localizable", "filter_language_description", fallback: "Select language for search results")
+  /// Show titles and overviews in this language
+  public static let filterLanguageDescription = L10n.tr("Localizable", "filter_language_description", fallback: "Show titles and overviews in this language")
   /// Release Year
   public static let filterPrimaryReleaseYear = L10n.tr("Localizable", "filter_primary_release_year", fallback: "Release Year")
+  /// Only movies first released in this year
+  public static let filterPrimaryReleaseYearDescription = L10n.tr("Localizable", "filter_primary_release_year_description", fallback: "Only movies first released in this year")
   /// Region
   public static let filterRegion = L10n.tr("Localizable", "filter_region", fallback: "Region")
-  /// Select region for search results
-  public static let filterRegionDescription = L10n.tr("Localizable", "filter_region_description", fallback: "Select region for search results")
+  /// Match release dates in this country
+  public static let filterRegionDescription = L10n.tr("Localizable", "filter_region_description", fallback: "Match release dates in this country")
+  /// Remove %@
+  public static func filterRemove(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "filter_remove", String(describing: p1), fallback: "Remove %@")
+  }
+  /// On
+  public static let filterValueOn = L10n.tr("Localizable", "filter_value_on", fallback: "On")
   /// Year
   public static let filterYear = L10n.tr("Localizable", "filter_year", fallback: "Year")
-  /// Enter a 4-digit year (e.g., 2024)
-  public static let filterYearDescription = L10n.tr("Localizable", "filter_year_description", fallback: "Enter a 4-digit year (e.g., 2024)")
+  /// Any release or air date in this year, not only the first
+  public static let filterYearDescription = L10n.tr("Localizable", "filter_year_description", fallback: "Any release or air date in this year, not only the first")
   /// Clear Search
   public static let searchEmptyClear = L10n.tr("Localizable", "search_empty_clear", fallback: "Clear Search")
   /// Check the spelling, or try another category.

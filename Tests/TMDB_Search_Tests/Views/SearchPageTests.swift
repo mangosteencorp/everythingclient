@@ -27,6 +27,27 @@ final class SearchPageTests: XCTestCase {
         XCTAssertThrowsError(try page.inspect().find(FilterChipsView.self))
     }
 
+    /// One chip per filter the scope's endpoint takes, in the scope's order.
+    func testChipRowShowsEveryFilterOfTheScope() throws {
+        let row = FilterChipsView(filters: .constant(SearchFilters()), types: SearchScope.tvShows.supportedFilters) { _ in }
+
+        let chips = try row.inspect().findAll(FilterChip.self).map { try $0.actualView().filterType }
+        XCTAssertEqual(chips, [.includeAdult, .language, .firstAirDateYear, .year])
+        XCTAssertThrowsError(try row.inspect().find(button: L10n.filterClearAll), "Clear All with nothing set")
+    }
+
+    /// An active chip names its value, and "Clear All" appears only for a filter the row shows.
+    func testActiveChipShowsItsValueAndOffersClearAll() throws {
+        let filters = SearchFilters(primaryReleaseYear: "2021")
+
+        let movies = FilterChipsView(filters: .constant(filters), types: SearchScope.movies.supportedFilters) { _ in }
+        XCTAssertNoThrow(try movies.inspect().find(text: L10n.filterChipValue(L10n.filterPrimaryReleaseYear, "2021")))
+        XCTAssertNoThrow(try movies.inspect().find(button: L10n.filterClearAll))
+
+        let shows = FilterChipsView(filters: .constant(filters), types: SearchScope.tvShows.supportedFilters) { _ in }
+        XCTAssertThrowsError(try shows.inspect().find(button: L10n.filterClearAll), "Clear All for a hidden chip")
+    }
+
     /// Before a query is typed the page offers recents and trending, not an empty-results
     /// screen or a spinner.
     func testIdlePageBeforeFirstQuery() throws {

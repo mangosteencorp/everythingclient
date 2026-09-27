@@ -54,6 +54,56 @@ final class SearchViewModelTests: XCTestCase {
         XCTAssertEqual(spy.scopes.count, 1)
     }
 
+    /// "Clear All" is a filter change like any other: the unfiltered results come back.
+    func testClearingFiltersSearchesAgainWithoutThem() async {
+        let spy = SpySearchService()
+        let viewModel = SearchViewModel(service: spy)
+
+        viewModel.scope = .tvShows
+        viewModel.query = "super"
+        await searchLanded(viewModel)
+        viewModel.filters.firstAirDateYear = "2019"
+        await searchLanded(viewModel)
+        XCTAssertEqual(spy.filters.last?.firstAirDateYear, "2019")
+        XCTAssertTrue(viewModel.hasActiveFilters)
+
+        viewModel.filters.clearAll()
+        await searchLanded(viewModel)
+
+        XCTAssertEqual(spy.filters.last, SearchFilters())
+        XCTAssertFalse(viewModel.hasActiveFilters)
+    }
+
+    /// Done on a picker nobody changed writes back the same filters; that is not a new search.
+    func testWritingBackTheSameFiltersDoesNotSearchAgain() async {
+        let spy = SpySearchService()
+        let viewModel = SearchViewModel(service: spy)
+
+        viewModel.scope = .movies
+        viewModel.query = "super"
+        await searchLanded(viewModel)
+
+        viewModel.filters = SearchFilters()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertEqual(spy.scopes.count, 1)
+    }
+
+    /// The chip row counts only what the current scope would send, so a movie-only filter does
+    /// not light up "Clear All" on TV.
+    func testActiveFiltersFollowTheScope() {
+        let viewModel = SearchViewModel(service: SpySearchService(), recentsStore: InMemoryRecentSearchesStore())
+        viewModel.filters = SearchFilters(primaryReleaseYear: "2021")
+
+        viewModel.scope = .movies
+        XCTAssertTrue(viewModel.hasActiveFilters)
+        XCTAssertEqual(viewModel.availableFilters, [.includeAdult, .language, .primaryReleaseYear, .region, .year])
+
+        viewModel.scope = .tvShows
+        XCTAssertFalse(viewModel.hasActiveFilters)
+        XCTAssertEqual(viewModel.availableFilters, [.includeAdult, .language, .firstAirDateYear, .year])
+    }
+
     // MARK: - Recent searches
 
     func testSavingARecentSearchPutsItFirstAndPersistsIt() {

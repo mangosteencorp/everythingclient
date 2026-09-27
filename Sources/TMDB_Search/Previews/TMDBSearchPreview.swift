@@ -40,8 +40,12 @@ public struct StubSearchService: TMDBSearchServicing {
         }
 
         let page = page ?? 1
+        // A year filter dates every row that year, so a filtered search visibly differs from
+        // an unfiltered one; like the real service, only what this scope sends counts.
+        let filters = filters.narrowed(to: scope)
+        let year = filters.primaryReleaseYear ?? filters.firstAirDateYear ?? filters.year
         return .success(SearchResultPage(
-            items: Self.items(for: scope, query: trimmed, page: page, count: itemsPerPage),
+            items: Self.items(for: scope, query: trimmed, page: page, count: itemsPerPage, year: year),
             page: page,
             totalPages: max(pagesPerScope, 1)
         ))
@@ -56,7 +60,8 @@ public struct StubSearchService: TMDBSearchServicing {
         for scope: SearchScope,
         query: String,
         page: Int,
-        count: Int = 12
+        count: Int = 12,
+        year: String? = nil
     ) -> [SearchResultItem] {
         let kinds: [SearchResultKind]
         switch scope {
@@ -75,7 +80,7 @@ public struct StubSearchService: TMDBSearchServicing {
                 tmdbID: page * 1000 + index,
                 kind: kind,
                 title: "\(query.capitalized) \(kind.sampleNoun) \(page * count + index + 1)",
-                subtitle: kind.sampleSubtitle,
+                subtitle: kind.sampleSubtitle(year: year),
                 overview: kind.sampleOverview,
                 // Keywords and companies really have no artwork; the stub keeps that true so
                 // the icon fallback stays exercised.
@@ -99,9 +104,9 @@ private extension SearchResultKind {
         }
     }
 
-    var sampleSubtitle: String? {
+    func sampleSubtitle(year: String?) -> String? {
         switch self {
-        case .movie, .tvShow: return "2024-05-17"
+        case .movie, .tvShow: return "\(year ?? "2024")-05-17"
         case .person: return "Acting"
         case .company: return "US"
         case .collection, .keyword: return nil
@@ -211,6 +216,34 @@ extension SearchViewModel {
             viewModel: {
                 let viewModel = SearchViewModel.previewLoaded(scope: .movies)
                 viewModel.filters = SearchFilters(primaryReleaseYear: "2024", region: "US")
+                return viewModel
+            }(),
+            routeBuilder: { _ in 1 }
+        )
+    }
+}
+
+@available(iOS 16, *)
+#Preview("Search — TV shows, first air year") {
+    NavigationStack {
+        SearchPage(
+            viewModel: {
+                let viewModel = SearchViewModel.previewLoaded(scope: .tvShows)
+                viewModel.filters = SearchFilters(language: "ja", firstAirDateYear: "2019")
+                return viewModel
+            }(),
+            routeBuilder: { _ in 1 }
+        )
+    }
+}
+
+@available(iOS 16, *)
+#Preview("Search — collections, region") {
+    NavigationStack {
+        SearchPage(
+            viewModel: {
+                let viewModel = SearchViewModel.previewLoaded(scope: .collections)
+                viewModel.filters = SearchFilters(region: "GB")
                 return viewModel
             }(),
             routeBuilder: { _ in 1 }

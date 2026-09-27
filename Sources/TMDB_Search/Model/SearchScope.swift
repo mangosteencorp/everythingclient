@@ -37,7 +37,8 @@ public enum SearchScope: String, CaseIterable, Identifiable, Hashable {
         }
     }
 
-    /// Which filter chips this scope can actually act on.
+    /// Which filter chips this scope can actually act on: every query parameter its endpoint
+    /// takes besides `query` and `page`.
     ///
     /// TMDB accepts a different query-parameter set per search endpoint — `search/keyword` and
     /// `search/company` take nothing but `query` and `page`. Offering a chip that the request
@@ -48,9 +49,9 @@ public enum SearchScope: String, CaseIterable, Identifiable, Hashable {
         case .movies:
             return [.includeAdult, .language, .primaryReleaseYear, .region, .year]
         case .tvShows:
-            // `search/tv` spells its year filter `first_air_date_year`; `SearchFilters.year`
-            // feeds it, and there is no separate primary-release year.
-            return [.includeAdult, .language, .region, .year]
+            // `search/tv` has no `region`, and two years: the first air date alone, or any air
+            // date including episodes.
+            return [.includeAdult, .language, .firstAirDateYear, .year]
         case .multi, .people:
             return [.includeAdult, .language]
         case .collections:

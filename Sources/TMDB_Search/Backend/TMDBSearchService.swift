@@ -107,11 +107,8 @@ public struct TMDBSearchService: TMDBSearchServicing {
             query: query,
             includeAdult: filters.includeAdult,
             language: filters.language,
-            // `search/tv` has no `primary_release_year`; the one year chip it offers is the
-            // first-air-date year.
-            firstAirDateYear: filters.year,
+            firstAirDateYear: filters.firstAirDateYear,
             page: page,
-            region: filters.region,
             year: filters.year
         ))
         return SearchResultPage(

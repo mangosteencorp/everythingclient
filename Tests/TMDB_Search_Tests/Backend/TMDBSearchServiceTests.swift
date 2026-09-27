@@ -134,26 +134,6 @@ final class TMDBSearchServiceTests: XCTestCase {
 
     // MARK: - Filters
 
-    func testMovieScopeForwardsEveryFilterItSupports() async throws {
-        try seedAllScopes()
-        let filters = SearchFilters(
-            includeAdult: true,
-            language: "fr",
-            primaryReleaseYear: "2021",
-            region: "FR",
-            year: "2020"
-        )
-
-        _ = await service.search(scope: .movies, query: "dune", filters: filters, page: nil)
-
-        let query = try XCTUnwrap(requester.requestedEndpoints.first?.extraQuery())
-        XCTAssertEqual(query["include_adult"], "true")
-        XCTAssertEqual(query["language"], "fr")
-        XCTAssertEqual(query["primary_release_year"], "2021")
-        XCTAssertEqual(query["region"], "FR")
-        XCTAssertEqual(query["year"], "2020")
-    }
-
     /// `search/keyword` takes nothing but `query` and `page`, so a filter left over from the
     /// movie scope must not ride along.
     func testScopesDropFiltersTheirEndpointCannotHonour() async throws {
@@ -181,43 +161,54 @@ final class TMDBSearchServiceTests: XCTestCase {
         XCTAssertNil(query["year"])
     }
 
-    /// The TV endpoint spells its year filter `first_air_date_year`, so the single year chip has
-    /// to reach both spellings rather than silently doing nothing.
-    func testTVScopeMapsTheYearChipOntoFirstAirDateYear() async throws {
+    /// Every filter set at once: each endpoint receives exactly the parameters TMDB documents
+    /// for it — nothing dropped that it takes, nothing sent that it does not.
+    func testEachScopeSendsExactlyTheFiltersItsEndpointTakes() async throws {
+        let everything = SearchFilters(
+            includeAdult: true,
+            language: "fr",
+            primaryReleaseYear: "2021",
+            firstAirDateYear: "2019",
+            region: "FR",
+            year: "2020"
+        )
+        let shared = ["query": "dune", "include_adult": "true", "language": "fr"]
+        let expected: [SearchScope: [String: String]] = [
+            .multi: shared,
+            .movies: shared.merging(["primary_release_year": "2021", "region": "FR", "year": "2020"]) { $1 },
+            .tvShows: shared.merging(["first_air_date_year": "2019", "year": "2020"]) { $1 },
+            .people: shared,
+            .collections: shared.merging(["region": "FR"]) { $1 },
+            .companies: ["query": "dune"],
+            .keywords: ["query": "dune"],
+        ]
+
+        for scope in SearchScope.allCases {
+            requester = StubTMDBAPIRequester()
+            service = TMDBSearchService(requester: requester)
+            try seedAllScopes()
+
+            _ = await service.search(scope: scope, query: "dune", filters: everything, page: nil)
+
+            XCTAssertEqual(requester.requestedEndpoints.first?.extraQuery(), expected[scope], "\(scope)")
+        }
+    }
+
+    /// `search/tv` takes two years — the first air date alone, or any air date — and they are
+    /// separate chips, not one value sent under both names.
+    func testTVScopeSendsItsTwoYearsSeparately() async throws {
         try seedAllScopes()
 
         _ = await service.search(
             scope: .tvShows,
             query: "dune",
-            filters: SearchFilters(year: "2020"),
+            filters: SearchFilters(firstAirDateYear: "2019"),
             page: nil
         )
 
         let query = try XCTUnwrap(requester.requestedEndpoints.first?.extraQuery())
-        XCTAssertEqual(query["first_air_date_year"], "2020")
-    }
-
-    func testEveryScopeOnlyOffersChipsItsEndpointAccepts() {
-        XCTAssertEqual(SearchScope.keywords.supportedFilters, [])
-        XCTAssertEqual(SearchScope.companies.supportedFilters, [])
-        XCTAssertFalse(SearchScope.tvShows.supportedFilters.contains(.primaryReleaseYear))
-        XCTAssertEqual(SearchScope.movies.supportedFilters.count, FilterType.allCases.count)
-    }
-
-    func testNarrowingClearsFiltersTheScopeDoesNotSupport() {
-        let filters = SearchFilters(
-            includeAdult: true,
-            language: "fr",
-            primaryReleaseYear: "2021",
-            region: "FR",
-            year: "2020"
-        )
-
-        XCTAssertEqual(filters.narrowed(to: .movies), filters)
-        XCTAssertFalse(filters.narrowed(to: .keywords).hasActiveFilters)
-        XCTAssertNil(filters.narrowed(to: .people).region)
-        XCTAssertNil(filters.narrowed(to: .tvShows).primaryReleaseYear)
-        XCTAssertEqual(filters.narrowed(to: .tvShows).year, "2020")
+        XCTAssertEqual(query["first_air_date_year"], "2019")
+        XCTAssertNil(query["year"])
     }
 
     // MARK: - Fixtures
