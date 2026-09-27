@@ -4,6 +4,7 @@ struct FloatingTabItem<Selection: Hashable> {
     let tag: Selection
     let icon: Image
     let title: String
+    let accessibilityIdentifier: String
 }
 
 // Define the floating tab bar view
@@ -62,6 +63,7 @@ struct FloatingTabBar<Selection: Hashable>: View {
                         .glassEffectID("\(item.tag)", in: glassNamespace)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier(item.accessibilityIdentifier)
                 }
             }
             .padding(4)
@@ -99,6 +101,7 @@ struct FloatingTabBar<Selection: Hashable>: View {
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
                 }
+                .accessibilityIdentifier(item.accessibilityIdentifier)
             }
         }
         .background(Color.white)

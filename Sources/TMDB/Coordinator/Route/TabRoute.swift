@@ -7,7 +7,8 @@ public enum TabRoute: Hashable {
     case marketplace
     case profile
     case settings
-    /// The scoped search page, rendered with `role: .search` by the sectioned shell.
+    /// The scoped search page — a root tab in every shell, with `role: .search` wherever the
+    /// shell is a system `TabView`.
     case search
     /// One feed category standing on its own — a sidebar row in `SectionedSidebarShell`.
     /// Never part of `Coordinator.tabList`; shells add it on demand.
@@ -17,8 +18,8 @@ public enum TabRoute: Hashable {
     /// shell would point at a tab that is not in `Coordinator.tabList`, and so a blank screen.
     var isSectionedShellOnly: Bool {
         switch self {
-        case .search, .feedRow: return true
-        case .movieFeed, .marketplace, .profile, .settings: return false
+        case .feedRow: return true
+        case .movieFeed, .marketplace, .profile, .settings, .search: return false
         }
     }
 

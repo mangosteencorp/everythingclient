@@ -1,3 +1,4 @@
+import CoreFeatures
 import SwiftUI
 
 /// System `TabView`, either with the standard bar or promoted to a sidebar on iPad.
@@ -10,14 +11,15 @@ struct SystemTabShell<Page: View>: View {
     var body: some View {
         TabView(selection: $coordinator.selectedTab) {
             ForEach(coordinator.tabList, id: \.self) { tab in
-                page(tab)
-                    .tabItem {
-                        Image(systemName: tab.iconName)
-                        Text(tab.title)
-                    }
-                    .tag(tab)
+                // `role: .search` plus `searchTabActivatesSearch()` is what detaches the search
+                // tab from the bar on iOS 26+ and turns it into the page's search field.
+                Tab(tab.title, systemImage: tab.iconName, value: tab, role: tab == .search ? .search : nil) {
+                    page(tab)
+                }
+                .accessibilityIdentifier(tab.customizationID)
             }
         }
+        .searchTabActivatesSearch()
         .withDefaultSidebarTabBarPlacement(enabled: usesSidebarPlacement)
     }
 }

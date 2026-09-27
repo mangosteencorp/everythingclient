@@ -66,7 +66,7 @@ public struct TMDBAPITabView: View {
 
         self.container = container
 
-        let tabList: [TabRoute] = [.movieFeed, .marketplace, .profile, .settings]
+        let tabList: [TabRoute] = [.movieFeed, .marketplace, .profile, .settings, .search]
         _coordinator = StateObject(wrappedValue: Coordinator(tabList: tabList))
     }
 
@@ -90,8 +90,8 @@ public struct TMDBAPITabView: View {
             }
         }
         .environmentObject(coordinator)
-        // Feed rows and search exist only in the sectioned shell; leaving one selected would
-        // give every other shell a tab that is not in `tabList`, and so a blank screen.
+        // Feed rows exist only in the sectioned shell; leaving one selected would give every
+        // other shell a tab that is not in `tabList`, and so a blank screen.
         .onChange(of: shellDesign) { newDesign in
             guard newDesign != .sectionedSidebar, coordinator.selectedTab.isSectionedShellOnly else { return }
             coordinator.switchTab(to: .movieFeed)
@@ -198,7 +198,7 @@ public struct TMDBAPITabView: View {
     }
 
     /// The app's one search screen. It is a root tab of its own rather than a feed category,
-    /// which is what lets the sectioned shell give it `role: .search`.
+    /// which is what lets every shell offer it and the system tab bars give it `role: .search`.
     @ViewBuilder
     private func buildSearchPage() -> some View {
         SearchPage(

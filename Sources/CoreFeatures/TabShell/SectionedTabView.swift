@@ -80,6 +80,7 @@ public struct SectionedTabView<
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+        .searchTabActivatesSearch()
         .tabViewCustomization($customization)
         .tabViewSidebarHeader(content: header)
         .onChange(of: isCompact, initial: true) { _, nowCompact in
@@ -99,6 +100,7 @@ public struct SectionedTabView<
             rootContent(root)
         }
         .customizationID(root.customizationID)
+        .accessibilityIdentifier(root.customizationID)
     }
 
     private func searchTab(for root: Root) -> some TabContent<Selection> {
@@ -110,6 +112,7 @@ public struct SectionedTabView<
         ) {
             rootContent(root)
         }
+        .accessibilityIdentifier(root.customizationID)
     }
 
     private func sectionListTab(for section: ShellSection<Row>) -> some TabContent<Selection> {
