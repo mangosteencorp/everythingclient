@@ -15,26 +15,20 @@ struct TVShowDetailsSection: View {
                 .foregroundColor(themeManager.currentTheme.labelColor)
 
             VStack(alignment: .leading, spacing: 4) {
-                DetailRow(
-                    title: L10n.Tvshow.Detail.numberOfSeasons(tvShow.numberOfSeasons)
-                )
-                DetailRow(
-                    title: L10n.Tvshow.Detail.numberOfEpisodes(tvShow.numberOfEpisodes)
-                )
-                DetailRow(
-                    title: L10n.Tvshow.Detail.firstAirDate(tvShow.firstAirDate)
-                )
-                DetailRow(
-                    title: L10n.Tvshow.Detail.lastAirDate(tvShow.lastAirDate)
-                )
-                DetailRow(
-                    title: L10n.Tvshow.Detail.status(tvShow.status)
-                )
-                DetailRow(
-                    title: L10n.Tvshow.Detail.averageVote(Float(tvShow.voteAverage), tvShow.voteCount)
-                )
+                ForEach(rowTitles, id: \.self) { DetailRow(title: $0) }
             }
         }
+    }
+
+    var rowTitles: [String] {
+        [
+            L10n.Tvshow.Detail.numberOfSeasons(tvShow.numberOfSeasons),
+            L10n.Tvshow.Detail.numberOfEpisodes(tvShow.numberOfEpisodes),
+            L10n.Tvshow.Detail.firstAirDate(tvShow.firstAirDate),
+            L10n.Tvshow.Detail.lastAirDate(tvShow.lastAirDate ?? L10n.Tvshow.Detail.tba),
+            L10n.Tvshow.Detail.status(tvShow.status),
+            L10n.Tvshow.Detail.averageVote(Float(tvShow.voteAverage), tvShow.voteCount),
+        ]
     }
 }
 
