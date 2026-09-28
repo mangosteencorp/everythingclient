@@ -192,13 +192,14 @@ fileprivate class PillShapeItemCell: UICollectionViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 14),
             iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             iconImageView.widthAnchor.constraint(equalToConstant: 20),
             iconImageView.heightAnchor.constraint(equalToConstant: 20),
 
             nameLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 5),
-            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -10),
+            // Equal, not at most: the pill sizes itself to the genre name.
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14),
             nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
         ])
     }
@@ -592,16 +593,17 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
 
             case .categories:
                 // Categories section - horizontal scrolling pills
-                let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(120), heightDimension: .absolute(40))
+                let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(120), heightDimension: .absolute(40))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
                 let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(120), heightDimension: .absolute(40))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                group.interItemSpacing = .fixed(10)
 
                 let section = NSCollectionLayoutSection(group: group)
+                // One item per group, so the gap between items is the gap between groups.
+                section.interGroupSpacing = 10
                 section.orthogonalScrollingBehavior = .continuous
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 20, trailing: 15)
 
                 // Add header if needed
                 if sectionLayout.headerTitle != nil {
@@ -619,11 +621,11 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
 
                 let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(100), heightDimension: .absolute(120))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                group.interItemSpacing = .fixed(15)
 
                 let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 15
                 section.orthogonalScrollingBehavior = .continuous
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 20, trailing: 15)
 
                 // Add header if needed
                 if sectionLayout.headerTitle != nil {
@@ -641,9 +643,9 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
 
                 let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(160), heightDimension: .absolute(sectionLayout.height))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                group.interItemSpacing = .fixed(20)
 
                 let section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 20
                 section.orthogonalScrollingBehavior = .continuous
                 section.contentInsets = NSDirectionalEdgeInsets(top: 15, leading: 20, bottom: 20, trailing: 20)
 
