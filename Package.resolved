@@ -1,5 +1,5 @@
 {
-  "originHash" : "1e5deccbe97ba255ff783722e7aaac8bef6ab408941480d50e4a225da2af8521",
+  "originHash" : "addf2c9fc058d379f49e3b8276e581ce41e7fc8b7f4a7770ac299f9c6523da3f",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -499,7 +499,7 @@
       "location" : "https://github.com/quangDecember/Swiftfin",
       "state" : {
         "branch" : "swiftpm-test-4",
-        "revision" : "29c0814e511cf40001a2aea60a98cafb889cfe87"
+        "revision" : "0d8698b778681b75f1a305bda3b9211730ce975a"
       }
     },
     {
