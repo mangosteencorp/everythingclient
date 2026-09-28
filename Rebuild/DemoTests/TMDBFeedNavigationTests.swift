@@ -35,15 +35,26 @@ final class TMDBFeedNavigationTests: XCTestCase {
         XCTAssertTrue(initialTab.waitForExistence(timeout: 15))
         XCTAssertTrue(initialTab.isSelected)
 
+        var selectedTab = initialTab
         // Search is no longer one of these: it is a root tab of its own (TMDB_Search).
         for tab in ["popular", "topRated", "upcoming", "onTheAir", "airingToday", "nowPlaying"] {
             let button = app.buttons["feed_tab_segment_\(tab)"]
             XCTAssertTrue(button.waitForExistence(timeout: 5), "Missing category \(tab)")
+            // The bar centres the selected segment, so by `airingToday` the first ones sit off the
+            // leading edge, where XCUITest cannot tap. Swipe the (always on-screen) selection instead.
+            for _ in 0 ..< 3 where !app.frame.contains(CGPoint(x: button.frame.midX, y: button.frame.midY)) {
+                if button.frame.midX < app.frame.midX {
+                    selectedTab.swipeRight()
+                } else {
+                    selectedTab.swipeLeft()
+                }
+            }
             button.tap()
             let selected = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "isSelected == true"), object: button
             )
             XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed, "Cannot select \(tab)")
+            selectedTab = button
         }
     }
 }
