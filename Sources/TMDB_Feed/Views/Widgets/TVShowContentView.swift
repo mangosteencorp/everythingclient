@@ -56,3 +56,16 @@ extension TVShow {
         )
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview {
+    NavigationStack {
+        TVShowFeedTabContent(
+            viewModel: TVShowFeedViewModel(apiService: PreviewFeedAPIService()),
+            feedType: .onTheAir,
+            detailRouteBuilder: { $0.id }
+        )
+    }
+}
+#endif

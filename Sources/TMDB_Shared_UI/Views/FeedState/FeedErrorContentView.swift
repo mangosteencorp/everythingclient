@@ -51,3 +51,18 @@ public struct FeedErrorContentView: View {
             || lowered.contains("not connected")
     }
 }
+
+#if DEBUG
+#Preview("Offline") {
+    FeedErrorContentView(
+        message: "The Internet connection appears to be offline.",
+        allowsCancelSearch: true,
+        retryAction: {},
+        cancelAction: {}
+    )
+}
+
+#Preview("Server error") {
+    FeedErrorContentView(message: "Invalid API key", allowsCancelSearch: false, retryAction: {})
+}
+#endif

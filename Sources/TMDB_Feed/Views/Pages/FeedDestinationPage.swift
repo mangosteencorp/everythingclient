@@ -62,3 +62,29 @@ public struct FeedDestinationPage<Route: Hashable>: View {
         // No `else`: every `FeedTab` has either a movie or a TV feed type.
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview("Movies") {
+    NavigationStack {
+        FeedDestinationPage(
+            tab: .nowPlaying,
+            apiService: PreviewFeedAPIService(),
+            detailRouteBuilder: { $0.id },
+            tvShowDetailRouteBuilder: { $0.id }
+        )
+    }
+}
+
+@available(iOS 16, *)
+#Preview("TV shows") {
+    NavigationStack {
+        FeedDestinationPage(
+            tab: .airingToday,
+            apiService: PreviewFeedAPIService(),
+            detailRouteBuilder: { $0.id },
+            tvShowDetailRouteBuilder: { $0.id }
+        )
+    }
+}
+#endif

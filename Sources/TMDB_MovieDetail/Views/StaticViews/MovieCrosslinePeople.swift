@@ -147,4 +147,11 @@ struct PeopleRowItem<Route: Hashable>: View {
 #Preview {
     return RedactedMovieCrosslinePeopleRow()
 }
+
+@available(iOS 16.0, *)
+#Preview("See all list") {
+    NavigationStack {
+        List(examplePeoples) { people in PeopleListItem(people: people, personRouteBuilder: { $0 }) }
+    }
+}
 #endif

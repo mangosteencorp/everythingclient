@@ -89,3 +89,11 @@ struct PersonScoreTimelineSection: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    PersonScoreTimelineSection(credits: PersonMovieCredits.example.featuredCredits)
+        .padding()
+}
+#endif

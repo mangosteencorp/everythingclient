@@ -188,3 +188,49 @@ private struct SectionRowList<Row: ShellTabItem, Content: View>: View {
         }
     }
 }
+
+#if DEBUG
+private enum PreviewShellItem: String, ShellTabItem {
+    case home, search, drama, comedy, news, sport
+
+    var title: String { rawValue.capitalized }
+    var systemImage: String {
+        switch self {
+        case .home: return "house"
+        case .search: return "magnifyingglass"
+        case .drama: return "theatermasks"
+        case .comedy: return "face.smiling"
+        case .news: return "newspaper"
+        case .sport: return "sportscourt"
+        }
+    }
+
+    var customizationID: String { "preview.\(rawValue)" }
+}
+
+@available(iOS 18, *)
+private struct SectionedTabViewPreview: View {
+    @State private var selection: ShellSelection<PreviewShellItem, PreviewShellItem> = .root(.home)
+
+    var body: some View {
+        SectionedTabView(
+            roots: [.home],
+            sections: [
+                ShellSection(id: "films", title: "Films", systemImage: "film", rows: [.drama, .comedy]),
+                ShellSection(id: "live", title: "Live", systemImage: "dot.radiowaves.left.and.right", rows: [.news, .sport]),
+            ],
+            searchRoot: .search,
+            selection: $selection,
+            customizationStorageKey: "preview",
+            rootContent: { root in NavigationStack { Text(root.title).navigationTitle(root.title) } },
+            rowContent: { row in Text(row.title).navigationTitle(row.title) },
+            header: { Text("Preview").font(.title2.bold()) }
+        )
+    }
+}
+
+@available(iOS 18, *)
+#Preview {
+    SectionedTabViewPreview()
+}
+#endif

@@ -151,4 +151,8 @@ struct IntegrationTestErrorView: View {
         .padding()
     }
 }
+
+#Preview {
+    IntegrationTestErrorView(message: "Unknown test: NoSuchDemo")
+}
 #endif

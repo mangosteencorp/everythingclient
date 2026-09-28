@@ -45,3 +45,19 @@ public struct JellyfinMoviePlayerView: View {
         .onDisappear { SwiftfinWindowAppearanceGuard.swiftfinDidDisappear() }
     }
 }
+
+#if DEBUG
+/// A match built here carries no library item, so the player searches by title — and, with no
+/// Jellyfin account signed in (as in the preview canvas), shows why it cannot play.
+@available(iOS 16.0, *)
+#Preview {
+    JellyfinMoviePlayerView(match: JellyfinMovieMatch(
+        id: "preview",
+        title: "Dune",
+        runtimeSeconds: 9315,
+        playedFraction: 0,
+        resumeSeconds: 0,
+        isPlayed: false
+    ))
+}
+#endif

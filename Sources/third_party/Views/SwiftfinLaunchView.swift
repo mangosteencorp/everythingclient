@@ -53,3 +53,10 @@ public struct SwiftfinLaunchView: View {
     }
     #endif
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    SwiftfinLaunchView()
+}
+#endif

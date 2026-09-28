@@ -94,3 +94,12 @@ struct TVShowListViewControllerRepresentable: UIViewControllerRepresentable {
         // Updates handled by the view model
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview("UIKit list") {
+    NavigationStack {
+        TVShowListViewControllerRepresentable(viewModel: .preview())
+    }
+}
+#endif

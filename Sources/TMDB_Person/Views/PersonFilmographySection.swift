@@ -28,3 +28,15 @@ struct PersonFilmographySection<Route: Hashable>: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    NavigationStack {
+        ScrollView {
+            PersonFilmographySection(credits: PersonMovieCredits.example.featuredCredits, movieRouteBuilder: { $0 })
+                .padding()
+        }
+    }
+}
+#endif

@@ -942,6 +942,17 @@ fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAP
                 fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: exampleMovieRespository),
                 fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: exampleMovieRespository)))
 }
+
+@available(iOS 17, *)
+#Preview("Offline sample data") {
+    HomeDiscoverViewController(viewModel: .preview())
+}
+
+/// The default layout has no banner section, so the banner cell is previewed on its own.
+@available(iOS 17, *)
+#Preview("Banner cell", traits: .fixedLayout(width: 360, height: 80)) {
+    BannerCell(frame: CGRect(x: 0, y: 0, width: 360, height: 80))
+}
 #endif
 
 // MARK: - SwiftUI Wrapper

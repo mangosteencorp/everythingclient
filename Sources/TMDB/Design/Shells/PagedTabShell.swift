@@ -16,3 +16,10 @@ struct PagedTabShell<Page: View>: View {
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview {
+    PagedTabShell(coordinator: .preview) { ShellPagePreview(title: $0.title) }
+}
+#endif

@@ -48,3 +48,19 @@ public struct AdaptiveColumnGrid<Item: Identifiable, Content: View>: View {
         return 1
     }
 }
+
+#if DEBUG
+private struct PreviewSwatch: Identifiable {
+    let id: Int
+    var color: Color { [.red, .orange, .yellow, .green, .blue, .purple][id % 6] }
+}
+
+#Preview {
+    AdaptiveColumnGrid(items: (0..<9).map(PreviewSwatch.init)) { swatch in
+        RoundedRectangle(cornerRadius: 12)
+            .fill(swatch.color)
+            .frame(height: 120)
+            .overlay(Text("\(swatch.id)").foregroundStyle(.white))
+    }
+}
+#endif

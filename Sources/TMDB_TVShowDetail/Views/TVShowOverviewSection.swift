@@ -19,3 +19,12 @@ struct TVShowOverviewSection: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    TVShowOverviewSection(overview: "Seven noble families fight for control of the mythical land of Westeros.")
+        .padding()
+        .environmentObject(ThemeManager.shared)
+}
+#endif

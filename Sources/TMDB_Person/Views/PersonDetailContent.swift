@@ -36,3 +36,29 @@ struct PersonDetailContent<Route: Hashable>: View {
         .navigationTitle(person.name)
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview("Carousel filmography") {
+    NavigationStack {
+        PersonDetailContent(
+            person: .example,
+            credits: PersonMovieCredits.example.featuredCredits,
+            useCarouselFilmography: true,
+            movieRouteBuilder: { $0 }
+        )
+    }
+}
+
+@available(iOS 16.0, *)
+#Preview("List filmography") {
+    NavigationStack {
+        PersonDetailContent(
+            person: .example,
+            credits: PersonMovieCredits.example.featuredCredits,
+            useCarouselFilmography: false,
+            movieRouteBuilder: { $0 }
+        )
+    }
+}
+#endif

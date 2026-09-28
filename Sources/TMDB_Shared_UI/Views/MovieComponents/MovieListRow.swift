@@ -84,3 +84,26 @@ public struct MovieRow: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    List {
+        MovieRow(movie: MovieRowEntity(
+            id: 550,
+            posterPath: nil,
+            title: "Fight Club",
+            voteAverage: 8.4,
+            releaseDate: Date(timeIntervalSince1970: 940_000_000),
+            overview: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy."
+        ))
+        MovieRow(movie: MovieRowEntity(
+            id: 807,
+            posterPath: nil,
+            title: "Se7en",
+            voteAverage: 5.1,
+            releaseDate: nil,
+            overview: "Two homicide detectives are on a desperate hunt for a serial killer."
+        ), displayListImage: false)
+    }
+}
+#endif

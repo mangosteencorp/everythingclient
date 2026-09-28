@@ -69,3 +69,11 @@ private struct PersonFact: Identifiable {
 
     var id: String { String(localized: title) }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    PersonFactGrid(person: .example)
+        .padding()
+}
+#endif

@@ -100,3 +100,10 @@ extension View {
         ))
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview("Split view detail placeholder") {
+    FeedSplitDetailPlaceholder()
+}
+#endif

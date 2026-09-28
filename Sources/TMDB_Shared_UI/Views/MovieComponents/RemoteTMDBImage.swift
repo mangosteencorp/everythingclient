@@ -221,3 +221,10 @@ struct PlaceholderImage: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+#if DEBUG
+#Preview("No artwork") {
+    RemoteTMDBImage(posterPath: nil, imageSize: .posterMedium)
+        .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
+}
+#endif

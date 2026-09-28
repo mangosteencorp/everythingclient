@@ -17,3 +17,11 @@ struct PersonBiographySection: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    PersonBiographySection(biography: "William Bradley Pitt is an American actor and film producer. He is the recipient of various accolades, including two Academy Awards.")
+        .padding()
+}
+#endif

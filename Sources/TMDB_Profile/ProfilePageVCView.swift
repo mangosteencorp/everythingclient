@@ -57,3 +57,18 @@ public struct ProfilePageVCView: UIViewControllerRepresentable {
         )
     }
 }
+
+#if DEBUG
+#Preview {
+    // Just enough of the backend for `ProfileAssembly`; signed out, so nothing is fetched.
+    let container = Container()
+    container.register(TMDBAPIService.self) { _ in TMDBAPIService(apiKey: "") }
+    container.register(AuthRepository.self) { _ in DefaultAuthRepository() }
+    container.register((any AuthenticationViewModelProtocol).self) { _ in
+        MainActor.assumeIsolated {
+            AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: false))
+        }
+    }
+    return ProfilePageVCView(container: container, onNavigateToMovie: { _ in }, onNavigateToTVShow: { _ in })
+}
+#endif

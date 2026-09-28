@@ -39,3 +39,15 @@ private extension View {
         #endif
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview("Tab bar") {
+    SystemTabShell(coordinator: .preview, usesSidebarPlacement: false) { ShellPagePreview(title: $0.title) }
+}
+
+@available(iOS 16, *)
+#Preview("Sidebar placement (iPad, iOS 27)") {
+    SystemTabShell(coordinator: .preview, usesSidebarPlacement: true) { ShellPagePreview(title: $0.title) }
+}
+#endif

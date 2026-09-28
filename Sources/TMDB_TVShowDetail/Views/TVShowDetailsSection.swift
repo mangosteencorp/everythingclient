@@ -37,3 +37,12 @@ struct TVShowDetailsSection: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    TVShowDetailsSection(tvShow: .example)
+        .padding()
+        .environmentObject(ThemeManager.shared)
+}
+#endif

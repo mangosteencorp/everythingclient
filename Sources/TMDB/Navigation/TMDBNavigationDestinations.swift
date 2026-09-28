@@ -118,3 +118,19 @@ public extension View {
         modifier(TMDBNavigationDestinations(container: container))
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    // Photo slides resolve nothing from the container, so an empty one is enough.
+    NavigationStack {
+        TMDBRouteView(
+            route: .photoSlides(PhotoSlidesRouteModel(
+                imagePaths: ["/AvIfrjJL9WRk3TziSvOZCTUHKEn.jpg", "/1ffZAucqfvQu36x1C49XfOdjuOG.jpg"],
+                initialIndex: 0
+            )),
+            container: Container()
+        )
+    }
+}
+#endif

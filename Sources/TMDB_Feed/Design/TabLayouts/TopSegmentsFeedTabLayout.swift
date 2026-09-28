@@ -61,3 +61,15 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview {
+    @Previewable @State var selection = FeedTab.popular
+    @Previewable @State var visibleTab = FeedTab.popular
+
+    TopSegmentsFeedTabLayout(tabs: FeedTab.allCases, selection: $selection, visibleTab: $visibleTab) { tab in
+        Text(tab.title)
+    }
+}
+#endif

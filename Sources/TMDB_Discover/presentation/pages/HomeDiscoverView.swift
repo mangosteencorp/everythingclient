@@ -74,3 +74,17 @@ struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
         // Updates handled by the view model
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview {
+    HomeDiscoverViewControllerRepresentable(
+        viewModel: .preview(),
+        onItemTapped: {},
+        onGenreTapped: { _ in },
+        onTVGenreTapped: { _ in },
+        onCastTapped: { _ in },
+        onTrendingItemTapped: { _ in }
+    )
+}
+#endif

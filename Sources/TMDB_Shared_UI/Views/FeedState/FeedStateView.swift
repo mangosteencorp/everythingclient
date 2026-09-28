@@ -109,3 +109,31 @@ public extension Binding where Value == FeedEmptyStateDesign {
         )
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview("Loading") {
+    FeedStateView(phase: .loading, retryAction: {}, content: { EmptyView() })
+}
+
+@available(iOS 16, *)
+#Preview("Error") {
+    FeedStateView(phase: .error(message: "Invalid API key"), retryAction: {}, content: { EmptyView() })
+}
+
+@available(iOS 16, *)
+#Preview("Empty") {
+    FeedStateView(phase: .empty, retryAction: {}, content: { EmptyView() })
+}
+
+@available(iOS 16, *)
+#Preview("Loaded, refreshing") {
+    FeedStateView(phase: .loaded, isRefreshing: true, retryAction: {}, content: {
+        List(1...5, id: \.self) { Text("Movie \($0)") }
+    })
+}
+
+#Preview("Placeholder") {
+    FeedPlaceholderView(systemImage: "magnifyingglass", title: "Search for a movie")
+}
+#endif

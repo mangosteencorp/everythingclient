@@ -24,3 +24,10 @@ struct PosterImageView: View {
         return TMDBImageSize.logoExtraExtraLarge.buildImageUrl(path: posterPath)
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    PosterImageView(posterPath: TVShowDetailModel.example.posterPath)
+}
+#endif
