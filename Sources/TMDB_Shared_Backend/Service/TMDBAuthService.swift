@@ -100,6 +100,8 @@ public class WebAuthenticationService: NSObject {
     private var authSession: ASWebAuthenticationSession?
     private var completionHandler: ((Result<String, Error>) -> Void)?
 
+    // ASWebAuthenticationSession must start on the main thread; it queries presentationAnchor(for:) synchronously.
+    @MainActor
     public func authenticate(url: URL) async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
             authSession = ASWebAuthenticationSession(
@@ -144,6 +146,7 @@ public class WebAuthenticationService: NSObject {
 
 extension WebAuthenticationService: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return ASPresentationAnchor()
+        UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }.first
+            ?? ASPresentationAnchor()
     }
 }
