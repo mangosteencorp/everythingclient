@@ -119,6 +119,7 @@ let package = Package(
         .library(name: "Pokedex_Pokelist", targets: ["Pokedex_Pokelist"]),
         .library(name: "Pokedex_Detail", targets: ["Pokedex_Detail"]),
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
+        .library(name: "Plex_Shared_Backend", targets: ["Plex_Shared_Backend"]),
         .library(name: "TMDB_TVShowDetail", targets: ["TMDB_TVShowDetail"]),
         .library(name: "Integration_test", targets: ["Integration_test"]),
 
@@ -319,6 +320,11 @@ let package = Package(
             dependencies: ["TMDB_Shared_Backend"],
             resources: [.process("Resources")] // needed for Bundle.module
         ),
+
+        // MARK: Plex
+
+        .target(name: "Plex_Shared_Backend"),
+        .testTarget(name: "Plex_Shared_Backend_Tests", dependencies: ["Plex_Shared_Backend"]),
 
         // MARK: Pokedex
 

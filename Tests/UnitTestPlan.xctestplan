@@ -15,6 +15,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "Plex_Shared_Backend_Tests",
+        "name" : "Plex_Shared_Backend_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TMDB_Discover_Tests",
         "name" : "TMDB_Discover_Tests"
       }
