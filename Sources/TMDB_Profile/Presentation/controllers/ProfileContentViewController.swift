@@ -25,10 +25,8 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
 
     private static let avatarMaxSize: CGFloat = 80
     private static let avatarMinSize: CGFloat = 36
-    private static let avatarMargin: CGFloat = 16
     /// Scroll distance over which the avatar goes from full size to collapsed.
     private static let avatarCollapseDistance: CGFloat = 80
-    private static let listTopInset: CGFloat = 160
     private static let animalSymbols = [
         "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "bird.fill",
         "fish.fill", "ant.fill", "ladybug.fill", "lizard.fill", "pawprint.fill",
@@ -55,14 +53,10 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
     }()
 
     private lazy var avatarSize = avatarImageView.widthAnchor.constraint(equalToConstant: Self.avatarMaxSize)
-    private var listTop: NSLayoutConstraint?
-    /// 0 = full-size avatar centered, 1 = small avatar at the leading edge.
-    private var avatarCollapse: CGFloat = 0
 
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .bold)
-        label.textAlignment = .center
         return label
     }()
 
@@ -70,7 +64,6 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = .secondaryLabel
-        label.textAlignment = .center
         return label
     }()
 
@@ -79,6 +72,9 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         button.setTitle("Sign Out", for: .normal)
         button.setTitleColor(.systemRed, for: .normal)
         button.addTarget(self, action: #selector(signOutTapped), for: .touchUpInside)
+        // Long names truncate instead of squeezing or stretching the button.
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
         return button
     }()
 
@@ -104,10 +100,12 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
     private func setupViews() {
         view.backgroundColor = .systemBackground
 
-        // Setup header stack view with improved spacing
-        let headerStack = UIStackView(arrangedSubviews: [avatarImageView, nameLabel, usernameLabel, signOutButton])
-        headerStack.axis = .vertical
-        headerStack.spacing = 6
+        // Header row: avatar | name over @username | Sign Out. Its height follows the avatar (never below the text).
+        let nameStack = UIStackView(arrangedSubviews: [nameLabel, usernameLabel])
+        nameStack.axis = .vertical
+        nameStack.spacing = 2
+        let headerStack = UIStackView(arrangedSubviews: [avatarImageView, nameStack, signOutButton])
+        headerStack.spacing = 12
         headerStack.alignment = .center
         headerStack.translatesAutoresizingMaskIntoConstraints = false
 
@@ -136,12 +134,12 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
             headerBackground.bottomAnchor.constraint(equalTo: headerStack.bottomAnchor, constant: 20),
 
             headerStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            headerStack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            headerStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            headerStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
 
         // Setup sections
-        setupSections()
+        setupSections(below: headerBackground)
     }
 
     private func configureWithProfile() {
@@ -164,28 +162,16 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         avatarImageView.kf.setImage(with: avatarURL)
     }
 
-    /// Shrinks the avatar and slides it to the leading edge as the list scrolls up; reverses when scrolling back.
+    /// Shrinks the avatar as the list scrolls up; reverses when scrolling back.
+    /// The header row shrinks with it, and the list (pinned below the header) takes the freed space.
     private func collapseAvatar(forScrollOffset offset: CGFloat) {
-        avatarCollapse = min(max(offset / Self.avatarCollapseDistance, 0), 1)
-        let size = Self.avatarMaxSize - (Self.avatarMaxSize - Self.avatarMinSize) * avatarCollapse
+        let collapse = min(max(offset / Self.avatarCollapseDistance, 0), 1)
+        let size = Self.avatarMaxSize - (Self.avatarMaxSize - Self.avatarMinSize) * collapse
         avatarSize.constant = size
         avatarImageView.layer.cornerRadius = size / 2
-        // The header shrinks with the avatar, so the list takes the freed space.
-        listTop?.constant = Self.listTopInset - (Self.avatarMaxSize - size)
-        positionAvatar()
     }
 
-    private func positionAvatar() {
-        let travel = view.bounds.width / 2 - avatarSize.constant / 2 - Self.avatarMargin
-        avatarImageView.transform = CGAffineTransform(translationX: -travel * avatarCollapse, y: 0)
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        positionAvatar()
-    }
-
-    private func setupSections() {
+    private func setupSections(below header: UIView) {
         var sections: [Section<ProfileCollectionItem>] = []
         let placeholderImageUrl = URL(string: "https://placehold.co/400")!
         // Add watchlist section (featured)
@@ -262,15 +248,10 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         containerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(containerView)
 
-        let listTop = containerView.topAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.topAnchor,
-            constant: Self.listTopInset
-        )
-        self.listTop = listTop
         multiSectionVC.onScroll = { [weak self] offset in self?.collapseAvatar(forScrollOffset: offset) }
 
         NSLayoutConstraint.activate([
-            listTop,
+            containerView.topAnchor.constraint(equalTo: header.bottomAnchor),
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -496,6 +477,20 @@ struct ProfileContentViewController_Previews: PreviewProvider {
         UIViewControllerPreview {
             ProfileContentViewController(profile: sampleProfileEntity)
         }
+        UIViewControllerPreview {
+            ProfileContentViewController(profile: ProfileEntity(
+                accountInfo: AccountInfoEntity(
+                    id: 7,
+                    name: "Maximilian Alexander Featherstonehaugh-Montgomery",
+                    username: "maximilian_alexander_featherstonehaugh",
+                    avatarPath: nil
+                ),
+                favoriteMovies: sampleProfileEntity.favoriteMovies,
+                favoriteTVShows: sampleProfileEntity.favoriteTVShows,
+                watchlistTVShows: sampleProfileEntity.watchlistTVShows
+            ))
+        }
+        .previewDisplayName("Long name")
     }
 }
 
