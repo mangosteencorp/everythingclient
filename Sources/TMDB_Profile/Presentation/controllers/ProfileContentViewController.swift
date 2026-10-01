@@ -23,16 +23,41 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
     private let scrollView = UIScrollView()
     private let contentView = UIView()
 
+    private static let avatarMaxSize: CGFloat = 80
+    private static let avatarMinSize: CGFloat = 36
+    private static let avatarMargin: CGFloat = 16
+    /// Scroll distance over which the avatar goes from full size to collapsed.
+    private static let avatarCollapseDistance: CGFloat = 80
+    private static let listTopInset: CGFloat = 160
+    private static let animalSymbols = [
+        "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "bird.fill",
+        "fish.fill", "ant.fill", "ladybug.fill", "lizard.fill", "pawprint.fill",
+    ]
+
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 40
+        imageView.layer.cornerRadius = ProfileContentViewController.avatarMaxSize / 2
         imageView.clipsToBounds = true
         imageView.backgroundColor = .systemGray6
         imageView.layer.borderWidth = 3
         imageView.layer.borderColor = UIColor.systemBackground.cgColor
         return imageView
     }()
+
+    /// Shown inside the avatar circle when the account has no avatar.
+    private let animalImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = .secondaryLabel
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
+    private lazy var avatarSize = avatarImageView.widthAnchor.constraint(equalToConstant: Self.avatarMaxSize)
+    private var listTop: NSLayoutConstraint?
+    /// 0 = full-size avatar centered, 1 = small avatar at the leading edge.
+    private var avatarCollapse: CGFloat = 0
 
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -94,9 +119,16 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         view.addSubview(headerBackground)
         view.addSubview(headerStack)
 
+        avatarImageView.addSubview(animalImageView)
+
         NSLayoutConstraint.activate([
-            avatarImageView.widthAnchor.constraint(equalToConstant: 80),
-            avatarImageView.heightAnchor.constraint(equalToConstant: 80),
+            avatarSize,
+            avatarImageView.heightAnchor.constraint(equalTo: avatarImageView.widthAnchor),
+
+            animalImageView.centerXAnchor.constraint(equalTo: avatarImageView.centerXAnchor),
+            animalImageView.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
+            animalImageView.widthAnchor.constraint(equalTo: avatarImageView.widthAnchor, multiplier: 0.55),
+            animalImageView.heightAnchor.constraint(equalTo: avatarImageView.heightAnchor, multiplier: 0.55),
 
             headerBackground.topAnchor.constraint(equalTo: view.topAnchor),
             headerBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -115,12 +147,42 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
     private func configureWithProfile() {
         nameLabel.text = profile.accountInfo.name
         usernameLabel.text = "@\(profile.accountInfo.username)"
+        configureAvatar(with: profile.accountInfo)
+    }
 
-        if let avatarPath = profile.accountInfo.avatarPath {
-            // Here you would load the avatar image using your image loading system
-            // For example: imageLoader.loadImage(path: avatarPath, into: avatarImageView)
-            avatarImageView.kf.setImage(with: TMDBImageSize.original.buildImageUrl(path: avatarPath))
+    /// Account avatar, or an animal symbol (stable per account, so it doesn't change on refresh) when there is none.
+    private func configureAvatar(with accountInfo: AccountInfoEntity) {
+        let avatarURL = accountInfo.avatarPath.flatMap { TMDBImageSize.original.buildImageUrl(path: $0) }
+        animalImageView.isHidden = avatarURL != nil
+        guard let avatarURL else {
+            avatarImageView.kf.cancelDownloadTask()
+            avatarImageView.image = nil
+            let symbols = Self.animalSymbols
+            animalImageView.image = UIImage(systemName: symbols[abs(accountInfo.id) % symbols.count])
+            return
         }
+        avatarImageView.kf.setImage(with: avatarURL)
+    }
+
+    /// Shrinks the avatar and slides it to the leading edge as the list scrolls up; reverses when scrolling back.
+    private func collapseAvatar(forScrollOffset offset: CGFloat) {
+        avatarCollapse = min(max(offset / Self.avatarCollapseDistance, 0), 1)
+        let size = Self.avatarMaxSize - (Self.avatarMaxSize - Self.avatarMinSize) * avatarCollapse
+        avatarSize.constant = size
+        avatarImageView.layer.cornerRadius = size / 2
+        // The header shrinks with the avatar, so the list takes the freed space.
+        listTop?.constant = Self.listTopInset - (Self.avatarMaxSize - size)
+        positionAvatar()
+    }
+
+    private func positionAvatar() {
+        let travel = view.bounds.width / 2 - avatarSize.constant / 2 - Self.avatarMargin
+        avatarImageView.transform = CGAffineTransform(translationX: -travel * avatarCollapse, y: 0)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        positionAvatar()
     }
 
     private func setupSections() {
@@ -200,8 +262,15 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         containerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(containerView)
 
+        let listTop = containerView.topAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.topAnchor,
+            constant: Self.listTopInset
+        )
+        self.listTop = listTop
+        multiSectionVC.onScroll = { [weak self] offset in self?.collapseAvatar(forScrollOffset: offset) }
+
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 160),
+            listTop,
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -230,10 +299,7 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         currentProfile = newProfile
         nameLabel.text = newProfile.accountInfo.name
         usernameLabel.text = "@\(newProfile.accountInfo.username)"
-
-        if let avatarPath = newProfile.accountInfo.avatarPath {
-            avatarImageView.kf.setImage(with: TMDBImageSize.original.buildImageUrl(path: avatarPath))
-        }
+        configureAvatar(with: newProfile.accountInfo)
 
         updateSections(with: newProfile)
         multiSectionViewController?.endRefreshing()
