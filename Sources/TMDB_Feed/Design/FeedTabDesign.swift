@@ -25,9 +25,15 @@ public enum FeedTabDesign: String, DesignVariant {
     public var isAvailableOnThisDevice: Bool {
         switch self {
         case .systemTabs:
+            #if targetEnvironment(macCatalyst)
+            // Catalyst promotes system tabs to the window toolbar, which the app shell
+            // already owns. Keep feed categories inside the content with Top Segments.
+            return false
+            #else
             // On iPhone the app shell already owns the bottom edge; a second bottom bar inside
             // it is unusable. iPad puts both levels at the top, so it stays available there.
             return UIDevice.current.userInterfaceIdiom == .pad
+            #endif
         case .topSegments:
             return true
         }

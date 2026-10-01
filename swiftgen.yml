@@ -16,6 +16,20 @@ strings:
           publicAccess: true
           enumName: L10n
         output: Sources/TMDB_Feed/generated/Strings.swift
+  - inputs: Sources/TMDB_Search/Resources/en.lproj/Localizable.strings
+    outputs:
+      - templateName: structured-swift5
+        params:
+          publicAccess: true
+          enumName: L10n
+        output: Sources/TMDB_Search/generated/Strings.swift
+  - inputs: Sources/TMDB_Shared_UI/Resources/en.lproj/Localizable.strings
+    outputs:
+      - templateName: structured-swift5
+        params:
+          publicAccess: true
+          enumName: L10n
+        output: Sources/TMDB_Shared_UI/generated/Strings.swift
   - inputs: Sources/TMDB_TVShowDetail/Resources/en.lproj/Localizable.strings
     outputs:
       - templateName: structured-swift5

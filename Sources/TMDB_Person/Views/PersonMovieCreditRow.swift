@@ -51,3 +51,14 @@ struct PersonMovieCreditRow: View {
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    VStack {
+        PersonMovieCreditRow(credit: PersonMovieCredits.example.cast[0])
+        PersonMovieCreditRow(credit: PersonMovieCredits.example.crew[0])
+    }
+    .padding()
+}
+#endif

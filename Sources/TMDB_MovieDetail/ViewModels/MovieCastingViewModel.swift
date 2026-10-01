@@ -8,8 +8,8 @@ typealias MovieCastingState = LoadState<MovieCredits>
 class MovieCastingViewModel: ObservableObject {
     @Published var state: MovieCastingState = .initial
 
-    private let apiService: TMDBAPIService
-    init(apiService: TMDBAPIService) {
+    private let apiService: any TMDBAPIRequesting
+    init(apiService: any TMDBAPIRequesting) {
         self.apiService = apiService
     }
 

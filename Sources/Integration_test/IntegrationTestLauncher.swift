@@ -11,6 +11,7 @@ import TMDB_Feed
 import TMDB_MovieDetail
 import TMDB_Person
 import TMDB_Profile
+import TMDB_Search
 import TMDB_Shared_Backend
 import TMDB_TVShowDetail
 #if DEBUG
@@ -21,7 +22,9 @@ public struct IntegrationTestLauncher {
         case tmdbTabsNormal = "TMDBTabsNormal"
         case tmdbTabsPage = "TMDBTabsPage"
         case tmdbTabsEmbedded = "TMDBTabsEmbedded"
+        case tmdbTabsSavedShell = "TMDBTabsSavedShell"
         case tmdbFeed = "TMDBFeed"
+        case tmdbSearch = "TMDBSearch"
         case tmdbDiscover = "TMDBDiscover"
         case tmdbMovieDetail = "TMDBMovieDetail"
         case tmdbTVShowDetail = "TMDBTVShowDetail"
@@ -39,7 +42,9 @@ public struct IntegrationTestLauncher {
             case .tmdbTabsNormal: return "TMDB Tabs — Normal"
             case .tmdbTabsPage: return "TMDB Tabs — Page"
             case .tmdbTabsEmbedded: return "TMDB Tabs — Embedded"
+            case .tmdbTabsSavedShell: return "TMDB Tabs — Saved Shell"
             case .tmdbFeed: return "TMDB Feed"
+            case .tmdbSearch: return "TMDB Search"
             case .tmdbDiscover: return "TMDB Discover"
             case .tmdbMovieDetail: return "TMDB Movie Detail"
             case .tmdbTVShowDetail: return "TMDB TV Show Detail"
@@ -97,8 +102,14 @@ public struct IntegrationTestLauncher {
                         Label("TMDB", systemImage: "film")
                     }
             }
+        case .tmdbTabsSavedShell:
+            // No `tabStyle` seed: the shell is whatever `AppShellDesign` the design store holds,
+            // which UI tests pick per launch through `-design_coordinator_selections`.
+            TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
         case .tmdbFeed:
             TMDBFeedDemoView()
+        case .tmdbSearch:
+            TMDBSearchDemoView()
         case .tmdbDiscover:
             TMDBDiscoverDemoView()
         case .tmdbMovieDetail:
@@ -139,5 +150,9 @@ struct IntegrationTestErrorView: View {
         }
         .padding()
     }
+}
+
+#Preview {
+    IntegrationTestErrorView(message: "Unknown test: NoSuchDemo")
 }
 #endif

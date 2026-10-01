@@ -226,3 +226,41 @@ private extension MovieItemCell {
         "MovieItemCell"
     }
 }
+
+#if DEBUG
+import SwiftUI
+
+private final class PreviewItem: ItemDisplayable {
+    private let id: Int
+    private let title: String
+    private let rating: Float
+    private var favorited: Bool
+
+    init(id: Int, title: String, rating: Float, favorited: Bool = false) {
+        self.id = id
+        self.title = title
+        self.rating = rating
+        self.favorited = favorited
+    }
+
+    func getId() -> String? { String(id) }
+    func getTitle() -> String { title }
+    func getDescription() -> String { "A sample description long enough to wrap onto a second line of the cell." }
+    func getReleaseDate() -> String? { "2024-05-10" }
+    func getRating() -> Float? { rating }
+    func getImageURL() -> String? { nil }
+    func isFavorited() -> Bool { favorited }
+    func setFavorited(_ favorited: Bool) { self.favorited = favorited }
+}
+
+#Preview {
+    let list = FilterableFavouritableItemList()
+    list.searchPlaceholder = "Filter movies"
+    list.display(items: [
+        PreviewItem(id: 1, title: "Dune: Part Two", rating: 8.2, favorited: true),
+        PreviewItem(id: 2, title: "Inside Out 2", rating: 7.6),
+        PreviewItem(id: 3, title: "Unrated Movie", rating: 0),
+    ])
+    return list
+}
+#endif

@@ -1,3 +1,4 @@
+import CoreFeatures
 import Foundation
 
 /// Top-level tabs for the feed screen.
@@ -8,7 +9,6 @@ public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
     case upcoming
     case onTheAir
     case airingToday
-    case search
 
     public var id: String { rawValue }
 
@@ -26,8 +26,6 @@ public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
             return L10n.feedOnTheAir
         case .airingToday:
             return L10n.feedAiringToday
-        case .search:
-            return L10n.feedSearch
         }
     }
 
@@ -45,8 +43,6 @@ public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
             return "tv"
         case .airingToday:
             return "sun.max"
-        case .search:
-            return "magnifyingglass"
         }
     }
 
@@ -56,7 +52,7 @@ public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
         case .popular: return .popular
         case .topRated: return .topRated
         case .upcoming: return .upcoming
-        case .onTheAir, .airingToday, .search: return nil
+        case .onTheAir, .airingToday: return nil
         }
     }
 
@@ -64,7 +60,32 @@ public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .onTheAir: return .onTheAir
         case .airingToday: return .airingToday
-        case .nowPlaying, .popular, .topRated, .upcoming, .search: return nil
+        case .nowPlaying, .popular, .topRated, .upcoming: return nil
         }
+    }
+}
+
+// MARK: - Sectioned shell support
+
+extension FeedTab: ShellTabItem {
+    public var customizationID: String { "tab.feed.\(rawValue)" }
+
+    /// The feed categories grouped for a sectioned shell (sidebar on iPad, a pushable list on
+    /// iPhone). Search is not here at all: it is a root tab of its own, in `TMDB_Search`.
+    public static var sections: [ShellSection<FeedTab>] {
+        [
+            ShellSection(
+                id: "movies",
+                title: L10n.feedSectionMovies,
+                systemImage: "film",
+                rows: [.nowPlaying, .popular, .topRated, .upcoming]
+            ),
+            ShellSection(
+                id: "tv",
+                title: L10n.feedSectionTv,
+                systemImage: "tv",
+                rows: [.onTheAir, .airingToday]
+            ),
+        ]
     }
 }

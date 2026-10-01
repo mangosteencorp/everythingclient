@@ -3,19 +3,23 @@ import Swinject
 import TMDB_Shared_Backend
 
 public class DiscoverAssembly: Assembly {
-    public init() {}
+    private let apiKey: String
+
+    public init(apiKey: String) {
+        self.apiKey = apiKey
+    }
 
     public func assemble(container: Container) {
+        // Captured locally: the registration closure escapes, and capturing `self` would tie
+        // every resolved service to this assembly's lifetime.
+        let apiKey = apiKey
+
         // Register API Service
         container.register(APIServiceProtocol.self) { resolver in
             if let apiService = resolver.resolve(TMDBAPIService.self) {
                 return apiService
             }
-            #if DEBUG
-            return TMDBAPIService(apiKey: debugTMDBAPIKey)
-            #else
-            return TMDBAPIService(apiKey: APIKeys.tmdbKey)
-            #endif
+            return TMDBAPIService(apiKey: apiKey)
         }.inObjectScope(.container)
 
         // Register Repository

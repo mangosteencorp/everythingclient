@@ -1,6 +1,7 @@
 import CoreFeatures
 import Shared_UI_Support
 import SwiftUI
+import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
 /// One row's worth of data, normalised so movies and TV shows share a single renderer.
@@ -44,6 +45,12 @@ struct FeedItemsView<Route: Hashable>: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
+            }
+            .accessibilityIdentifier(accessibilityIdentifier)
+        case .paletteCards:
+            AdaptiveColumnGrid(items: items) { item in
+                FeedPaletteCell(item: item)
+                    .onAppear { onItemAppear(item) }
             }
             .accessibilityIdentifier(accessibilityIdentifier)
         }
@@ -138,3 +145,89 @@ private struct FeedGridCell<Route: Hashable>: View {
         .accessibilityIdentifier(item.accessibilityIdentifier)
     }
 }
+
+/// The `MovieItemCell` palette trick in SwiftUI: the poster paints the card, and the text
+/// picks whichever of black or white survives on top of it.
+@available(iOS 16, *)
+private struct FeedPaletteCell<Route: Hashable>: View {
+    let item: FeedItem<Route>
+
+    var body: some View {
+        FeedRowLink(route: item.route, drivesSelectionDirectly: true) {
+            PaletteCard(imageURL: posterURL) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.entity.title)
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+
+                    HStack(spacing: 6) {
+                        Image(systemName: "star.fill")
+                            .font(.caption2)
+                        Text(String(format: "%.1f", item.entity.voteAverage))
+                            .font(.caption)
+                        Spacer(minLength: 0)
+                    }
+                    .opacity(0.85)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(item.accessibilityIdentifier)
+    }
+
+    private var posterURL: URL? {
+        guard let posterPath = item.entity.posterPath else { return nil }
+        return TMDBImageSize.posterMedium.buildImageUrl(path: posterPath)
+    }
+}
+
+#if DEBUG
+/// `FeedItemsView` reads its layout from the shared design coordinator, so each preview picks
+/// one there; the private cells are only reachable through their layout.
+@available(iOS 16, *)
+private struct FeedItemsPreview: View {
+    let design: FeedContentDesign
+
+    var body: some View {
+        NavigationStack {
+            FeedItemsView(
+                items: Movie.previewMovies.map { $0.feedItem(route: $0.id) },
+                accessibilityIdentifier: "preview",
+                onItemAppear: { _ in }
+            )
+        }
+        .onAppear { DesignCoordinator.shared.select(design) }
+    }
+}
+
+@available(iOS 16, *)
+#Preview("List") {
+    FeedItemsPreview(design: .list)
+}
+
+@available(iOS 16, *)
+#Preview("Compact rows") {
+    FeedItemsPreview(design: .compactRows)
+}
+
+@available(iOS 16, *)
+#Preview("Grid") {
+    FeedItemsPreview(design: .grid)
+}
+
+@available(iOS 16, *)
+#Preview("Palette cards") {
+    FeedItemsPreview(design: .paletteCards)
+}
+
+@available(iOS 16, *)
+#Preview("Rows") {
+    NavigationStack {
+        List {
+            FeedItemRow(item: Movie.previewMovies[0].feedItem(route: 1), style: .list, onAppear: {})
+            FeedItemRow(item: Movie.previewMovies[1].feedItem(route: 2), style: .compactRows, onAppear: {})
+        }
+    }
+}
+#endif

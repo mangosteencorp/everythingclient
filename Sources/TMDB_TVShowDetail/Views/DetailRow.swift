@@ -13,3 +13,11 @@ struct DetailRow: View {
             .foregroundColor(themeManager.currentTheme.labelColor)
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    DetailRow(title: "Status: Ended")
+        .environmentObject(ThemeManager.shared)
+}
+#endif

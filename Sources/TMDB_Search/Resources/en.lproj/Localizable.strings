@@ -1,0 +1,70 @@
+/* 
+  Localizable.strings
+  everythingclient
+
+  Created by Quang on 2024-09-30.
+  
+*/
+
+"feed_search" = "Search";
+
+// Filter strings
+"filter_include_adult" = "Include Adult";
+"filter_language" = "Language";
+"filter_primary_release_year" = "Release Year";
+"filter_first_air_date_year" = "First Air Year";
+"filter_region" = "Region";
+"filter_year" = "Year";
+"filter_clear_all" = "Clear All";
+"filter_include_adult_description" = "Include adult content in search results";
+"filter_include_adult_footnote" = "When on, results can include titles and people TMDB marks as adult.";
+"filter_language_description" = "Show titles and overviews in this language";
+"filter_primary_release_year_description" = "Only movies first released in this year";
+"filter_first_air_date_year_description" = "Only shows that first aired in this year";
+"filter_region_description" = "Match release dates in this country";
+"filter_year_description" = "Any release or air date in this year, not only the first";
+"filter_any_language" = "Any Language";
+"filter_any_region" = "Any Region";
+"filter_any_year" = "Any Year";
+"filter_cancel" = "Cancel";
+"filter_done" = "Done";
+// A chip with a value set, e.g. "Release Year: 2021".
+"filter_chip_value" = "%@: %@";
+"filter_value_on" = "On";
+// VoiceOver label of an active chip's remove button, e.g. "Remove Release Year".
+"filter_remove" = "Remove %@";
+
+// Search scopes
+"search_prompt" = "Movies, shows, people";
+"search_scope_all" = "All";
+"search_scope_collections" = "Collections";
+"search_scope_companies" = "Companies";
+"search_scope_keywords" = "Keywords";
+"search_scope_movies" = "Movies";
+"search_scope_people" = "People";
+"search_scope_tv" = "TV Shows";
+
+// Result kinds (badges in the "All" scope)
+"search_kind_movie" = "Movie";
+"search_kind_tv_show" = "TV Show";
+"search_kind_person" = "Person";
+"search_kind_collection" = "Collection";
+"search_kind_company" = "Company";
+"search_kind_keyword" = "Keyword";
+
+// Result rows
+"search_known_for" = "Known for %@";
+"search_rating_accessibility" = "Rated %@ out of 10";
+
+// Idle page
+"search_idle_prompt" = "Find movies, shows and people";
+"search_recents_title" = "Recent Searches";
+"search_recents_clear" = "Clear";
+"search_recents_remove" = "Remove";
+"search_trending_title" = "Trending Today";
+
+// No results
+"search_empty_title" = "No results for “%@”";
+"search_empty_message" = "Check the spelling, or try another category.";
+"search_empty_retry" = "Try Again";
+"search_empty_clear" = "Clear Search";

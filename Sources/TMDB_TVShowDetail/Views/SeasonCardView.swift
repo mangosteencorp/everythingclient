@@ -53,3 +53,11 @@ struct SeasonCardView: View {
         return TMDBImageSize.posterSmall.buildImageUrl(path: posterPath)
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    SeasonCardView(season: TVShowDetailModel.example.seasons[0])
+        .environmentObject(ThemeManager.shared)
+}
+#endif

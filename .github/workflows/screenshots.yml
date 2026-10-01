@@ -1,0 +1,53 @@
+name: Screenshots
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Capture screenshots with fastlane
+    runs-on: xcode-27
+    env:
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Select latest Xcode
+        run: |
+          chmod +x ./.github/scripts/select_xcode.sh
+          ./.github/scripts/select_xcode.sh
+      - name: Install Metal toolchain
+        run: |
+          chmod +x ./.github/scripts/install_metal_toolchain.sh
+          ./.github/scripts/install_metal_toolchain.sh
+      - name: Configure Xcode
+        run: |
+          chmod +x ./.github/scripts/configure_xcode.sh
+          ./.github/scripts/configure_xcode.sh
+      - name: Set up secrets in xcconfig
+        run: |
+          echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
+          echo "PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient" >> Rebuild/Rebuild/Build.xcconfig
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Capture screenshots
+        run: bundle exec fastlane screenshots
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.sha }}
+          path: fastlane/screenshots/**/*.png
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 14

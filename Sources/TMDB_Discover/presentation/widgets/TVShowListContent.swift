@@ -59,4 +59,11 @@ struct TVShowListPageContent<Route: Hashable>: View {
 #Preview {
     TVShowListContent(movies: Movie.exampleMovies, mediaType: .movie, detailRouteBuilder: { _, _ in 0 })
 }
+
+@available(iOS 16.0, *)
+#Preview("Page") {
+    NavigationStack {
+        TVShowListPageContent(viewModel: .preview(), type: .airingToday, detailRouteBuilder: { id, _ in id })
+    }
+}
 #endif

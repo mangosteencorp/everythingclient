@@ -25,3 +25,16 @@ public struct CommonNoResultView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview("Plain") {
+    CommonNoResultView(useFancyDesign: .constant(false))
+}
+
+#Preview("Fancy") {
+    CommonNoResultView(
+        configuration: NoResultViewConfiguration(headline: "No Movies", subheadline: "Nothing is playing right now."),
+        useFancyDesign: .constant(true)
+    )
+}
+#endif

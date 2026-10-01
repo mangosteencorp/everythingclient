@@ -11,7 +11,7 @@ class MovieListPageTests: XCTestCase {
     override func setUp() {
         super.setUp()
         container = Container()
-        let assembly = DiscoverAssembly()
+        let assembly = DiscoverAssembly(apiKey: "test_api_key")
         assembly.assemble(container: container)
         mockViewModel = TVFeedViewModel(fetchMoviesUseCase: MockFetchMoviesUseCase())
     }
@@ -27,7 +27,6 @@ class MovieListPageTests: XCTestCase {
         // Then
         XCTAssertNotNil(nowPlayingPage)
         XCTAssertNotNil(upcomingPage)
-        XCTAssertEqual(APIKeys.tmdbKey, apiKey)
     }
 
     // Helper function to find a view with specific ID in the view hierarchy

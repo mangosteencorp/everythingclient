@@ -5,6 +5,10 @@ TEST_SCHEMES=(
   "TMDB_Discover_Tests"
   # "TMDB_Shared_Backend_Tests"
   "TMDB_Feed_Tests"
+  "TMDB_MovieDetail_Tests"
+  "TMDB_TVShowDetail_Tests"
+  "TMDB_Person_Tests"
+  "TMDB_Profile_Tests"
 )
 
 if [ -z "${SIMULATOR_ID:-}" ]; then

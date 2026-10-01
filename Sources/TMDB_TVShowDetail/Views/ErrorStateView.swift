@@ -33,3 +33,11 @@ struct ErrorStateView: View {
         .background(themeManager.currentTheme.backgroundColor)
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    ErrorStateView(message: "The Internet connection appears to be offline.", retryAction: {})
+        .environmentObject(ThemeManager.shared)
+}
+#endif

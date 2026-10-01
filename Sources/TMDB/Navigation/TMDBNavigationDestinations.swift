@@ -62,11 +62,13 @@ public struct TMDBNavigationDestinations: ViewModifier {
             PokedexView()
                 .navigationTitle("Pokédex")
         case let .movieList(params):
-            MovieFeedListPage(apiService: container.resolve(TMDBAPIService.self)!, additionalParams: params, analyticsTracker: analyticsTracker) { movie in
-                TMDBRoute.movieDetail(MovieRouteModel(id: movie.id))
-            } tvShowDetailRouteBuilder: { tvShow in
-                TMDBRoute.tvShowDetail(tvShow.id)
-            }
+            MovieFeedListPage(
+                apiService: container.resolve(TMDBAPIService.self)!,
+                additionalParams: params,
+                analyticsTracker: analyticsTracker,
+                detailRouteBuilder: { movie in TMDBRoute.movieDetail(MovieRouteModel(id: movie.id)) },
+                tvShowDetailRouteBuilder: { tvShow in TMDBRoute.tvShowDetail(tvShow.id) }
+            )
         case let .tvShowList(type):
             TMDB_Discover.DiscoverListPage(
                 container: container,
@@ -116,3 +118,19 @@ public extension View {
         modifier(TMDBNavigationDestinations(container: container))
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    // Photo slides resolve nothing from the container, so an empty one is enough.
+    NavigationStack {
+        TMDBRouteView(
+            route: .photoSlides(PhotoSlidesRouteModel(
+                imagePaths: ["/AvIfrjJL9WRk3TziSvOZCTUHKEn.jpg", "/1ffZAucqfvQu36x1C49XfOdjuOG.jpg"],
+                initialIndex: 0
+            )),
+            container: Container()
+        )
+    }
+}
+#endif

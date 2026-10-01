@@ -24,3 +24,12 @@ struct TVShowHeaderView: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    TVShowHeaderView(tvShow: .example)
+        .padding()
+        .environmentObject(ThemeManager.shared)
+}
+#endif

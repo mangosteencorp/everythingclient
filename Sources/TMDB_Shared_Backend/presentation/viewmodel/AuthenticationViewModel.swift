@@ -5,11 +5,11 @@ public protocol AuthenticationViewModelProtocol: ObservableObject {
     var isAuthenticatedPublisher: Published<Bool>.Publisher { get }
     var isLoadingPublisher: Published<Bool>.Publisher { get }
     var errorPublisher: Published<Error?>.Publisher { get }
-    
+
     var isAuthenticated: Bool { get }
     var isLoading: Bool { get }
     var error: Error? { get set }
-    
+
     func signIn() async
     func signOut() async
 }
@@ -30,15 +30,15 @@ public class AuthenticationViewModel: AuthenticationViewModelProtocol {
         self.webAuthService = webAuthService
         isAuthenticated = authService.isAuthenticated
     }
-    
+
     public var isAuthenticatedPublisher: Published<Bool>.Publisher { $isAuthenticated }
     public var isLoadingPublisher: Published<Bool>.Publisher { $isLoading }
     public var errorPublisher: Published<Error?>.Publisher { $error }
-    
+
     public func signIn() async {
         isLoading = true
         error = nil
-        
+
         do {
             // Step 1: Get request token
             let requestToken = try await authService.getRequestToken()
@@ -48,14 +48,14 @@ public class AuthenticationViewModel: AuthenticationViewModelProtocol {
             let authenticatedToken = try await webAuthService.authenticate(url: authURL)
             // Step 4: Create session with the authenticated token
             let _ = try await authService.createSession(requestToken: authenticatedToken)
-            self.isAuthenticated = true
-            self.isLoading = false
+            isAuthenticated = true
+            isLoading = false
         } catch {
             self.error = error
             isLoading = false
         }
     }
-    
+
     public func signOut() async {
         isLoading = true
         error = nil

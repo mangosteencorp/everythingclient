@@ -11,3 +11,12 @@ apollo-ios-cli
 Rebuild/Rebuild/GoogleService-Info.plist
 .llm
 Rebuild/Rebuild/Build.xcconfig
+
+# fastlane
+fastlane/screenshots
+fastlane/report.xml
+fastlane/test_output
+vendor/bundle
+
+# Local-only TMDB key for DEBUG previews (see DebugPreviewKeyLoader)
+Sources/TMDB_Shared_Backend/Preview/DebugPreview.swift

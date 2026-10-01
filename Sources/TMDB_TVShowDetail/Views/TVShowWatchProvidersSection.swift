@@ -5,7 +5,7 @@ import TMDB_Shared_Backend
 @available(iOS 15.0, *)
 struct TVShowWatchProvidersSection: View {
     let tvShowId: Int
-    let apiService: TMDBAPIService
+    let apiService: any TMDBAPIRequesting
 
     @EnvironmentObject private var themeManager: ThemeManager
 
@@ -163,3 +163,20 @@ private struct ProviderLogoView: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
+
+#if DEBUG
+@available(iOS 15.0, *)
+#Preview("Providers") {
+    TVShowWatchProvidersSection(
+        tvShowId: 1399,
+        apiService: PreviewTMDBAPIRequester([.tvShowWatchProviders(show: 1399): WatchProviderResponse.example])
+    )
+    .environmentObject(ThemeManager.shared)
+}
+
+@available(iOS 15.0, *)
+#Preview("Offline") {
+    TVShowWatchProvidersSection(tvShowId: 1399, apiService: PreviewTMDBAPIRequester())
+        .environmentObject(ThemeManager.shared)
+}
+#endif

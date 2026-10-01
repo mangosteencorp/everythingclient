@@ -4,3 +4,9 @@ public struct MovieFeedListPageNavigation: View {
         Text("MovieFeedListPageNavigation")
     }
 }
+
+#if DEBUG
+#Preview {
+    MovieFeedListPageNavigation()
+}
+#endif

@@ -35,7 +35,28 @@ public enum TMDBEndpoint {
         region: String? = nil,
         year: String? = nil
     )
-    case searchKeyword, searchPerson
+    case searchKeyword(query: String, page: Int? = nil)
+    case searchPerson(
+        query: String,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        page: Int? = nil
+    )
+    case searchCollection(
+        query: String,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        page: Int? = nil,
+        region: String? = nil
+    )
+    case searchCompany(query: String, page: Int? = nil)
+    /// `search/multi` — movies, shows and people in one ranked list.
+    case searchMulti(
+        query: String,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        page: Int? = nil
+    )
 
     // Person
     case popularPersons
@@ -101,7 +122,7 @@ public enum TMDBEndpoint {
     case tvShowWatchProviders(show: Int)
 
     // swiftlint:disable cyclomatic_complexity
-    func path() -> String {
+    public func path() -> String {
         switch self {
         // Movie Lists
         case .popular:
@@ -149,6 +170,12 @@ public enum TMDBEndpoint {
             return "search/keyword"
         case .searchPerson:
             return "search/person"
+        case .searchCollection:
+            return "search/collection"
+        case .searchCompany:
+            return "search/company"
+        case .searchMulti:
+            return "search/multi"
         // Authentication & Account
         case .authStep1:
             return "authentication/token/new"
@@ -296,6 +323,19 @@ public enum TMDBEndpoint {
                 return ["page": String(page)]
             }
             return nil
+        case let .searchKeyword(query, page), let .searchCompany(query, page):
+            return buildSearchParams(query: query, page: page)
+        case let .searchPerson(query, includeAdult, language, page),
+             let .searchMulti(query, includeAdult, language, page):
+            return buildSearchParams(query: query, includeAdult: includeAdult, language: language, page: page)
+        case let .searchCollection(query, includeAdult, language, page, region):
+            return buildSearchParams(
+                query: query,
+                includeAdult: includeAdult,
+                language: language,
+                page: page,
+                region: region
+            )
         case let .movieWatchProviders(watchRegion), let .tvWatchProviders(watchRegion):
             if let watchRegion = watchRegion {
                 return ["watch_region": watchRegion]
@@ -307,6 +347,31 @@ public enum TMDBEndpoint {
     }
 
     // MARK: - Private Helper Methods
+
+    /// The parameter set every `search/*` endpoint shares. The movie and TV searches take more
+    /// filters than this, so they keep their own builders.
+    private func buildSearchParams(
+        query: String,
+        includeAdult: Bool? = nil,
+        language: String? = nil,
+        page: Int? = nil,
+        region: String? = nil
+    ) -> [String: String] {
+        var params = ["query": query]
+        if let includeAdult {
+            params["include_adult"] = includeAdult ? "true" : "false"
+        }
+        if let language {
+            params["language"] = language
+        }
+        if let page {
+            params["page"] = String(page)
+        }
+        if let region {
+            params["region"] = region
+        }
+        return params
+    }
 
     private func buildSearchMovieParams(
         query: String,
@@ -512,6 +577,13 @@ public enum TMDBEndpoint {
             return MovieReviewsResponse.self
         case .searchKeyword:
             return KeywordSearchResultModel.self
+        case .searchCollection:
+            return CollectionSearchResultModel.self
+        case .searchCompany:
+            return CompanySearchResultModel.self
+        // Same media-type-tagged union as `trending/all`.
+        case .searchMulti:
+            return TrendingAllResultModel.self
         case .authStep1:
             return RequestTokenResponse.self
         case .authNewSession:

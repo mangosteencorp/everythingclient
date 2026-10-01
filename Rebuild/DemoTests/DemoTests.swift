@@ -90,11 +90,13 @@ final class DemoTests: BaseTestCase {
         launchAppAndWait(withDemo: "TMDBPersonDetail", timeout: 20)
         verifyTMDBPersonDetailDemo()
 
-        tapElement(withIdentifier: "personDetail.switchDesign.button")
         waitForElement(withIdentifier: "personDetail.filmography.carousel")
 
         tapElement(withIdentifier: "personDetail.switchDesign.button")
         waitForElement(withIdentifier: "personDetail.filmography.list")
+
+        tapElement(withIdentifier: "personDetail.switchDesign.button")
+        waitForElement(withIdentifier: "personDetail.filmography.carousel")
     }
 
     @MainActor

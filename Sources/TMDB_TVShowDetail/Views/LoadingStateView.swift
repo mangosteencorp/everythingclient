@@ -18,3 +18,11 @@ struct LoadingStateView: View {
         .background(themeManager.currentTheme.backgroundColor)
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    LoadingStateView()
+        .environmentObject(ThemeManager.shared)
+}
+#endif

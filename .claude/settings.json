@@ -4,6 +4,9 @@
     "deny": [
       "Read(./*.xcconfig)",
       "Read(./**/*.xcconfig)"
+    ],
+    "ask": [
+      "Edit(/LLM.md)"
     ]
   }
 }

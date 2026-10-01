@@ -8,4 +8,9 @@ struct TMDBSettingsDemoView: View {
         SettingsPageView()
     }
 }
+
+@available(iOS 16.0, *)
+#Preview {
+    TMDBSettingsDemoView()
+}
 #endif

@@ -36,3 +36,11 @@ struct PersonDetailHeaderView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
+
+#if DEBUG
+@available(iOS 16.0, *)
+#Preview {
+    PersonDetailHeaderView(person: .example)
+        .padding()
+}
+#endif

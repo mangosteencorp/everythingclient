@@ -55,3 +55,25 @@ extension Movie {
         )
     }
 }
+
+#if DEBUG
+@available(iOS 16, *)
+#Preview("Loaded") {
+    NavigationStack {
+        MovieFeedTabContent(
+            viewModel: MovieFeedViewModel(apiService: PreviewFeedAPIService()),
+            feedType: .popular,
+            detailRouteBuilder: { $0.id }
+        )
+    }
+}
+
+@available(iOS 16, *)
+#Preview("Offline") {
+    MovieFeedTabContent(
+        viewModel: MovieFeedViewModel(apiService: PreviewFeedAPIService(failure: URLError(.notConnectedToInternet))),
+        feedType: .popular,
+        detailRouteBuilder: { $0.id }
+    )
+}
+#endif

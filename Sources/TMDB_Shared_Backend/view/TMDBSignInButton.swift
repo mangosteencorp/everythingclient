@@ -40,3 +40,17 @@ public struct TMDBSignInButton: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 15.0, *)
+#Preview("Signed out") {
+    TMDBSignInButton(viewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: false)))
+        .padding()
+}
+
+@available(iOS 15.0, *)
+#Preview("Signed in") {
+    TMDBSignInButton(viewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: true)))
+        .padding()
+}
+#endif

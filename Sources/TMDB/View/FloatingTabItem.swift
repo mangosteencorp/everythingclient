@@ -4,6 +4,7 @@ struct FloatingTabItem<Selection: Hashable> {
     let tag: Selection
     let icon: Image
     let title: String
+    let accessibilityIdentifier: String
 }
 
 // Define the floating tab bar view
@@ -62,6 +63,7 @@ struct FloatingTabBar<Selection: Hashable>: View {
                         .glassEffectID("\(item.tag)", in: glassNamespace)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier(item.accessibilityIdentifier)
                 }
             }
             .padding(4)
@@ -99,6 +101,7 @@ struct FloatingTabBar<Selection: Hashable>: View {
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
                 }
+                .accessibilityIdentifier(item.accessibilityIdentifier)
             }
         }
         .background(Color.white)
@@ -109,3 +112,21 @@ struct FloatingTabBar<Selection: Hashable>: View {
         .opacity(isHidden ? 0 : 1)
     }
 }
+
+#if DEBUG
+#Preview {
+    @Previewable @State var selection = TabRoute.movieFeed
+    let tabs: [TabRoute] = [.movieFeed, .marketplace, .profile, .settings, .search]
+
+    VStack {
+        Spacer()
+        FloatingTabBar(
+            selection: $selection,
+            isHidden: .constant(false),
+            items: tabs.map {
+                FloatingTabItem(tag: $0, icon: Image(systemName: $0.iconName), title: $0.title, accessibilityIdentifier: $0.customizationID)
+            }
+        )
+    }
+}
+#endif

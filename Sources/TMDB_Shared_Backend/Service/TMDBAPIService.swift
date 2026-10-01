@@ -43,11 +43,18 @@ public struct TMDBAPIService {
             URLQueryItem(name: "language", value: Locale.preferredLanguages[0]),
         ]
 
-        // Add extra queries from endpoint if available
+        // Add extra queries from endpoint if available.
+        // An endpoint that names a parameter we already defaulted (e.g. `language`) wins:
+        // sending the same key twice makes TMDB reject the whole request with
+        // status_code 5 "Invalid parameters".
         if let extraQueries = endpoint.extraQuery() {
-            queryItems.append(contentsOf: extraQueries.map {
-                URLQueryItem(name: $0.key, value: $0.value)
-            })
+            for (key, value) in extraQueries {
+                if let index = queryItems.firstIndex(where: { $0.name == key }) {
+                    queryItems[index] = URLQueryItem(name: key, value: value)
+                } else {
+                    queryItems.append(URLQueryItem(name: key, value: value))
+                }
+            }
         }
 
         if let sessionId = authRepository.getSessionId(), endpoint.needAuthentication() {

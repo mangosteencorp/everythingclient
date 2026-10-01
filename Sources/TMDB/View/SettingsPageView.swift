@@ -16,9 +16,10 @@ public struct SettingsPageView: View {
                     Button("Launch Jellyfin by Swiftfin") {
                         showSwiftfin = true
                     }
-                    .onLongPressGesture {
-                        showSamples = true
-                    }
+                    .simultaneousGesture(
+                        LongPressGesture(minimumDuration: 0.5)
+                            .onEnded { _ in showSamples = true }
+                    )
                     .accessibilityIdentifier("settings.launchSwiftfin.button")
                 } header: {
                     Text("Media Server")
@@ -41,7 +42,20 @@ public struct SettingsPageView: View {
         }
         #if canImport(SampleKit)
         .fullScreenCover(isPresented: $showSamples) {
-            SampleKitAllSamplesView()
+            NavigationStack {
+                SampleKitAllSamplesView()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                showSamples = false
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
+                            .accessibilityIdentifier("settings.samples.close.button")
+                            .accessibilityLabel("Close")
+                        }
+                    }
+            }
         }
         #endif
     }

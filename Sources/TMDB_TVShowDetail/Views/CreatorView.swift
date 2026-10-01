@@ -40,3 +40,13 @@ struct CreatorView: View {
         return TMDBImageSize.logoLarge.buildImageUrl(path: profilePath)
     }
 }
+
+#if DEBUG
+@available(iOS 15, *)
+#Preview {
+    HStack {
+        ForEach(TVShowDetailModel.example.createdBy, id: \.id) { CreatorView(creator: $0) }
+    }
+    .environmentObject(ThemeManager.shared)
+}
+#endif

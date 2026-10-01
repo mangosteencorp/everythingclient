@@ -59,3 +59,13 @@ struct PersonFilmographyCarouselSection<Route: Hashable>: View {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 18.0, *)
+#Preview {
+    NavigationStack {
+        PersonFilmographyCarouselSection(credits: PersonMovieCredits.example.featuredCredits, movieRouteBuilder: { $0 })
+            .padding()
+    }
+}
+#endif
