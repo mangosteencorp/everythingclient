@@ -16,6 +16,22 @@ enum SwiftfinWindowAppearanceGuard {
         installSentinel()
     }
 
+    /// `onDisappear` only runs once the dismissal animation is over, so the app it uncovers would
+    /// slide into view in Swiftfin's tint and dark mode. Resetting before dismissing avoids that;
+    /// the leaving presentation takes Swiftfin's look over so Swiftfin doesn't flash light on its
+    /// way out.
+    static func swiftfinWillDismiss() {
+        for window in windows {
+            var presentation = window.rootViewController?.presentedViewController
+            while let presented = presentation?.presentedViewController {
+                presentation = presented
+            }
+            presentation?.overrideUserInterfaceStyle = window.overrideUserInterfaceStyle
+            presentation?.view.tintColor = window.tintColor
+            reset(window)
+        }
+    }
+
     static func swiftfinDidDisappear() {
         presentedCount = max(presentedCount - 1, 0)
         installSentinel()
@@ -24,15 +40,17 @@ enum SwiftfinWindowAppearanceGuard {
 
     fileprivate static func resetIfIdle() {
         guard presentedCount == 0 else { return }
-        for window in windows {
-            // Both setters are no-ops when already reset, which also ends the change notifications
-            // they trigger on the sentinel.
-            if window.overrideUserInterfaceStyle != .unspecified {
-                window.overrideUserInterfaceStyle = .unspecified
-            }
-            // nil falls back to the app's AccentColor asset (unset here, so the system default).
-            window.tintColor = nil
+        windows.forEach(reset)
+    }
+
+    private static func reset(_ window: UIWindow) {
+        // Both setters are no-ops when already reset, which also ends the change notifications
+        // they trigger on the sentinel.
+        if window.overrideUserInterfaceStyle != .unspecified {
+            window.overrideUserInterfaceStyle = .unspecified
         }
+        // nil falls back to the app's AccentColor asset (unset here, so the system default).
+        window.tintColor = nil
     }
 
     private static func installSentinel() {
