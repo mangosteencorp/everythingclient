@@ -15,6 +15,12 @@ struct PageDots: UIViewRepresentable {
         // and the default white current dot would vanish on the light platter.
         control.backgroundStyle = .prominent
         control.currentPageIndicatorTintColor = .label
+        // The platter is translucent, so over a poster it blurs into the artwork: a heavy shadow
+        // lifts it off the page.
+        control.layer.shadowColor = UIColor.black.cgColor
+        control.layer.shadowOpacity = 0.6
+        control.layer.shadowRadius = 8
+        control.layer.shadowOffset = CGSize(width: 0, height: 2)
         control.accessibilityIdentifier = Self.accessibilityIdentifier
         control.addTarget(context.coordinator, action: #selector(Target.pageChanged(_:)), for: .valueChanged)
         return control
