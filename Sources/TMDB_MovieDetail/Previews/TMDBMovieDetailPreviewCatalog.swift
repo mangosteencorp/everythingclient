@@ -1,7 +1,7 @@
 #if DEBUG
 import SwiftUI
-import TMDB_Shared_Backend
 import third_party
+import TMDB_Shared_Backend
 
 /// Every movie detail preview as a view of its own, so Xcode's canvas, the integration launcher
 /// and the screenshot run all render the same thing. Everything but `demo` is seeded with the
