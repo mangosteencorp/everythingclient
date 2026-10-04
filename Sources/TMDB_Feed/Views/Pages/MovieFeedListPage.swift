@@ -64,7 +64,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
         .onAppear {
             loadFeed(for: selectedTab)
         }
-        .onChange(of: selectedTab) { tab in
+        .onChange(of: selectedTab) { _, tab in
             // Stop requests belonging to the previous selection.
             movieViewModel.cancelLoads()
             tvShowViewModel.cancelLoads()

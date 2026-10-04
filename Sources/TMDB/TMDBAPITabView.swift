@@ -92,7 +92,7 @@ public struct TMDBAPITabView: View {
         .environmentObject(coordinator)
         // Feed rows exist only in the sectioned shell; leaving one selected would give every
         // other shell a tab that is not in `tabList`, and so a blank screen.
-        .onChange(of: shellDesign) { newDesign in
+        .onChange(of: shellDesign) { _, newDesign in
             guard newDesign != .sectionedSidebar, coordinator.selectedTab.isSectionedShellOnly else { return }
             coordinator.switchTab(to: .movieFeed)
         }

@@ -36,7 +36,7 @@ struct AppNavigationModifier: ViewModifier {
                 }
             }
             .navigationSplitViewStyle(.balanced)
-            .onChange(of: selectedRoute) { _ in
+            .onChange(of: selectedRoute) {
                 // A new selection replaces the column, so anything pushed on top of the
                 // previous one is stale.
                 detailPath = NavigationPath()
