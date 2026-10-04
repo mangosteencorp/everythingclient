@@ -64,27 +64,11 @@ public struct FeedDestinationPage<Route: Hashable>: View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview("Movies") {
-    NavigationStack {
-        FeedDestinationPage(
-            tab: .nowPlaying,
-            apiService: PreviewFeedAPIService(),
-            detailRouteBuilder: { $0.id },
-            tvShowDetailRouteBuilder: { $0.id }
-        )
-    }
+    TMDBFeedPreviewCatalog.destinationMovies.view
 }
 
-@available(iOS 16, *)
 #Preview("TV shows") {
-    NavigationStack {
-        FeedDestinationPage(
-            tab: .airingToday,
-            apiService: PreviewFeedAPIService(),
-            detailRouteBuilder: { $0.id },
-            tvShowDetailRouteBuilder: { $0.id }
-        )
-    }
+    TMDBFeedPreviewCatalog.destinationTVShows.view
 }
 #endif

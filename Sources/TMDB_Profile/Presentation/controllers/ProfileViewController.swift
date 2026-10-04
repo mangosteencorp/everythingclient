@@ -132,26 +132,12 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
 
 #if DEBUG
 import SwiftUI
-import TMDB_Shared_Backend
-
-private struct PreviewGetProfileUseCase: GetProfileUseCaseProtocol {
-    func execute() -> Single<ProfileEntity> { .just(sampleProfileEntity) }
-}
-
-@MainActor
-private func previewProfileViewController(isAuthenticated: Bool) -> UINavigationController {
-    let viewModel = ProfileViewModel(
-        getProfileUseCase: PreviewGetProfileUseCase(),
-        authViewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: isAuthenticated))
-    )
-    return UINavigationController(rootViewController: ProfileViewController(viewModel: viewModel))
-}
 
 #Preview("Signed in") {
-    previewProfileViewController(isAuthenticated: true)
+    TMDBProfilePreviewCatalog.signedIn.view
 }
 
 #Preview("Signed out") {
-    previewProfileViewController(isAuthenticated: false)
+    TMDBProfilePreviewCatalog.signedOut.view
 }
 #endif

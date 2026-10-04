@@ -51,9 +51,6 @@ struct PageDots: UIViewRepresentable {
 
 #if DEBUG
 #Preview {
-    @Previewable @State var page = 1
-
-    PageDots(currentPage: $page, numberOfPages: 5)
-        .padding()
+    TMDBPreviewCatalog.pageDots.view
 }
 #endif

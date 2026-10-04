@@ -63,13 +63,7 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview {
-    @Previewable @State var selection = FeedTab.popular
-    @Previewable @State var visibleTab = FeedTab.popular
-
-    TopSegmentsFeedTabLayout(tabs: FeedTab.allCases, selection: $selection, visibleTab: $visibleTab) { tab in
-        Text(tab.title)
-    }
+    TMDBFeedPreviewCatalog.topSegmentsLayout.view
 }
 #endif

@@ -58,7 +58,7 @@ struct AppNavigationModifier: ViewModifier {
 }
 
 @available(iOS 16, *)
-private struct FeedSplitDetailPlaceholder: View {
+struct FeedSplitDetailPlaceholder: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "film")
@@ -102,8 +102,7 @@ extension View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview("Split view detail placeholder") {
-    FeedSplitDetailPlaceholder()
+    TMDBPreviewCatalog.splitDetailPlaceholder.view
 }
 #endif

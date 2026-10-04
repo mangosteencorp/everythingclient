@@ -720,9 +720,7 @@ let sampleSections: [Section<ProfileCollectionItem>] = [
     ),
 ]
 #Preview {
-    UIViewControllerPreview {
-        MultiSectionViewController(sections: sampleSections)
-    }
+    TMDBProfilePreviewCatalog.multiSection.view
 }
 #endif
 // swiftlint:enable all

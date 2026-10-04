@@ -44,9 +44,7 @@ public struct TMDBDiscoverDemoView: View {
     }
 }
 
-@available(iOS 16, *)
 #Preview {
-    TMDBDiscoverDemoView()
+    TMDBDiscoverPreviewCatalog.demo.view
 }
-
 #endif

@@ -107,8 +107,7 @@ private struct PageSwipeGesture: UIGestureRecognizerRepresentable {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview {
-    PagedTabShell(coordinator: .preview) { ShellPagePreview(title: $0.title) }
+    TMDBPreviewCatalog.pagedTabShell.view
 }
 #endif

@@ -37,13 +37,7 @@ struct FeedTabContainer<Content: View>: View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview {
-    @Previewable @State var selection = FeedTab.nowPlaying
-    @Previewable @State var visibleTab = FeedTab.nowPlaying
-
-    FeedTabContainer(tabs: FeedTab.allCases, selection: $selection, visibleTab: $visibleTab) { tab in
-        Text(tab.title)
-    }
+    TMDBFeedPreviewCatalog.tabContainer.view
 }
 #endif

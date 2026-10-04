@@ -115,18 +115,6 @@ struct FloatingTabBar<Selection: Hashable>: View {
 
 #if DEBUG
 #Preview {
-    @Previewable @State var selection = TabRoute.movieFeed
-    let tabs: [TabRoute] = [.movieFeed, .marketplace, .profile, .settings, .search]
-
-    VStack {
-        Spacer()
-        FloatingTabBar(
-            selection: $selection,
-            isHidden: .constant(false),
-            items: tabs.map {
-                FloatingTabItem(tag: $0, icon: Image(systemName: $0.iconName), title: $0.title, accessibilityIdentifier: $0.customizationID)
-            }
-        )
-    }
+    TMDBPreviewCatalog.floatingTabBar.view
 }
 #endif

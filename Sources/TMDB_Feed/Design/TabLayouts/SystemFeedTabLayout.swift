@@ -54,13 +54,7 @@ struct SystemFeedTabLayout<Content: View>: View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview {
-    @Previewable @State var selection = FeedTab.nowPlaying
-    @Previewable @State var visibleTab = FeedTab.nowPlaying
-
-    SystemFeedTabLayout(tabs: FeedTab.allCases, selection: $selection, visibleTab: $visibleTab) { tab in
-        Text(tab.title)
-    }
+    TMDBFeedPreviewCatalog.systemLayout.view
 }
 #endif

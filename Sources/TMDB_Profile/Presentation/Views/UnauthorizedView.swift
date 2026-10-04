@@ -70,7 +70,10 @@ class UnauthorizedView: UIView {
     }
 }
 
-@available(iOS 17, *)
+#if DEBUG
+import SwiftUI
+
 #Preview {
-    UnauthorizedView()
+    TMDBProfilePreviewCatalog.unauthorizedView.view
 }
+#endif

@@ -62,8 +62,7 @@ public struct SettingsPageView: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    SettingsPageView()
+    TMDBPreviewCatalog.settings.view
 }
 #endif
