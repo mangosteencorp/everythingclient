@@ -71,9 +71,7 @@ private struct PersonFact: Identifiable {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    PersonFactGrid(person: .example)
-        .padding()
+    TMDBPersonPreviewCatalog.factGrid.view
 }
 #endif

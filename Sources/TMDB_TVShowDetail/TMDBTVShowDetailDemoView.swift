@@ -17,9 +17,8 @@ public struct TMDBTVShowDetailDemoView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    TMDBTVShowDetailDemoView()
+    TMDBTVShowDetailPreviewCatalog.demo.view
 }
 #endif
 #endif

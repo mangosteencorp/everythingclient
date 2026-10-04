@@ -42,11 +42,7 @@ struct CreatorView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    HStack {
-        ForEach(TVShowDetailModel.example.createdBy, id: \.id) { CreatorView(creator: $0) }
-    }
-    .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.creators.view
 }
 #endif

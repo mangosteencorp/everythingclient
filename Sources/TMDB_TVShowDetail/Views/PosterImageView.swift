@@ -26,8 +26,7 @@ struct PosterImageView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    PosterImageView(posterPath: TVShowDetailModel.example.posterPath)
+    TMDBTVShowDetailPreviewCatalog.posterImage.view
 }
 #endif

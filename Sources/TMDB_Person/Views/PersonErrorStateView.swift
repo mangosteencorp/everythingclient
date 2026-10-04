@@ -31,8 +31,7 @@ struct PersonErrorStateView: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    PersonErrorStateView(message: "The Internet connection appears to be offline.", retry: {})
+    TMDBPersonPreviewCatalog.errorState.view
 }
 #endif

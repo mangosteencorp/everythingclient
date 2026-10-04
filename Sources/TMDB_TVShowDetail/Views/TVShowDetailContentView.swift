@@ -33,15 +33,7 @@ struct TVShowDetailContentView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    TVShowDetailContentView(
-        apiService: PreviewTMDBAPIRequester([
-            .tvShowWatchProviders(show: 1399): WatchProviderResponse.example,
-            .similarTVShows(show: 1399): TVShowListResultModel.example,
-        ]),
-        tvShow: .example
-    )
-    .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.detailContent.view
 }
 #endif

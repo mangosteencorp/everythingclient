@@ -20,9 +20,7 @@ struct LoadingStateView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    LoadingStateView()
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.loadingState.view
 }
 #endif

@@ -23,12 +23,7 @@ struct TVShowInfoView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    ScrollView {
-        TVShowInfoView(tvShow: .example)
-            .padding()
-    }
-    .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.info.view
 }
 #endif

@@ -68,14 +68,14 @@ public struct TVShowDetailView: View {
     // MARK: - Dependencies / Properties
 
     @EnvironmentObject private var themeManager: ThemeManager
-    private let apiService: TMDBAPIService
+    private let apiService: any TMDBAPIRequesting
     let tvShowId: Int
     @StateObject private var store: Store
     @State private var isRefreshing = false
 
     // MARK: - Initialization
 
-    public init(tvShowId: Int, apiService: TMDBAPIService) {
+    public init(tvShowId: Int, apiService: any TMDBAPIRequesting) {
         self.tvShowId = tvShowId
         self.apiService = apiService
         _store = StateObject(wrappedValue: Store(apiService: apiService, tvShowId: tvShowId))
@@ -126,9 +126,7 @@ public struct TVShowDetailView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    TVShowDetailView(tvShowId: 1399, apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.detailPage.view
 }
 #endif

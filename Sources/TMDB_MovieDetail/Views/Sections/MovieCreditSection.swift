@@ -50,14 +50,7 @@ struct MovieCreditSection<Route: Hashable>: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    MovieCreditSection(
-        movieId: 939_243,
-        creditsViewModel: MovieCastingViewModel(
-            apiService: TMDBAPIService(apiKey: debugTMDBAPIKey)
-        ),
-        personRouteBuilder: { $0 }
-    )
+    TMDBMovieDetailPreviewCatalog.creditSection.view
 }
 #endif

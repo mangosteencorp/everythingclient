@@ -27,16 +27,7 @@ struct MovieLocations: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    MovieLocations(locations: [
-        "Los Angeles",
-        "New York",
-        "London",
-        "Paris",
-        "Tokyo",
-        "Peru",
-        "Amazon Rainforest",
-    ])
+    TMDBMovieDetailPreviewCatalog.locations.view
 }
 #endif

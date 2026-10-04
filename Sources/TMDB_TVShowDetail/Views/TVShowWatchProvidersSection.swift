@@ -165,18 +165,11 @@ private struct ProviderLogoView: View {
 }
 
 #if DEBUG
-@available(iOS 15.0, *)
 #Preview("Providers") {
-    TVShowWatchProvidersSection(
-        tvShowId: 1399,
-        apiService: PreviewTMDBAPIRequester([.tvShowWatchProviders(show: 1399): WatchProviderResponse.example])
-    )
-    .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.watchProviders.view
 }
 
-@available(iOS 15.0, *)
 #Preview("Offline") {
-    TVShowWatchProvidersSection(tvShowId: 1399, apiService: PreviewTMDBAPIRequester())
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.watchProvidersOffline.view
 }
 #endif

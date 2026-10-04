@@ -22,10 +22,7 @@ struct TVShowGenresSection: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    TVShowGenresSection(genres: TVShowDetailModel.example.genres)
-        .padding()
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.genres.view
 }
 #endif

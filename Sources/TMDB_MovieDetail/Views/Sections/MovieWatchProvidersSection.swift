@@ -138,26 +138,15 @@ private struct ProviderLogoView: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
-@MainActor
-private func previewSection(_ state: MovieWatchProvidersState) -> MovieWatchProvidersSection {
-    let viewModel = MovieWatchProvidersViewModel(apiService: PreviewTMDBAPIRequester())
-    viewModel.state = state
-    return MovieWatchProvidersSection(movieId: exampleMovieDetail.id, watchProvidersViewModel: viewModel)
-}
-
-@available(iOS 16.0, *)
 #Preview("Providers") {
-    previewSection(.success(.example))
+    TMDBMovieDetailPreviewCatalog.watchProviders.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Loading") {
-    previewSection(.loading)
+    TMDBMovieDetailPreviewCatalog.watchProvidersLoading.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Error") {
-    previewSection(.error("The Internet connection appears to be offline."))
+    TMDBMovieDetailPreviewCatalog.watchProvidersError.view
 }
 #endif

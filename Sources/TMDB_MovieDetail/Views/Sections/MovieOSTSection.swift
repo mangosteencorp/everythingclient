@@ -154,23 +154,7 @@ private struct MovieOSTAlbumRow: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    List {
-        MovieOSTSection(ostViewModel: {
-            let viewModel = MovieOSTViewModel()
-            viewModel.state = .success([
-                MovieOSTAlbumDisplayModel(
-                    id: "1",
-                    title: "Superman (Original Motion Picture Soundtrack)",
-                    artistName: "Various Artists",
-                    trackCount: 24,
-                    artwork: nil,
-                    url: URL(string: "https://music.apple.com")
-                ),
-            ])
-            return viewModel
-        }())
-    }
+    TMDBMovieDetailPreviewCatalog.ostSection.view
 }
 #endif
