@@ -35,6 +35,9 @@ jobs:
         run: |
           echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
           echo "PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient" >> Rebuild/Rebuild/Build.xcconfig
+          sed 's/REPLACE_ME/'"${{ secrets.API_KEY }}"'/' \
+            Sources/TMDB_Shared_Backend/Preview/PreviewSecrets.swift.template \
+            > Sources/TMDB_Shared_Backend/Preview/PreviewSecrets.swift
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:

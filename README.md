@@ -19,6 +19,8 @@ TMDB_API_KEY=
 PRODUCT_BUNDLE_IDENTIFIER=
 ```
 
+Copy `Sources/TMDB_Shared_Backend/Preview/PreviewSecrets.swift.template` to `PreviewSecrets.swift` (gitignored) and replace `REPLACE_ME` with the same TMDB API key. DEBUG previews use that constant.
+
 Also adding a GoogleService-Info.plist file to the root of the project for Firebase Analytics. (Or setting the false flag in Rebuild/Rebuild/RebuildApp.swift to skip Firebase Analytics)
 
 Movie detail soundtrack search needs Apple Music access (`NSAppleMusicUsageDescription` is already in `Rebuild/Rebuild/Info.plist`).
