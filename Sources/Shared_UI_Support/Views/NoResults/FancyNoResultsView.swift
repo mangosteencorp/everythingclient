@@ -232,10 +232,8 @@ public struct FancyNoResultsView: View {
     }
 }
 
-@available(iOS 17, *)
-struct FancyNoResultsView_Previews: PreviewProvider {
-    static var previews: some View {
-        FancyNoResultsView()
-            .preferredColorScheme(ColorScheme.dark)
-    }
+#if DEBUG
+#Preview {
+    SharedUISupportPreviewCatalog.fancyNoResults.view
 }
+#endif

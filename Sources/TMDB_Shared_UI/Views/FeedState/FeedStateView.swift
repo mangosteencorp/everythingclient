@@ -111,29 +111,23 @@ public extension Binding where Value == FeedEmptyStateDesign {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview("Loading") {
-    FeedStateView(phase: .loading, retryAction: {}, content: { EmptyView() })
+    TMDBSharedUIPreviewCatalog.feedLoading.view
 }
 
-@available(iOS 16, *)
 #Preview("Error") {
-    FeedStateView(phase: .error(message: "Invalid API key"), retryAction: {}, content: { EmptyView() })
+    TMDBSharedUIPreviewCatalog.feedError.view
 }
 
-@available(iOS 16, *)
 #Preview("Empty") {
-    FeedStateView(phase: .empty, retryAction: {}, content: { EmptyView() })
+    TMDBSharedUIPreviewCatalog.feedEmpty.view
 }
 
-@available(iOS 16, *)
 #Preview("Loaded, refreshing") {
-    FeedStateView(phase: .loaded, isRefreshing: true, retryAction: {}, content: {
-        List(1...5, id: \.self) { Text("Movie \($0)") }
-    })
+    TMDBSharedUIPreviewCatalog.feedLoadedRefreshing.view
 }
 
 #Preview("Placeholder") {
-    FeedPlaceholderView(systemImage: "magnifyingglass", title: "Search for a movie")
+    TMDBSharedUIPreviewCatalog.feedPlaceholder.view
 }
 #endif

@@ -196,7 +196,7 @@ private struct SectionRowList<Row: ShellTabItem, Content: View>: View {
 }
 
 #if DEBUG
-private enum PreviewShellItem: String, ShellTabItem {
+enum PreviewShellItem: String, ShellTabItem {
     case home, search, drama, comedy, news, sport
 
     var title: String { rawValue.capitalized }
@@ -215,7 +215,7 @@ private enum PreviewShellItem: String, ShellTabItem {
 }
 
 @available(iOS 18, *)
-private struct SectionedTabViewPreview: View {
+struct SectionedTabViewPreview: View {
     @State private var selection: ShellSelection<PreviewShellItem, PreviewShellItem> = .root(.home)
 
     var body: some View {
@@ -235,8 +235,7 @@ private struct SectionedTabViewPreview: View {
     }
 }
 
-@available(iOS 18, *)
 #Preview {
-    SectionedTabViewPreview()
+    CoreFeaturesPreviewCatalog.sectionedTabView.view
 }
 #endif

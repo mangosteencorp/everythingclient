@@ -42,15 +42,11 @@ public struct TMDBSignInButton: View {
 }
 
 #if DEBUG
-@available(iOS 15.0, *)
 #Preview("Signed out") {
-    TMDBSignInButton(viewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: false)))
-        .padding()
+    TMDBSharedBackendPreviewCatalog.signInButtonSignedOut.view
 }
 
-@available(iOS 15.0, *)
 #Preview("Signed in") {
-    TMDBSignInButton(viewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: true)))
-        .padding()
+    TMDBSharedBackendPreviewCatalog.signInButtonSignedIn.view
 }
 #endif

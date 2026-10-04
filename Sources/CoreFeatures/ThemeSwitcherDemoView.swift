@@ -59,7 +59,7 @@ public struct ThemeSwitcherDemoView: View {
 
 #if DEBUG
 #Preview {
-    ThemeSwitcherDemoView()
+    CoreFeaturesPreviewCatalog.themeSwitcherDemo.view
 }
 #endif
 #endif
