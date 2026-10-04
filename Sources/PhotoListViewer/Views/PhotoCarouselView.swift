@@ -47,21 +47,7 @@ public struct PhotoCarouselView<Route: Hashable>: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    NavigationStack {
-        List {
-            PhotoCarouselView(
-                title: "Photos",
-                imagePaths: [
-                    "/AvIfrjJL9WRk3TziSvOZCTUHKEn.jpg",
-                    "/1ffZAucqfvQu36x1C49XfOdjuOG.jpg",
-                    "/5rhTDKUhPYvpdQIijFIs5VoWsON.jpg",
-                    "/sSIzzVhhLfgLKVBcAUv0X6cLYz9.jpg",
-                ],
-                photoSlidesRouteBuilder: { _, index in index }
-            )
-        }
-    }
+    PhotoListViewerPreviewCatalog.carousel.view
 }
 #endif

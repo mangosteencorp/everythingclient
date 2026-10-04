@@ -22,8 +22,6 @@ class ExamplePokelistRouter: PokelistRouterProtocol {
 }
 
 #Preview {
-    UIViewControllerPreview {
-        ExamplePokelistRouter.createModule(pokemonService: pokemonService)
-    }
+    PokedexPokelistPreviewCatalog.list.view
 }
 #endif

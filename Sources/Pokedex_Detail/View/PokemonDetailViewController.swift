@@ -183,15 +183,6 @@ extension DetailDesign2ViewController: PokemonContentViewController {}
 import SwiftUI
 
 #Preview {
-    UIViewControllerPreview {
-        let viewModel = PokemonDetailViewModel(pokemonService: .shared)
-        let detailVC = PokemonDetailViewController(viewModel: viewModel)
-        viewModel.loadPokemon(id: 25)
-        let navVC = UINavigationController(rootViewController: UIViewController())
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            navVC.pushViewController(detailVC, animated: false)
-        }
-        return navVC
-    }
+    PokedexDetailPreviewCatalog.detail.view
 }
 #endif

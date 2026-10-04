@@ -29,8 +29,7 @@ public struct PokedexTabView: View {
 }
 
 #if DEBUG
-@available(iOS 14.0, *)
 #Preview {
-    PokedexTabView()
+    PokedexPreviewCatalog.tab.view
 }
 #endif

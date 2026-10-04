@@ -225,8 +225,6 @@ class RobotErrorViewController: UIViewController {
 import SwiftUI
 
 #Preview {
-    UIViewControllerPreview {
-        RobotErrorViewController()
-    }
+    PokedexDetailPreviewCatalog.robotError.view
 }
 #endif
