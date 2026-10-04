@@ -70,20 +70,11 @@ private extension View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview("Scope bar") {
-    @Previewable @State var selection = SearchScope.movies
-    VStack(spacing: 24) {
-        SearchScopeBar(selection: $selection)
-        SearchScopeBar(selection: .constant(.keywords))
-    }
+    TMDBSearchPreviewCatalog.scopeBar.view
 }
 
-@available(iOS 16, *)
 #Preview("Scope button") {
-    HStack {
-        SearchScopeButton(scope: .multi, isSelected: true) {}
-        SearchScopeButton(scope: .people, isSelected: false) {}
-    }
+    TMDBSearchPreviewCatalog.scopeButton.view
 }
 #endif

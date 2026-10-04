@@ -159,62 +159,23 @@ struct SearchPosterCard: View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview("Idle — recents and trending") {
-    NavigationStack {
-        SearchIdleView(
-            recents: ["Dune", "Christopher Nolan", "Breaking Bad"],
-            trending: StubSearchService.items(for: .multi, query: "trending", page: 1, count: 8),
-            routeBuilder: { _ in 1 },
-            onSelectRecent: { _ in },
-            onRemoveRecent: { _ in },
-            onClearRecents: {}
-        )
-    }
+    TMDBSearchPreviewCatalog.idleView.view
 }
 
-@available(iOS 16, *)
 #Preview("Idle — nothing yet") {
-    SearchIdleView<Int>(
-        recents: [],
-        trending: [],
-        routeBuilder: { _ in nil },
-        onSelectRecent: { _ in },
-        onRemoveRecent: { _ in },
-        onClearRecents: {}
-    )
+    TMDBSearchPreviewCatalog.idleViewEmpty.view
 }
 
-@available(iOS 16, *)
 #Preview("Recent search row") {
-    List {
-        RecentSearchRow(query: "The Lord of the Rings") {}
-    }
-    .listStyle(.plain)
+    TMDBSearchPreviewCatalog.recentSearchRow.view
 }
 
-@available(iOS 16, *)
 #Preview("Section header") {
-    List {
-        Section {
-            Text("Dune")
-        } header: {
-            SearchSectionHeader(title: "Recent Searches") {
-                Button("Clear") {}
-            }
-        }
-        .headerProminence(.increased)
-    }
-    .listStyle(.plain)
+    TMDBSearchPreviewCatalog.sectionHeader.view
 }
 
-@available(iOS 16, *)
 #Preview("Poster cards") {
-    HStack(alignment: .top) {
-        ForEach(StubSearchService.items(for: .multi, query: "super", page: 1, count: 3)) { item in
-            SearchPosterCard(item: item)
-        }
-    }
-    .padding()
+    TMDBSearchPreviewCatalog.posterCards.view
 }
 #endif
