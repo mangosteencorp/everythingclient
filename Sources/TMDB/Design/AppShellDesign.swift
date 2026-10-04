@@ -25,7 +25,7 @@ public enum AppShellDesign: String, DesignVariant {
 
     /// Mirrors what `TMDBAPITabView` used to compute inline: iPhone gets the floating bar,
     /// iPad prefers the sidebar when the OS can render one.
-    static var deviceDefault: AppShellDesign {
+    @MainActor static var deviceDefault: AppShellDesign {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return .floatingTabBar
         }
