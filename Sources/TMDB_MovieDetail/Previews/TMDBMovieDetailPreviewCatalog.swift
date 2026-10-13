@@ -6,7 +6,11 @@ import TMDB_Shared_Backend
 /// Every movie detail preview as a view of its own, so Xcode's canvas, the integration launcher
 /// and the screenshot run all render the same thing. Everything but `demo` is seeded with the
 /// sample movie and never reaches TMDB; `demo` is the live page.
-public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable {
+public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
+    public var id: String {
+        rawValue
+    }
+    
     case demo
     case detailPage
     case coverRow

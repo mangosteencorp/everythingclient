@@ -7,13 +7,10 @@ struct TMDBMovieDetailDemoApp: App {
         WindowGroup {
             NavigationStack{
                 VStack {
-                    
-                    NavigationLink("Demo") {
-                        TMDBMovieDetailPreviewCatalog.demo.view
-                    }
-                    
-                    NavigationLink("Detail Page") {
-                        TMDBMovieDetailPreviewCatalog.detailPage.view
+                    ForEach(TMDBMovieDetailPreviewCatalog.allCases) {p in
+                        NavigationLink(p.rawValue) {
+                            p.view
+                        }
                     }
                     
                 }
