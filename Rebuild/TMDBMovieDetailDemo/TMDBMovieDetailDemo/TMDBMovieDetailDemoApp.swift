@@ -5,11 +5,21 @@ import TMDB_MovieDetail
 struct TMDBMovieDetailDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                NavigationLink("Detail Page") {
-                    TMDBMovieDetailPreviewCatalog.detailPage.view
+            NavigationStack{
+                VStack {
+                    
+                    NavigationLink("Demo") {
+                        TMDBMovieDetailPreviewCatalog.demo.view
+                    }
+                    
+                    NavigationLink("Detail Page") {
+                        TMDBMovieDetailPreviewCatalog.detailPage.view
+                    }
+                    
                 }
             }
+            
+            
         }
         
     }
