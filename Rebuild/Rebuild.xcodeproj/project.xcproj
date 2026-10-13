@@ -25,14 +25,11 @@
           ],
         },
       ],
-    },
-    { "kind": "folder", "path": "DemoTests", "target-membership": [ "DemoTests" ] },
-    {
+    }, {
       "kind": "group",
       "name": "Products",
       "children": [
         { "path": "<PRODUCTS>/Glen Movies.app", "id": "8BEDAF942BD1442D000A62D2", "type": "wrapper.application", "index": false },
-        { "path": "<PRODUCTS>/DemoTests.xctest", "id": "8B5291A32E33E76C00F0BA7C", "type": "wrapper.cfbundle", "index": false },
       ],
     },
     { "kind": "group", "name": "Frameworks" },
@@ -118,42 +115,6 @@
         "SWIFT_EMIT_LOC_STRINGS": "YES",
         "SWIFT_VERSION": "5.0",
         "TARGETED_DEVICE_FAMILY": "1,2",
-      },
-    }, {
-      "name": "DemoTests",
-      "id": "8B5291A22E33E76C00F0BA7C",
-      "product": "Products/DemoTests.xctest",
-      "product-type": "bundle.ui-testing",
-      "test-host-target": "Rebuild",
-      "dependencies": [
-        "Rebuild",
-      ],
-      "build-phases": [
-        "compile-sources",
-        "frameworks",
-        "resources",
-      ],
-      "package-product-members": [
-        {
-          "product-name": "Integration_test",
-          "build-phase": { "build-phase": "frameworks" },
-        },
-      ],
-      "build-settings": {
-        "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "1",
-        "GENERATE_INFOPLIST_FILE": "YES",
-        "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
-        "MARKETING_VERSION": "1.0",
-        "PRODUCT_BUNDLE_IDENTIFIER": "ha.quang.DemoTests",
-        "PRODUCT_NAME": "$(TARGET_NAME)",
-        "SDKROOT": "iphoneos",
-        "SUPPORTS_MACCATALYST": "YES",
-        "SWIFT_EMIT_LOC_STRINGS": "NO",
-        "SWIFT_VERSION": "5.0",
-        "TARGETED_DEVICE_FAMILY": "1,2",
-        "TEST_TARGET_NAME": "Rebuild",
-        "VALIDATE_PRODUCT[config=Release]": "YES",
       },
     },
   ],
