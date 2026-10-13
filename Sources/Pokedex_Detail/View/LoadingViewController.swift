@@ -51,8 +51,6 @@ class LoadingViewController: UIViewController {
 import SwiftUI
 
 #Preview {
-    UIViewControllerPreview {
-        LoadingViewController()
-    }
+    PokedexDetailPreviewCatalog.loading.view
 }
 #endif

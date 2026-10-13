@@ -186,53 +186,23 @@ extension SearchResultKind {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview("Row — every kind") {
-    List {
-        ForEach(SearchScope.allCases.dropFirst()) { scope in
-            ForEach(StubSearchService.items(for: scope, query: "super", page: 1).prefix(1)) { item in
-                SearchResultRow(item: item, showsKind: true)
-            }
-        }
-    }
-    .listStyle(.plain)
+    TMDBSearchPreviewCatalog.rowEveryKind.view
 }
 
-@available(iOS 16, *)
 #Preview("Row — accessibility size") {
-    List(StubSearchService.items(for: .multi, query: "super", page: 1).prefix(3)) { item in
-        SearchResultRow(item: item, showsKind: true)
-    }
-    .listStyle(.plain)
-    .dynamicTypeSize(.accessibility2)
+    TMDBSearchPreviewCatalog.rowAccessibilitySize.view
 }
 
-@available(iOS 16, *)
 #Preview("Artwork — every kind") {
-    HStack(alignment: .top) {
-        ForEach(SearchScope.allCases.dropFirst()) { scope in
-            if let item = StubSearchService.items(for: scope, query: "super", page: 1, count: 1).first {
-                SearchArtwork(item: SearchResultItem(tmdbID: item.tmdbID, kind: item.kind, title: item.title), width: 44)
-            }
-        }
-    }
-    .padding()
+    TMDBSearchPreviewCatalog.artworkEveryKind.view
 }
 
-@available(iOS 16, *)
 #Preview("Kind badges") {
-    VStack(alignment: .leading) {
-        ForEach([SearchResultKind.movie, .tvShow, .person, .collection, .company, .keyword], id: \.self) { kind in
-            SearchKindBadge(kind: kind)
-        }
-    }
+    TMDBSearchPreviewCatalog.kindBadges.view
 }
 
-@available(iOS 16, *)
 #Preview("Rating") {
-    VStack {
-        SearchRatingLabel(voteAverage: 8.123)
-        SearchRatingLabel(voteAverage: 5)
-    }
+    TMDBSearchPreviewCatalog.rating.view
 }
 #endif

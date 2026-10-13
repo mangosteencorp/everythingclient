@@ -105,25 +105,7 @@ private struct MovieJellyfinMatchView: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    List {
-        Section {
-            MovieJellyfinSection(movieTitle: "Dune", movieId: 438_631, jellyfinViewModel: {
-                let viewModel = MovieJellyfinViewModel()
-                viewModel.state = .found(
-                    JellyfinMovieMatch(
-                        id: "abc",
-                        title: "Dune (2021)",
-                        runtimeSeconds: 9315,
-                        playedFraction: 0.35,
-                        resumeSeconds: 3260,
-                        isPlayed: false
-                    )
-                )
-                return viewModel
-            }())
-        }
-    }
+    TMDBMovieDetailPreviewCatalog.jellyfinSection.view
 }
 #endif

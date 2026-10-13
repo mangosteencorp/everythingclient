@@ -31,6 +31,8 @@ public struct SectionedTabView<
     @Binding private var selection: ShellSelection<Root, Row>
     @AppStorage private var customization: TabViewCustomization
     @Environment(\.horizontalSizeClass) private var sizeClass
+    /// The layout on screen. It trails `sizeClass` by one update: see the `onChange` in `body`.
+    @State private var compactLayout: Bool?
 
     public init(
         roots: [Root],
@@ -57,7 +59,7 @@ public struct SectionedTabView<
         )
     }
 
-    private var isCompact: Bool { sizeClass == .compact }
+    private var isCompact: Bool { compactLayout ?? (sizeClass == .compact) }
 
     public var body: some View {
         TabView(selection: $selection) {
@@ -83,6 +85,10 @@ public struct SectionedTabView<
         .searchTabActivatesSearch()
         .tabViewCustomization($customization)
         .tabViewSidebarHeader(content: header)
+        // Never swap the tabs in the update that changes the size class. When both classes flip
+        // at once (unfolding a foldable, rotating a Max iPhone) UIKit rebuilds the bar from the
+        // outgoing tabs, which SwiftUI has already emptied, and crashes on a nil tab bar item.
+        .onChange(of: sizeClass, initial: true) { _, newValue in compactLayout = newValue == .compact }
         .onChange(of: isCompact, initial: true) { _, nowCompact in
             clampSelection(isCompact: nowCompact)
         }
@@ -190,7 +196,7 @@ private struct SectionRowList<Row: ShellTabItem, Content: View>: View {
 }
 
 #if DEBUG
-private enum PreviewShellItem: String, ShellTabItem {
+enum PreviewShellItem: String, ShellTabItem {
     case home, search, drama, comedy, news, sport
 
     var title: String { rawValue.capitalized }
@@ -209,7 +215,7 @@ private enum PreviewShellItem: String, ShellTabItem {
 }
 
 @available(iOS 18, *)
-private struct SectionedTabViewPreview: View {
+struct SectionedTabViewPreview: View {
     @State private var selection: ShellSelection<PreviewShellItem, PreviewShellItem> = .root(.home)
 
     var body: some View {
@@ -229,8 +235,7 @@ private struct SectionedTabViewPreview: View {
     }
 }
 
-@available(iOS 18, *)
 #Preview {
-    SectionedTabViewPreview()
+    CoreFeaturesPreviewCatalog.sectionedTabView.view
 }
 #endif

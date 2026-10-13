@@ -204,156 +204,59 @@ extension SearchViewModel {
 
 // MARK: - Previews
 
-@available(iOS 16, *)
 #Preview("Search — all scopes") {
-    TMDBSearchDemoView()
+    TMDBSearchPreviewCatalog.allScopes.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — movies, filtered") {
-    NavigationStack {
-        SearchPage(
-            viewModel: {
-                let viewModel = SearchViewModel.previewLoaded(scope: .movies)
-                viewModel.filters = SearchFilters(primaryReleaseYear: "2024", region: "US")
-                return viewModel
-            }(),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.moviesFiltered.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — TV shows, first air year") {
-    NavigationStack {
-        SearchPage(
-            viewModel: {
-                let viewModel = SearchViewModel.previewLoaded(scope: .tvShows)
-                viewModel.filters = SearchFilters(language: "ja", firstAirDateYear: "2019")
-                return viewModel
-            }(),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.tvShowsFirstAirYear.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — collections, region") {
-    NavigationStack {
-        SearchPage(
-            viewModel: {
-                let viewModel = SearchViewModel.previewLoaded(scope: .collections)
-                viewModel.filters = SearchFilters(region: "GB")
-                return viewModel
-            }(),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.collectionsRegion.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — keywords (no artwork, no chips)") {
-    NavigationStack {
-        SearchPage(
-            viewModel: SearchViewModel.previewLoaded(scope: .keywords),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.keywords.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — people") {
-    NavigationStack {
-        SearchPage(
-            viewModel: SearchViewModel.previewLoaded(scope: .people),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.people.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — idle, recents and trending") {
-    NavigationStack {
-        SearchPage(
-            viewModel: SearchViewModel.previewLoaded(query: ""),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.idleRecentsAndTrending.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — idle, first launch offline") {
-    NavigationStack {
-        SearchPage(
-            viewModel: SearchViewModel.previewLoaded(
-                query: "",
-                service: StubSearchService(failure: URLError(.notConnectedToInternet)),
-                recents: []
-            ),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.idleFirstLaunchOffline.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — no hits") {
-    NavigationStack {
-        SearchPage(
-            viewModel: SearchViewModel.previewLoaded(
-                scope: .companies,
-                service: StubSearchService(itemsPerPage: 0)
-            ),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.noHits.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — error") {
-    NavigationStack {
-        SearchPage(
-            viewModel: SearchViewModel.previewLoaded(
-                service: StubSearchService(failure: URLError(.notConnectedToInternet))
-            ),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.error.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — loading") {
-    NavigationStack {
-        SearchPage(
-            viewModel: SearchViewModel.previewLoaded(
-                service: StubSearchService(delay: .seconds(60))
-            ),
-            routeBuilder: { _ in 1 }
-        )
-    }
+    TMDBSearchPreviewCatalog.loading.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — dark mode") {
-    TMDBSearchDemoView()
-        .preferredColorScheme(.dark)
+    TMDBSearchPreviewCatalog.darkMode.view
 }
 
-@available(iOS 16, *)
 #Preview("Search — field pinned under the title") {
-    TMDBSearchDemoView(scope: .movies)
-        .environment(\.searchPageFieldPlacement, .navigationBarDrawer(displayMode: .always))
+    TMDBSearchPreviewCatalog.fieldPinnedUnderTitle.view
 }
 
-@available(iOS 16, *)
 #Preview("Search result rows — every kind") {
-    List {
-        ForEach(SearchScope.allCases) { scope in
-            Section(scope.title) {
-                ForEach(StubSearchService.items(for: scope, query: "super", page: 1).prefix(2)) { item in
-                    SearchResultRow(item: item, showsKind: scope == .multi)
-                }
-            }
-        }
-    }
+    TMDBSearchPreviewCatalog.resultRowsEveryKind.view
 }
 #endif

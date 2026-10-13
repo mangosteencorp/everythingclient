@@ -180,36 +180,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
 }
 
 #if DEBUG
-
-@available(iOS 16.0, *)
-@MainActor
-let exampleMovieDetailPage: MovieDetailPage = {
-    let apiService = TMDBAPIService(apiKey: debugTMDBAPIKey)
-    let movieDetailVM = MovieDetailViewModel(apiService: apiService)
-    let creditVM = MovieCastingViewModel(apiService: apiService)
-
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-        movieDetailVM.state = .success(exampleMovieDetail)
-        creditVM.state = .success(exampleMovieCredits)
-    }
-
-    return MovieDetailPage(
-        movie: exampleMovieDetail,
-        apiService: apiService,
-        movieDetailViewModel: movieDetailVM,
-        creditsViewModel: creditVM,
-        watchProvidersViewModel: MovieWatchProvidersViewModel(apiService: apiService),
-        ostViewModel: MovieOSTViewModel(),
-        jellyfinViewModel: MovieJellyfinViewModel(),
-        discoverMovieByKeywordRouteBuilder: { _ in 1 },
-        photoSlidesRouteBuilder: { _, index in index }
-    )
-}()
-
-@available(iOS 16.0, *)
 #Preview {
-    return NavigationView {
-        exampleMovieDetailPage
-    }
+    TMDBMovieDetailPreviewCatalog.detailPage.view
 }
 #endif

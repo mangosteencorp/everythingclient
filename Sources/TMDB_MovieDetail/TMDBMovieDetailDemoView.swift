@@ -23,7 +23,7 @@ public struct TMDBMovieDetailDemoView: View {
 
 #if DEBUG
 #Preview {
-    TMDBMovieDetailDemoView()
+    TMDBMovieDetailPreviewCatalog.demo.view
 }
 #endif
 #endif

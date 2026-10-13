@@ -15,9 +15,7 @@ struct DetailRow: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    DetailRow(title: "Status: Ended")
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.detailRow.view
 }
 #endif

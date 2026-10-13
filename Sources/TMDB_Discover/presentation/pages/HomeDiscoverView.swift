@@ -76,15 +76,7 @@ struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview {
-    HomeDiscoverViewControllerRepresentable(
-        viewModel: .preview(),
-        onItemTapped: {},
-        onGenreTapped: { _ in },
-        onTVGenreTapped: { _ in },
-        onCastTapped: { _ in },
-        onTrendingItemTapped: { _ in }
-    )
+    TMDBDiscoverPreviewCatalog.homeRepresentable.view
 }
 #endif

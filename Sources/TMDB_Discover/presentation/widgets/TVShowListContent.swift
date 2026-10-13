@@ -55,15 +55,11 @@ struct TVShowListPageContent<Route: Hashable>: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    TVShowListContent(movies: Movie.exampleMovies, mediaType: .movie, detailRouteBuilder: { _, _ in 0 })
+    TMDBDiscoverPreviewCatalog.listContent.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Page") {
-    NavigationStack {
-        TVShowListPageContent(viewModel: .preview(), type: .airingToday, detailRouteBuilder: { id, _ in id })
-    }
+    TMDBDiscoverPreviewCatalog.listPageContent.view
 }
 #endif

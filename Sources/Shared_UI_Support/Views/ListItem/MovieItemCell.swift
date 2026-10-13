@@ -362,7 +362,10 @@ extension UIColor {
     }
 }
 
-@available(iOS 17, *)
+#if DEBUG
+import SwiftUI
+
 #Preview {
-    MovieItemCell()
+    SharedUISupportPreviewCatalog.movieItemCell.view
 }
+#endif

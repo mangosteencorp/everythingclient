@@ -38,16 +38,7 @@ public struct PhotoSlidesPage: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    NavigationStack {
-        PhotoSlidesPage(
-            imagePaths: [
-                "/AvIfrjJL9WRk3TziSvOZCTUHKEn.jpg",
-                "/1ffZAucqfvQu36x1C49XfOdjuOG.jpg",
-            ],
-            initialIndex: 0
-        )
-    }
+    PhotoListViewerPreviewCatalog.slidesPage.view
 }
 #endif

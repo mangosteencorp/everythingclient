@@ -38,9 +38,7 @@ struct PersonDetailHeaderView: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    PersonDetailHeaderView(person: .example)
-        .padding()
+    TMDBPersonPreviewCatalog.header.view
 }
 #endif

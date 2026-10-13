@@ -55,6 +55,8 @@ public struct ServerErrorView: View {
     }
 }
 
+#if DEBUG
 #Preview {
-    ServerErrorView(retryAction: {}, cancelAction: {})
+    TMDBSharedUIPreviewCatalog.serverError.view
 }
+#endif

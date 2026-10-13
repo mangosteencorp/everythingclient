@@ -21,6 +21,7 @@ public struct SwiftfinLaunchView: View {
             #endif
 
             Button {
+                SwiftfinWindowAppearanceGuard.swiftfinWillDismiss()
                 dismiss()
             } label: {
                 Image(systemName: "xmark.circle.fill")

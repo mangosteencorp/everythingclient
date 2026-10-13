@@ -28,13 +28,10 @@ public struct CommonNoResultView: View {
 
 #if DEBUG
 #Preview("Plain") {
-    CommonNoResultView(useFancyDesign: .constant(false))
+    SharedUISupportPreviewCatalog.commonNoResultPlain.view
 }
 
 #Preview("Fancy") {
-    CommonNoResultView(
-        configuration: NoResultViewConfiguration(headline: "No Movies", subheadline: "Nothing is playing right now."),
-        useFancyDesign: .constant(true)
-    )
+    SharedUISupportPreviewCatalog.commonNoResultFancy.view
 }
 #endif

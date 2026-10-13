@@ -87,7 +87,7 @@ fileprivate struct FavouriteListing {
 
 // MARK: - Cell Classes
 
-fileprivate class BannerCell: UICollectionViewCell {
+class BannerCell: UICollectionViewCell {
     static let reuseIdentifier: String = "BannerCell"
 
     let iconImageView = UIImageView()
@@ -930,30 +930,18 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
 }
 
 #if DEBUG
-fileprivate let exampleMovieRespository = MovieRepositoryImpl(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
-/// Grok: https://grok.com/chat/a4c29db6-3c12-4221-b134-490e4015d4d4
-@available(iOS 17, *)
+import SwiftUI
+
 #Preview {
-    HomeDiscoverViewController(
-        viewModel:
-            HomeDiscoverViewModel(
-                fetchGenresUseCase:
-                    DefaultFetchGenresUseCase(repository: exampleMovieRespository),
-                fetchTVGenresUseCase:
-                    DefaultFetchTVGenresUseCase(repository: exampleMovieRespository),
-                fetchPopularPeopleUseCase: DefaultFetchPopularPeopleUseCase(repository: exampleMovieRespository),
-                fetchTrendingItemsUseCase: DefaultFetchTrendingItemsUseCase(repository: exampleMovieRespository)))
+    TMDBDiscoverPreviewCatalog.homeLive.view
 }
 
-@available(iOS 17, *)
 #Preview("Offline sample data") {
-    HomeDiscoverViewController(viewModel: .preview())
+    TMDBDiscoverPreviewCatalog.home.view
 }
 
-/// The default layout has no banner section, so the banner cell is previewed on its own.
-@available(iOS 17, *)
 #Preview("Banner cell", traits: .fixedLayout(width: 360, height: 80)) {
-    BannerCell(frame: CGRect(x: 0, y: 0, width: 360, height: 80))
+    TMDBDiscoverPreviewCatalog.bannerCell.view
 }
 #endif
 

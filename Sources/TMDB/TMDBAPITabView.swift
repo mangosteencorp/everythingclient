@@ -92,7 +92,7 @@ public struct TMDBAPITabView: View {
         .environmentObject(coordinator)
         // Feed rows exist only in the sectioned shell; leaving one selected would give every
         // other shell a tab that is not in `tabList`, and so a blank screen.
-        .onChange(of: shellDesign) { newDesign in
+        .onChange(of: shellDesign) { _, newDesign in
             guard newDesign != .sectionedSidebar, coordinator.selectedTab.isSectionedShellOnly else { return }
             coordinator.switchTab(to: .movieFeed)
         }
@@ -252,6 +252,9 @@ public struct TMDBAPITabView: View {
         }
 
         marketplaceContent
+            // A UIKit page laid out inside the safe area leaves its background short of the iPhone
+            // Duo's rail and the home indicator. Its collection view insets its own content.
+            .ignoresSafeArea()
             .withTMDBNavigationDestinations(container: container)
     }
 
@@ -262,6 +265,8 @@ public struct TMDBAPITabView: View {
         } onNavigateToTVShow: { tvShowId in
             coordinator.navigate(to: .tvShowDetail(tvShowId), in: .profile)
         }
+        // Same as Discover: the header and list keep to the safe area themselves.
+        .ignoresSafeArea()
         .withTMDBNavigationDestinations(container: container)
     }
 

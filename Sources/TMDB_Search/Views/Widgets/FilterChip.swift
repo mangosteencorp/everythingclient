@@ -167,48 +167,19 @@ public struct FilterChipsView: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview("Chip — every filter, off and on") {
-    let active = SearchFilters(
-        includeAdult: true,
-        language: "fr",
-        primaryReleaseYear: "2021",
-        firstAirDateYear: "2019",
-        region: "JP",
-        year: "1984"
-    )
-    VStack(alignment: .leading, spacing: 12) {
-        ForEach(FilterType.allCases) { filterType in
-            HStack {
-                FilterChip(filterType: filterType, onTap: {}, onRemove: {})
-                FilterChip(filterType: filterType, value: active.displayValue(for: filterType), onTap: {}, onRemove: {})
-            }
-        }
-    }
-    .padding()
+    TMDBSearchPreviewCatalog.chipEveryFilter.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Chip row — none active") {
-    FilterChipsView(filters: .constant(SearchFilters()), types: SearchScope.movies.supportedFilters) { _ in }
+    TMDBSearchPreviewCatalog.chipRowNoneActive.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Chip row — some active") {
-    @Previewable @State var filters = SearchFilters(language: "en-US", primaryReleaseYear: "2024")
-    FilterChipsView(filters: $filters, types: SearchScope.movies.supportedFilters) { _ in }
+    TMDBSearchPreviewCatalog.chipRowSomeActive.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Chip row — each scope") {
-    let filters = SearchFilters(firstAirDateYear: "2019", region: "GB")
-    VStack(alignment: .leading, spacing: 4) {
-        ForEach(SearchScope.allCases.filter { !$0.supportedFilters.isEmpty }) { scope in
-            Text(scope.title)
-                .font(.caption)
-                .padding(.horizontal)
-            FilterChipsView(filters: .constant(filters), types: scope.supportedFilters) { _ in }
-        }
-    }
+    TMDBSearchPreviewCatalog.chipRowEachScope.view
 }
 #endif

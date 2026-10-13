@@ -110,33 +110,7 @@ public struct CoverFlow<CardContent: View>: View {
 }
 
 #if DEBUG
-@available(iOS 18.0, *)
-private struct CoverFlowExample: View {
-    @State private var currentPage: Int? = 0
-    let colors: [Color] = [.red, .blue, .green, .orange, .yellow, .pink, .purple, .gray, .black]
-
-    var body: some View {
-        VStack {
-            CoverFlow(config: CoverFlowConfig(cardWidth: 160, activeElevation: 50), currentPage: $currentPage) {
-                ForEach(colors, id: \.self) { color in
-                    Rectangle().fill(color)
-                }
-            }
-            .frame(height: 220)
-            .onChange(of: currentPage) { _, newValue in
-                debugPrint("currentPage -> \(String(describing: newValue))")
-            }
-            Button("go to 4") {
-                withAnimation(.smooth) {
-                    currentPage = 4
-                }
-            }
-        }
-    }
-}
-
-@available(iOS 18.0, *)
 #Preview {
-    CoverFlowExample()
+    SharedUISupportPreviewCatalog.coverFlow.view
 }
 #endif

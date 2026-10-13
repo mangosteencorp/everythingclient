@@ -1,41 +1,27 @@
-import CoreFeatures
 import SwiftUI
-import TMDB_Shared_Backend
 #if DEBUG
-import TMDB_Shared_Backend
-@available(iOS 16, *)
 #Preview {
-    TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .normal)
+    TMDBPreviewCatalog.tabsNormal.view
 }
 
-@available(iOS 16, *)
 #Preview("page style") {
-    TMDBAPITabView(tmdbKey: debugTMDBAPIKey, tabStyle: .page)
+    TMDBPreviewCatalog.tabsPage.view
 }
 
-@available(iOS 16, *)
 #Preview("floating bar") {
-    ShellPreview(design: .floatingTabBar)
+    TMDBPreviewCatalog.floatingBarDesign.view
 }
 
-@available(iOS 16, *)
 #Preview("sidebar tab bar (iPad, iOS 27)") {
-    ShellPreview(design: .sidebarTabBar)
+    TMDBPreviewCatalog.sidebarTabBarDesign.view
 }
 
-@available(iOS 16, *)
 #Preview("sectioned sidebar") {
-    ShellPreview(design: .sectionedSidebar)
+    TMDBPreviewCatalog.sectionedSidebarDesign.view
 }
 
-@available(iOS 16, *)
 #Preview("Tab contain TMDBAPITabView") {
-    TabView {
-        TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
-            .tabItem {
-                Label("TMDB", systemImage: "film")
-            }
-    }
+    TMDBPreviewCatalog.tabsEmbedded.view
 }
 
 /// The root tabs `TMDBAPITabView` hands every shell, for previewing a shell on its own.
@@ -57,18 +43,6 @@ struct ShellPagePreview: View {
             List(1...20, id: \.self) { Text("\(title) \($0)") }
                 .navigationTitle(title)
         }
-    }
-}
-
-/// Any `AppShellDesign`, including the ones the legacy `TabStyle` seed has no case for. Every
-/// shell offers the Search tab.
-@available(iOS 16, *)
-private struct ShellPreview: View {
-    let design: AppShellDesign
-
-    var body: some View {
-        TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
-            .onAppear { DesignCoordinator.shared.select(design) }
     }
 }
 #endif

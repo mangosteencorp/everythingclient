@@ -21,11 +21,11 @@ public protocol DesignVariant: CaseIterable, Hashable, Identifiable, RawRepresen
     /// Section header used by the design picker menu, e.g. "Feed Tabs".
     static var slotTitle: String { get }
     /// Used when nothing is stored yet, or when the stored case is not available on this device.
-    static var fallback: Self { get }
+    @MainActor static var fallback: Self { get }
     var displayName: String { get }
     /// Lets a variant opt out on a given idiom/OS version — the picker hides it and the
     /// shuffle never lands on it.
-    var isAvailableOnThisDevice: Bool { get }
+    @MainActor var isAvailableOnThisDevice: Bool { get }
 }
 
 public extension DesignVariant {
@@ -33,7 +33,7 @@ public extension DesignVariant {
 
     var isAvailableOnThisDevice: Bool { true }
 
-    static var availableCases: [Self] {
+    @MainActor static var availableCases: [Self] {
         let available = allCases.filter(\.isAvailableOnThisDevice)
         // A slot with nothing available would make `style(_:)` return an unusable case.
         return available.isEmpty ? [fallback] : available

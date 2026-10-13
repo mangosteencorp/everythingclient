@@ -153,8 +153,9 @@ extension TVShowListViewController: FilterableFavouritableItemListDelegate {
 }
 
 #if DEBUG
-@available(iOS 17, *)
+import SwiftUI
+
 #Preview {
-    UINavigationController(rootViewController: TVShowListViewController(viewModel: .preview()))
+    TMDBDiscoverPreviewCatalog.listController.view
 }
 #endif

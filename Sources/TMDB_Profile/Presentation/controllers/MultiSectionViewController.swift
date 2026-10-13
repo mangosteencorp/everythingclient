@@ -61,6 +61,8 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
     private var dataSource: UICollectionViewDiffableDataSource<Section<T>, T>?
     private var refreshControl: UIRefreshControl?
     private var refreshHandler: (() -> Void)?
+    /// Called on every scroll with the distance scrolled past the top edge (negative while pulling down).
+    var onScroll: ((CGFloat) -> Void)?
 
     // MARK: Initialization
 
@@ -232,6 +234,10 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
     }
 
     // MARK: - UICollectionViewDelegate
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        onScroll?(scrollView.contentOffset.y + scrollView.adjustedContentInset.top)
+    }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let section = sections[indexPath.section]
@@ -714,9 +720,7 @@ let sampleSections: [Section<ProfileCollectionItem>] = [
     ),
 ]
 #Preview {
-    UIViewControllerPreview {
-        MultiSectionViewController(sections: sampleSections)
-    }
+    TMDBProfilePreviewCatalog.multiSection.view
 }
 #endif
 // swiftlint:enable all

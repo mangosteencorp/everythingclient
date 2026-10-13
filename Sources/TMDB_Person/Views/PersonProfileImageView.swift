@@ -31,9 +31,7 @@ struct PersonProfileImageView: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    PersonProfileImageView(profilePath: nil)
-        .padding()
+    TMDBPersonPreviewCatalog.profileImage.view
 }
 #endif

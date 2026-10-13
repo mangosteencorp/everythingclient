@@ -15,7 +15,7 @@ public struct PokedexListDemoView: View {
 
 #if DEBUG
 #Preview {
-    PokedexListDemoView()
+    PokedexPokelistPreviewCatalog.demo.view
 }
 #endif
 #endif

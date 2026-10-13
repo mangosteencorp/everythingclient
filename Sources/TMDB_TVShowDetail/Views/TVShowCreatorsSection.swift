@@ -27,10 +27,7 @@ struct TVShowCreatorsSection: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    TVShowCreatorsSection(creators: TVShowDetailModel.example.createdBy)
-        .padding()
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.creatorsSection.view
 }
 #endif

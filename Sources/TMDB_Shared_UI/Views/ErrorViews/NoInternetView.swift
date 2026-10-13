@@ -49,6 +49,8 @@ public struct NoInternetView: View {
     }
 }
 
+#if DEBUG
 #Preview {
-    NoInternetView(retryAction: {}, cancelAction: {})
+    TMDBSharedUIPreviewCatalog.noInternet.view
 }
+#endif

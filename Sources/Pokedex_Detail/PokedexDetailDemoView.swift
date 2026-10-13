@@ -30,7 +30,7 @@ public struct PokedexDetailDemoView: View {
 
 #if DEBUG
 #Preview {
-    PokedexDetailDemoView()
+    PokedexDetailPreviewCatalog.demo.view
 }
 #endif
 #endif

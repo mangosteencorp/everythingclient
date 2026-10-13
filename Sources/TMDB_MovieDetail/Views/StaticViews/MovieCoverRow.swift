@@ -107,20 +107,12 @@ struct MovieInfoRow: View {
     }
 }
 
-// swiftlint:disable all
 #if DEBUG
 #Preview {
-    Section {
-        MovieCoverRow(movie: exampleMovieDetail)
-    }
+    TMDBMovieDetailPreviewCatalog.coverRow.view
 }
 
 #Preview {
-    Section {
-        MovieCoverRow(movie: exampleMovieDetail)
-        // TODO: Button rows: Wishlist, Seenlist, list
-        MovieOverview(movie: exampleMovieDetail)
-    }
+    TMDBMovieDetailPreviewCatalog.coverRowWithOverview.view
 }
 #endif
-// swiftlint:enable all

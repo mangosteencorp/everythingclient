@@ -23,8 +23,6 @@ struct SectionRetryView: View {
 
 #if DEBUG
 #Preview {
-    List {
-        SectionRetryView(message: "The Internet connection appears to be offline.") {}
-    }
+    TMDBMovieDetailPreviewCatalog.sectionRetry.view
 }
 #endif

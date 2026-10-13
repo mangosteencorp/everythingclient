@@ -96,10 +96,7 @@ struct TVShowListViewControllerRepresentable: UIViewControllerRepresentable {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview("UIKit list") {
-    NavigationStack {
-        TVShowListViewControllerRepresentable(viewModel: .preview())
-    }
+    TMDBDiscoverPreviewCatalog.listPage.view
 }
 #endif

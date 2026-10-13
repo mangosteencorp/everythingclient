@@ -85,52 +85,31 @@ struct FilterValuePicker: View {
 }
 
 #if DEBUG
-/// Presents the sheet over a blank page, the way the search page does.
-@available(iOS 16.0, *)
-private struct FilterSheetPreview: View {
-    let filterType: FilterType
-    @State var filters: SearchFilters
-
-    var body: some View {
-        Color.clear.sheet(isPresented: .constant(true)) {
-            FilterConfigurationView(filters: $filters, filterType: filterType)
-        }
-    }
-}
-
-@available(iOS 16.0, *)
 #Preview("Include adult") {
-    FilterSheetPreview(filterType: .includeAdult, filters: SearchFilters(includeAdult: true))
+    TMDBSearchPreviewCatalog.filterIncludeAdult.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Language — French") {
-    FilterSheetPreview(filterType: .language, filters: SearchFilters(language: "fr"))
+    TMDBSearchPreviewCatalog.filterLanguage.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Region — none") {
-    FilterSheetPreview(filterType: .region, filters: SearchFilters())
+    TMDBSearchPreviewCatalog.filterRegion.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Release year — 2024") {
-    FilterSheetPreview(filterType: .primaryReleaseYear, filters: SearchFilters(primaryReleaseYear: "2024"))
+    TMDBSearchPreviewCatalog.filterReleaseYear.view
 }
 
-@available(iOS 16.0, *)
 #Preview("First air year — none") {
-    FilterSheetPreview(filterType: .firstAirDateYear, filters: SearchFilters())
+    TMDBSearchPreviewCatalog.filterFirstAirYear.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Year — 1984") {
-    FilterSheetPreview(filterType: .year, filters: SearchFilters(year: "1984"))
+    TMDBSearchPreviewCatalog.filterYear.view
 }
 
-@available(iOS 16.0, *)
 #Preview("Value wheel") {
-    @Previewable @State var selection: String? = "JP"
-    FilterValuePicker(filterType: .region, selection: $selection)
+    TMDBSearchPreviewCatalog.filterValueWheel.view
 }
 #endif

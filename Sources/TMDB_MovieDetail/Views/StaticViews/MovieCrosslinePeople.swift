@@ -138,20 +138,15 @@ struct PeopleRowItem<Route: Hashable>: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    return MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples, personRouteBuilder: { $0 })
+    TMDBMovieDetailPreviewCatalog.crosslinePeople.view
 }
 
-@available(iOS 16.0, *)
 #Preview {
-    return RedactedMovieCrosslinePeopleRow()
+    TMDBMovieDetailPreviewCatalog.crosslinePeopleRedacted.view
 }
 
-@available(iOS 16.0, *)
 #Preview("See all list") {
-    NavigationStack {
-        List(examplePeoples) { people in PeopleListItem(people: people, personRouteBuilder: { $0 }) }
-    }
+    TMDBMovieDetailPreviewCatalog.peopleSeeAllList.view
 }
 #endif

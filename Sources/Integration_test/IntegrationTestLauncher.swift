@@ -67,6 +67,8 @@ public struct IntegrationTestLauncher {
     public static func launch(named testName: String) -> some View {
         if let demoTest = DemoTest(rawValue: testName) {
             launch(demoTest)
+        } else if let entry = previewCatalog.first(where: { $0.id == testName }) {
+            launch(entry)
         } else {
             IntegrationTestErrorView(message: "Unknown test: \(testName)")
                 .accessibilityIdentifier("integration.preview.unknown")
@@ -78,6 +80,13 @@ public struct IntegrationTestLauncher {
         previewContent(for: demoTest)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier(demoTest.accessibilityIdentifier)
+    }
+
+    @ViewBuilder
+    public static func launch(_ entry: PreviewCatalogEntry) -> some View {
+        PreviewCatalogEntryView(entry: entry)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(entry.accessibilityIdentifier)
     }
 
     public static func getAvailableTests() -> [DemoTest] {

@@ -18,7 +18,7 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
         }
         .accessibilityIdentifier("feed_tabs_top_segments")
         .onAppear { visibleTab = selection }
-        .onChange(of: selection) { visibleTab = $0 }
+        .onChange(of: selection) { _, newValue in visibleTab = newValue }
     }
 
     private var header: some View {
@@ -33,7 +33,7 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
-            .onChange(of: selection) { tab in
+            .onChange(of: selection) { _, tab in
                 withAnimation(.easeInOut(duration: 0.2)) {
                     proxy.scrollTo(tab, anchor: .center)
                 }
@@ -63,13 +63,7 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview {
-    @Previewable @State var selection = FeedTab.popular
-    @Previewable @State var visibleTab = FeedTab.popular
-
-    TopSegmentsFeedTabLayout(tabs: FeedTab.allCases, selection: $selection, visibleTab: $visibleTab) { tab in
-        Text(tab.title)
-    }
+    TMDBFeedPreviewCatalog.topSegmentsLayout.view
 }
 #endif

@@ -7,6 +7,6 @@ public struct MovieFeedListPageNavigation: View {
 
 #if DEBUG
 #Preview {
-    MovieFeedListPageNavigation()
+    TMDBFeedPreviewCatalog.listPageNavigation.view
 }
 #endif

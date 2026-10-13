@@ -55,9 +55,7 @@ struct SeasonCardView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    SeasonCardView(season: TVShowDetailModel.example.seasons[0])
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.seasonCard.view
 }
 #endif

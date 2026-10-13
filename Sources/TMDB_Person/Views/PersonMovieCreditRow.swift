@@ -53,12 +53,7 @@ struct PersonMovieCreditRow: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    VStack {
-        PersonMovieCreditRow(credit: PersonMovieCredits.example.cast[0])
-        PersonMovieCreditRow(credit: PersonMovieCredits.example.crew[0])
-    }
-    .padding()
+    TMDBPersonPreviewCatalog.movieCreditRows.view
 }
 #endif

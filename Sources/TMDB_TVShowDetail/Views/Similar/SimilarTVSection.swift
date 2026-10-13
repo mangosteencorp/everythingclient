@@ -51,14 +51,11 @@ struct SimilarPosterCellView: View {
 }
 
 #if DEBUG
-import TMDB_Shared_Backend
-@available(iOS 17, *)
 #Preview("Poster cell") {
-    SimilarPosterCellView(entity: .placeholder(id: 1))
+    TMDBTVShowDetailPreviewCatalog.similarPosterCell.view
 }
 
-@available(iOS 17, *)
 #Preview {
-    SimilarTVSection(viewModel: SimilarTVViewModel(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey), tvShowId: 138502))
+    TMDBTVShowDetailPreviewCatalog.similarSection.view
 }
 #endif

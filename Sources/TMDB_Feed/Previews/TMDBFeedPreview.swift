@@ -19,9 +19,7 @@ public struct TMDBFeedDemoView: View {
     }
 }
 
-@available(iOS 16, *)
 #Preview {
-    TMDBFeedDemoView()
+    TMDBFeedPreviewCatalog.demo.view
 }
-
 #endif

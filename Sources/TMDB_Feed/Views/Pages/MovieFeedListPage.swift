@@ -64,7 +64,7 @@ public struct MovieFeedListPage<Route: Hashable>: View {
         .onAppear {
             loadFeed(for: selectedTab)
         }
-        .onChange(of: selectedTab) { tab in
+        .onChange(of: selectedTab) { _, tab in
             // Stop requests belonging to the previous selection.
             movieViewModel.cancelLoads()
             tvShowViewModel.cancelLoads()
@@ -117,31 +117,11 @@ extension TVShow {
 }
 
 #if DEBUG
-// swiftlint:disable all
-@available(iOS 16, *)
 #Preview {
-    MovieFeedListPage(
-        apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
-        detailRouteBuilder: { _ in 1 },
-        tvShowDetailRouteBuilder: { _ in 2 }
-    )
+    TMDBFeedPreviewCatalog.listPage.view
 }
 
-@available(iOS 16, *)
-struct MovieFeedListPage_Previews: PreviewProvider {
-    static var previews: some View {
-        let movieViewModel = MovieFeedViewModel(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
-        let tvShowViewModel = TVShowFeedViewModel(apiService: TMDBAPIService(apiKey: debugTMDBAPIKey))
-
-        return NavigationStack {
-            MovieFeedListPage(
-                movieViewModel: movieViewModel,
-                tvShowViewModel: tvShowViewModel,
-                detailRouteBuilder: { _ in 1 },
-                tvShowDetailRouteBuilder: { _ in 2 }
-            )
-        }
-    }
+#Preview("Navigation stack, view models passed in") {
+    TMDBFeedPreviewCatalog.listPageInNavigation.view
 }
-// swiftlint:enable all
 #endif

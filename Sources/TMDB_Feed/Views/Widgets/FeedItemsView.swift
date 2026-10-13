@@ -183,51 +183,23 @@ private struct FeedPaletteCell<Route: Hashable>: View {
 }
 
 #if DEBUG
-/// `FeedItemsView` reads its layout from the shared design coordinator, so each preview picks
-/// one there; the private cells are only reachable through their layout.
-@available(iOS 16, *)
-private struct FeedItemsPreview: View {
-    let design: FeedContentDesign
-
-    var body: some View {
-        NavigationStack {
-            FeedItemsView(
-                items: Movie.previewMovies.map { $0.feedItem(route: $0.id) },
-                accessibilityIdentifier: "preview",
-                onItemAppear: { _ in }
-            )
-        }
-        .onAppear { DesignCoordinator.shared.select(design) }
-    }
-}
-
-@available(iOS 16, *)
 #Preview("List") {
-    FeedItemsPreview(design: .list)
+    TMDBFeedPreviewCatalog.itemsList.view
 }
 
-@available(iOS 16, *)
 #Preview("Compact rows") {
-    FeedItemsPreview(design: .compactRows)
+    TMDBFeedPreviewCatalog.itemsCompactRows.view
 }
 
-@available(iOS 16, *)
 #Preview("Grid") {
-    FeedItemsPreview(design: .grid)
+    TMDBFeedPreviewCatalog.itemsGrid.view
 }
 
-@available(iOS 16, *)
 #Preview("Palette cards") {
-    FeedItemsPreview(design: .paletteCards)
+    TMDBFeedPreviewCatalog.itemsPaletteCards.view
 }
 
-@available(iOS 16, *)
 #Preview("Rows") {
-    NavigationStack {
-        List {
-            FeedItemRow(item: Movie.previewMovies[0].feedItem(route: 1), style: .list, onAppear: {})
-            FeedItemRow(item: Movie.previewMovies[1].feedItem(route: 2), style: .compactRows, onAppear: {})
-        }
-    }
+    TMDBFeedPreviewCatalog.itemRows.view
 }
 #endif

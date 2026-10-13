@@ -174,9 +174,8 @@ let package = Package(
         .target(
             name: "TMDB_Shared_Backend",
             dependencies: ["Swinject"],
-            // Keep the debug API key file on disk for local/DEBUG loading, but do not
-            // compile/index it into the Swift module.
-            exclude: ["Preview/DebugPreview.swift"]
+            // Committed placeholder. PreviewSecrets.swift is gitignored and compiled locally / on CI.
+            exclude: ["Preview/PreviewSecrets.swift.template"]
         ),
         .target(
             name: "TMDB_Shared_UI",

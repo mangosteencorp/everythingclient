@@ -11,7 +11,7 @@ public struct PersonDetailPage<Route: Hashable>: View {
 
     public init(
         personId: Int,
-        apiService: TMDBAPIService,
+        apiService: any TMDBAPIRequesting,
         movieRouteBuilder: @escaping (Int) -> Route
     ) {
         self.personId = personId
@@ -59,14 +59,7 @@ public struct PersonDetailPage<Route: Hashable>: View {
 }
 
 #if DEBUG
-@available(iOS 16.0, *)
 #Preview {
-    NavigationStack {
-        PersonDetailPage(
-            personId: 287,
-            apiService: TMDBAPIService(apiKey: debugTMDBAPIKey),
-            movieRouteBuilder: { $0 }
-        )
-    }
+    TMDBPersonPreviewCatalog.detailPage.view
 }
 #endif

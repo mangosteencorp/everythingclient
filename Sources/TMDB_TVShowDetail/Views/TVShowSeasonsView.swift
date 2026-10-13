@@ -44,10 +44,7 @@ struct TVShowSeasonsView: View {
 }
 
 #if DEBUG
-@available(iOS 15, *)
 #Preview {
-    TVShowSeasonsView(tvShow: .example)
-        .padding()
-        .environmentObject(ThemeManager.shared)
+    TMDBTVShowDetailPreviewCatalog.seasons.view
 }
 #endif

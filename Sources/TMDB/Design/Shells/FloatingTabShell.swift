@@ -41,8 +41,7 @@ struct FloatingTabShell<Page: View>: View {
 }
 
 #if DEBUG
-@available(iOS 16, *)
 #Preview {
-    FloatingTabShell(coordinator: .preview) { ShellPagePreview(title: $0.title) }
+    TMDBPreviewCatalog.floatingTabShell.view
 }
 #endif

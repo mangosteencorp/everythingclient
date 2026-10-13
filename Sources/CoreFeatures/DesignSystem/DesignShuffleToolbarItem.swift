@@ -79,11 +79,6 @@ public struct DesignShuffleButton: View {
 
 #if DEBUG
 #Preview {
-    NavigationStack {
-        Text("Tap to shuffle, long press to pick")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) { DesignShuffleButton() }
-            }
-    }
+    CoreFeaturesPreviewCatalog.designShuffleButton.view
 }
 #endif

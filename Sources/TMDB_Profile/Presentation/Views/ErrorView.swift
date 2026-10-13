@@ -84,7 +84,10 @@ class ErrorView: UIView {
     }
 }
 
-@available(iOS 17, *)
+#if DEBUG
+import SwiftUI
+
 #Preview {
-    ErrorView()
+    TMDBProfilePreviewCatalog.errorView.view
 }
+#endif
