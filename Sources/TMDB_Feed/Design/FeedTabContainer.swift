@@ -37,7 +37,12 @@ struct FeedTabContainer<Content: View>: View {
 }
 
 #if DEBUG
-#Preview {
-    TMDBFeedPreviewCatalog.tabContainer.view
+#Preview("Feed Tabs — Design switch") {
+    NavigationStack {
+        TMDBFeedPreviewCatalog.tabContainer.view
+            .toolbar {
+                DesignShuffleToolbarItem()
+            }
+    }
 }
 #endif

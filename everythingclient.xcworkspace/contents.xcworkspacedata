@@ -2,6 +2,15 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:Rebuild/TMDBSearchDemo/TMDBSearchDemo.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Rebuild/TMDBFeedDemo/TMDBFeedDemo.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Rebuild/TMDBMovieDetailDemo/TMDBMovieDetailDemo.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Tests/UnitTestPlan.xctestplan">
    </FileRef>
    <FileRef

@@ -57,7 +57,7 @@ let swiftfinTargetDependency: [Target.Dependency] = [
 ]
 
 let package = Package(
-    name: "everythingclient",
+    name: "GlenMovies",
     defaultLocalization: "en",
     platforms: [
         .iOS("18.0"),
