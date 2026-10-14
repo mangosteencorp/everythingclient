@@ -11,9 +11,11 @@ import TMDB_Feed
 struct TMDBFeedDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            ForEach(TMDBFeedPreviewCatalog.allCases) { p in
-                NavigationLink(p.rawValue) {
-                    p.view
+            NavigationStack {
+                ForEach(TMDBFeedPreviewCatalog.allCases) { p in
+                    NavigationLink(p.rawValue) {
+                        p.view
+                    }
                 }
             }
         }
