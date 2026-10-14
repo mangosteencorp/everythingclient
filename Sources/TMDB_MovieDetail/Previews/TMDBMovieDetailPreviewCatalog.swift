@@ -10,7 +10,7 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
     public var id: String {
         rawValue
     }
-    
+
     case demo
     case detailPage
     case coverRow

@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import SwiftUI
 import UIKit
 
@@ -53,4 +54,5 @@ public struct AdaptiveColumnGrid<Item: Identifiable, Content: View>: View {
 #Preview {
     SharedUISupportPreviewCatalog.adaptiveColumnGrid.view
 }
+#endif
 #endif
