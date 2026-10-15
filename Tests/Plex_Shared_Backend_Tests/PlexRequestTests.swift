@@ -17,7 +17,7 @@ struct PlexRequestTests {
         let request = try PlexEndpoint.metadata(ratingKey: "42").makeRequest(configuration: testConfiguration())
         let url = try #require(request.url)
         let query = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
-        #expect(Set(query.map(\.name)) == Set(["includeMarkers", "includeChapters", "checkFiles", "includeStreams"]))
+        #expect(Set(query.map(\.name)) == Set(["includeMarkers", "includeChapters", "checkFiles", "includeStreams", "includeOnDeck"]))
         #expect(query.allSatisfy { $0.value == "1" })
     }
 

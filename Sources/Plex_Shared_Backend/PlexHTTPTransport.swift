@@ -2,9 +2,12 @@ import Foundation
 
 /// The only dependency that performs network I/O; mocks can return fixture bytes and HTTP responses.
 public protocol PlexHTTPTransport: Sendable {
+    /// Performs one HTTP request and returns the raw body and response, without interpreting the status code.
     func data(for request: URLRequest) async throws -> (Data, URLResponse)
 }
 
+/// The default `URLSession` transport. It refuses redirects that change scheme, host or port, so Plex's
+/// header credentials can never be forwarded to another origin.
 public struct PlexURLSessionTransport: PlexHTTPTransport {
     private let session: URLSession
 
@@ -13,6 +16,7 @@ public struct PlexURLSessionTransport: PlexHTTPTransport {
         session = URLSession(configuration: configuration, delegate: PlexRedirectPolicy(), delegateQueue: nil)
     }
 
+    /// Sends the request through the underlying `URLSession`.
     public func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         try await session.data(for: request)
     }
@@ -45,11 +49,16 @@ struct PlexRequestExecutor: Sendable {
     let transport: any PlexHTTPTransport
 
     func decode<Value: Decodable & Sendable>(_ type: Value.Type, request: URLRequest) async throws -> Value {
+        let result = try await execute(request)
+        return try JSONDecoder().decode(type, from: result.data)
+    }
+
+    func execute(_ request: URLRequest) async throws -> PlexHTTPResult {
         try Task.checkCancellation()
         let (data, response) = try await transport.data(for: request)
         try Task.checkCancellation()
         guard let response = response as? HTTPURLResponse else { throw PlexAPIError.nonHTTPResponse }
         guard (200..<300).contains(response.statusCode) else { throw PlexAPIError.httpStatus(response.statusCode) }
-        return try JSONDecoder().decode(type, from: data)
+        return PlexHTTPResult(data: data, statusCode: response.statusCode, contentType: response.mimeType)
     }
 }

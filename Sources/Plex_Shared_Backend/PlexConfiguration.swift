@@ -1,9 +1,15 @@
 import Foundation
 
+/// How this app identifies itself to plex.tv and Plex Media Server.
+/// Sent as `X-Plex-*` headers on every request; Plex shows these values in its device list.
 public struct PlexClientIdentity: Sendable, Equatable {
+    /// `X-Plex-Client-Identifier`: a stable, per-installation ID. Plex ties sign-in PINs and sessions to it.
     public let identifier: String
+    /// `X-Plex-Product`: the app name shown in Plex's authorized-devices list.
     public let product: String
+    /// `X-Plex-Version`: the app version.
     public let version: String
+    /// `X-Plex-Platform`: the client platform, for example `iOS`.
     public let platform: String
 
     /// Persist `identifier` in the consuming app so PIN creation and polling use the same identity.
@@ -34,19 +40,31 @@ public struct PlexClientIdentity: Sendable, Equatable {
     }
 }
 
+/// A selected Plex Media Server connection: its origin, the server-scoped access token and the client identity.
+/// The token is kept internal so it cannot be printed or logged through this type.
 public struct PlexServerConfiguration: Sendable {
+    /// The server origin, including any reverse-proxy path prefix. Every request path is resolved under it.
     public let baseURL: URL
+    /// The client identity sent with every request to this server.
     public let identity: PlexClientIdentity
+    /// The server's `machineIdentifier`; required for `server://` URIs used by playlists, collections and play queues.
+    public let machineIdentifier: String?
     // Deliberately not exposed as a printable public property.
     let token: String
 
     /// Use the resource's server access token, which may differ from the plex.tv account token.
-    public init(baseURL: URL, token: String, identity: PlexClientIdentity) throws {
+    public init(baseURL: URL, token: String, identity: PlexClientIdentity, machineIdentifier: String? = nil) throws {
         try PlexURLBuilder.validateBaseURL(baseURL)
         guard PlexClientIdentity.isValidHeaderValue(token) else { throw PlexAPIError.invalidConfiguration }
         self.baseURL = baseURL
         self.token = token
         self.identity = identity
+        self.machineIdentifier = machineIdentifier
+    }
+
+    /// A persistable snapshot for a credential store. It contains the server token.
+    public func credential(name: String) -> PlexServerCredential {
+        PlexServerCredential(name: name, baseURL: baseURL, machineIdentifier: machineIdentifier, token: token)
     }
 
     func request(path: String, query: [URLQueryItem] = [], accept: String = "application/json") throws -> URLRequest {
@@ -56,6 +74,25 @@ public struct PlexServerConfiguration: Sendable {
         request.setValue(accept, forHTTPHeaderField: "Accept")
         request.setValue(token, forHTTPHeaderField: "X-Plex-Token")
         return request
+    }
+}
+
+/// The last working server connection, kept so an app can reopen it (or its offline cache) after relaunch.
+/// Contains a credential: store it in the Keychain and never log it.
+public struct PlexServerCredential: Codable, Sendable, Equatable {
+    /// The server's display name.
+    public let name: String
+    /// The origin that last connected successfully.
+    public let baseURL: URL
+    /// The server's `machineIdentifier`, also used as the offline cache and watch-sync scope.
+    public let machineIdentifier: String?
+    let token: String
+
+    /// Rebuilds a server configuration from the saved credential.
+    /// - Parameter identity: The client identity to send; reuse the persisted one.
+    /// - Throws: `PlexAPIError.invalidConfiguration` when the saved URL or token is no longer valid.
+    public func configuration(identity: PlexClientIdentity) throws -> PlexServerConfiguration {
+        try PlexServerConfiguration(baseURL: baseURL, token: token, identity: identity, machineIdentifier: machineIdentifier)
     }
 }
 
@@ -73,7 +110,8 @@ enum PlexURLBuilder {
     static func segment(_ value: String) throws -> String {
         guard !value.isEmpty, value != ".", value != "..", !value.contains("/"), !value.contains("\\"),
               value.rangeOfCharacter(from: .controlCharacters) == nil,
-              let encoded = value.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(CharacterSet(charactersIn: "-._~")))
+              let encoded = value
+              .addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(CharacterSet(charactersIn: "-._~")))
         else { throw PlexAPIError.invalidPath }
         return encoded
     }
@@ -85,10 +123,11 @@ enum PlexURLBuilder {
               let key = URLComponents(string: path), key.scheme == nil, key.host == nil,
               key.user == nil, key.password == nil, key.fragment == nil,
               isSafePath(key.percentEncodedPath),
-              !(key.queryItems ?? []).contains(where: { $0.name.lowercased() == "x-plex-token" }),
+              !((key.queryItems ?? []) + query).contains(where: { $0.name.lowercased() == "x-plex-token" }),
               var result = URLComponents(url: base, resolvingAgainstBaseURL: false)
         else { throw PlexAPIError.invalidPath }
-        let prefix = result.percentEncodedPath.hasSuffix("/") ? String(result.percentEncodedPath.dropLast()) : result.percentEncodedPath
+        let prefix = result.percentEncodedPath.hasSuffix("/") ? String(result.percentEncodedPath.dropLast()) : result
+            .percentEncodedPath
         result.percentEncodedPath = prefix + key.percentEncodedPath
         // Keep existing percent escapes and '+' in server keys intact.
         if query.isEmpty {
@@ -96,7 +135,9 @@ enum PlexURLBuilder {
         } else {
             var extra = URLComponents()
             extra.queryItems = query
-            result.percentEncodedQuery = [key.percentEncodedQuery, extra.percentEncodedQuery].compactMap { $0 }.joined(separator: "&")
+            let encodedQuery = extra.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+            result.percentEncodedQuery = [key.percentEncodedQuery, encodedQuery].compactMap { $0 }
+                .joined(separator: "&")
         }
         guard let url = result.url else { throw PlexAPIError.invalidPath }
         return url
@@ -107,7 +148,8 @@ enum PlexURLBuilder {
         // Check nested escaping as well as the path the server is likely to decode once.
         for _ in 0..<4 {
             guard !decoded.contains("\\"), decoded.rangeOfCharacter(from: .controlCharacters) == nil,
-                  !decoded.split(separator: "/", omittingEmptySubsequences: false).contains(where: { $0 == "." || $0 == ".." })
+                  !decoded.split(separator: "/", omittingEmptySubsequences: false)
+                  .contains(where: { $0 == "." || $0 == ".." })
             else { return false }
             guard let next = decoded.removingPercentEncoding else { return false }
             if next == decoded { return true }

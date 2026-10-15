@@ -1,5 +1,6 @@
 import Foundation
 
+/// Which parts of a split file a download plan includes.
 public enum PlexDownloadPartSelection: Sendable {
     /// Matches Plezy's original-file selection: first available part of the chosen version.
     case firstPlayable
@@ -10,33 +11,50 @@ public enum PlexDownloadPartSelection: Sendable {
 /// Authenticated original-file requests only. The app owns background transfers, persistence,
 /// resumption, storage, artwork caching, and offline playback/progress synchronization.
 public struct PlexDownloadPlan: Sendable {
+    /// The planned item.
     public let ratingKey: String
+    /// The media version actually chosen, after fallback.
     public let mediaIndex: Int
+    /// Files to download, in playback order.
     public let parts: [PlexDownloadPart]
 }
 
+/// One original file to download.
 public struct PlexDownloadPart: Sendable {
+    /// The part's position within its media version.
     public let partIndex: Int
+    /// The part's metadata, including size and streams.
     public let part: PlexMediaPart
+    /// The authenticated request for the file. Its headers contain the server token.
     public let request: URLRequest
+    /// External subtitle files for this part.
     public let subtitles: [PlexSubtitleDownload]
 }
 
+/// One external subtitle file to download next to the video.
 public struct PlexSubtitleDownload: Sendable {
+    /// The subtitle stream.
     public let stream: PlexMediaStream
+    /// File extension for the saved sidecar, such as `srt` or `ass`.
     public let fileExtension: String
+    /// The authenticated UTF-8 subtitle request.
     public let request: URLRequest
 }
 
+/// Turns item metadata into download requests without performing any transfer.
 public protocol PlexDownloadPlanning: Sendable {
+    /// Plans the files for one media version of an item.
+    /// - Throws: `PlexAPIError.noDownloadableMedia` or `.unavailablePart` when files are missing.
     func plan(
         for metadata: PlexMetadata, mediaIndex: Int, selection: PlexDownloadPartSelection
     ) throws -> PlexDownloadPlan
 }
 
+/// The default planner for one server.
 public struct PlexDownloadPlanner: PlexDownloadPlanning {
     private let configuration: PlexServerConfiguration
 
+    /// Creates a planner whose requests target `configuration`'s server.
     public init(configuration: PlexServerConfiguration) { self.configuration = configuration }
 
     /// Invalid version indexes fall back to index zero; unavailable versions fall back to the

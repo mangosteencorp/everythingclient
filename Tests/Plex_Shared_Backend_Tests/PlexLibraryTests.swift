@@ -30,9 +30,11 @@ struct PlexLibraryTests {
         #expect(response.mediaContainer.metadata.isEmpty && response.mediaContainer.libraries.isEmpty)
     }
 
-    @Test func malformedAvailabilityDoesNotBecomePlayable() {
+    @Test func malformedAvailabilityDoesNotBecomePlayable() throws {
         #expect(throws: DecodingError.self) { try decodeFixture(PlexMediaPart.self, #"{"exists":"maybe"}"#) }
-        #expect(throws: DecodingError.self) { try decodeFixture(PlexResponse.self, #"{"MediaContainer":{"Metadata":[{"title":"Missing ID","type":"movie"}]}}"#) }
+        // List pages skip an undecodable item (as Plezy does) instead of failing the whole page.
+        let page = try decodeFixture(PlexResponse.self, #"{"MediaContainer":{"Metadata":[{"title":"Missing ID","type":"movie"},{"ratingKey":"1","title":"Kept","type":"movie"}]}}"#)
+        #expect(page.mediaContainer.metadata.map(\.ratingKey) == ["1"])
     }
 
     @Test func serviceReturnsLibrariesAndPagedItems() async throws {
