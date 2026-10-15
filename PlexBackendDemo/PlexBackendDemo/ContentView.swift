@@ -7,7 +7,13 @@ struct ContentView: View {
         RootTabs()
             .environment(session)
             .task {
-                if ProcessInfo.processInfo.arguments.contains("--fixtures") { session.loadSamples() } else { await session.restore() }
+                let process = ProcessInfo.processInfo
+                if process.arguments.contains("--fixtures") {
+                    session.loadSamples()
+                } else if process.environment["XCTestConfigurationFilePath"] == nil {
+                    // Unit tests host the app; don't reconnect to a real account while they run.
+                    await session.restore()
+                }
             }
     }
 }

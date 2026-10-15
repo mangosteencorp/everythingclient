@@ -13,6 +13,7 @@ public protocol PlexResponseCaching: Sendable {
 }
 
 /// One file per response under `directory`, named by a hash of the key so no IDs or paths reach the file system.
+/// Only bodies are stored, never request headers, so server tokens stay out of the cache.
 public actor PlexDiskResponseCache: PlexResponseCaching {
     /// Where response files are stored.
     public let directory: URL
@@ -35,13 +36,14 @@ public actor PlexDiskResponseCache: PlexResponseCaching {
     public func removeAll() { try? FileManager.default.removeItem(at: directory) }
 
     private func file(for key: String) -> URL {
-        directory.appending(path: SHA256.hash(data: Data(key.utf8)).map { String(format: "%02x", $0) }.joined() + ".json")
+        directory.appending(path: SHA256.hash(data: Data(key.utf8)).map { String(format: "%02x", $0) }.joined() + ".cache")
     }
 }
 
 /// Plezy's offline model as a transport decorator: JSON GETs go to the network first and are cached;
 /// when the network fails, or `isOffline` is on, the cached response is returned instead.
-/// Mutations and binary resources are never cached; offline they fail with `PlexAPIError.offline`.
+/// Artwork (`Accept: image/*`) is served cache-first, since Plex image paths change when the image does.
+/// Mutations and other binary resources are never cached; offline they fail with `PlexAPIError.offline`.
 public final class PlexCachingTransport: PlexHTTPTransport {
     private let upstream: any PlexHTTPTransport
     private let cache: any PlexResponseCaching
@@ -61,7 +63,7 @@ public final class PlexCachingTransport: PlexHTTPTransport {
         set { offline.withLock { $0 = newValue } }
     }
 
-    /// Serves JSON GETs network-first with cache fallback, or cache-only when offline.
+    /// Serves JSON GETs network-first with cache fallback, artwork cache-first, and both cache-only when offline.
     /// - Throws: `PlexAPIError.offline` when offline (or the network failed) and nothing is cached.
     public func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         guard let key = cacheKey(for: request) else {
@@ -69,6 +71,7 @@ public final class PlexCachingTransport: PlexHTTPTransport {
             return try await upstream.data(for: request)
         }
         if isOffline { return try await cached(key, request) }
+        if key.hasPrefix("image|"), let hit = try? await cached(key, request) { return hit }
         do {
             let (data, response) = try await upstream.data(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
@@ -86,19 +89,22 @@ public final class PlexCachingTransport: PlexHTTPTransport {
         }
     }
 
-    /// Only JSON GETs are cached. Host, port and credentials are excluded so any connection to the server can reuse an entry.
+    /// Only JSON and image GETs are cached. Host, port and credentials are excluded so any connection to the
+    /// server can reuse an entry.
     private func cacheKey(for request: URLRequest) -> String? {
-        guard request.httpMethod ?? "GET" == "GET", request.value(forHTTPHeaderField: "Accept") == "application/json",
+        let accept = request.value(forHTTPHeaderField: "Accept") ?? ""
+        guard request.httpMethod ?? "GET" == "GET", accept == "application/json" || accept.hasPrefix("image/"),
               let url = request.url, let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         else { return nil }
         let query = (components.queryItems ?? []).sorted { ($0.name, $0.value ?? "") < ($1.name, $1.value ?? "") }
             .map { "\($0.name)=\($0.value ?? "")" }.joined(separator: "&")
-        return scope + "|" + components.percentEncodedPath + "?" + query
+        return (accept.hasPrefix("image/") ? "image|" : "json|") + scope + "|" + components.percentEncodedPath + "?" + query
     }
 
     private func cached(_ key: String, _ request: URLRequest) async throws -> (Data, URLResponse) {
+        let type = key.hasPrefix("image|") ? "application/octet-stream" : "application/json"
         guard let data = await cache.response(for: key), let url = request.url,
-              let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])
+              let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": type])
         else { throw PlexAPIError.offline }
         return (data, response)
     }

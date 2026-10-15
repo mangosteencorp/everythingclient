@@ -38,7 +38,6 @@ final class DemoSession {
     var manualToken = ""
     let transfers: DemoTransfers
     let identity: PlexClientIdentity
-    @ObservationIgnored let images: any PlexHTTPTransport
 
     @ObservationIgnored private let account: any PlexAccountServing & PlexAccountProfileServing
     @ObservationIgnored private let network: any PlexHTTPTransport
@@ -80,11 +79,9 @@ final class DemoSession {
         cache = PlexDiskResponseCache(directory: storage.appending(path: "ResponseCache"))
         syncQueue = PlexWatchSyncQueue(fileURL: storage.appending(path: "WatchSync.json"))
         transfers = DemoTransfers(directory: storage.appending(path: "Downloads", directoryHint: .isDirectory))
-        let imageConfiguration = URLSessionConfiguration.default
-        imageConfiguration.urlCache = URLCache(
-            memoryCapacity: 32_000_000, diskCapacity: 256_000_000, directory: storage.appending(path: "ImageCache")
-        )
-        images = PlexURLSessionTransport(configuration: imageConfiguration)
+        // Earlier builds kept artwork in a URLCache, which also stored the token header. Artwork now lives in the
+        // token-free response cache, so remove that folder.
+        try? FileManager.default.removeItem(at: storage.appending(path: "ImageCache"))
     }
 
     var selectedServer: PlexServerResource? { servers.first { $0.id == selectedServerID } }
@@ -435,7 +432,6 @@ final class DemoSession {
 
     func clearCache() async {
         await cache.removeAll()
-        URLCache.shared.removeAllCachedResponses()
     }
 
     // MARK: - Helpers

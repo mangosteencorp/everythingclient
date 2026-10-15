@@ -174,11 +174,12 @@ struct PlexWatchStateAndMediaTests {
         #expect(parameters["protocol"] == "hls" && parameters["maxVideoBitrate"] == "4000" && parameters["directStream"] == "0")
     }
 
-    @Test func imageAndPartRequestsAreAuthenticatedAndCacheable() throws {
+    @Test func imageAndPartRequestsAreAuthenticatedAndNeverUseURLCache() throws {
         let api = try service(PlexRoutingTransport([:]))
         let image = try api.imageRequest(path: "/library/metadata/1/thumb/2", width: 200, height: 300)
         #expect(image.url?.path == "/plex/photo/:/transcode" && query(image)["url"] == "/library/metadata/1/thumb/2")
-        #expect(image.cachePolicy == .returnCacheDataElseLoad && image.value(forHTTPHeaderField: "X-Plex-Token") == "server-token")
+        #expect(image.cachePolicy == .reloadIgnoringLocalCacheData && image.value(forHTTPHeaderField: "X-Plex-Token") == "server-token")
+        #expect(image.value(forHTTPHeaderField: "Accept") == "image/*")
         #expect(try api.directPlayRequest(part: PlexMediaPart(key: "/library/parts/1/file.mp4")).url?.path == "/plex/library/parts/1/file.mp4")
         #expect(throws: PlexAPIError.self) { try api.directPlayRequest(part: PlexMediaPart(key: "/x", exists: false)) }
         #expect(try api.previewThumbnailsRequest(partID: "8").url?.path == "/plex/library/parts/8/indexes/sd")
@@ -238,6 +239,22 @@ struct PlexOfflineTests {
         await #expect(throws: PlexAPIError.offline) { try await api.items(sectionID: "1") }
         await #expect(throws: PlexAPIError.offline) { try await api.markWatched(ratingKey: "1") }
         #expect(await upstream.requests.count == 2)
+    }
+
+    @Test func artworkIsCachedFirstAndTheCacheNeverHoldsTheToken() async throws {
+        let directory = URL.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let upstream = PlexStubTransport("png-bytes")
+        let transport = PlexCachingTransport(upstream: upstream, cache: PlexDiskResponseCache(directory: directory), scope: "machine")
+        let api = try PlexAPIService(configuration: testConfiguration(), transport: transport)
+        #expect(try await api.imageData(path: "/library/metadata/1/thumb/9", width: 100) == Data("png-bytes".utf8))
+        #expect(try await api.imageData(path: "/library/metadata/1/thumb/9", width: 100) == Data("png-bytes".utf8))
+        #expect(await upstream.requests.count == 1)
+        transport.isOffline = true
+        #expect(try await api.imageData(path: "/library/metadata/1/thumb/9", width: 100) == Data("png-bytes".utf8))
+        let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+        #expect(files.count == 1)
+        #expect(try files.allSatisfy { try String(bytes: Data(contentsOf: $0), encoding: .utf8)?.contains("server-token") != true })
     }
 
     @Test func otherServersAndMutationsAreNeverCached() async throws {

@@ -8,8 +8,8 @@ import UIKit
 
 // MARK: - Artwork
 
-/// Server artwork through `/photo/:/transcode`, sent with header credentials and kept in a disk `URLCache`
-/// so posters still appear offline.
+/// Server artwork through `/photo/:/transcode`, sent with header credentials. The API's caching transport keeps
+/// the image bytes (never the request headers), so posters still appear offline.
 struct PlexArtwork: View {
     let path: String?
     var width: CGFloat = 60
@@ -34,9 +34,7 @@ struct PlexArtwork: View {
 
     private func load() async -> Image? {
         guard let path, let api = session.api,
-              let request = try? api.imageRequest(path: path, width: Int(width * 2), height: Int(height * 2)),
-              case let (data, response)? = try? await session.images.data(for: request),
-              ((response as? HTTPURLResponse)?.statusCode ?? 0) < 300
+              let data = try? await api.imageData(path: path, width: Int(width * 2), height: Int(height * 2))
         else { return nil }
 #if os(macOS)
         return NSImage(data: data).map(Image.init(nsImage:))

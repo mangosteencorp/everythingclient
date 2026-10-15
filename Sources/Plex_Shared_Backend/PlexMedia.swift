@@ -79,6 +79,8 @@ extension PlexSubtitleSearchResult: PlexListElement { static var plexListKey: St
 public protocol PlexMediaServing: Sendable {
     /// An authenticated request for artwork, resized by the server when a width or height is given.
     func imageRequest(path: String, width: Int?, height: Int?) throws -> URLRequest
+    /// Artwork bytes, fetched through this service's transport so `PlexCachingTransport` can keep them for offline use.
+    func imageData(path: String, width: Int?, height: Int?) async throws -> Data
     /// An authenticated request for a part's original file.
     /// - Throws: `PlexAPIError.unavailablePart` when the file is missing or has no key.
     func directPlayRequest(part: PlexMediaPart) throws -> URLRequest
@@ -97,16 +99,21 @@ public protocol PlexMediaServing: Sendable {
 }
 
 extension PlexAPIService: PlexMediaServing {
-    /// Server-resized artwork via `/photo/:/transcode`. Responses may be served from `URLCache` when offline.
+    /// Server-resized artwork via `/photo/:/transcode`, or the original image when no size is given.
+    /// Load it with `imageData(path:width:height:)`; caching it in `URLCache` would store the token header on disk.
     public func imageRequest(path: String, width: Int? = nil, height: Int? = nil) throws -> URLRequest {
-        guard width != nil || height != nil else { return try cachedResource(path: path) }
+        guard width != nil || height != nil else { return try configuration.request(path: path, accept: "image/*") }
         let query = [width.map { URLQueryItem(name: "width", value: String($0)) }, height.map { URLQueryItem(name: "height", value: String($0)) }]
             .compactMap { $0 } + [
                 URLQueryItem(name: "minSize", value: "1"), URLQueryItem(name: "upscale", value: "1"), URLQueryItem(name: "url", value: path),
             ]
-        var request = try configuration.request(path: "/photo/:/transcode", query: query, accept: "image/*")
-        request.cachePolicy = .returnCacheDataElseLoad
-        return request
+        return try configuration.request(path: "/photo/:/transcode", query: query, accept: "image/*")
+    }
+
+    /// Sends `imageRequest(path:width:height:)` through the service's transport.
+    /// Prefer this to `URLCache`, which would also persist the request's token header to disk.
+    public func imageData(path: String, width: Int? = nil, height: Int? = nil) async throws -> Data {
+        try await executor.execute(imageRequest(path: path, width: width, height: height)).data
     }
 
     /// The original file, for players that support its container and codecs.
@@ -182,11 +189,5 @@ extension PlexAPIService: PlexMediaServing {
 
     private func subtitlesPath(_ ratingKey: String) throws -> String {
         "/library/metadata/\(try PlexURLBuilder.segment(ratingKey))/subtitles"
-    }
-
-    private func cachedResource(path: String) throws -> URLRequest {
-        var request = try resourceRequest(path: path)
-        request.cachePolicy = .returnCacheDataElseLoad
-        return request
     }
 }
