@@ -61,6 +61,21 @@ struct DemoFeatureTests {
         #expect(model.items.isEmpty && !model.hasLoaded)
     }
 
+    @Test func networkLogCapturesEveryCallAsRedactedCurlWhenEnabled() async throws {
+        let session = makeSession()
+        defer { session.logsNetworkCalls = false }
+        session.loadSamples()
+        let api = try #require(session.api)
+        _ = try await api.libraries()
+        #expect(session.networkLog.entries.isEmpty)
+        session.logsNetworkCalls = true
+        _ = try await api.continueWatching(count: 20)
+        for _ in 0..<200 where session.networkLog.entries.isEmpty { try await Task.sleep(for: .milliseconds(10)) }
+        let command = try #require(session.networkLog.entries.first?.command)
+        #expect(command.hasPrefix("curl") && command.contains("/hubs?") && command.contains("X-Plex-Token: [redacted]"))
+        #expect(!command.contains("sample'"))
+    }
+
     @Test func responseInspectionRedactsNestedCredentials() throws {
         let session = makeSession()
         let data = Data(#"{"authToken":"never-show","nested":[{"access_token":"also-secret","title":"Visible"}]}"#.utf8)

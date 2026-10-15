@@ -102,7 +102,7 @@ struct NotificationsSection: View {
         listening = true
         task = Task {
             do {
-                for try await event in PlexEventSource().events(for: request) {
+                for try await event in PlexEventSource(logger: session.curlLogger).events(for: request) {
                     let body = session.formatted(PlexHTTPResult(data: event.data, statusCode: 200))
                     events.insert(Event(text: "\(event.name): \(body)"), at: 0)
                     events = Array(events.prefix(20))

@@ -66,6 +66,7 @@ final class PlayerModel {
                 }
             }
             current = item
+            if request.localFile == nil { session.curlLogger.log(urlRequest) }
             let player = factory.player(for: urlRequest)
             if let offset = item.viewOffset, (item.progress ?? 0) < 0.95 {
                 await player.seek(to: CMTime(value: offset, timescale: 1000))

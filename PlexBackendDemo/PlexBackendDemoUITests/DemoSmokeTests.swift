@@ -54,7 +54,9 @@ final class DemoSmokeTests: XCTestCase {
         selectTab("Account", in: app)
         XCTAssertTrue(app.buttons["plex.signIn"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.descendants(matching: .any)["plex.advancedConnection"].exists)
-        XCTAssertTrue(app.buttons["plex.samples"].exists)
+        let samples = app.buttons["plex.samples"]
+        scrollTo(samples, in: app)
+        XCTAssertTrue(samples.exists && app.switches["plex.curlLogging"].exists)
         attach(app, name: "Account")
     }
 
@@ -75,7 +77,7 @@ final class DemoSmokeTests: XCTestCase {
 
     @MainActor private func scrollTo(_ element: XCUIElement, in app: XCUIApplication) {
 #if !os(macOS)
-        for _ in 0..<6 where !element.isHittable { app.swipeUp() }
+        for _ in 0..<6 where !(element.exists && element.isHittable) { app.swipeUp() }
 #endif
     }
 

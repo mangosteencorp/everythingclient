@@ -120,6 +120,9 @@
     "Choose a profile" : {
 
     },
+    "Clear" : {
+
+    },
     "Clear offline cache" : {
 
     },
@@ -130,6 +133,9 @@
 
     },
     "Collections" : {
+
+    },
+    "Commands also appear in Xcode's console. With tokens shown, anyone who sees the log can use your account." : {
 
     },
     "Completed" : {
@@ -172,6 +178,9 @@
 
     },
     "Delete this item and its files from the server?" : {
+
+    },
+    "Developer" : {
 
     },
     "Director" : {
@@ -255,6 +264,9 @@
     "Go online" : {
 
     },
+    "Hide tokens and PINs" : {
+
+    },
     "Home" : {
 
     },
@@ -303,6 +315,9 @@
     "Load more" : {
 
     },
+    "Log network calls as cURL" : {
+
+    },
     "Mark as unwatched" : {
 
     },
@@ -330,6 +345,9 @@
     "Name" : {
 
     },
+    "Network log" : {
+
+    },
     "New collection with this item" : {
 
     },
@@ -352,6 +370,9 @@
 
     },
     "No libraries" : {
+
+    },
+    "No requests logged" : {
 
     },
     "No subtitles found for this language." : {
@@ -548,6 +569,9 @@
     "Server-relative path" : {
 
     },
+    "Share command" : {
+
+    },
     "Shared with you" : {
 
     },
@@ -618,6 +642,9 @@
 
     },
     "Transfers" : {
+
+    },
+    "Turn on cURL logging, then use the app." : {
 
     },
     "TV show" : {

@@ -30,6 +30,7 @@ struct AccountView: View {
                     }
                 }
                 ManualConnectionSection()
+                NetworkLoggingSection()
                 Section("Explore without an account") {
                     Button("Explore sample library") { session.loadSamples() }.accessibilityIdentifier("plex.samples")
                 }
@@ -121,6 +122,55 @@ struct ManualConnectionSection: View {
     }
 }
 
+/// Turns `curl` logging of every network call on or off and opens the log.
+struct NetworkLoggingSection: View {
+    @Environment(DemoSession.self) private var session
+
+    var body: some View {
+        @Bindable var session = session
+        Section {
+            Toggle("Log network calls as cURL", isOn: $session.logsNetworkCalls)
+                .accessibilityIdentifier("plex.curlLogging")
+            Toggle("Hide tokens and PINs", isOn: $session.redactsNetworkLog)
+            NavigationLink("Network log") { NetworkLogView() }
+        } header: {
+            Text("Developer")
+        } footer: {
+            Text("Commands also appear in Xcode's console. With tokens shown, anyone who sees the log can use your account.")
+        }
+    }
+}
+
+/// Recent `curl` commands, newest first, selectable and shareable.
+struct NetworkLogView: View {
+    @Environment(DemoSession.self) private var session
+
+    var body: some View {
+        let log = session.networkLog
+        List(log.entries) { entry in
+            VStack(alignment: .leading, spacing: 6) {
+                Text(entry.date, format: .dateTime.hour().minute().second()).font(.caption).foregroundStyle(.secondary)
+                Text(verbatim: entry.command).font(.system(.caption, design: .monospaced)).textSelection(.enabled)
+            }
+            .contextMenu { ShareLink("Share command", item: entry.command) }
+        }
+        .overlay {
+            if log.entries.isEmpty {
+                ContentUnavailableView("No requests logged", systemImage: "terminal",
+                                       description: Text("Turn on cURL logging, then use the app."))
+            }
+        }
+        .navigationTitle("Network log")
+        .toolbar { Button("Clear", systemImage: "trash") { log.clear() }.disabled(log.entries.isEmpty) }
+    }
+}
+
 #Preview { AccountView().environment(DemoSession.preview()) }
+#Preview("Network log") {
+    let session = DemoSession.preview()
+    session.networkLog.append("curl 'https://sample.invalid/library/sections' \\\n  -H 'X-Plex-Token: [redacted]'")
+    return NavigationStack { NetworkLogView() }.environment(session)
+}
+
 #Preview("Signed out") { Form { SignInSection() }.environment(DemoSession(credentials: DemoMemoryCredentialStore())) }
 #Preview("Manual connection") { Form { ManualConnectionSection() }.environment(DemoSession(credentials: DemoMemoryCredentialStore())) }

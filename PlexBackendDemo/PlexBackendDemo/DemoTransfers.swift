@@ -36,6 +36,8 @@ final class DemoTransfers {
     @ObservationIgnored private var resumes: [UUID: Data] = [:]
     @ObservationIgnored private var pauses: [UUID: UUID] = [:]
     @ObservationIgnored private let configuration: () -> URLSessionConfiguration
+    /// Called with each transfer request just before it starts, for network logging.
+    @ObservationIgnored var willStart: ((URLRequest) -> Void)?
     let directory: URL
 
     init(directory: URL? = nil, configuration: @escaping () -> URLSessionConfiguration = { .ephemeral }) {
@@ -128,6 +130,7 @@ final class DemoTransfers {
         settings.timeoutIntervalForRequest = 60
         settings.timeoutIntervalForResource = 86400
         let session = URLSession(configuration: settings, delegate: delegate, delegateQueue: nil)
+        willStart?(request)
         let task = resumes[id].map { session.downloadTask(withResumeData: $0) } ?? session.downloadTask(with: request)
         active[id] = DemoTransferRun(session: session, task: task, generation: generation)
         task.resume()

@@ -44,12 +44,18 @@ extension PlexEventStreaming {
 
 /// Event-source notifications. The consumer owns start/stop and interprets event payloads.
 public struct PlexEventSource: PlexEventStreaming {
+    private let logger: PlexCurlLogger?
+
     /// Creates an event source.
-    public init() {}
+    /// - Parameter logger: Logs the stream request as a `curl` command when enabled.
+    public init(logger: PlexCurlLogger? = nil) {
+        self.logger = logger
+    }
 
     /// Opens the stream with the same redirect restrictions as `PlexURLSessionTransport`; cancel the iterating task to close it.
     public func lines(for request: URLRequest) -> AsyncThrowingStream<String, Error> {
-        AsyncThrowingStream(bufferingPolicy: .bufferingNewest(60)) { continuation in
+        logger?.log(request)
+        return AsyncThrowingStream(bufferingPolicy: .bufferingNewest(60)) { continuation in
             let session = URLSession(configuration: .ephemeral, delegate: PlexRedirectPolicy(), delegateQueue: nil)
             let task = Task {
                 defer { session.invalidateAndCancel() }

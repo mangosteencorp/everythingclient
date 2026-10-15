@@ -38,6 +38,19 @@ final class DemoSession {
     var manualToken = ""
     let transfers: DemoTransfers
     let identity: PlexClientIdentity
+    /// Shared switch for logging every network call as `curl`; `networkLog` keeps the recent ones for display.
+    @ObservationIgnored let curlLogger: PlexCurlLogger
+    let networkLog: DemoNetworkLog
+    var logsNetworkCalls: Bool {
+        didSet {
+            curlLogger.isEnabled = logsNetworkCalls
+            UserDefaults.standard.set(logsNetworkCalls, forKey: "plex-demo-curl-logging")
+        }
+    }
+
+    var redactsNetworkLog = true {
+        didSet { curlLogger.redactsCredentials = redactsNetworkLog }
+    }
 
     @ObservationIgnored private let account: any PlexAccountServing & PlexAccountProfileServing
     @ObservationIgnored private let network: any PlexHTTPTransport
@@ -71,14 +84,25 @@ final class DemoSession {
         } catch {
             preconditionFailure("Invalid demo client identity")
         }
-        self.account = account ?? PlexAccountService(identity: identity)
-        network = serverTransport
-        self.connector = connector ?? PlexServerConnector(transport: serverTransport)
+        let log = DemoNetworkLog()
+        let logging = defaults.bool(forKey: "plex-demo-curl-logging")
+        let logger = PlexCurlLogger(isEnabled: logging) { command in
+            PlexCurlLogger.systemSink(command)
+            Task { @MainActor in log.append(command) }
+        }
+        networkLog = log
+        curlLogger = logger
+        logsNetworkCalls = logging
+        let network = PlexCurlLoggingTransport(upstream: serverTransport, logger: logger)
+        self.network = network
+        self.account = account ?? PlexAccountService(identity: identity, transport: network)
+        self.connector = connector ?? PlexServerConnector(transport: network)
         self.credentials = credentials
         self.storage = storage
         cache = PlexDiskResponseCache(directory: storage.appending(path: "ResponseCache"))
         syncQueue = PlexWatchSyncQueue(fileURL: storage.appending(path: "WatchSync.json"))
         transfers = DemoTransfers(directory: storage.appending(path: "Downloads", directoryHint: .isDirectory))
+        transfers.willStart = { logger.log($0) }
         // Earlier builds kept artwork in a URLCache, which also stored the token header. Artwork now lives in the
         // token-free response cache, so remove that folder.
         try? FileManager.default.removeItem(at: storage.appending(path: "ImageCache"))
@@ -328,7 +352,7 @@ final class DemoSession {
               ) else { return }
         isSample = true
         let transport = PlexCachingTransport(
-            upstream: DemoFixtureTransport(), cache: cache, scope: "sample-server"
+            upstream: PlexCurlLoggingTransport(upstream: DemoFixtureTransport(), logger: curlLogger), cache: cache, scope: "sample-server"
         )
         cachingTransport = transport
         api = PlexAPIService(configuration: configuration, transport: transport)
@@ -469,6 +493,26 @@ final class DemoSession {
     nonisolated static func isConnectivityFailure(_ error: any Error) -> Bool {
         error is URLError || error as? PlexAPIError == .offline || error as? PlexAPIError == .noReachableServer
     }
+}
+
+/// The most recent `curl` commands, newest first.
+@MainActor
+@Observable
+final class DemoNetworkLog {
+    struct Entry: Identifiable, Equatable {
+        let id = UUID()
+        let date = Date()
+        let command: String
+    }
+
+    private(set) var entries: [Entry] = []
+
+    func append(_ command: String) {
+        entries.insert(Entry(command: command), at: 0)
+        if entries.count > 200 { entries.removeLast(entries.count - 200) }
+    }
+
+    func clear() { entries = [] }
 }
 
 /// Keeps a session in memory only; used by previews and tests.
