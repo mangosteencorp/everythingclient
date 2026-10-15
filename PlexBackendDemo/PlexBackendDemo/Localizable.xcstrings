@@ -1,0 +1,676 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ – %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ – %2$@"
+          }
+        }
+      }
+    },
+    "%@ — %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ — %2$@"
+          }
+        }
+      }
+    },
+    "%@ — part %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ — part %2$lld"
+          }
+        }
+      }
+    },
+    "%@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@ (descending)" : {
+
+    },
+    "%lld external subtitle files" : {
+
+    },
+    "%lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld"
+          }
+        }
+      }
+    },
+    "^[%lld star](inflect: true)" : {
+
+    },
+    "Account" : {
+
+    },
+    "Activities" : {
+
+    },
+    "Add items from any movie or episode with “Add to playlist”." : {
+
+    },
+    "Add to collection" : {
+
+    },
+    "Add to playlist" : {
+
+    },
+    "Added" : {
+
+    },
+    "Added to playlist." : {
+
+    },
+    "Advanced connection settings" : {
+
+    },
+    "Allow an unencrypted HTTP connection" : {
+
+    },
+    "Analyze media" : {
+
+    },
+    "Any genre" : {
+
+    },
+    "Audio" : {
+
+    },
+    "Available" : {
+
+    },
+    "Available offline" : {
+
+    },
+    "Browse" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Cancel sign-in" : {
+
+    },
+    "Cancelled" : {
+
+    },
+    "Cast and crew" : {
+
+    },
+    "Choose a profile" : {
+
+    },
+    "Clear offline cache" : {
+
+    },
+    "Clear rating" : {
+
+    },
+    "Collection" : {
+
+    },
+    "Collections" : {
+
+    },
+    "Completed" : {
+
+    },
+    "Connect manually" : {
+
+    },
+    "Connect to a Plex server" : {
+
+    },
+    "Connect to your server to transfer real files." : {
+
+    },
+    "Connected to" : {
+
+    },
+    "Connecting to your Plex server…" : {
+
+    },
+    "Continue Watching" : {
+
+    },
+    "Counts as watched at" : {
+
+    },
+    "Create" : {
+
+    },
+    "Default" : {
+
+    },
+    "Delete collection" : {
+
+    },
+    "Delete from server" : {
+
+    },
+    "Delete playlist" : {
+
+    },
+    "Delete this item and its files from the server?" : {
+
+    },
+    "Director" : {
+
+    },
+    "Done" : {
+
+    },
+    "Download" : {
+
+    },
+    "Download for offline" : {
+
+    },
+    "Downloading" : {
+
+    },
+    "Downloads" : {
+
+    },
+    "Downloads and queued watch changes are kept." : {
+
+    },
+    "Downloads keep the original file and its details, so they play without a connection. Keep the app open while transfers run." : {
+
+    },
+    "Empty trash" : {
+
+    },
+    "Episode" : {
+
+    },
+    "Episodes" : {
+
+    },
+    "Episodes: %lld" : {
+
+    },
+    "Explore sample library" : {
+
+    },
+    "Explore without an account" : {
+
+    },
+    "Export file" : {
+
+    },
+    "Extra" : {
+
+    },
+    "Extras" : {
+
+    },
+    "Failed" : {
+
+    },
+    "File size" : {
+
+    },
+    "Find movies, shows and collections." : {
+
+    },
+    "Find subtitles" : {
+
+    },
+    "Find subtitles online" : {
+
+    },
+    "Finding a working connection…" : {
+
+    },
+    "Folders" : {
+
+    },
+    "For endpoints without a typed API. Tokens are redacted from responses." : {
+
+    },
+    "Genre" : {
+
+    },
+    "Go online" : {
+
+    },
+    "Home" : {
+
+    },
+    "Home profile" : {
+
+    },
+    "HTTP sends the server token without encryption. Use only a trusted local network." : {
+
+    },
+    "Include external subtitles" : {
+
+    },
+    "Item" : {
+
+    },
+    "Items" : {
+
+    },
+    "Items: %lld" : {
+
+    },
+    "Language code" : {
+
+    },
+    "Libraries" : {
+
+    },
+    "Library" : {
+
+    },
+    "Library maintenance" : {
+
+    },
+    "Listen for server events" : {
+
+    },
+    "Live notifications" : {
+
+    },
+    "Live TV DVRs" : {
+
+    },
+    "Load home profiles" : {
+
+    },
+    "Load more" : {
+
+    },
+    "Mark as unwatched" : {
+
+    },
+    "Mark as watched" : {
+
+    },
+    "Media" : {
+
+    },
+    "Method" : {
+
+    },
+    "More" : {
+
+    },
+    "Movie" : {
+
+    },
+    "Movies" : {
+
+    },
+    "Movies, shows and collections" : {
+
+    },
+    "Name" : {
+
+    },
+    "New collection with this item" : {
+
+    },
+    "New playlist" : {
+
+    },
+    "New playlist with this item" : {
+
+    },
+    "Next in queue" : {
+
+    },
+    "No background activity." : {
+
+    },
+    "No complete original file is available for this media selection. Try another version." : {
+
+    },
+    "No downloads yet" : {
+
+    },
+    "No libraries" : {
+
+    },
+    "No subtitles found for this language." : {
+
+    },
+    "No usable server address is available. Check the server access token or use the advanced connection settings." : {
+
+    },
+    "No working connection was found for this server. Check that it is online and accessible, then retry." : {
+
+    },
+    "Nothing here yet" : {
+
+    },
+    "Nothing to show yet" : {
+
+    },
+    "Now playing" : {
+
+    },
+    "Off" : {
+
+    },
+    "Offline — showing saved content" : {
+
+    },
+    "Offline mode" : {
+
+    },
+    "Offline mode shows what you've already opened from the cache and queues watch changes until you're back online." : {
+
+    },
+    "OK" : {
+
+    },
+    "Open a movie or episode and choose Download for offline." : {
+
+    },
+    "Open Plex sign-in" : {
+
+    },
+    "Part %lld" : {
+
+    },
+    "Pause" : {
+
+    },
+    "Paused" : {
+
+    },
+    "Pausing" : {
+
+    },
+    "Pausing…" : {
+
+    },
+    "Planned files" : {
+
+    },
+    "Platform" : {
+
+    },
+    "Play" : {
+
+    },
+    "Play all" : {
+
+    },
+    "Playlist" : {
+
+    },
+    "Playlist created." : {
+
+    },
+    "Playlists" : {
+
+    },
+    "Plex account" : {
+
+    },
+    "Plex returned an unexpected response format for this operation." : {
+
+    },
+    "Plex returned HTTP %lld. Check access permissions and the selected connection." : {
+
+    },
+    "Profile PIN" : {
+
+    },
+    "Progress is reported to your server while online and queued for sync when offline." : {
+
+    },
+    "Queued" : {
+
+    },
+    "Rate" : {
+
+    },
+    "Raw request" : {
+
+    },
+    "Recommended" : {
+
+    },
+    "Refresh all metadata" : {
+
+    },
+    "Refresh metadata" : {
+
+    },
+    "Refresh servers" : {
+
+    },
+    "Remove" : {
+
+    },
+    "Remove download" : {
+
+    },
+    "Remove from Continue Watching" : {
+
+    },
+    "Remove this downloaded file?" : {
+
+    },
+    "Require every part" : {
+
+    },
+    "Response: %lld, %lld bytes of non-JSON content." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Response: %1$lld, %2$lld bytes of non-JSON content."
+          }
+        }
+      }
+    },
+    "Resume" : {
+
+    },
+    "Retry" : {
+
+    },
+    "S%lld E%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "S%1$lld E%2$lld"
+          }
+        }
+      }
+    },
+    "Sample mode — synthetic data" : {
+
+    },
+    "Sample server" : {
+
+    },
+    "Scan for new files" : {
+
+    },
+    "Search" : {
+
+    },
+    "Search your server" : {
+
+    },
+    "Season" : {
+
+    },
+    "Seasons" : {
+
+    },
+    "See all" : {
+
+    },
+    "Send request" : {
+
+    },
+    "Server" : {
+
+    },
+    "Server access token" : {
+
+    },
+    "Server tools" : {
+
+    },
+    "Server URL, including any proxy prefix" : {
+
+    },
+    "Server-relative path" : {
+
+    },
+    "Shared with you" : {
+
+    },
+    "Shuffle" : {
+
+    },
+    "Sign in to connect automatically and load your library. Your sign-in is kept in the Keychain." : {
+
+    },
+    "Sign in with Plex" : {
+
+    },
+    "Sign out" : {
+
+    },
+    "Sign-in code" : {
+
+    },
+    "Signed in as" : {
+
+    },
+    "Skip credits" : {
+
+    },
+    "Skip intro" : {
+
+    },
+    "Something went wrong" : {
+
+    },
+    "Sort" : {
+
+    },
+    "Sort and filter" : {
+
+    },
+    "Subtitles" : {
+
+    },
+    "Switch profile" : {
+
+    },
+    "Sync now" : {
+
+    },
+    "The download folder or saved manifest could not be opened." : {
+
+    },
+    "The downloaded file was saved, but its library record could not be stored." : {
+
+    },
+    "The local file could not be removed." : {
+
+    },
+    "The operation failed. Check the connection and try again." : {
+
+    },
+    "The server couldn't be reached. Check your connection or turn on offline mode." : {
+
+    },
+    "The server did not report its identifier, so this list can't be changed." : {
+
+    },
+    "This isn't available offline. Open it once while connected, or download it." : {
+
+    },
+    "This request may change data on your server." : {
+
+    },
+    "Transfers" : {
+
+    },
+    "TV show" : {
+
+    },
+    "TV Shows" : {
+
+    },
+    "Unable to load" : {
+
+    },
+    "Unable to load home" : {
+
+    },
+    "Unavailable" : {
+
+    },
+    "Up next" : {
+
+    },
+    "Use a server-relative path without credentials, traversal, or an external host." : {
+
+    },
+    "Use Account to sign in, or explore the sample library." : {
+
+    },
+    "Version" : {
+
+    },
+    "Video transcoding" : {
+
+    },
+    "View" : {
+
+    },
+    "Waiting for browser authorization…" : {
+
+    },
+    "Waiting to sync watch changes" : {
+
+    },
+    "Watch changes waiting to sync" : {
+
+    },
+    "Watched" : {
+
+    },
+    "Your rating: %lld of 5" : {
+
+    },
+    "Your sign-in code expired. Start sign-in again." : {
+
+    }
+  },
+  "version" : "1.0"
+}
