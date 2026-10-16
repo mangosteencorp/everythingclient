@@ -131,18 +131,116 @@ struct PlexServerConnectorTests {
     }
 }
 
+struct PlexBestServerTests {
+    @Test func rankingPrefersCloserRoutesThenFasterRepliesThenOwnedServers() throws {
+        func answer(_ id: String, _ route: PlexServerRoute, _ milliseconds: Int, owned: Bool = false) throws -> PlexBestServerConnection {
+            let result = try PlexServerConnectionResult(configuration: testConfiguration(), libraries: [], route: route)
+            let server = try connectorResource([["uri": "https://\(id).example"]], id: id, owned: owned)
+            return PlexBestServerConnection(server: server, connection: result, latency: .milliseconds(milliseconds))
+        }
+        let ranked = try PlexBestServerConnection.ranked([
+            answer("relay", .relay, 5, owned: true), answer("slow-remote", .remote, 300), answer("shared-local", .local, 40),
+            answer("fast-remote", .remote, 20), answer("owned-local", .local, 40, owned: true), answer("second-local", .local, 40),
+        ])
+        #expect(ranked.map(\.server.id) == ["owned-local", "shared-local", "second-local", "fast-remote", "slow-remote", "relay"])
+    }
+
+    @Test func skipsDeadExpiredAndContentlessServersAndChoosesTheWorkingMovieServer() async throws {
+        let transport = ConnectorTransport(routes: [
+            "expired.example": .server(identifier: "expired", librariesStatus: 401),
+            "music.example": .server(identifier: "music", sectionType: "artist"),
+            "movies.example": .server(identifier: "movies"),
+        ])
+        let servers = try [
+            connectorResource([["uri": "https://dead.example", "local": true]], id: "dead", owned: true),
+            connectorResource([["uri": "https://expired.example", "local": true]], id: "expired", owned: true),
+            connectorResource([["uri": "https://music.example", "local": true]], id: "music"),
+            connectorResource([["uri": "https://movies.example", "relay": true]], id: "movies"),
+            connectorResource([["uri": "https://movies.example"]], id: "no-token", token: nil),
+        ]
+        let best = try await PlexServerConnector(transport: transport).connectBest(among: servers, identity: testIdentity())
+        #expect(best.server.id == "movies" && best.route == .relay && best.latency > .zero)
+        #expect(best.connection.libraries.map(\.type) == ["movie"] && best.connection.configuration.baseURL.host == "movies.example")
+    }
+
+    @Test func reportsWhetherNoServerAnsweredOrNoneOffersTheContent() async throws {
+        let transport = ConnectorTransport(routes: ["music.example": .server(identifier: "music", sectionType: "artist")])
+        let dead = try connectorResource([["uri": "https://dead.example"]], id: "dead")
+        let music = try connectorResource([["uri": "https://music.example"]], id: "music")
+        let connector = PlexServerConnector(transport: transport)
+        await #expect(throws: PlexAPIError.noReachableServer) { try await connector.connectBest(among: [], identity: testIdentity()) }
+        await #expect(throws: PlexAPIError.noReachableServer) { try await connector.connectBest(among: [dead], identity: testIdentity()) }
+        await #expect(throws: PlexAPIError.noServerWithContent) {
+            try await connector.connectBest(among: [dead, music], identity: testIdentity())
+        }
+        #expect(try await connector.connectBest(among: [dead, music], identity: testIdentity(), content: []).server.id == "music")
+    }
+
+    @Test func gracePeriodCancelsAServerThatNeverAnswers() async throws {
+        let transport = ConnectorTransport(routes: ["hanging.example": .waiting, "remote.example": .server(identifier: "remote")])
+        let servers = try [
+            connectorResource([["uri": "https://hanging.example", "local": true]], id: "hanging", owned: true),
+            connectorResource([["uri": "https://remote.example"]], id: "remote"),
+        ]
+        let best = try await PlexServerConnector(transport: transport).connectBest(
+            among: servers, identity: testIdentity(), content: .movies, allowHTTP: false, gracePeriod: .milliseconds(20)
+        )
+        #expect(best.server.id == "remote" && best.route == .remote)
+        #expect(await transport.cancelledRequests == 1)
+    }
+
+    @Test func closerServerThatAnswersWithinTheGracePeriodWins() async throws {
+        let transport = ConnectorTransport(routes: [
+            "relay.example": .server(identifier: "relay"), "local.example": .server(identifier: "local", delay: 30_000_000),
+        ])
+        let servers = try [
+            connectorResource([["uri": "https://relay.example", "relay": true]], id: "relay", owned: true),
+            connectorResource([["uri": "https://local.example", "local": true]], id: "local"),
+        ]
+        let best = try await PlexServerConnector(transport: transport).connectBest(
+            among: servers, identity: testIdentity(), content: .movies, allowHTTP: false, gracePeriod: .seconds(5)
+        )
+        #expect(best.server.id == "local" && best.route == .local)
+    }
+
+    @Test func cancellationStopsEveryServerProbe() async throws {
+        let transport = ConnectorTransport(routes: ["one.example": .waiting, "two.example": .waiting])
+        let servers = try [
+            connectorResource([["uri": "https://one.example"]], id: "one"), connectorResource([["uri": "https://two.example"]], id: "two"),
+        ]
+        let identity = try testIdentity()
+        let task = Task { try await PlexServerConnector(transport: transport).connectBest(among: servers, identity: identity) }
+        for _ in 0..<10_000 {
+            if await transport.requests.count == 2 { break }
+            await Task.yield()
+        }
+        task.cancel()
+        await #expect(throws: CancellationError.self) { try await task.value }
+        #expect(await transport.cancelledRequests == 2)
+    }
+
+    @Test func connectReportsTheRouteThatAnswered() async throws {
+        let transport = ConnectorTransport(routes: ["relay.example": .server()])
+        let server = try connectorResource([
+            ["uri": "https://local.example", "local": true], ["uri": "https://relay.example", "relay": true],
+        ])
+        let result = try await PlexServerConnector(transport: transport).connect(to: server, identity: testIdentity())
+        #expect(result.configuration.baseURL.host == "relay.example" && result.route == .relay)
+        #expect(PlexServerConnectionResult(configuration: result.configuration, libraries: []).route == .remote)
+    }
+}
+
 private func connectorResource(
-    _ connections: [[String: Any]], token: String? = "resource-token"
+    _ connections: [[String: Any]], id: String = "expected-server", owned: Bool? = nil, token: String? = "resource-token"
 ) throws -> PlexServerResource {
-    var json: [String: Any] = [
-        "clientIdentifier": "expected-server", "name": "Test Server", "provides": "server", "connections": connections,
-    ]
+    var json: [String: Any] = ["clientIdentifier": id, "name": "Test Server", "provides": "server", "connections": connections]
+    if let owned { json["owned"] = owned }
     if let token { json["accessToken"] = token }
     return try JSONDecoder().decode(PlexServerResource.self, from: JSONSerialization.data(withJSONObject: json))
 }
 
 private enum ConnectorRoute: Sendable {
-    case server(identifier: String = "expected-server", librariesStatus: Int = 200, delay: UInt64 = 0)
+    case server(identifier: String = "expected-server", librariesStatus: Int = 200, delay: UInt64 = 0, sectionType: String = "movie")
     case waiting
 }
 
@@ -164,11 +262,11 @@ private actor ConnectorTransport: PlexHTTPTransport {
         guard let route = routes[url.host ?? ""] else { throw URLError(.cannotConnectToHost) }
         do {
             switch route {
-            case let .server(identifier, librariesStatus, delay):
+            case let .server(identifier, librariesStatus, delay, sectionType):
                 if delay > 0 { try await Task.sleep(nanoseconds: delay) }
                 let identity = url.path == "/identity"
                 let json = identity ? "{\"MediaContainer\":{\"machineIdentifier\":\"\(identifier)\"}}"
-                    : #"{"MediaContainer":{"Directory":[{"key":"1","title":"Movies","type":"movie"}]}}"#
+                    : #"{"MediaContainer":{"Directory":[{"key":"1","title":"Movies","type":"\#(sectionType)"}]}}"#
                 let response = try #require(HTTPURLResponse(
                     url: url, statusCode: identity ? 200 : librariesStatus, httpVersion: "HTTP/1.1", headerFields: nil
                 ))

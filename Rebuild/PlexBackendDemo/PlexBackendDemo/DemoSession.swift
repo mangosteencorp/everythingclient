@@ -14,6 +14,8 @@ final class DemoSession {
     private(set) var homeUsers: [PlexAccountUser] = []
     var servers: [PlexServerResource] = []
     var selectedServerID = ""
+    /// Automatic in the server picker: discovery connects the best server. Choosing a server turns it off.
+    var picksServerAutomatically = true
     private(set) var pinCode = ""
     private(set) var authorizationURL: URL?
     private(set) var waitingForLogin = false
@@ -24,6 +26,8 @@ final class DemoSession {
     private(set) var serverID = ""
     private(set) var connectedServerID: String?
     private(set) var connectedOrigin: String?
+    /// The automatic pick that is connected, with the route and reply time that won; nil for a chosen server.
+    private(set) var automaticPick: PlexBestServerConnection?
     private(set) var libraries: [PlexLibrary] = []
     private(set) var isConnecting = false
     private(set) var isSample = false
@@ -221,13 +225,13 @@ final class DemoSession {
         await discover(token: token, preferring: selectedServerID)
     }
 
+    /// Keeps `preferredID` when it is the user's choice and still listed; otherwise picks the best server.
     private func discover(token: String, preferring preferredID: String?) async {
         do {
             let found = try await account.servers(accountToken: token)
             guard accountToken == token else { return }
             servers = found
-            selectedServerID = found.first { $0.id == preferredID }?.id
-                ?? found.first { $0.owned == true }?.id ?? found.first?.id ?? ""
+            if !found.contains(where: { $0.id == preferredID }) { picksServerAutomatically = true }
             await connectDiscovered()
         } catch is CancellationError {
         } catch {
@@ -236,9 +240,11 @@ final class DemoSession {
         }
     }
 
-    func selectServer(_ id: String) {
-        guard selectedServerID != id || connectedServerID == nil else { return }
-        selectedServerID = id
+    /// Connects the chosen server, or picks the best one again for nil (Automatic).
+    func selectServer(_ id: String?) {
+        guard id != (picksServerAutomatically ? nil : selectedServerID) || connectedServerID == nil else { return }
+        picksServerAutomatically = id == nil
+        if let id { selectedServerID = id }
         startConnection()
     }
 
@@ -248,7 +254,9 @@ final class DemoSession {
     }
 
     private func startConnection() {
-        guard let server = selectedServer else { return }
+        let automatic = picksServerAutomatically
+        let candidates = automatic ? servers : selectedServer.map { [$0] } ?? []
+        guard let chosen = candidates.first else { return }
         connectionGeneration = UUID()
         connectionTask?.cancel()
         error = nil
@@ -258,11 +266,15 @@ final class DemoSession {
         connectionTask = Task {
             defer { if connectionGeneration == generation { isConnecting = false } }
             do {
-                let result = try await connector.connect(to: server, identity: identity, allowHTTP: allowHTTP)
+                let pick = try await automatic ? connector.connectBest(among: candidates, identity: identity, allowHTTP: allowHTTP) : nil
+                let server = pick?.server ?? chosen
+                let result = if let pick { pick.connection } else { try await connector.connect(to: server, identity: identity, allowHTTP: allowHTTP) }
                 try Task.checkCancellation()
-                guard connectionGeneration == generation, selectedServerID == server.id else { return }
+                guard connectionGeneration == generation, automatic || selectedServerID == server.id else { return }
                 isSample = false
+                selectedServerID = server.id
                 install(result.configuration, libraries: result.libraries, name: server.name, serverID: server.id)
+                automaticPick = pick
                 connectedServerID = server.id
                 persist()
                 // Re-read sections through the caching API so they are available offline after relaunch.
@@ -271,7 +283,7 @@ final class DemoSession {
             } catch is CancellationError {
             } catch {
                 guard connectionGeneration == generation else { return }
-                if serverID == server.id { await setOffline(true) } else { self.error = Self.message(for: error) }
+                if candidates.contains(where: { $0.id == serverID }) { await setOffline(true) } else { self.error = Self.message(for: error) }
             }
         }
     }
@@ -335,6 +347,7 @@ final class DemoSession {
         libraries = []
         connectedServerID = nil
         connectedOrigin = nil
+        automaticPick = nil
         serverName = ""
         serverID = ""
         isSample = false

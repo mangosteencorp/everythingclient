@@ -29,6 +29,8 @@ extension DemoSession {
             String(localized: "This isn't available offline. Open it once while connected, or download it.")
         case PlexAPIError.noReachableServer:
             String(localized: "No working connection was found for this server. Check that it is online and accessible, then retry.")
+        case PlexAPIError.noServerWithContent:
+            String(localized: "None of your servers has a movie or TV library. Choose a server in Account to connect anyway.")
         case PlexAPIError.pinExpired: String(localized: "Your sign-in code expired. Start sign-in again.")
         case let PlexAPIError.httpStatus(code):
             String(localized: "Plex returned HTTP \(code). Check access permissions and the selected connection.")

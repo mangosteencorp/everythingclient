@@ -12,6 +12,7 @@ struct AccountView: View {
                 Section {
                     if session.api != nil {
                         LabeledContent("Connected to", value: session.serverName)
+                        if let pick = session.automaticPick { AutomaticServerPickRow(route: pick.route, latency: pick.latency) }
                         if session.isSample { Label("Sample mode — synthetic data", systemImage: "testtube.2") }
                     } else if session.isConnecting {
                         ProgressView("Finding a working connection…")
@@ -57,8 +58,10 @@ struct SignInSection: View {
             } else if session.hasAccount {
                 if !session.accountName.isEmpty { LabeledContent("Signed in as", value: session.accountName) }
                 if !session.servers.isEmpty {
-                    Picker("Server", selection: Binding(get: { session.selectedServerID }, set: session.selectServer)) {
-                        ForEach(session.servers) { Text($0.name).tag($0.id) }
+                    let selection = Binding(get: { session.picksServerAutomatically ? nil : session.selectedServerID }, set: session.selectServer)
+                    Picker("Server", selection: selection) {
+                        Text("Automatic").tag(String?.none)
+                        ForEach(session.servers) { Text($0.name).tag(Optional($0.id)) }
                     }
                 }
                 Button("Refresh servers") { Task { await session.refreshServers() } }.disabled(session.isConnecting)
@@ -67,6 +70,29 @@ struct SignInSection: View {
             } else {
                 Button("Sign in with Plex") { session.signIn() }.accessibilityIdentifier("plex.signIn")
             }
+        }
+    }
+}
+
+/// Why Automatic chose the connected server: its route and reply time, such as "Local · 38ms".
+struct AutomaticServerPickRow: View {
+    let route: PlexServerRoute
+    let latency: Duration
+
+    var body: some View {
+        LabeledContent("Picked automatically") {
+            Text("\(Text(route.title)) · \(latency.formatted(.units(allowed: [.milliseconds], width: .narrow)))")
+        }
+    }
+}
+
+extension PlexServerRoute {
+    /// The route's name in Account.
+    var title: LocalizedStringResource {
+        switch self {
+        case .local: "Local"
+        case .remote: "Remote"
+        case .relay: "Relay"
         }
     }
 }
@@ -170,6 +196,14 @@ struct NetworkLogView: View {
     let session = DemoSession.preview()
     session.networkLog.append("curl 'https://sample.invalid/library/sections' \\\n  -H 'X-Plex-Token: [redacted]'")
     return NavigationStack { NetworkLogView() }.environment(session)
+}
+
+#Preview("Automatic pick") {
+    Form {
+        AutomaticServerPickRow(route: .local, latency: .milliseconds(38))
+        AutomaticServerPickRow(route: .remote, latency: .milliseconds(120))
+        AutomaticServerPickRow(route: .relay, latency: .milliseconds(410))
+    }
 }
 
 #Preview("Signed out") { Form { SignInSection() }.environment(DemoSession(credentials: DemoMemoryCredentialStore())) }

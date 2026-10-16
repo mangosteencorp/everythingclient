@@ -14,6 +14,20 @@ private func automaticTestServers() throws -> [PlexServerResource] {
     """#.utf8))
 }
 
+/// A dead owned server (the old default pick), a remote one and a local one.
+private func pickTestServers() throws -> [PlexServerResource] {
+    try JSONDecoder().decode([PlexServerResource].self, from: Data(#"""
+    [
+      {"clientIdentifier":"dead","name":"Dead server","provides":"server","owned":true,
+       "accessToken":"dead-token","connections":[{"uri":"https://dead.invalid","local":true}]},
+      {"clientIdentifier":"remote","name":"Remote server","provides":"server","owned":true,
+       "accessToken":"remote-token","connections":[{"uri":"https://remote.invalid"}]},
+      {"clientIdentifier":"local","name":"Local server","provides":"server","owned":false,
+       "accessToken":"local-token","connections":[{"uri":"https://local.invalid","local":true}]}
+    ]
+    """#.utf8))
+}
+
 private struct AutomaticAccount: PlexAccountServing, PlexAccountProfileServing {
     func createPIN() async throws -> PlexPIN { try pinValue(authorized: false) }
     func pin(id: String) async throws -> PlexPIN { try pinValue(authorized: true) }
@@ -65,6 +79,25 @@ private actor HeldServerConnector: PlexServerConnecting {
     }
 }
 
+/// Answers the listed servers on their route at once; any other server fails like a dead one.
+private actor ScriptedServerConnector: PlexServerConnecting {
+    private let routes: [String: PlexServerRoute]
+    private(set) var attempts: [String] = []
+    init(_ routes: [String: PlexServerRoute]) { self.routes = routes }
+
+    func connect(to server: PlexServerResource, identity: PlexClientIdentity, allowHTTP: Bool) async throws -> PlexServerConnectionResult {
+        attempts.append(server.id)
+        guard let route = routes[server.id] else { throw URLError(.cannotConnectToHost) }
+        let libraries = [PlexLibrary(key: server.id, title: server.name, type: "movie")]
+        return try PlexServerConnectionResult(configuration: server.configuration(connectionIndex: 0, identity: identity), libraries: libraries, route: route)
+    }
+}
+
+@MainActor
+private func waitUntil(_ condition: () -> Bool) async throws {
+    for _ in 0..<500 where !condition() { try await Task.sleep(for: .milliseconds(10)) }
+}
+
 @MainActor
 struct DemoAutomaticConnectionTests {
     @Test func signingInConnectsTheOwnedServerAndPersistsTheSession() async throws {
@@ -82,7 +115,8 @@ struct DemoAutomaticConnectionTests {
         #expect(session.libraries.map(\.key) == ["1"] && !session.isConnecting && !session.waitingForLogin)
         let requests = await transport.requests
         #expect(requests.contains { $0.url?.host == "owned.invalid" && $0.url?.path == "/library/sections" })
-        #expect(requests.allSatisfy { $0.value(forHTTPHeaderField: "X-Plex-Token") == "owned-token" })
+        // Automatic mode probes every server, each with its own token; the shared one answers as another server.
+        #expect(requests.allSatisfy { $0.value(forHTTPHeaderField: "X-Plex-Token") == ($0.url?.host == "shared.invalid" ? "shared-token" : "owned-token") })
         let stored = try #require(credentials.load())
         #expect(stored.accountToken == "account-token" && stored.server?.machineIdentifier == "owned")
         session.signOut()
@@ -98,6 +132,7 @@ struct DemoAutomaticConnectionTests {
         let shared = try #require(servers.first)
         let owned = try #require(servers.last)
         session.servers = servers
+        session.picksServerAutomatically = false
         session.selectedServerID = owned.id
         let previous = Task { await session.connectDiscovered() }
         for _ in 0..<1000 { if await connector.isPending(owned.id) { break }; await Task.yield() }
@@ -112,6 +147,39 @@ struct DemoAutomaticConnectionTests {
         await previous.value
         #expect(session.connectedServerID == shared.id && session.libraries.map(\.key) == [shared.id])
         #expect(!session.isConnecting && session.error == nil)
+        session.signOut()
+    }
+
+    @Test func automaticModePicksTheClosestWorkingServerAndSkipsTheDeadOne() async throws {
+        let connector = ScriptedServerConnector(["remote": .remote, "local": .local])
+        let offline = DemoRoutingTransport([:])
+        await offline.setFailing(true)
+        let session = makeSession(transport: offline, connector: connector)
+        session.servers = try pickTestServers()
+        await session.connectDiscovered()
+        #expect(session.picksServerAutomatically && session.connectedServerID == "local" && session.selectedServerID == "local")
+        #expect(session.automaticPick?.route == .local && session.libraries.map(\.key) == ["local"])
+        #expect(session.error == nil && !session.isConnecting && !session.isOffline)
+        #expect(Set(await connector.attempts) == ["dead", "remote", "local"])
+        session.signOut()
+    }
+
+    @Test func choosingAServerOverridesAutomaticAndAutomaticPicksAgain() async throws {
+        let connector = ScriptedServerConnector(["remote": .remote, "local": .local])
+        let offline = DemoRoutingTransport([:])
+        await offline.setFailing(true)
+        let session = makeSession(transport: offline, connector: connector)
+        session.servers = try pickTestServers()
+        await session.connectDiscovered()
+        #expect(session.connectedServerID == "local")
+        session.selectServer("remote")
+        try await waitUntil { session.connectedServerID == "remote" && !session.isConnecting }
+        #expect(!session.picksServerAutomatically && session.automaticPick == nil && session.selectedServerID == "remote")
+        #expect(await connector.attempts.count == 4)
+        session.selectServer(nil)
+        try await waitUntil { session.automaticPick != nil && !session.isConnecting }
+        #expect(session.picksServerAutomatically && session.connectedServerID == "local" && session.automaticPick?.route == .local)
+        #expect(await connector.attempts.count == 7 && session.error == nil)
         session.signOut()
     }
 }

@@ -21,8 +21,10 @@ public enum PlexAPIError: Error, Equatable, Sendable {
     case unavailablePart(String)
     /// The sign-in PIN expired or was removed before it was authorized.
     case pinExpired
-    /// None of the server's advertised connections answered as the expected server.
+    /// None of the server's advertised connections answered as the expected server; from `connectBest`, no server did.
     case noReachableServer
+    /// `connectBest` reached servers, but none offered the requested library types.
+    case noServerWithContent
     /// Offline mode is on (or the network failed) and nothing was cached for this request.
     case offline
     /// The server's machine identifier is unknown, so a `server://` URI cannot be built.

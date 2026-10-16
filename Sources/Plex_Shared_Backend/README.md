@@ -28,8 +28,10 @@ while authToken == nil {
 }
 
 // 2. Pick a server; the connector finds an address that answers as that server and loads its sections.
-guard let accountToken = authToken, let server = try await account.servers(accountToken: accountToken).first else { return }
-let connection = try await PlexServerConnector().connect(to: server, identity: identity)
+//    connectBest tries every server and keeps the best one with movies or shows; connect(to:identity:) takes one server.
+guard let accountToken = authToken else { return }
+let servers = try await account.servers(accountToken: accountToken)
+let connection = try await PlexServerConnector().connectBest(among: servers, identity: identity).connection
 
 // 3. Browse with the server-scoped configuration.
 let api = PlexAPIService(configuration: connection.configuration)
@@ -49,6 +51,9 @@ Rules that matter:
   falling back to the account token.
 - **HTTPS unless you opt in.** `connect(to:identity:allowHTTP:)` tries plain HTTP only with `allowHTTP: true`, and only
   after every HTTPS address. A manual `PlexServerConfiguration` accepts `http` URLs, so gate those yourself.
+- **Automatic server choice.** `connectBest(among:identity:content:allowHTTP:)` skips dead servers, wrong identities and
+  rejected or expired tokens, keeps those with movie or show sections, and ranks local > remote > relay, then reply
+  time, then owned. Slower servers get 1.5 seconds after the first usable answer.
 - **Tokens stay in headers.** `X-Plex-Token` is only ever a header: keys or queries carrying one fail with
   `PlexAPIError.invalidPath`, the default transport refuses cross-origin redirects, and errors never carry response
   bodies. Don't log request headers, and don't log `switchUser`'s URL: the profile PIN is a query item.
@@ -84,8 +89,8 @@ From here on, paths are relative to the server and carry the **server** token.
 
 | Method | Path | Swift API | Sample | Test |
 | --- | --- | --- | --- | --- |
-| GET | `/identity` | [`PlexServerConnector.connect(to:identity:allowHTTP:)`](PlexServerConnector.swift#L51)<br>[`PlexAPIService.machineIdentifier()`](PlexAPIService.swift#L168) | [JSON](#sample-identity) | [connectorProbesIdentityThenSections](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L110)<br>[identity](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L96) |
-| GET | `/library/sections` | [`PlexServerConnector.connect(to:identity:allowHTTP:)`](PlexServerConnector.swift#L51)<br>[`PlexAPIService.libraries()`](PlexAPIService.swift#L72) | [JSON](#sample-library-sections) | [connectorProbesIdentityThenSections](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L110)<br>[librarySections](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L101) |
+| GET | `/identity` | [`PlexServerConnector.connect(to:identity:allowHTTP:)`](PlexServerConnector.swift#L188)<br>[`PlexServerConnecting.connectBest(among:identity:content:allowHTTP:gracePeriod:)`](PlexServerConnector.swift#L116)<br>[`PlexAPIService.machineIdentifier()`](PlexAPIService.swift#L168) | [JSON](#sample-identity) | [connectorProbesIdentityThenSections](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L110)<br>[skipsDeadExpiredAndContentlessServersAndChoosesTheWorkingMovieServer](../../Tests/Plex_Shared_Backend_Tests/PlexServerConnectorTests.swift#L148)<br>[identity](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L96) |
+| GET | `/library/sections` | [`PlexServerConnector.connect(to:identity:allowHTTP:)`](PlexServerConnector.swift#L188)<br>[`PlexServerConnecting.connectBest(among:identity:content:allowHTTP:gracePeriod:)`](PlexServerConnector.swift#L116)<br>[`PlexAPIService.libraries()`](PlexAPIService.swift#L72) | [JSON](#sample-library-sections) | [connectorProbesIdentityThenSections](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L110)<br>[skipsDeadExpiredAndContentlessServersAndChoosesTheWorkingMovieServer](../../Tests/Plex_Shared_Backend_Tests/PlexServerConnectorTests.swift#L148)<br>[librarySections](../../Tests/Plex_Shared_Backend_Tests/PlexAPISampleTests.swift#L101) |
 
 ### Browse
 
