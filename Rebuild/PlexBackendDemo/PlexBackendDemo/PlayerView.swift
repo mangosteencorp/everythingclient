@@ -10,12 +10,22 @@ protocol DemoPlayerCreating {
 }
 
 struct DemoPlayerFactory: DemoPlayerCreating {
-    /// Plex credentials travel in headers; the asset forwards them to every playlist, segment and file request.
+    /// AVFoundation has no public way to send request headers, and newer iOS 27.2 runtimes ignore the private
+    /// `AVURLAssetHTTPHeaderFieldsKey` (Plex then answers 403), so the credentials go in the player's URL instead.
     func player(for request: URLRequest) -> AVPlayer {
-        guard let url = request.url else { return AVPlayer() }
-        let headers = request.allHTTPHeaderFields ?? [:]
-        let asset = AVURLAsset(url: url, options: headers.isEmpty ? nil : ["AVURLAssetHTTPHeaderFieldsKey": headers])
-        return AVPlayer(playerItem: AVPlayerItem(asset: asset))
+        Self.playbackURL(for: request).map { AVPlayer(url: $0) } ?? AVPlayer()
+    }
+
+    /// The request's URL with its `X-Plex-Token` header appended as a query parameter, which Plex also accepts.
+    /// Only the token: with the other `X-Plex-*` headers in the query, Plex answers later range requests with 404.
+    /// The result carries the token: hand it to the player only, never to logs or caches.
+    nonisolated static func playbackURL(for request: URLRequest) -> URL? {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
+        guard let url = request.url,
+              let token = request.value(forHTTPHeaderField: "X-Plex-Token")?.addingPercentEncoding(withAllowedCharacters: allowed),
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return request.url }
+        components.percentEncodedQuery = [components.percentEncodedQuery, "X-Plex-Token=\(token)"].compactMap { $0 }.joined(separator: "&")
+        return components.url
     }
 }
 
