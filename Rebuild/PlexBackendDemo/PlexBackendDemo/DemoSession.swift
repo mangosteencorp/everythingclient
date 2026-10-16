@@ -20,21 +20,21 @@ final class DemoSession {
     private(set) var authorizationURL: URL?
     private(set) var waitingForLogin = false
     // Connection
-    private(set) var api: PlexAPIService?
-    private(set) var serverName = ""
+    var api: PlexAPIService?
+    var serverName = ""
     /// Cache and watch-sync scope: the machine identifier when known.
-    private(set) var serverID = ""
-    private(set) var connectedServerID: String?
-    private(set) var connectedOrigin: String?
+    var serverID = ""
+    var connectedServerID: String?
+    var connectedOrigin: String?
     /// The automatic pick that is connected, with the route and reply time that won; nil for a chosen server.
-    private(set) var automaticPick: PlexBestServerConnection?
-    private(set) var libraries: [PlexLibrary] = []
-    private(set) var isConnecting = false
-    private(set) var isSample = false
-    private(set) var isOffline = false
-    private(set) var pendingSync: [PlexPendingWatchAction] = []
+    var automaticPick: PlexBestServerConnection?
+    var libraries: [PlexLibrary] = []
+    var isConnecting = false
+    var isSample = false
+    var isOffline = false
+    var pendingSync: [PlexPendingWatchAction] = []
     /// Changes whenever the connection or offline state changes so screens reload.
-    private(set) var revision = UUID()
+    var revision = UUID()
     private(set) var busy = false
     var error: String?
     var allowHTTP = false
@@ -56,21 +56,21 @@ final class DemoSession {
         didSet { curlLogger.redactsCredentials = redactsNetworkLog }
     }
 
-    @ObservationIgnored private let account: any PlexAccountServing & PlexAccountProfileServing
-    @ObservationIgnored private let network: any PlexHTTPTransport
-    @ObservationIgnored private let connector: any PlexServerConnecting
+    @ObservationIgnored let account: any PlexAccountServing & PlexAccountProfileServing
+    @ObservationIgnored let network: any PlexHTTPTransport
+    @ObservationIgnored let connector: any PlexServerConnecting
     @ObservationIgnored private let credentials: any PlexCredentialStoring
-    @ObservationIgnored private let cache: any PlexResponseCaching
-    @ObservationIgnored private let syncQueue: PlexWatchSyncQueue
+    @ObservationIgnored let cache: any PlexResponseCaching
+    @ObservationIgnored let syncQueue: PlexWatchSyncQueue
     @ObservationIgnored private let storage: URL
-    @ObservationIgnored private var cachingTransport: PlexCachingTransport?
-    @ObservationIgnored private var accountToken: String?
-    @ObservationIgnored private var secrets: [String] = []
+    @ObservationIgnored var cachingTransport: PlexCachingTransport?
+    @ObservationIgnored private(set) var accountToken: String?
+    @ObservationIgnored var secrets: [String] = []
     @ObservationIgnored private var loginTask: Task<Void, Never>?
     @ObservationIgnored private var loginGeneration = UUID()
     @ObservationIgnored private var operationGeneration = UUID()
-    @ObservationIgnored private var connectionTask: Task<Void, Never>?
-    @ObservationIgnored private var connectionGeneration = UUID()
+    @ObservationIgnored var connectionTask: Task<Void, Never>?
+    @ObservationIgnored var connectionGeneration = UUID()
 
     init(
         account: (any PlexAccountServing & PlexAccountProfileServing)? = nil,
@@ -137,7 +137,7 @@ final class DemoSession {
         }
     }
 
-    private func persist() {
+    func persist() {
         guard !isSample else { return }
         let server = api.map { $0.configuration.credential(name: serverName) }
         try? credentials.save(PlexStoredSession(accountToken: accountToken, accountName: accountName, server: server))
@@ -218,165 +218,6 @@ final class DemoSession {
         error = nil
     }
 
-    // MARK: - Servers
-
-    func refreshServers() async {
-        guard let token = accountToken else { return }
-        await discover(token: token, preferring: selectedServerID)
-    }
-
-    /// Keeps `preferredID` when it is the user's choice and still listed; otherwise picks the best server.
-    private func discover(token: String, preferring preferredID: String?) async {
-        do {
-            let found = try await account.servers(accountToken: token)
-            guard accountToken == token else { return }
-            servers = found
-            if !found.contains(where: { $0.id == preferredID }) { picksServerAutomatically = true }
-            await connectDiscovered()
-        } catch is CancellationError {
-        } catch {
-            // Plezy keeps showing cached content when the account service is unreachable.
-            if api != nil { await setOffline(true) } else { self.error = Self.message(for: error) }
-        }
-    }
-
-    /// Connects the chosen server, or picks the best one again for nil (Automatic).
-    func selectServer(_ id: String?) {
-        guard id != (picksServerAutomatically ? nil : selectedServerID) || connectedServerID == nil else { return }
-        picksServerAutomatically = id == nil
-        if let id { selectedServerID = id }
-        startConnection()
-    }
-
-    func connectDiscovered() async {
-        startConnection()
-        await connectionTask?.value
-    }
-
-    private func startConnection() {
-        let automatic = picksServerAutomatically
-        let candidates = automatic ? servers : selectedServer.map { [$0] } ?? []
-        guard let chosen = candidates.first else { return }
-        connectionGeneration = UUID()
-        connectionTask?.cancel()
-        error = nil
-        isConnecting = true
-        let generation = connectionGeneration
-        let allowHTTP = allowHTTP
-        connectionTask = Task {
-            defer { if connectionGeneration == generation { isConnecting = false } }
-            do {
-                let pick = try await automatic ? connector.connectBest(among: candidates, identity: identity, allowHTTP: allowHTTP) : nil
-                let server = pick?.server ?? chosen
-                let result = if let pick { pick.connection } else { try await connector.connect(to: server, identity: identity, allowHTTP: allowHTTP) }
-                try Task.checkCancellation()
-                guard connectionGeneration == generation, automatic || selectedServerID == server.id else { return }
-                isSample = false
-                selectedServerID = server.id
-                install(result.configuration, libraries: result.libraries, name: server.name, serverID: server.id)
-                automaticPick = pick
-                connectedServerID = server.id
-                persist()
-                // Re-read sections through the caching API so they are available offline after relaunch.
-                if let libraries = try? await api?.libraries(), connectionGeneration == generation { self.libraries = libraries }
-                await syncNow()
-            } catch is CancellationError {
-            } catch {
-                guard connectionGeneration == generation else { return }
-                if candidates.contains(where: { $0.id == serverID }) { await setOffline(true) } else { self.error = Self.message(for: error) }
-            }
-        }
-    }
-
-    func connectManual() async {
-        await perform {
-            guard let url = URL(string: self.serverURL.trimmingCharacters(in: .whitespacesAndNewlines)) else {
-                throw PlexAPIError.invalidConfiguration
-            }
-            let configuration = try PlexServerConfiguration(baseURL: url, token: self.manualToken, identity: self.identity)
-            guard configuration.baseURL.scheme?.lowercased() == "https" || self.allowHTTP else {
-                throw PlexAPIError.invalidConfiguration
-            }
-            self.disconnect()
-            let startingRevision = self.revision
-            let machineID = try? await PlexAPIService(configuration: configuration, transport: self.network).machineIdentifier()
-            guard self.revision == startingRevision else { throw CancellationError() }
-            let identified = try PlexServerConfiguration(
-                baseURL: url, token: self.manualToken, identity: self.identity, machineIdentifier: machineID
-            )
-            self.install(identified, libraries: [], name: url.host() ?? "Plex", serverID: machineID)
-            let installed = self.revision
-            do {
-                // /identity needs no token; listing sections proves the token works and fills the offline cache.
-                let libraries = try await self.api?.libraries() ?? []
-                guard self.revision == installed else { throw CancellationError() }
-                self.libraries = libraries
-            } catch {
-                if self.revision == installed { self.disconnect() }
-                throw error
-            }
-            self.manualToken = ""
-            self.persist()
-        }
-    }
-
-    /// Builds the API on a caching transport scoped to this server.
-    private func install(_ configuration: PlexServerConfiguration, libraries: [PlexLibrary], name: String, serverID: String?) {
-        let scope = serverID ?? configuration.machineIdentifier ?? configuration.baseURL.host() ?? "server"
-        let transport = PlexCachingTransport(upstream: network, cache: cache, scope: scope)
-        cachingTransport = transport
-        let service = PlexAPIService(configuration: configuration, transport: transport)
-        if let token = try? service.resourceRequest(path: "/").value(forHTTPHeaderField: "X-Plex-Token") { secrets.append(token) }
-        api = service
-        isOffline = false
-        self.libraries = libraries
-        serverName = name
-        self.serverID = scope
-        connectedOrigin = configuration.baseURL.absoluteString
-        revision = UUID()
-        Task { await refreshPendingSync() }
-    }
-
-    func disconnect() {
-        connectionGeneration = UUID()
-        connectionTask?.cancel()
-        connectionTask = nil
-        isConnecting = false
-        api = nil
-        cachingTransport = nil
-        libraries = []
-        connectedServerID = nil
-        connectedOrigin = nil
-        automaticPick = nil
-        serverName = ""
-        serverID = ""
-        isSample = false
-        isOffline = false
-        revision = UUID()
-    }
-
-    /// Synthetic content through the same caching transport, so offline mode can be tried without a server.
-    func loadSamples() {
-        cancelLogin()
-        disconnect()
-        guard let url = URL(string: "https://sample.invalid"),
-              let configuration = try? PlexServerConfiguration(
-                  baseURL: url, token: "sample", identity: identity, machineIdentifier: "sample-server"
-              ) else { return }
-        isSample = true
-        let transport = PlexCachingTransport(
-            upstream: PlexCurlLoggingTransport(upstream: DemoFixtureTransport(), logger: curlLogger), cache: cache, scope: "sample-server"
-        )
-        cachingTransport = transport
-        api = PlexAPIService(configuration: configuration, transport: transport)
-        serverName = String(localized: "Sample server")
-        serverID = "sample-server"
-        libraries = [PlexLibrary(key: "1", title: String(localized: "Movies"), type: "movie"),
-                     PlexLibrary(key: "2", title: String(localized: "TV Shows"), type: "show")]
-        revision = UUID()
-        Task { await refreshPendingSync() }
-    }
-
     // MARK: - Home profiles
 
     func loadProfiles() async {
@@ -400,75 +241,6 @@ final class DemoSession {
             self.persist()
             await self.discover(token: switched.authToken, preferring: nil)
         }
-    }
-
-    // MARK: - Offline and watch sync
-
-    /// Cache-only browsing. Going back online reconnects when needed and pushes queued watch changes.
-    func setOffline(_ offline: Bool) async {
-        isOffline = offline
-        cachingTransport?.isOffline = offline
-        revision = UUID()
-        guard !offline else { return }
-        if hasAccount, connectedServerID == nil, !isSample { await refreshServers() } else { await syncNow() }
-    }
-
-    func syncNow() async {
-        guard let api, !isOffline else { return }
-        _ = await syncQueue.sync(serverID: serverID, using: api)
-        await refreshPendingSync()
-    }
-
-    func refreshPendingSync() async {
-        pendingSync = await syncQueue.pending()
-    }
-
-    func localWatchedState(of item: PlexMetadata) -> Bool? { localWatchedState(serverID: serverID, ratingKey: item.ratingKey) }
-
-    /// The watched state decided by a queued action, if any; progress-only actions don't decide it.
-    func localWatchedState(serverID: String?, ratingKey: String) -> Bool? {
-        switch pendingSync.last(where: { $0.serverID == serverID && $0.ratingKey == ratingKey })?.kind {
-        case .watched: true
-        case .unwatched: false
-        default: nil
-        }
-    }
-
-    /// Online changes go to the server; offline (or failed) changes are queued like Plezy's offline watch sync.
-    func setWatched(_ watched: Bool, ratingKey: String, serverID: String? = nil) async {
-        let target = serverID ?? self.serverID
-        if let api, !isOffline, target == self.serverID {
-            do {
-                if watched { try await api.markWatched(ratingKey: ratingKey) } else { try await api.markUnwatched(ratingKey: ratingKey) }
-                revision = UUID()
-                return
-            } catch let failure where !Self.isConnectivityFailure(failure) {
-                error = Self.message(for: failure)
-                return
-            } catch {}
-        }
-        await syncQueue.enqueue(watched ? .watched : .unwatched, serverID: target, ratingKey: ratingKey)
-        await refreshPendingSync()
-    }
-
-    /// Player progress. Playing/paused updates are best effort; a stopped position is queued if it cannot be sent.
-    func reportProgress(
-        ratingKey: String, state: PlexPlaybackState, time: Int64, duration: Int64?, serverID: String? = nil
-    ) async {
-        let target = serverID ?? self.serverID
-        if let api, !isOffline, target == self.serverID {
-            do {
-                try await api.reportTimeline(ratingKey: ratingKey, state: state, time: time, duration: duration, recordedAt: nil)
-                return
-            } catch {}
-        }
-        guard state == .stopped, time > 0 else { return }
-        await syncQueue.enqueue(.progress(viewOffset: time, duration: duration), serverID: target, ratingKey: ratingKey)
-        await refreshPendingSync()
-    }
-
-    func clearCache() async {
-        await cache.removeAll()
     }
 
     // MARK: - Helpers

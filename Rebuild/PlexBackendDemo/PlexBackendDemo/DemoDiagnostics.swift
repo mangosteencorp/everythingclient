@@ -24,27 +24,35 @@ extension DemoSession {
     }
 
     nonisolated static func message(for error: any Error) -> String {
-        switch error {
-        case PlexAPIError.offline:
-            String(localized: "This isn't available offline. Open it once while connected, or download it.")
-        case PlexAPIError.noReachableServer:
-            String(localized: "No working connection was found for this server. Check that it is online and accessible, then retry.")
-        case PlexAPIError.noServerWithContent:
-            String(localized: "None of your servers has a movie or TV library. Choose a server in Account to connect anyway.")
-        case PlexAPIError.pinExpired: String(localized: "Your sign-in code expired. Start sign-in again.")
-        case let PlexAPIError.httpStatus(code):
-            String(localized: "Plex returned HTTP \(code). Check access permissions and the selected connection.")
-        case PlexAPIError.invalidConfiguration:
-            String(localized: "No usable server address is available. Check the server access token or use the advanced connection settings.")
-        case PlexAPIError.invalidPath:
-            String(localized: "Use a server-relative path without credentials, traversal, or an external host.")
-        case PlexAPIError.missingMachineIdentifier:
-            String(localized: "The server did not report its identifier, so this list can't be changed.")
-        case PlexAPIError.noDownloadableMedia, PlexAPIError.unavailablePart:
-            String(localized: "No complete original file is available for this media selection. Try another version.")
+        if let error = error as? PlexAPIError, let message = apiMessage(for: error) { return message }
+        return switch error {
         case is URLError: String(localized: "The server couldn't be reached. Check your connection or turn on offline mode.")
         case is DecodingError: String(localized: "Plex returned an unexpected response format for this operation.")
         default: String(localized: "The operation failed. Check the connection and try again.")
+        }
+    }
+
+    /// nil for the API errors that only get the generic message.
+    private nonisolated static func apiMessage(for error: PlexAPIError) -> String? {
+        switch error {
+        case .offline:
+            String(localized: "This isn't available offline. Open it once while connected, or download it.")
+        case .noReachableServer:
+            String(localized: "No working connection was found for this server. Check that it is online and accessible, then retry.")
+        case .noServerWithContent:
+            String(localized: "None of your servers has a movie or TV library. Choose a server in Account to connect anyway.")
+        case .pinExpired: String(localized: "Your sign-in code expired. Start sign-in again.")
+        case let .httpStatus(code):
+            String(localized: "Plex returned HTTP \(code). Check access permissions and the selected connection.")
+        case .invalidConfiguration:
+            String(localized: "No usable server address is available. Check the server access token or use the advanced connection settings.")
+        case .invalidPath:
+            String(localized: "Use a server-relative path without credentials, traversal, or an external host.")
+        case .missingMachineIdentifier:
+            String(localized: "The server did not report its identifier, so this list can't be changed.")
+        case .noDownloadableMedia, .unavailablePart:
+            String(localized: "No complete original file is available for this media selection. Try another version.")
+        default: nil
         }
     }
 }
