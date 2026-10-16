@@ -27,7 +27,6 @@
       "name": "Products",
       "children": [
         { "path": "<PRODUCTS>/PlexBackendDemo.app", "id": "8E7263A8307F5B9E00A46F29", "type": "wrapper.application", "index": false },
-        { "path": "<PRODUCTS>/libPlex_Shared_Backend.a", "id": "2093979DE4F442B1264136E5", "type": "archive.ar", "target-membership": [ "PlexBackendDemoTests/frameworks" ] },
         { "path": "<PRODUCTS>/PlexBackendDemoTests.xctest", "id": "00A5D3D7D604000D4F214582", "type": "wrapper.cfbundle" },
         { "path": "<PRODUCTS>/PlexBackendDemoUITests.xctest", "id": "562F22133A37FA2AA9C65FCE", "type": "wrapper.cfbundle" },
       ],
@@ -93,33 +92,6 @@
         "XROS_DEPLOYMENT_TARGET": "27.2",
       },
     }, {
-      "name": "PlexDemoBackend",
-      "id": "F100000000000000000000001",
-      "product": "Products/libPlex_Shared_Backend.a",
-      "product-type": "library.static",
-      "build-phases": [
-        "compile-sources",
-        "frameworks",
-        "resources",
-      ],
-      "build-settings": {
-        "CODE_SIGN_STYLE": "Automatic",
-        "DEFINES_MODULE": "YES",
-        "GENERATE_INFOPLIST_FILE": "YES",
-        "IPHONEOS_DEPLOYMENT_TARGET": "27.2",
-        "MACOSX_DEPLOYMENT_TARGET": "27.0",
-        "PRODUCT_MODULE_NAME": "Plex_Shared_Backend",
-        "PRODUCT_NAME": "Plex_Shared_Backend",
-        "SDKROOT": "auto",
-        "SKIP_INSTALL": "YES",
-        "STRING_CATALOG_GENERATE_SYMBOLS": "NO",
-        "SUPPORTED_PLATFORMS": "iphoneos iphonesimulator macosx xros xrsimulator",
-        "SWIFT_STRICT_CONCURRENCY": "complete",
-        "SWIFT_VERSION": "5.0",
-        "TARGETED_DEVICE_FAMILY": "1,2,7",
-        "XROS_DEPLOYMENT_TARGET": "27.2",
-      },
-    }, {
       "name": "PlexBackendDemoTests",
       "id": "F100000000000000000000002",
       "product": "Products/PlexBackendDemoTests.xctest",
@@ -127,7 +99,6 @@
       "test-host-target": "PlexBackendDemo",
       "dependencies": [
         "PlexBackendDemo",
-        "PlexDemoBackend",
       ],
       "build-phases": [
         "compile-sources",
