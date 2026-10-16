@@ -12,8 +12,6 @@
   },
   "files": [
     { "kind": "folder", "path": "PlexBackendDemo", "target-membership": [ "PlexBackendDemo" ] },
-    { "kind": "folder", "path": "../Sources/Plex_Shared_Backend", "target-membership": [ "PlexDemoBackend" ] },
-    { "kind": "folder", "path": "../Tests/Plex_Shared_Backend_Tests", "target-membership": [ "PlexBackendDemoTests" ] },
     { "kind": "folder", "path": "PlexBackendDemoTests", "target-membership": [ "PlexBackendDemoTests" ] },
     { "kind": "folder", "path": "PlexBackendDemoUITests", "target-membership": [ "PlexBackendDemoUITests" ] },
     {
@@ -22,20 +20,14 @@
       "children": [
         { "path": "Demo.xcconfig" },
       ],
-    }, {
+    },
+    { "kind": "group", "name": "Frameworks" },
+    {
       "kind": "group",
       "name": "Products",
       "children": [
         { "path": "<PRODUCTS>/PlexBackendDemo.app", "id": "8E7263A8307F5B9E00A46F29", "type": "wrapper.application", "index": false },
-        {
-          "path": "<PRODUCTS>/libPlex_Shared_Backend.a",
-          "id": "2093979DE4F442B1264136E5",
-          "type": "archive.ar",
-          "target-membership": [
-            "PlexBackendDemo/frameworks",
-            "PlexBackendDemoTests/frameworks",
-          ],
-        },
+        { "path": "<PRODUCTS>/libPlex_Shared_Backend.a", "id": "2093979DE4F442B1264136E5", "type": "archive.ar", "target-membership": [ "PlexBackendDemoTests/frameworks" ] },
         { "path": "<PRODUCTS>/PlexBackendDemoTests.xctest", "id": "00A5D3D7D604000D4F214582", "type": "wrapper.cfbundle" },
         { "path": "<PRODUCTS>/PlexBackendDemoUITests.xctest", "id": "562F22133A37FA2AA9C65FCE", "type": "wrapper.cfbundle" },
       ],
@@ -51,13 +43,16 @@
         { "name": "Debug", "file": { "anchor": "Configuration", "relative-path": "Demo.xcconfig" } },
         { "name": "Release", "file": { "anchor": "Configuration", "relative-path": "Demo.xcconfig" } },
       ],
-      "dependencies": [
-        "PlexDemoBackend",
-      ],
       "build-phases": [
         "compile-sources",
         "frameworks",
         "resources",
+      ],
+      "package-product-members": [
+        {
+          "product-name": "Plex_Shared_Backend",
+          "build-phase": { "build-phase": "frameworks" },
+        },
       ],
       "build-settings": {
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
