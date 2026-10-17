@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   screenshots:
-    name: Capture screenshots with fastlane
+    name: Capture demo screenshots on an iPhone and an iPad
     runs-on: xcode-27
     env:
       LC_ALL: en_US.UTF-8
@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # Named before anything can fail, so a partial run still uploads under the right name.
+      - name: Name the screenshot run
+        run: echo "SCREENSHOTS_RUN=$(git rev-parse --short HEAD)_$(date -u +%Y-%m-%d_%H-%M-%S)" >> "$GITHUB_ENV"
       - name: Select latest Xcode
         run: |
           chmod +x ./.github/scripts/select_xcode.sh
@@ -31,10 +34,9 @@ jobs:
         run: |
           chmod +x ./.github/scripts/configure_xcode.sh
           ./.github/scripts/configure_xcode.sh
-      - name: Set up secrets in xcconfig
+      # The demos read the TMDB key from PreviewSecrets.swift; Build.xcconfig is only for the Rebuild app.
+      - name: Set up the TMDB preview key
         run: |
-          echo "TMDB_API_KEY=${{ secrets.API_KEY }}" >> Rebuild/Rebuild/Build.xcconfig
-          echo "PRODUCT_BUNDLE_IDENTIFIER=com.openmangosteen.everythingclient" >> Rebuild/Rebuild/Build.xcconfig
           sed 's/REPLACE_ME/'"${{ secrets.API_KEY }}"'/' \
             Sources/TMDB_Shared_Backend/Preview/PreviewSecrets.swift.template \
             > Sources/TMDB_Shared_Backend/Preview/PreviewSecrets.swift
@@ -49,8 +51,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-${{ github.sha }}
-          path: fastlane/screenshots/**/*.png
+          name: ${{ env.SCREENSHOTS_RUN }}
+          # Uploading the folder above the run keeps the run on top: <run>/<demo>/<screenshot>/<device>.png.
+          # A fresh checkout holds only this run there.
+          path: fastlane/screenshots/
           if-no-files-found: error
           compression-level: 9
           retention-days: 14
