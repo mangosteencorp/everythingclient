@@ -96,16 +96,6 @@ public struct MovieDetailPage<Route: Hashable>: View {
                         }
                     }
                 }
-                // Right under the cover, so a movie the user already owns is one tap from playing.
-                if jellyfinViewModel.isVisible {
-                    Section {
-                        MovieJellyfinSection(
-                            movieTitle: displayedMovie.userTitle,
-                            movieId: movie.id,
-                            jellyfinViewModel: jellyfinViewModel
-                        )
-                    }
-                }
                 Section {
                     MovieOverview(movie: displayedMovie)
                 }
@@ -144,6 +134,15 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 }
                 Section {
                     MovieWatchProvidersSection(movieId: movie.id, watchProvidersViewModel: watchProvidersViewModel)
+                }
+                if jellyfinViewModel.isVisible {
+                    Section {
+                        MovieJellyfinSection(
+                            movieTitle: displayedMovie.userTitle,
+                            movieId: movie.id,
+                            jellyfinViewModel: jellyfinViewModel
+                        )
+                    }
                 }
             }
             .listStyle(PlainListStyle())

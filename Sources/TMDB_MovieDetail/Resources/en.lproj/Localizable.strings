@@ -28,3 +28,16 @@
 
 // Ratings
 "ratings_format" = "%@ ratings";
+
+// MovieJellyfinSection
+"jellyfin_section_title" = "On Jellyfin";
+"jellyfin_checking_library" = "Checking your Jellyfin library...";
+"jellyfin_watched" = "Watched";
+"jellyfin_watched_progress_format" = "%d%% watched • %@";
+"jellyfin_play" = "Play";
+"jellyfin_open" = "Open";
+"jellyfin_open_hint" = "Open this movie's page in Swiftfin without starting playback.";
+"jellyfin_open_unavailable" = "Opening movie pages in Swiftfin is unavailable in this build.";
+"jellyfin_resume_hint" = "Resume from %@.";
+"jellyfin_elapsed_format" = "%@ in";
+"jellyfin_remaining_format" = "%@ left";
