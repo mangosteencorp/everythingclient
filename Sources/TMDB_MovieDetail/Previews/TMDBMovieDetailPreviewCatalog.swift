@@ -1,6 +1,6 @@
 #if DEBUG
-import SwiftUI
 import SwiftfinLauncher
+import SwiftUI
 import TMDB_Shared_Backend
 
 /// Every movie detail preview as a view of its own, so Xcode's canvas, the integration launcher
@@ -80,10 +80,14 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
                 MovieOSTSection(ostViewModel: Self.ostViewModel)
             }
         case .jellyfinSection:
+            let viewModel = Self.jellyfinViewModel()
             List {
                 Section {
-                    MovieJellyfinSection(movieTitle: "Dune", movieId: 438_631, jellyfinViewModel: Self.jellyfinViewModel)
+                    MovieJellyfinSection(movieTitle: "Dune", movieId: 438_631, jellyfinViewModel: viewModel)
                 }
+            }
+            .task {
+                await viewModel.load(title: "Dune", tmdbID: 438_631)
             }
         default:
             List {
@@ -122,7 +126,7 @@ private extension TMDBMovieDetailPreviewCatalog {
             creditsViewModel: creditsViewModel,
             watchProvidersViewModel: watchProvidersViewModel,
             ostViewModel: MovieOSTViewModel(),
-            jellyfinViewModel: MovieJellyfinViewModel(),
+            jellyfinViewModel: jellyfinViewModel(title: exampleMovieDetail.userTitle),
             discoverMovieByKeywordRouteBuilder: { _ in 1 },
             photoSlidesRouteBuilder: { _, index in index }
         )
@@ -152,18 +156,17 @@ private extension TMDBMovieDetailPreviewCatalog {
     }
 
     @MainActor
-    static var jellyfinViewModel: MovieJellyfinViewModel {
-        let viewModel = MovieJellyfinViewModel()
-        viewModel.state = .found(
-            JellyfinMovieMatch(
-                id: "abc",
-                title: "Dune (2021)",
-                runtimeSeconds: 9315,
-                playedFraction: 0.35,
-                resumeSeconds: 3260,
-                isPlayed: false
-            )
+    static func jellyfinViewModel(title: String = "Dune (2021)") -> MovieJellyfinViewModel {
+        let match = JellyfinMovieMatch(
+            id: "abc",
+            title: title,
+            runtimeSeconds: 9315,
+            playedFraction: 0.35,
+            resumeSeconds: 3260,
+            isPlayed: false
         )
+        let viewModel = MovieJellyfinViewModel(service: PreviewJellyfinLibraryService(match: match))
+        viewModel.state = .found(match)
         return viewModel
     }
 
@@ -192,6 +195,15 @@ private extension TMDBMovieDetailPreviewCatalog {
             Keyword(id: 325_778, name: "bold"),
             Keyword(id: 325_801, name: "distressing"),
         ]
+    }
+}
+
+private struct PreviewJellyfinLibraryService: JellyfinLibraryServicing {
+    let match: JellyfinMovieMatch
+    var isAvailable: Bool { true }
+
+    func findMovie(title: String, tmdbID: Int) async throws -> JellyfinMovieMatch? {
+        match
     }
 }
 #endif

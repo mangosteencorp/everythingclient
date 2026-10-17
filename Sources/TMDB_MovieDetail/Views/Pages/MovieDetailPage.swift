@@ -161,10 +161,11 @@ public struct MovieDetailPage<Route: Hashable>: View {
         .task(id: displayedMovie.userTitle) {
             await ostViewModel.load(for: displayedMovie.userTitle)
         }
-        // Same story as the OST search: the Jellyfin library is searched by title, so the lookup
-        // waits for the placeholder title to resolve into the real one.
-        .task(id: displayedMovie.userTitle) {
-            await jellyfinViewModel.load(title: displayedMovie.userTitle, tmdbID: movie.id)
+        // A new appearance may follow a server or user change in Settings. Revalidate against
+        // the current session even when the title is unchanged; the task also restarts when the
+        // placeholder resolves into the real title.
+        .task(id: MovieJellyfinQuery(title: displayedMovie.userTitle, tmdbID: movie.id)) {
+            await jellyfinViewModel.reload(title: displayedMovie.userTitle, tmdbID: movie.id)
         }
     }
 

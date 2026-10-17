@@ -40,14 +40,18 @@ public struct MovieJellyfinSection: View {
                     play: { destination = .play },
                     open: { destination = .details }
                 )
-                    .fullScreenCover(item: $destination) { destination in
+                    .fullScreenCover(item: $destination, onDismiss: {
+                        Task {
+                            await jellyfinViewModel.reloadIfCurrent(title: movieTitle, tmdbID: movieId)
+                        }
+                    }, content: { destination in
                         switch destination {
                         case .play:
                             JellyfinMoviePlayerView(match: match)
                         case .details:
                             JellyfinMovieDetailView(match: match)
                         }
-                    }
+                    })
 
             case .error(let message):
                 SectionRetryView(message: message) {

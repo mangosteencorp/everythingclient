@@ -26,6 +26,39 @@ final class StubJellyfinLibraryService: JellyfinLibraryServicing, @unchecked Sen
     }
 }
 
+/// Holds requests until the test explicitly resolves them, including after their task is
+/// cancelled. This exercises services that finish work without observing cancellation.
+actor DelayedJellyfinLibraryService: JellyfinLibraryServicing {
+    nonisolated let isAvailable = true
+    private var requestCount = 0
+    private var requests: [Int: CheckedContinuation<JellyfinMovieMatch?, Error>] = [:]
+    private var requestWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
+
+    func findMovie(title: String, tmdbID: Int) async throws -> JellyfinMovieMatch? {
+        try await withCheckedThrowingContinuation { continuation in
+            requests[requestCount] = continuation
+            requestCount += 1
+            let ready = requestWaiters.filter { $0.count <= requestCount }
+            requestWaiters.removeAll { $0.count <= requestCount }
+            ready.forEach { $0.continuation.resume() }
+        }
+    }
+
+    func waitForRequests(_ count: Int) async {
+        guard requestCount < count else { return }
+        await withCheckedContinuation { continuation in
+            requestWaiters.append((count, continuation))
+        }
+    }
+
+    func completeRequest(_ index: Int, with result: Result<JellyfinMovieMatch?, Error>) {
+        guard let continuation = requests.removeValue(forKey: index) else {
+            preconditionFailure("The requested Jellyfin lookup has not started or already completed.")
+        }
+        continuation.resume(with: result)
+    }
+}
+
 extension JellyfinMovieMatch {
     static func stub(
         id: String = "item-1",

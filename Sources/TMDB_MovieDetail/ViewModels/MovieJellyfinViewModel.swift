@@ -1,6 +1,6 @@
 import Combine
-import SwiftUI
 import SwiftfinLauncher
+import SwiftUI
 
 public enum MovieJellyfinState: Equatable {
     /// SwiftfinLib is not in this build, or no Jellyfin server is connected. Either way the section
@@ -10,6 +10,16 @@ public enum MovieJellyfinState: Equatable {
     case found(JellyfinMovieMatch)
     case notInLibrary
     case error(String)
+}
+
+struct MovieJellyfinQuery: Equatable {
+    let title: String
+    let tmdbID: Int
+
+    init(title: String, tmdbID: Int) {
+        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.tmdbID = tmdbID
+    }
 }
 
 @MainActor
@@ -25,7 +35,8 @@ public final class MovieJellyfinViewModel: ObservableObject {
     }
 
     private let service: any JellyfinLibraryServicing
-    private var loadedMovieTitle: String?
+    private var loadedQuery: MovieJellyfinQuery?
+    private var generation = 0
 
     public init(service: any JellyfinLibraryServicing = SwiftfinJellyfinLibraryService()) {
         self.service = service
@@ -33,20 +44,22 @@ public final class MovieJellyfinViewModel: ObservableObject {
         state = service.isAvailable ? .loading : .unavailable
     }
 
-    func load(title: String, tmdbID: Int) async {
-        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedTitle.isEmpty, loadedMovieTitle != trimmedTitle else { return }
+    func load(title: String, tmdbID: Int, forceRefresh: Bool = false) async {
+        let query = MovieJellyfinQuery(title: title, tmdbID: tmdbID)
+        guard !Task.isCancelled, !query.title.isEmpty, forceRefresh || loadedQuery != query else { return }
 
-        loadedMovieTitle = trimmedTitle
-        await search(title: trimmedTitle, tmdbID: tmdbID)
-    }
+        generation += 1
+        let requestGeneration = generation
+        loadedQuery = query
+        defer {
+            // A cancelled current lookup must be retryable. An older lookup cannot clear the
+            // newer request's dedupe marker, even if its service ignores cancellation.
+            if Task.isCancelled, generation == requestGeneration {
+                loadedQuery = nil
+            }
+        }
 
-    func reload(title: String, tmdbID: Int) async {
-        guard state != .loading else { return }
-        await search(title: title.trimmingCharacters(in: .whitespacesAndNewlines), tmdbID: tmdbID)
-    }
-
-    private func search(title: String, tmdbID: Int) async {
+        guard canPublish(requestGeneration, query: query) else { return }
         guard service.isAvailable else {
             state = .unavailable
             return
@@ -54,19 +67,29 @@ public final class MovieJellyfinViewModel: ObservableObject {
         state = .loading
 
         do {
-            let match = try await service.findMovie(title: title, tmdbID: tmdbID)
+            let match = try await service.findMovie(title: query.title, tmdbID: query.tmdbID)
+            guard canPublish(requestGeneration, query: query) else { return }
             state = match.map(MovieJellyfinState.found) ?? .notInLibrary
-        } catch JellyfinLibraryError.notConnected {
-            state = .unavailable
         } catch {
-            // Leaving the page cancels the search. Forget the title so re-entering searches again
-            // instead of showing a cancellation as a failure.
-            guard !Task.isCancelled else {
-                loadedMovieTitle = nil
-                state = .loading
+            guard canPublish(requestGeneration, query: query) else { return }
+            guard !(error is CancellationError) else {
+                loadedQuery = nil
                 return
             }
-            state = .error(error.localizedDescription)
+            state = (error as? JellyfinLibraryError) == .notConnected ? .unavailable : .error(error.localizedDescription)
         }
+    }
+
+    func reload(title: String, tmdbID: Int) async {
+        await load(title: title, tmdbID: tmdbID, forceRefresh: true)
+    }
+
+    func reloadIfCurrent(title: String, tmdbID: Int) async {
+        guard loadedQuery == MovieJellyfinQuery(title: title, tmdbID: tmdbID) else { return }
+        await reload(title: title, tmdbID: tmdbID)
+    }
+
+    private func canPublish(_ requestGeneration: Int, query: MovieJellyfinQuery) -> Bool {
+        !Task.isCancelled && generation == requestGeneration && loadedQuery == query
     }
 }
