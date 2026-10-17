@@ -1,8 +1,9 @@
 diff --git a/Shared/App/SwiftfinLibrary+Launcher.swift b/Shared/App/SwiftfinLibrary+Launcher.swift
 new file mode 100644
+index 00000000..2dc2031f
 --- /dev/null
 +++ b/Shared/App/SwiftfinLibrary+Launcher.swift
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,163 @@
 +//
 +// Swiftfin is subject to the terms of the Mozilla Public
 +// License, v2.0. If a copy of the MPL was not distributed with this
@@ -96,6 +97,7 @@ new file mode 100644
 +                ProgressView()
 +            case let .ready(item):
 +                SwiftfinMovieItemDetailView(item: item)
++                    .id(item.id)
 +            case .notFound:
 +                Text(L10n.noResults)
 +            case let .failed(message):

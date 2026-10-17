@@ -215,7 +215,7 @@ Tracking:
 
 Media:
 - ✅ Apple Music / MusicKit on movie detail (`MovieOSTViewModel` + `MovieOSTSection`): request authorization, search for soundtrack albums, and deep-link into Apple Music.
-- ✅ Jellyfin via Swiftfin (`SwiftfinLauncher/SwiftfinLaunchView`, launched from the Settings tab): embeds a Swiftfin client as a full-screen cover. Swiftfin is a SwiftPM dependency (`quangDecember/Swiftfin`, `swiftpm-test-4` branch).
+- ✅ Jellyfin via Swiftfin (`SwiftfinLauncher/SwiftfinLaunchView`, launched from the Settings tab): embeds a Swiftfin client as a full-screen cover. Swiftfin is a SwiftPM dependency (`quangDecember/Swiftfin`, revision `6cf78d03`).
 - ✅ Photo carousel + full-screen slides (`PhotoListViewer`): horizontal backdrop strip on movie detail, tapping opens `PhotoSlidesPage`.
 - ✅ iPod-style CoverFlow (`Shared_UI_Support/Views/CoverFlow`, iOS 18+): used as an alternate filmography layout on the person page (toggle via the design-switch toolbar button).
 
@@ -440,8 +440,8 @@ custom Keychain storage and saved-session resume. See [integration examples](Sou
 **SwiftfinLauncher** (client wrapper · SwiftUI)
 
 Embeds Swiftfin, looks up Jellyfin movies and separates playback from opening a movie page. The pinned Swiftfin
-revision needs the API extension described in [SwiftfinLauncher](Sources/SwiftfinLauncher/README.md) before movie-page
-navigation and connected server/user details can be enabled.
+revision exposes native movie-page navigation and connected server/user details. See
+[SwiftfinLauncher](Sources/SwiftfinLauncher/README.md) for integration and test boundaries.
 
 ```
 SwiftfinLauncher/

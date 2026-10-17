@@ -35,7 +35,7 @@ let sampleKitTargetDependency: [Target.Dependency] =
 // MARK: - Swiftfin
 
 //
-// quangDecember/Swiftfin@swiftpm-test-4 is Swiftfin's main branch built as a package. It sets
+// The pinned Swiftfin fork includes the iOS client and host APIs as a package. It sets
 // this package's iOS minimum: five of its dependencies (SwiftVLC, MPVUI, MediaAccessibilityKit,
 // CollectionHStack, CollectionVGrid) require iOS 18, and SwiftPM won't link a product whose
 // minimum is above the consumer's.
@@ -47,7 +47,7 @@ let sampleKitTargetDependency: [Target.Dependency] =
 // it importable by `SwiftfinLauncher`, which needs `BaseItemDto` to read the library hit Swiftfin
 // returns. The version must stay pinned to whatever Swiftfin pins or resolution fails.
 let swiftfinPackageDependency: [Package.Dependency] = [
-    .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm-test-4"),
+    .package(url: "https://github.com/quangDecember/Swiftfin", revision: "6cf78d0398b6d352ed7214048b3bd246b31b4d21"),
     .package(url: "https://github.com/jellyfin/jellyfin-sdk-swift.git", exact: "3.1.0"),
 ]
 
@@ -399,7 +399,8 @@ let package = Package(
             name: "SwiftfinLauncher",
             dependencies: swiftfinTargetDependency,
             exclude: ["README.md", "Upstream"],
-            resources: [.process("Resources")]
+            resources: [.process("Resources")],
+            swiftSettings: [.define("SWIFTFIN_LAUNCHER_BRIDGE")]
         ),
         .testTarget(name: "SwiftfinLauncher_Tests", dependencies: ["SwiftfinLauncher"]),
 

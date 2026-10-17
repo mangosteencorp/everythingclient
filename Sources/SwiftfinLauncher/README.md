@@ -13,19 +13,15 @@ Swiftfin owns authentication and its stored sessions. Hosts can inject `Jellyfin
 
 ## Dependency API extension
 
-The currently pinned `quangDecember/Swiftfin` revision exposes movie lookup and playback, but its session data and
-`ItemView` are internal. Therefore `JellyfinMovieDetailView.isAvailable` and `SwiftfinSessionService.isAvailable` are
-currently false. Movie details keeps Open disabled and Settings shows that connection details are unavailable;
-neither reports a false signed-out state nor substitutes playback for opening a page.
-
-The reviewable [upstream patch](Upstream/swiftfin-launcher.patch) adds these public APIs inside Swiftfin:
+The pinned Swiftfin revision `6cf78d0398b6d352ed7214048b3bd246b31b4d21` provides the host APIs used by this adapter:
 
 - `SwiftfinLibrary.currentConnection()` returns only the server name and username, without exposing credentials.
 - `SwiftfinLibrary.movieDetails(for:)` and `movieDetails(matching:)` restore the current session and present Swiftfin's
   actual `ItemView` with its navigation environment. They do not start a player.
 
-Apply the patch in a clean checkout of the Swiftfin fork, build and publish that revision, then update this package's
-Swiftfin dependency and lockfile. Once the dependency includes those APIs, add
-`swiftSettings: [.define("SWIFTFIN_LAUNCHER_BRIDGE")]` to the **SwiftfinLauncher** target in `Package.swift`.
-The flag belongs to that target; setting it only on the host app does not affect package compilation. Do not enable it
-against the current revision. No generated checkout or private Swiftfin database is modified by this library.
+`SWIFTFIN_LAUNCHER_BRIDGE` is enabled on the SwiftfinLauncher target. Connected server/user details and native movie-page
+navigation are available on iOS builds that link SwiftfinLib. Swiftfin retains ownership of authentication and its
+stored sessions. Builds without SwiftfinLib keep the unavailable states.
+
+The [upstream patch](Upstream/swiftfin-launcher.patch) records the API extension for review. A movie's native provider
+is scoped to its item ID so changing the requested movie recreates its retained state.
