@@ -34,16 +34,6 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8E726265307EFD5000A46F29"
-               BuildableName = "TMDBFeedDemoTests.xctest"
-               ReferencedContainer = "container:TMDBFeedDemo.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "8E72626F307EFD5000A46F29"
                BuildableName = "TMDBFeedDemoUITests.xctest"
                ReferencedContainer = "container:TMDBFeedDemo.xcodeproj">

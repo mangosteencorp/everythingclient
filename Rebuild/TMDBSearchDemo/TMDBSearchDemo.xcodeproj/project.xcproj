@@ -13,6 +13,7 @@
   "files": [
     { "kind": "folder", "path": "TMDBSearchDemo", "target-membership": [ "TMDBSearchDemo" ] },
     { "kind": "folder", "path": "TMDBSearchDemoUITests", "target-membership": [ "TMDBSearchDemoUITests" ] },
+    { "kind": "group", "name": "Frameworks" },
     {
       "kind": "group",
       "name": "Products",
@@ -32,6 +33,12 @@
         "compile-sources",
         "frameworks",
         "resources",
+      ],
+      "package-product-members": [
+        {
+          "product-name": "TMDB_Search",
+          "build-phase": { "build-phase": "frameworks" },
+        },
       ],
       "build-settings": {
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
