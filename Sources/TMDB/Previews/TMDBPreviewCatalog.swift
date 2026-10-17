@@ -10,8 +10,7 @@ import TMDB_Shared_Backend
 /// the screenshot run all render the same thing.
 ///
 /// The `tabs…` and `…Design` cases are the whole TMDB app, loading live from TMDB; the `…Design`
-/// ones pick their shell in the shared `DesignCoordinator`, which saves it like any other design
-/// choice.
+/// ones pin their shell with `.designStyle(_:)`, so previewing one never rewrites the saved choice.
 public enum TMDBPreviewCatalog: String, CaseIterable {
     case tabsNormal
     case tabsPage
@@ -78,7 +77,7 @@ private struct ShellPreview: View {
 
     var body: some View {
         TMDBAPITabView(tmdbKey: debugTMDBAPIKey)
-            .onAppear { DesignCoordinator.shared.select(design) }
+            .designStyle(design)
     }
 }
 #endif
