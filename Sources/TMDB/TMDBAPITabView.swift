@@ -39,7 +39,6 @@ public struct TMDBAPITabView: View {
     private let navigationInterceptor: TMDBNavigationInterceptor?
 
     @DesignStyle private var shellDesign: AppShellDesign
-    @DesignStyle private var navigationDesign: AppNavigationDesign
     @State private var didApplySeed = false
 
     public init(tmdbKey: String,
@@ -75,7 +74,7 @@ public struct TMDBAPITabView: View {
             switch shellDesign {
             case .bottomTabBar:
                 SystemTabShell(coordinator: coordinator, usesSidebarPlacement: false, page: page(for:))
-            case .sidebarTabBar:
+            case .sidebarTabBar, .splitView:
                 SystemTabShell(coordinator: coordinator, usesSidebarPlacement: true, page: page(for:))
             case .floatingTabBar:
                 FloatingTabShell(coordinator: coordinator, page: page(for:))
@@ -117,14 +116,14 @@ public struct TMDBAPITabView: View {
     @ViewBuilder
     private func page(for tab: TabRoute) -> some View {
         switch tab {
-        case .movieFeed:
+        case .movieFeed where shellDesign == .splitView:
             buildMovieFeedPage()
-                .withAppNavigationDesign(
-                    navigationDesign,
-                    coordinator: coordinator,
-                    tabRoute: .movieFeed,
-                    container: container
-                )
+                .withFeedSplitView(container: container)
+        case .movieFeed:
+            NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                buildMovieFeedPage()
+                    .withTMDBNavigationDestinations(container: container)
+            }
         case .marketplace:
             NavigationStack(path: coordinator.path(for: .marketplace)) {
                 buildMarketplacePage()

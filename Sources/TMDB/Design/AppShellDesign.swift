@@ -11,6 +11,9 @@ public enum AppShellDesign: String, DesignVariant {
     case bottomTabBar
     /// System `TabView` rendered as a leading sidebar (iOS 27+, iPad).
     case sidebarTabBar
+    /// The sidebar tab bar, whose Movies tab shows the feed list and the selected title side
+    /// by side instead of pushing.
+    case splitView
     /// Custom glass/pill bar floating above the content.
     case floatingTabBar
     /// Full-bleed swipeable pages with a dot indicator, no bar.
@@ -41,6 +44,7 @@ public enum AppShellDesign: String, DesignVariant {
         switch self {
         case .bottomTabBar: return "Bottom Tab Bar"
         case .sidebarTabBar: return "Sidebar Tab Bar"
+        case .splitView: return "Split View"
         case .floatingTabBar: return "Floating Tab Bar"
         case .pagedTabs: return "Paged Tabs"
         case .sectionedSidebar: return "Sectioned Sidebar"
@@ -49,7 +53,7 @@ public enum AppShellDesign: String, DesignVariant {
 
     public var isAvailableOnThisDevice: Bool {
         switch self {
-        case .sidebarTabBar:
+        case .sidebarTabBar, .splitView:
             // `defaultTabBarPlacement(.sidebar)` only exists on iOS 27, and a sidebar on a
             // phone-width window collapses back to a bottom bar anyway.
             guard UIDevice.current.userInterfaceIdiom == .pad else { return false }

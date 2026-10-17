@@ -18,6 +18,7 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
     case tabsEmbedded
     case floatingBarDesign
     case sidebarTabBarDesign
+    case splitViewDesign
     case sectionedSidebarDesign
     case feedTabsPage
     case photoSlidesRoute
@@ -41,6 +42,8 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
             ShellPreview(design: .floatingTabBar)
         case .sidebarTabBarDesign:
             ShellPreview(design: .sidebarTabBar)
+        case .splitViewDesign:
+            ShellPreview(design: .splitView)
         case .sectionedSidebarDesign:
             ShellPreview(design: .sectionedSidebar)
         case .feedTabsPage:
