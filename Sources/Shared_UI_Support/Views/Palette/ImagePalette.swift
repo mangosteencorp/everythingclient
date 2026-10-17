@@ -27,7 +27,11 @@ public struct ImagePalette: Equatable {
     )
 }
 
-/// Loads an image and derives its palette, once per URL per session.
+/// Derives the palette of an already-loaded image, once per URL per session.
+///
+/// It takes the image rather than fetching it: a second Kingfisher request for a URL the view's
+/// `KFImage` is already loading can race it into two download tasks, and Kingfisher only
+/// completes the one it still tracks — the other caller (the poster or the palette) never hears back.
 @MainActor
 public final class ImagePaletteLoader: ObservableObject {
     @Published public private(set) var palette: ImagePalette = .placeholder
@@ -38,16 +42,11 @@ public final class ImagePaletteLoader: ObservableObject {
 
     public init() {}
 
-    public func load(_ url: URL?) async {
-        guard let url else {
-            palette = .placeholder
-            return
-        }
+    public func load(_ image: UIImage, for url: URL) {
         if let cached = Self.cache[url] {
             palette = cached
             return
         }
-        guard let image = try? await KingfisherManager.shared.retrieveImage(with: url).image else { return }
         // 40×40 keeps the area average honest while making the render trivial.
         let scaled = image.kf.resize(to: CGSize(width: 40, height: 40))
         guard let average = scaled.averageColor(context: Self.ciContext) else { return }
