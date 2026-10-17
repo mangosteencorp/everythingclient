@@ -12,11 +12,6 @@ public enum TMDBProfilePreviewCatalog: String, CaseIterable {
     case page
     case signedIn
     case signedOut
-    case content
-    case contentLongName
-    case multiSection
-    case unauthorizedView
-    case errorView
 
     @MainActor @ViewBuilder
     public var view: some View {
@@ -25,16 +20,6 @@ public enum TMDBProfilePreviewCatalog: String, CaseIterable {
             ProfilePageVCView(container: Self.signedOutContainer, onNavigateToMovie: { _ in }, onNavigateToTVShow: { _ in })
         case .signedIn, .signedOut:
             UIViewControllerPreview { Self.profileController(isAuthenticated: self == .signedIn) }
-        case .content:
-            UIViewControllerPreview { ProfileContentViewController(profile: sampleProfileEntity) }
-        case .contentLongName:
-            UIViewControllerPreview { ProfileContentViewController(profile: Self.longNameProfile) }
-        case .multiSection:
-            UIViewControllerPreview { MultiSectionViewController(sections: sampleSections) }
-        case .unauthorizedView:
-            UIViewPreview { UnauthorizedView() }
-        case .errorView:
-            UIViewPreview { ErrorView() }
         }
     }
 
@@ -59,20 +44,6 @@ public enum TMDBProfilePreviewCatalog: String, CaseIterable {
             authViewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: isAuthenticated))
         )
         return UINavigationController(rootViewController: ProfileViewController(viewModel: viewModel))
-    }
-
-    private static var longNameProfile: ProfileEntity {
-        ProfileEntity(
-            accountInfo: AccountInfoEntity(
-                id: 7,
-                name: "Maximilian Alexander Featherstonehaugh-Montgomery",
-                username: "maximilian_alexander_featherstonehaugh",
-                avatarPath: nil
-            ),
-            favoriteMovies: sampleProfileEntity.favoriteMovies,
-            favoriteTVShows: sampleProfileEntity.favoriteTVShows,
-            watchlistTVShows: sampleProfileEntity.watchlistTVShows
-        )
     }
 }
 

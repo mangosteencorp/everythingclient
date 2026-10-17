@@ -15,9 +15,10 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
     @ViewBuilder let page: (TabRoute) -> Page
     /// One feed category, *without* a `NavigationStack`: the shell owns the stack so the same
     /// page can also be pushed from the compact list.
-    @ViewBuilder let feedPage: (FeedTab) -> FeedPage
+    @ViewBuilder let feedPage: (FeedKind) -> FeedPage
 
-    @State private var selection: ShellSelection<TabRoute, FeedTab> = .root(.marketplace)
+    /// Rows are `.feedRow` routes, so a selected row is already the coordinator's tab.
+    @State private var selection: ShellSelection<TabRoute, TabRoute> = .root(.marketplace)
     @Environment(\.horizontalSizeClass) private var sizeClass
 
     private static var roots: [TabRoute] { [.marketplace, .profile, .settings] }
@@ -25,15 +26,19 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
     var body: some View {
         SectionedTabView(
             roots: Self.roots,
-            sections: FeedTab.sections,
+            sections: TabRoute.feedSections,
             searchRoot: .search,
             selection: $selection,
             customizationStorageKey: "tmdb.sectionedSidebar",
-            rowPath: { coordinator.path(for: .feedRow($0)) },
+            rowPath: { coordinator.path(for: $0) },
             rootContent: { root in
                 page(root).environment(\.searchPageFieldPlacement, fieldPlacement(for: root))
             },
-            rowContent: { feedPage($0) },
+            rowContent: { route in
+                if case let .feedRow(kind) = route {
+                    feedPage(kind)
+                }
+            },
             header: { Text(TabRoute.movieFeed.title).font(.title2.bold()) }
         )
         .onAppear { syncFromCoordinator() }
@@ -57,8 +62,8 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
     }
 
     private func syncFromCoordinator() {
-        if case let .feedRow(tab) = coordinator.selectedTab {
-            selection = .row(tab)
+        if case .feedRow = coordinator.selectedTab {
+            selection = .row(coordinator.selectedTab)
         } else {
             selection = .root(coordinator.selectedTab)
         }
@@ -66,34 +71,33 @@ struct SectionedSidebarShell<Page: View, FeedPage: View>: View {
 }
 
 @available(iOS 18, *)
-private extension ShellSelection where Root == TabRoute, Row == FeedTab {
+private extension ShellSelection where Root == TabRoute, Row == TabRoute {
     /// The tab the coordinator should be on for this selection. A section has no route of its
     /// own, so it resolves to its first row.
     var tabRoute: TabRoute? {
         switch self {
-        case let .root(route): return route
-        case let .row(tab): return .feedRow(tab)
-        case let .sectionList(id):
-            guard let first = FeedTab.sections.first(where: { $0.id == id })?.rows.first else { return nil }
-            return .feedRow(first)
+        case let .root(route), let .row(route): return route
+        case let .sectionList(id): return TabRoute.feedSections.first(where: { $0.id == id })?.rows.first
         }
     }
 
     func matches(_ route: TabRoute) -> Bool {
         switch self {
-        case let .root(root):
-            return root == route
-        case let .row(tab):
-            return route == .feedRow(tab)
+        case let .root(selected), let .row(selected):
+            return selected == route
         case let .sectionList(id):
-            guard case let .feedRow(tab) = route else { return false }
-            return FeedTab.sections.first(where: { $0.id == id })?.rows.contains(tab) ?? false
+            return TabRoute.feedSections.first(where: { $0.id == id })?.rows.contains(route) ?? false
         }
     }
 }
 
 #if DEBUG
 #Preview {
-    TMDBPreviewCatalog.sectionedSidebarShell.view
+    SectionedSidebarShell(
+        coordinator: .preview,
+        page: { ShellPagePreview(title: $0.title) },
+        // Feed pages come without a stack: the shell owns it.
+        feedPage: { tab in List(1...20, id: \.self) { Text("\(tab.title) \($0)") }.navigationTitle(tab.title) }
+    )
 }
 #endif

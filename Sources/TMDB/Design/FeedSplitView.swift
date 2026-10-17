@@ -3,12 +3,9 @@ import SwiftUI
 import Swinject
 import TMDB_Feed
 
-/// Wraps the feed tab in whatever navigation container `AppNavigationDesign` asks for.
+/// The `.splitView` shell's feed tab: the feed list on the left, the selected title on the right.
 @available(iOS 16, *)
-struct AppNavigationModifier: ViewModifier {
-    let design: AppNavigationDesign
-    let coordinator: Coordinator
-    let tabRoute: TabRoute
+struct FeedSplitView: ViewModifier {
     let container: Container
 
     /// Split view drives its detail column from selection, not from links — see
@@ -17,30 +14,24 @@ struct AppNavigationModifier: ViewModifier {
     @State private var detailPath = NavigationPath()
 
     func body(content: Content) -> some View {
-        switch design {
-        case .plain:
-            NavigationStack(path: coordinator.path(for: tabRoute)) {
-                content
+        // Pinned open: the tab sidebar already has the one toggle, so this column gets none.
+        NavigationSplitView(columnVisibility: .constant(.all)) {
+            content
+                .feedSelectionNavigation($selectedRoute)
+                .toolbar(removing: .sidebarToggle)
+        } detail: {
+            // The destination modifier belongs to *this* stack: it is what the detail
+            // column pushes onto once you drill in from the selected title.
+            NavigationStack(path: $detailPath) {
+                detailRoot
                     .withTMDBNavigationDestinations(container: container)
             }
-        case .splitView:
-            NavigationSplitView {
-                content
-                    .feedSelectionNavigation($selectedRoute)
-            } detail: {
-                // The destination modifier belongs to *this* stack: it is what the detail
-                // column pushes onto once you drill in from the selected title.
-                NavigationStack(path: $detailPath) {
-                    detailRoot
-                        .withTMDBNavigationDestinations(container: container)
-                }
-            }
-            .navigationSplitViewStyle(.balanced)
-            .onChange(of: selectedRoute) {
-                // A new selection replaces the column, so anything pushed on top of the
-                // previous one is stale.
-                detailPath = NavigationPath()
-            }
+        }
+        .navigationSplitViewStyle(.balanced)
+        .onChange(of: selectedRoute) {
+            // A new selection replaces the column, so anything pushed on top of the
+            // previous one is stale.
+            detailPath = NavigationPath()
         }
     }
 
@@ -86,23 +77,13 @@ private enum L10nFeedSelect {
 
 @available(iOS 16, *)
 extension View {
-    func withAppNavigationDesign(
-        _ design: AppNavigationDesign,
-        coordinator: Coordinator,
-        tabRoute: TabRoute,
-        container: Container
-    ) -> some View {
-        modifier(AppNavigationModifier(
-            design: design,
-            coordinator: coordinator,
-            tabRoute: tabRoute,
-            container: container
-        ))
+    func withFeedSplitView(container: Container) -> some View {
+        modifier(FeedSplitView(container: container))
     }
 }
 
 #if DEBUG
 #Preview("Split view detail placeholder") {
-    TMDBPreviewCatalog.splitDetailPlaceholder.view
+    FeedSplitDetailPlaceholder()
 }
 #endif

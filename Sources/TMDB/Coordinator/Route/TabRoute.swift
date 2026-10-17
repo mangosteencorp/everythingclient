@@ -12,7 +12,7 @@ public enum TabRoute: Hashable {
     case search
     /// One feed category standing on its own — a sidebar row in `SectionedSidebarShell`.
     /// Never part of `Coordinator.tabList`; shells add it on demand.
-    case feedRow(FeedTab)
+    case feedRow(FeedKind)
 
     /// Tabs only the sectioned shell offers. Leaving one selected while switching to another
     /// shell would point at a tab that is not in `Coordinator.tabList`, and so a blank screen.
@@ -56,7 +56,30 @@ extension TabRoute: ShellTabItem {
         case .profile: return "tab.profile"
         case .settings: return "tab.settings"
         case .search: return "tab.search"
-        case let .feedRow(tab): return tab.customizationID
+        case let .feedRow(kind): return "tab.feed.\(kind.rawValue)"
         }
+    }
+}
+
+// MARK: - Sectioned shell support
+
+extension TabRoute {
+    /// The feed categories grouped for a sectioned shell (sidebar on iPad, a pushable list on
+    /// iPhone). Search is not here at all: it is a root tab of its own, in `TMDB_Search`.
+    static var feedSections: [ShellSection<TabRoute>] {
+        [
+            ShellSection(
+                id: "movies",
+                title: ContentFeedType.movies.localizedTitle,
+                systemImage: "film",
+                rows: [FeedKind.nowPlaying, .popular, .topRated, .upcoming].map(TabRoute.feedRow)
+            ),
+            ShellSection(
+                id: "tv",
+                title: ContentFeedType.tvShows.localizedTitle,
+                systemImage: "tv",
+                rows: [FeedKind.onTheAir, .airingToday].map(TabRoute.feedRow)
+            ),
+        ]
     }
 }

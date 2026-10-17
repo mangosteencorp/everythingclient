@@ -27,6 +27,8 @@ struct TVShowHeaderView: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.header.view
+    TVShowHeaderView(tvShow: .example)
+        .padding()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

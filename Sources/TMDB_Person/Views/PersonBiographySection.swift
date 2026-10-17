@@ -20,6 +20,9 @@ struct PersonBiographySection: View {
 
 #if DEBUG
 #Preview {
-    TMDBPersonPreviewCatalog.biography.view
+    PersonBiographySection(
+        biography: "William Bradley Pitt is an American actor and film producer. He is the recipient of various accolades, including two Academy Awards."
+    )
+    .padding()
 }
 #endif

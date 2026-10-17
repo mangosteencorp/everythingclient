@@ -28,6 +28,8 @@ struct TVShowCreatorsSection: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.creatorsSection.view
+    TVShowCreatorsSection(creators: TVShowDetailModel.example.createdBy)
+        .padding()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

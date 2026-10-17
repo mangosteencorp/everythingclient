@@ -187,22 +187,21 @@ extension SearchResultKind {
 
 #if DEBUG
 #Preview("Row — every kind") {
-    TMDBSearchPreviewCatalog.rowEveryKind.view
+    List {
+        ForEach(SearchScope.allCases.dropFirst()) { scope in
+            ForEach(StubSearchService.items(for: scope, query: "super", page: 1).prefix(1)) { item in
+                SearchResultRow(item: item, showsKind: true)
+            }
+        }
+    }
+    .listStyle(.plain)
 }
 
 #Preview("Row — accessibility size") {
-    TMDBSearchPreviewCatalog.rowAccessibilitySize.view
-}
-
-#Preview("Artwork — every kind") {
-    TMDBSearchPreviewCatalog.artworkEveryKind.view
-}
-
-#Preview("Kind badges") {
-    TMDBSearchPreviewCatalog.kindBadges.view
-}
-
-#Preview("Rating") {
-    TMDBSearchPreviewCatalog.rating.view
+    List(StubSearchService.items(for: .multi, query: "super", page: 1).prefix(3)) { item in
+        SearchResultRow(item: item, showsKind: true)
+    }
+    .listStyle(.plain)
+    .dynamicTypeSize(.accessibility2)
 }
 #endif

@@ -1,5 +1,6 @@
 import CoreFeatures
 import SwiftUI
+import TMDB_Feed
 
 /// How the *inner* feed tab level is presented.
 ///
@@ -31,7 +32,8 @@ public enum FeedTabDesign: String, DesignVariant {
             return false
             #else
             // On iPhone the app shell already owns the bottom edge; a second bottom bar inside
-            // it is unusable. iPad puts both levels at the top, so it stays available there.
+            // it is unusable. iPad puts both levels at the top, so it stays available there
+            // (except inside a split-view sidebar, where `FeedTabContainer` swaps it out).
             return UIDevice.current.userInterfaceIdiom == .pad
             #endif
         case .topSegments:

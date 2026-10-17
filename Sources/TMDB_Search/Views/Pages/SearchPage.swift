@@ -207,6 +207,15 @@ public extension EnvironmentValues {
 
 #if DEBUG
 #Preview("Results list — more pages waiting") {
-    TMDBSearchPreviewCatalog.resultsListMorePages.view
+    NavigationStack {
+        SearchResultsList(
+            items: StubSearchService.items(for: .multi, query: "super", page: 1, count: 4),
+            showsKind: true,
+            canLoadMore: true,
+            resultsGeneration: 0,
+            routeBuilder: { _ in 1 },
+            onRowAppear: { _ in }
+        )
+    }
 }
 #endif

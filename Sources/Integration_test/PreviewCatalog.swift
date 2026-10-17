@@ -45,8 +45,6 @@ public extension IntegrationTestLauncher {
             entries("TMDBTVShowDetail", TMDBTVShowDetailPreviewCatalog.self) { $0.view },
             entries("TMDBPerson", TMDBPersonPreviewCatalog.self) { $0.view },
             entries("PhotoListViewer", PhotoListViewerPreviewCatalog.self) { $0.view },
-            entries("TMDBSharedUI", TMDBSharedUIPreviewCatalog.self) { $0.view },
-            entries("TMDBSharedBackend", TMDBSharedBackendPreviewCatalog.self) { $0.view },
             entries("SharedUISupport", SharedUISupportPreviewCatalog.self) { $0.view },
             entries("CoreFeatures", CoreFeaturesPreviewCatalog.self) { $0.view },
             entries("Pokedex", PokedexPreviewCatalog.self) { $0.view },

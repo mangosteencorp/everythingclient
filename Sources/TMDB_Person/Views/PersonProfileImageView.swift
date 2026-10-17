@@ -29,9 +29,3 @@ struct PersonProfileImageView: View {
         .shadow(color: .black.opacity(0.18), radius: 10, x: 0, y: 5)
     }
 }
-
-#if DEBUG
-#Preview {
-    TMDBPersonPreviewCatalog.profileImage.view
-}
-#endif

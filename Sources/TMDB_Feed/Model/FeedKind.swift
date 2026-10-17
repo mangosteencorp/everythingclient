@@ -1,8 +1,8 @@
-import CoreFeatures
 import Foundation
 
-/// Top-level tabs for the feed screen.
-public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
+/// One TMDB feed: a movie list or a TV list. `FeedPage` shows exactly one of these; grouping
+/// several into tabs or sections is the host's job.
+public enum FeedKind: String, CaseIterable, Identifiable, Hashable {
     case nowPlaying
     case popular
     case topRated
@@ -65,27 +65,56 @@ public enum FeedTab: String, CaseIterable, Identifiable, Hashable {
     }
 }
 
-// MARK: - Sectioned shell support
+public enum MovieFeedType: String, CaseIterable, Identifiable {
+    case nowPlaying
+    case popular
+    case topRated
+    case upcoming
 
-extension FeedTab: ShellTabItem {
-    public var customizationID: String { "tab.feed.\(rawValue)" }
+    public var id: String { rawValue }
 
-    /// The feed categories grouped for a sectioned shell (sidebar on iPad, a pushable list on
-    /// iPhone). Search is not here at all: it is a root tab of its own, in `TMDB_Search`.
-    public static var sections: [ShellSection<FeedTab>] {
-        [
-            ShellSection(
-                id: "movies",
-                title: L10n.feedSectionMovies,
-                systemImage: "film",
-                rows: [.nowPlaying, .popular, .topRated, .upcoming]
-            ),
-            ShellSection(
-                id: "tv",
-                title: L10n.feedSectionTv,
-                systemImage: "tv",
-                rows: [.onTheAir, .airingToday]
-            ),
-        ]
+    public var localizedTitle: String {
+        switch self {
+        case .nowPlaying:
+            return L10n.feedNowPlaying
+        case .popular:
+            return L10n.feedPopular
+        case .topRated:
+            return L10n.feedTopRated
+        case .upcoming:
+            return L10n.feedUpcoming
+        }
+    }
+}
+
+public enum TVShowFeedType: String, CaseIterable, Identifiable {
+    case airingToday
+    case onTheAir
+
+    public var id: String { rawValue }
+
+    public var localizedTitle: String {
+        switch self {
+        case .airingToday:
+            return L10n.feedAiringToday
+        case .onTheAir:
+            return L10n.feedOnTheAir
+        }
+    }
+}
+
+public enum ContentFeedType: String, CaseIterable, Identifiable {
+    case movies
+    case tvShows
+
+    public var id: String { rawValue }
+
+    public var localizedTitle: String {
+        switch self {
+        case .movies:
+            return L10n.feedSectionMovies
+        case .tvShows:
+            return L10n.feedSectionTv
+        }
     }
 }

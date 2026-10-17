@@ -60,6 +60,15 @@ public struct PaletteCard<Content: View>: View {
 
 #if DEBUG
 #Preview {
-    SharedUISupportPreviewCatalog.paletteCard.view
+    PaletteCard(imageURL: nil) {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Dune: Part Two")
+                .font(.subheadline.weight(.semibold))
+            Text("8.2")
+                .font(.caption)
+        }
+    }
+    .frame(width: 180)
+    .padding()
 }
 #endif

@@ -16,6 +16,10 @@ import SwiftUI
     TMDBPreviewCatalog.sidebarTabBarDesign.view
 }
 
+#Preview("split view (iPad, iOS 27)") {
+    TMDBPreviewCatalog.splitViewDesign.view
+}
+
 #Preview("sectioned sidebar") {
     TMDBPreviewCatalog.sectionedSidebarDesign.view
 }
