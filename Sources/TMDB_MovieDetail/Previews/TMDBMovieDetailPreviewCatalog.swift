@@ -1,6 +1,6 @@
 #if DEBUG
 import SwiftUI
-import third_party
+import SwiftfinLauncher
 import TMDB_Shared_Backend
 
 /// Every movie detail preview as a view of its own, so Xcode's canvas, the integration launcher

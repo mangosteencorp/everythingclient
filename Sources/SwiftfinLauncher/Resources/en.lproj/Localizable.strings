@@ -1,0 +1,12 @@
+/* Spoken while restoring Swiftfin's signed-in session. */
+"swiftfin_connection_loading" = "Loading connected server";
+/* Current dependency does not expose its connected session to the host. */
+"swiftfin_connection_unavailable" = "Connection details require an updated Swiftfin library.";
+"swiftfin_connection_not_connected" = "No Jellyfin server is connected.";
+"swiftfin_connection_failed" = "Could not load the connected server.";
+"swiftfin_close" = "Close Swiftfin";
+"swiftfin_unavailable" = "Swiftfin is unavailable in this build.";
+"jellyfin_player_close" = "Close player";
+"jellyfin_playback_unavailable" = "Jellyfin playback is unavailable in this build.";
+"jellyfin_details_close" = "Close movie page";
+"jellyfin_details_unavailable" = "Opening movie pages in Swiftfin is unavailable in this build.";

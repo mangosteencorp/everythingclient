@@ -1,5 +1,5 @@
 import Foundation
-@testable import third_party
+@testable import SwiftfinLauncher
 
 /// Stands in for Swiftfin's signed-in Jellyfin session, which needs a real server to exist.
 final class StubJellyfinLibraryService: JellyfinLibraryServicing, @unchecked Sendable {

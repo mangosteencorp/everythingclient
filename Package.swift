@@ -44,7 +44,7 @@ let sampleKitTargetDependency: [Target.Dependency] =
 // call sites guard their usage with `#if canImport(SwiftfinLib)`.
 //
 // jellyfin-sdk-swift is already in the graph as a Swiftfin dependency; naming it here only makes
-// it importable by `third_party`, which needs `BaseItemDto` to read the library hit Swiftfin
+// it importable by `SwiftfinLauncher`, which needs `BaseItemDto` to read the library hit Swiftfin
 // returns. The version must stay pinned to whatever Swiftfin pins or resolution fails.
 let swiftfinPackageDependency: [Package.Dependency] = [
     .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm-test-4"),
@@ -111,8 +111,8 @@ let package = Package(
             targets: ["TMDB_Person"]
         ),
         .library(
-            name: "third_party",
-            targets: ["third_party"]
+            name: "SwiftfinLauncher",
+            targets: ["SwiftfinLauncher"]
         ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
@@ -168,10 +168,11 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
-                "third_party",
+                "SwiftfinLauncher",
                 "Pokedex",
                 "Swinject",
-            ] + sampleKitTargetDependency
+            ] + sampleKitTargetDependency,
+            resources: [.process("Resources")]
         ),
         .target(
             name: "TMDB_Shared_Backend",
@@ -203,7 +204,7 @@ let package = Package(
                 "PhotoListViewer",
                 "Swinject",
                 "TMDB_Shared_Backend",
-                "third_party",
+                "SwiftfinLauncher",
             ],
             resources: [
                 .process("Resources"),
@@ -214,7 +215,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_MovieDetail_Tests",
-            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party"]
+            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "SwiftfinLauncher"]
         ),
         .testTarget(
             name: "TMDB_TVShowDetail_Tests",
@@ -392,12 +393,15 @@ let package = Package(
             ]
         ),
 
-        // MARK: Third Party
+        // MARK: Swiftfin
 
         .target(
-            name: "third_party",
-            dependencies: swiftfinTargetDependency
+            name: "SwiftfinLauncher",
+            dependencies: swiftfinTargetDependency,
+            exclude: ["README.md", "Upstream"],
+            resources: [.process("Resources")]
         ),
+        .testTarget(name: "SwiftfinLauncher_Tests", dependencies: ["SwiftfinLauncher"]),
 
         // MARK: Integration Tests
 
@@ -415,7 +419,7 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
-                "third_party",
+                "SwiftfinLauncher",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",

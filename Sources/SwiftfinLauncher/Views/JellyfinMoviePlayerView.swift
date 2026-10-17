@@ -24,7 +24,7 @@ public struct JellyfinMoviePlayerView: View {
             #if canImport(SwiftfinLib)
             match.item.map(SwiftfinLibrary.moviePlayer(for:)) ?? SwiftfinLibrary.moviePlayer(matching: .keyword(match.title))
             #else
-            Text("Jellyfin playback is unavailable in this build.")
+            Text(L10n.jellyfinPlaybackUnavailable)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             #endif
@@ -38,7 +38,7 @@ public struct JellyfinMoviePlayerView: View {
                     .foregroundStyle(.white.opacity(0.8))
                     .padding(16)
             }
-            .accessibilityLabel("Close player")
+            .accessibilityLabel(L10n.jellyfinPlayerClose)
             .accessibilityIdentifier("jellyfin.player.close.button")
         }
         .onAppear { SwiftfinWindowAppearanceGuard.swiftfinWillAppear() }

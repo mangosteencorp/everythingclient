@@ -1,6 +1,6 @@
 import Combine
 import SwiftUI
-import third_party
+import SwiftfinLauncher
 
 public enum MovieJellyfinState: Equatable {
     /// SwiftfinLib is not in this build, or no Jellyfin server is connected. Either way the section

@@ -1,5 +1,5 @@
 import SwiftUI
-import third_party
+import SwiftfinLauncher
 
 @available(iOS 16.0, *)
 public struct MovieJellyfinSection: View {

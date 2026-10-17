@@ -1,4 +1,4 @@
-import third_party
+import SwiftfinLauncher
 @testable import TMDB_MovieDetail
 import XCTest
 
