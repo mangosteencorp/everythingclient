@@ -30,7 +30,8 @@ private extension View {
     func withDefaultSidebarTabBarPlacement(enabled: Bool) -> some View {
         #if compiler(>=6.4)
         if #available(iOS 27, *), enabled {
-            defaultTabBarPlacement(.sidebar)
+            // Without `.sidebarAdaptable` the placement is ignored and iPad keeps the top bar.
+            tabViewStyle(.sidebarAdaptable).defaultTabBarPlacement(.sidebar)
         } else {
             self
         }

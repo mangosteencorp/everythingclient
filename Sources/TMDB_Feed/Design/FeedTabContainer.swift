@@ -15,9 +15,17 @@ struct FeedTabContainer<Content: View>: View {
     @ViewBuilder let content: (FeedTab) -> Content
 
     @DesignStyle private var design: FeedTabDesign
+    @Environment(\.feedNavigationMode) private var navigationMode
+
+    /// A split-view sidebar column is too narrow for a second `TabView`: its bar drops to the
+    /// column's bottom edge and its insets stack under the column's nav bar.
+    private var effectiveDesign: FeedTabDesign {
+        if case .select = navigationMode { return .topSegments }
+        return design
+    }
 
     var body: some View {
-        switch design {
+        switch effectiveDesign {
         case .systemTabs:
             SystemFeedTabLayout(
                 tabs: tabs,
