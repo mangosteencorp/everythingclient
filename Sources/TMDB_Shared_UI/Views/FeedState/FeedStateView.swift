@@ -134,6 +134,12 @@ public extension Binding where Value == FeedEmptyStateDesign {
 
 #Preview("Empty") {
     FeedStateView(state: FeedState<Int>.loaded([]), retryAction: {}, content: { _ in EmptyView() })
+        .designStyle(FeedEmptyStateDesign.fancy)
+}
+
+#Preview("Empty — plain") {
+    FeedStateView(state: FeedState<Int>.loaded([]), retryAction: {}, content: { _ in EmptyView() })
+        .designStyle(FeedEmptyStateDesign.plain)
 }
 
 #Preview("Refreshing") {

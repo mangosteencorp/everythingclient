@@ -208,8 +208,8 @@ private struct FeedPaletteCell<Route: Hashable>: View {
     }
 }
 
-/// `FeedItemsView` reads its layout from the shared design coordinator, so each preview picks
-/// one there; the private cells are only reachable through their layout.
+/// Each preview pins its layout, leaving the shared coordinator alone; the private cells are
+/// only reachable through their layout.
 private struct FeedItemsPreview: View {
     let design: FeedContentDesign
 
@@ -221,7 +221,7 @@ private struct FeedItemsPreview: View {
                 onItemAppear: { _ in }
             )
         }
-        .onAppear { DesignCoordinator.shared.select(design) }
+        .designStyle(design)
     }
 }
 #endif
