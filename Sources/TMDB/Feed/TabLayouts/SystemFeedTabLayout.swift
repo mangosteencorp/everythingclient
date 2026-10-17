@@ -1,12 +1,13 @@
 import SwiftUI
+import TMDB_Feed
 
 /// The system `TabView`. iPad only — see `FeedTabDesign.isAvailableOnThisDevice`.
 @available(iOS 16, *)
 struct SystemFeedTabLayout<Content: View>: View {
-    let tabs: [FeedTab]
-    @Binding var selection: FeedTab
-    @Binding var visibleTab: FeedTab
-    @ViewBuilder let content: (FeedTab) -> Content
+    let tabs: [FeedKind]
+    @Binding var selection: FeedKind
+    @Binding var visibleTab: FeedKind
+    @ViewBuilder let content: (FeedKind) -> Content
 
     var body: some View {
         // There are more tabs than the tab bar can show, so iOS moves the overflow
@@ -44,7 +45,7 @@ struct SystemFeedTabLayout<Content: View>: View {
         }
     }
 
-    private func tabRoot(for tab: FeedTab) -> some View {
+    private func tabRoot(for tab: FeedKind) -> some View {
         // iOS never updates the `selection` binding for tabs opened from the More list,
         // so the visible tab has to be tracked from the content itself to keep the
         // navigation title in sync.
@@ -55,6 +56,6 @@ struct SystemFeedTabLayout<Content: View>: View {
 
 #if DEBUG
 #Preview {
-    TMDBFeedPreviewCatalog.systemLayout.view
+    TMDBPreviewCatalog.feedSystemTabsLayout.view
 }
 #endif

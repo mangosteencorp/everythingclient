@@ -8,7 +8,8 @@ public struct TMDBFeedDemoView: View {
 
     public var body: some View {
         NavigationStack {
-            MovieFeedListPage(
+            FeedPage(
+                kind: .nowPlaying,
                 // Preview data should always come from the current API response;
                 // a cached empty response otherwise masks feed-loading fixes.
                 apiService: TMDBAPIService(apiKey: debugTMDBAPIKey, urlCacheOptions: .disabled),

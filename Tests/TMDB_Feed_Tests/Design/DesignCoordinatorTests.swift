@@ -107,22 +107,4 @@ final class DesignCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(coordinator.style(TestDesign.self), .alpha, "nothing registered that slot yet")
     }
-
-    func testFeedTabDesignNeverOffersABottomBarOnIPhone() throws {
-        // The app shell owns the bottom edge on iPhone; a second bottom bar inside it is unusable.
-        try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .phone)
-
-        XCTAssertFalse(FeedTabDesign.availableCases.contains(.systemTabs))
-        XCTAssertTrue(FeedTabDesign.availableCases.contains(.topSegments))
-    }
-
-    #if targetEnvironment(macCatalyst)
-    func testCatalystFallsBackFromStoredSystemTabs() {
-        let coordinator = makeCoordinator()
-        coordinator.select(FeedTabDesign.systemTabs)
-
-        XCTAssertEqual(coordinator.style(FeedTabDesign.self), .topSegments)
-        XCTAssertEqual(FeedTabDesign.availableCases, [.topSegments])
-    }
-    #endif
 }

@@ -3,6 +3,7 @@ import CoreFeatures
 import PhotoListViewer
 import SwiftUI
 import Swinject
+import TMDB_Feed
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
@@ -24,6 +25,10 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
     case floatingTabShell
     case pagedTabShell
     case sectionedSidebarShell
+    case feedTabsPage
+    case feedTabContainer
+    case feedTopSegmentsLayout
+    case feedSystemTabsLayout
     case floatingTabBar
     case pageDots
     case splitDetailPlaceholder
@@ -73,6 +78,37 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
                 // Feed pages come without a stack: the shell owns it.
                 feedPage: { tab in List(1...20, id: \.self) { Text("\(tab.title) \($0)") }.navigationTitle(tab.title) }
             )
+        default:
+            feedTabs
+        }
+    }
+
+    /// The feed tab level, served by `PreviewFeedAPIService` or placeholder text.
+    @MainActor @ViewBuilder
+    private var feedTabs: some View {
+        switch self {
+        case .feedTabsPage:
+            NavigationStack {
+                FeedTabsPage(
+                    apiService: PreviewFeedAPIService(),
+                    detailRouteBuilder: { $0.id },
+                    tvShowDetailRouteBuilder: { $0.id }
+                )
+            }
+        case .feedTabContainer, .feedTopSegmentsLayout, .feedSystemTabsLayout:
+            let initialTab: FeedKind = self == .feedTopSegmentsLayout ? .popular : .nowPlaying
+            StatefulPreview(initialTab) { selection in
+                StatefulPreview(initialTab) { visibleTab in
+                    switch self {
+                    case .feedTopSegmentsLayout:
+                        TopSegmentsFeedTabLayout(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
+                    case .feedSystemTabsLayout:
+                        SystemFeedTabLayout(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
+                    default:
+                        FeedTabContainer(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
+                    }
+                }
+            }
         default:
             widget
         }

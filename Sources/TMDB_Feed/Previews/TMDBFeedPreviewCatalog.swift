@@ -16,13 +16,8 @@ public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
     }
 
     case demo
-    case listPage
-    case listPageInNavigation
-    case destinationMovies
-    case destinationTVShows
-    case tabContainer
-    case topSegmentsLayout
-    case systemLayout
+    case pageMovies
+    case pageTVShows
     case movieContentLoaded
     case movieContentOffline
     case tvShowContent
@@ -31,54 +26,23 @@ public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
     case itemsGrid
     case itemsPaletteCards
     case itemRows
-    case listPageNavigation
 
     @MainActor @ViewBuilder
     public var view: some View {
         switch self {
         case .demo:
             TMDBFeedDemoView()
-        case .listPage:
-            MovieFeedListPage(apiService: PreviewFeedAPIService(), detailRouteBuilder: { $0.id }, tvShowDetailRouteBuilder: { $0.id })
-        case .listPageInNavigation:
+        case .pageMovies, .pageTVShows:
             NavigationStack {
-                MovieFeedListPage(
-                    movieViewModel: MovieFeedViewModel(apiService: PreviewFeedAPIService()),
-                    tvShowViewModel: TVShowFeedViewModel(apiService: PreviewFeedAPIService()),
-                    detailRouteBuilder: { $0.id },
-                    tvShowDetailRouteBuilder: { $0.id }
-                )
-            }
-        case .destinationMovies, .destinationTVShows:
-            NavigationStack {
-                FeedDestinationPage(
-                    tab: self == .destinationMovies ? .nowPlaying : .airingToday,
+                FeedPage(
+                    kind: self == .pageMovies ? .nowPlaying : .airingToday,
                     apiService: PreviewFeedAPIService(),
                     detailRouteBuilder: { $0.id },
                     tvShowDetailRouteBuilder: { $0.id }
                 )
             }
-        case .tabContainer, .topSegmentsLayout, .systemLayout:
-            tabLayout
         default:
             content
-        }
-    }
-
-    @MainActor @ViewBuilder
-    private var tabLayout: some View {
-        let initialTab: FeedTab = self == .topSegmentsLayout ? .popular : .nowPlaying
-        StatefulPreview(initialTab) { selection in
-            StatefulPreview(initialTab) { visibleTab in
-                switch self {
-                case .topSegmentsLayout:
-                    TopSegmentsFeedTabLayout(tabs: FeedTab.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
-                case .systemLayout:
-                    SystemFeedTabLayout(tabs: FeedTab.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
-                default:
-                    FeedTabContainer(tabs: FeedTab.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
-                }
-            }
         }
     }
 
@@ -87,23 +51,23 @@ public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
         switch self {
         case .movieContentLoaded:
             NavigationStack {
-                MovieFeedTabContent(
-                    viewModel: MovieFeedViewModel(apiService: PreviewFeedAPIService()),
-                    feedType: .popular,
+                MovieFeedContent(
+                    viewModel: MovieFeedViewModel(feedType: .popular, apiService: PreviewFeedAPIService()),
                     detailRouteBuilder: { $0.id }
                 )
             }
         case .movieContentOffline:
-            MovieFeedTabContent(
-                viewModel: MovieFeedViewModel(apiService: PreviewFeedAPIService(failure: URLError(.notConnectedToInternet))),
-                feedType: .popular,
+            MovieFeedContent(
+                viewModel: MovieFeedViewModel(
+                    feedType: .popular,
+                    apiService: PreviewFeedAPIService(failure: URLError(.notConnectedToInternet))
+                ),
                 detailRouteBuilder: { $0.id }
             )
         case .tvShowContent:
             NavigationStack {
-                TVShowFeedTabContent(
-                    viewModel: TVShowFeedViewModel(apiService: PreviewFeedAPIService()),
-                    feedType: .onTheAir,
+                TVShowFeedContent(
+                    viewModel: TVShowFeedViewModel(feedType: .onTheAir, apiService: PreviewFeedAPIService()),
                     detailRouteBuilder: { $0.id }
                 )
             }
@@ -123,7 +87,7 @@ public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
                 }
             }
         default:
-            MovieFeedListPageNavigation()
+            EmptyView()
         }
     }
 }

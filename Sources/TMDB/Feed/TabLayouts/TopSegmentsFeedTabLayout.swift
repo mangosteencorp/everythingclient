@@ -1,13 +1,14 @@
 import SwiftUI
+import TMDB_Feed
 
 /// Scrollable segment header pinned above the content — the shape Mail, X and Podcasts all
 /// use when the tabs cannot live on the bottom edge.
 @available(iOS 16, *)
 struct TopSegmentsFeedTabLayout<Content: View>: View {
-    let tabs: [FeedTab]
-    @Binding var selection: FeedTab
-    @Binding var visibleTab: FeedTab
-    @ViewBuilder let content: (FeedTab) -> Content
+    let tabs: [FeedKind]
+    @Binding var selection: FeedKind
+    @Binding var visibleTab: FeedKind
+    @ViewBuilder let content: (FeedKind) -> Content
 
     var body: some View {
         VStack(spacing: 0) {
@@ -41,7 +42,7 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
         }
     }
 
-    private func segment(for tab: FeedTab) -> some View {
+    private func segment(for tab: FeedKind) -> some View {
         let isSelected = tab == selection
         return Button {
             selection = tab
@@ -64,6 +65,6 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
 
 #if DEBUG
 #Preview {
-    TMDBFeedPreviewCatalog.topSegmentsLayout.view
+    TMDBPreviewCatalog.feedTopSegmentsLayout.view
 }
 #endif

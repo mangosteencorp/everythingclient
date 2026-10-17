@@ -1,5 +1,6 @@
 import CoreFeatures
 import SwiftUI
+import TMDB_Feed
 
 /// Hosts the inner feed tabs, delegating all chrome to the current `FeedTabDesign`.
 ///
@@ -7,12 +8,12 @@ import SwiftUI
 /// new layout never has to know what a feed is.
 @available(iOS 16, *)
 struct FeedTabContainer<Content: View>: View {
-    let tabs: [FeedTab]
-    @Binding var selection: FeedTab
+    let tabs: [FeedKind]
+    @Binding var selection: FeedKind
     /// What is actually on screen. Diverges from `selection` only in `.systemTabs`, where iOS
     /// opens overflow tabs without updating the selection binding.
-    @Binding var visibleTab: FeedTab
-    @ViewBuilder let content: (FeedTab) -> Content
+    @Binding var visibleTab: FeedKind
+    @ViewBuilder let content: (FeedKind) -> Content
 
     @DesignStyle private var design: FeedTabDesign
     @Environment(\.feedNavigationMode) private var navigationMode
@@ -47,7 +48,7 @@ struct FeedTabContainer<Content: View>: View {
 #if DEBUG
 #Preview("Feed Tabs — Design switch") {
     NavigationStack {
-        TMDBFeedPreviewCatalog.tabContainer.view
+        TMDBPreviewCatalog.feedTabContainer.view
             .toolbar {
                 DesignShuffleToolbarItem()
             }

@@ -150,9 +150,9 @@ public struct TMDBAPITabView: View {
 
     /// One feed category without a `NavigationStack`, so a shell can either wrap it or push it.
     @ViewBuilder
-    private func feedPage(for tab: FeedTab) -> some View {
-        FeedDestinationPage(
-            tab: tab,
+    private func feedPage(for kind: FeedKind) -> some View {
+        FeedPage(
+            kind: kind,
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker,
             detailRouteBuilder: Self.movieRoute(for:),
@@ -186,7 +186,7 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildMovieFeedPage() -> some View {
-        MovieFeedListPage(
+        FeedTabsPage(
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker,
             detailRouteBuilder: { movie in Self.movieRoute(for: movie) },
