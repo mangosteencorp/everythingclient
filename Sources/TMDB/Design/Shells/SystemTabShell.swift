@@ -43,10 +43,10 @@ private extension View {
 
 #if DEBUG
 #Preview("Tab bar") {
-    TMDBPreviewCatalog.systemTabShell.view
+    SystemTabShell(coordinator: .preview, usesSidebarPlacement: false) { ShellPagePreview(title: $0.title) }
 }
 
 #Preview("Sidebar placement (iPad, iOS 27)") {
-    TMDBPreviewCatalog.systemTabShellSidebar.view
+    SystemTabShell(coordinator: .preview, usesSidebarPlacement: true) { ShellPagePreview(title: $0.title) }
 }
 #endif

@@ -23,6 +23,8 @@ struct TVShowGenresSection: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.genres.view
+    TVShowGenresSection(genres: TVShowDetailModel.example.genres)
+        .padding()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

@@ -184,22 +184,44 @@ private struct FeedPaletteCell<Route: Hashable>: View {
 
 #if DEBUG
 #Preview("List") {
-    TMDBFeedPreviewCatalog.itemsList.view
+    FeedItemsPreview(design: .list)
 }
 
 #Preview("Compact rows") {
-    TMDBFeedPreviewCatalog.itemsCompactRows.view
+    FeedItemsPreview(design: .compactRows)
 }
 
 #Preview("Grid") {
-    TMDBFeedPreviewCatalog.itemsGrid.view
+    FeedItemsPreview(design: .grid)
 }
 
 #Preview("Palette cards") {
-    TMDBFeedPreviewCatalog.itemsPaletteCards.view
+    FeedItemsPreview(design: .paletteCards)
 }
 
 #Preview("Rows") {
-    TMDBFeedPreviewCatalog.itemRows.view
+    NavigationStack {
+        List {
+            FeedItemRow(item: Movie.previewMovies[0].feedItem(route: 1), style: .list, onAppear: {})
+            FeedItemRow(item: Movie.previewMovies[1].feedItem(route: 2), style: .compactRows, onAppear: {})
+        }
+    }
+}
+
+/// `FeedItemsView` reads its layout from the shared design coordinator, so each preview picks
+/// one there; the private cells are only reachable through their layout.
+private struct FeedItemsPreview: View {
+    let design: FeedContentDesign
+
+    var body: some View {
+        NavigationStack {
+            FeedItemsView(
+                items: Movie.previewMovies.map { $0.feedItem(route: $0.id) },
+                accessibilityIdentifier: "preview",
+                onItemAppear: { _ in }
+            )
+        }
+        .onAppear { DesignCoordinator.shared.select(design) }
+    }
 }
 #endif

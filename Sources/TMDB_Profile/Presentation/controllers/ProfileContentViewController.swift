@@ -473,11 +473,23 @@ let sampleProfileEntity = ProfileEntity(
     ]
 )
 #Preview {
-    TMDBProfilePreviewCatalog.content.view
+    UIViewControllerPreview { ProfileContentViewController(profile: sampleProfileEntity) }
 }
 
 #Preview("Long name") {
-    TMDBProfilePreviewCatalog.contentLongName.view
+    UIViewControllerPreview {
+        ProfileContentViewController(profile: ProfileEntity(
+            accountInfo: AccountInfoEntity(
+                id: 7,
+                name: "Maximilian Alexander Featherstonehaugh-Montgomery",
+                username: "maximilian_alexander_featherstonehaugh",
+                avatarPath: nil
+            ),
+            favoriteMovies: sampleProfileEntity.favoriteMovies,
+            favoriteTVShows: sampleProfileEntity.favoriteTVShows,
+            watchlistTVShows: sampleProfileEntity.watchlistTVShows
+        ))
+    }
 }
 #endif
 // swiftlint:enable all

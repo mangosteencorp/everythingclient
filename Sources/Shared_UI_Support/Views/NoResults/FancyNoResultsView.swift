@@ -234,6 +234,7 @@ public struct FancyNoResultsView: View {
 
 #if DEBUG
 #Preview {
-    SharedUISupportPreviewCatalog.fancyNoResults.view
+    FancyNoResultsView()
+        .preferredColorScheme(.dark)
 }
 #endif

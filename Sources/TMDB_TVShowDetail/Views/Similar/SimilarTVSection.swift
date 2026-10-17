@@ -52,7 +52,7 @@ struct SimilarPosterCellView: View {
 
 #if DEBUG
 #Preview("Poster cell") {
-    TMDBTVShowDetailPreviewCatalog.similarPosterCell.view
+    SimilarPosterCellView(entity: .placeholder(id: 1))
 }
 
 #Preview {

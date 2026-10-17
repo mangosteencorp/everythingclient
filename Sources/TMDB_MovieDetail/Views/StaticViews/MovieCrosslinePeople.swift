@@ -139,14 +139,16 @@ struct PeopleRowItem<Route: Hashable>: View {
 
 #if DEBUG
 #Preview {
-    TMDBMovieDetailPreviewCatalog.crosslinePeople.view
+    MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples, personRouteBuilder: { $0 })
 }
 
 #Preview {
-    TMDBMovieDetailPreviewCatalog.crosslinePeopleRedacted.view
+    RedactedMovieCrosslinePeopleRow()
 }
 
 #Preview("See all list") {
-    TMDBMovieDetailPreviewCatalog.peopleSeeAllList.view
+    NavigationStack {
+        List(examplePeoples) { people in PeopleListItem(people: people, personRouteBuilder: { $0 }) }
+    }
 }
 #endif

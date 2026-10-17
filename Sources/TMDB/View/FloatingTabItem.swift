@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_UI
 
 struct FloatingTabItem<Selection: Hashable> {
     let tag: Selection
@@ -115,6 +116,22 @@ struct FloatingTabBar<Selection: Hashable>: View {
 
 #if DEBUG
 #Preview {
-    TMDBPreviewCatalog.floatingTabBar.view
+    StatefulPreview(TabRoute.movieFeed) { selection in
+        VStack {
+            Spacer()
+            FloatingTabBar(
+                selection: selection,
+                isHidden: .constant(false),
+                items: Coordinator.preview.tabList.map {
+                    FloatingTabItem(
+                        tag: $0,
+                        icon: Image(systemName: $0.iconName),
+                        title: $0.title,
+                        accessibilityIdentifier: $0.customizationID
+                    )
+                }
+            )
+        }
+    }
 }
 #endif

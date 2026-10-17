@@ -1,6 +1,7 @@
 import CoreFeatures
 import SwiftUI
 import TMDB_Feed
+import TMDB_Shared_UI
 
 /// Hosts the inner feed tabs, delegating all chrome to the current `FeedTabDesign`.
 ///
@@ -48,10 +49,14 @@ struct FeedTabContainer<Content: View>: View {
 #if DEBUG
 #Preview("Feed Tabs — Design switch") {
     NavigationStack {
-        TMDBPreviewCatalog.feedTabContainer.view
-            .toolbar {
-                DesignShuffleToolbarItem()
+        StatefulPreview(FeedKind.nowPlaying) { selection in
+            StatefulPreview(FeedKind.nowPlaying) { visibleTab in
+                FeedTabContainer(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
             }
+        }
+        .toolbar {
+            DesignShuffleToolbarItem()
+        }
     }
 }
 #endif

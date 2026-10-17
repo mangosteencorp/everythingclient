@@ -93,6 +93,11 @@ private extension ShellSelection where Root == TabRoute, Row == TabRoute {
 
 #if DEBUG
 #Preview {
-    TMDBPreviewCatalog.sectionedSidebarShell.view
+    SectionedSidebarShell(
+        coordinator: .preview,
+        page: { ShellPagePreview(title: $0.title) },
+        // Feed pages come without a stack: the shell owns it.
+        feedPage: { tab in List(1...20, id: \.self) { Text("\(tab.title) \($0)") }.navigationTitle(tab.title) }
+    )
 }
 #endif

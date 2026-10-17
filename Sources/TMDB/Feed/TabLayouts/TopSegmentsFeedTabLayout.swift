@@ -1,5 +1,6 @@
 import SwiftUI
 import TMDB_Feed
+import TMDB_Shared_UI
 
 /// Scrollable segment header pinned above the content — the shape Mail, X and Podcasts all
 /// use when the tabs cannot live on the bottom edge.
@@ -65,6 +66,10 @@ struct TopSegmentsFeedTabLayout<Content: View>: View {
 
 #if DEBUG
 #Preview {
-    TMDBPreviewCatalog.feedTopSegmentsLayout.view
+    StatefulPreview(FeedKind.popular) { selection in
+        StatefulPreview(FeedKind.popular) { visibleTab in
+            TopSegmentsFeedTabLayout(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
+        }
+    }
 }
 #endif

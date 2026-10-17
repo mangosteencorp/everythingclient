@@ -17,6 +17,10 @@ public struct ThemeSwitchButton: View {
 
 #if DEBUG
 #Preview {
-    CoreFeaturesPreviewCatalog.themeSwitchButton.view
+    NavigationStack {
+        Text("Tap the toolbar button to cycle themes")
+            .toolbar { ThemeSwitchButton() }
+    }
+    .environmentObject(ThemeManager.shared)
 }
 #endif

@@ -52,7 +52,17 @@ public struct AdaptiveColumnGrid<Item: Identifiable, Content: View>: View {
 
 #if DEBUG
 #Preview {
-    SharedUISupportPreviewCatalog.adaptiveColumnGrid.view
+    AdaptiveColumnGrid(items: (0..<9).map(PreviewSwatch.init)) { swatch in
+        RoundedRectangle(cornerRadius: 12)
+            .fill(swatch.color)
+            .frame(height: 120)
+            .overlay(Text("\(swatch.id)").foregroundStyle(.white))
+    }
 }
 #endif
+
+private struct PreviewSwatch: Identifiable {
+    let id: Int
+    var color: Color { [.red, .orange, .yellow, .green, .blue, .purple][id % 6] }
+}
 #endif

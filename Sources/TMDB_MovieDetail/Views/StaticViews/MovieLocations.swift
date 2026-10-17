@@ -28,6 +28,6 @@ struct MovieLocations: View {
 
 #if DEBUG
 #Preview {
-    TMDBMovieDetailPreviewCatalog.locations.view
+    MovieLocations(locations: ["Los Angeles", "New York", "London", "Paris", "Tokyo", "Peru", "Amazon Rainforest"])
 }
 #endif

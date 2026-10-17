@@ -103,6 +103,6 @@ extension View {
 
 #if DEBUG
 #Preview("Split view detail placeholder") {
-    TMDBPreviewCatalog.splitDetailPlaceholder.view
+    FeedSplitDetailPlaceholder()
 }
 #endif

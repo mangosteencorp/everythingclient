@@ -5,14 +5,13 @@ import SwiftUI
 import Swinject
 import TMDB_Feed
 import TMDB_Shared_Backend
-import TMDB_Shared_UI
 
 /// Every app shell preview as a view of its own, so Xcode's canvas, the integration launcher and
 /// the screenshot run all render the same thing.
 ///
 /// The `tabs…` and `…Design` cases are the whole TMDB app, loading live from TMDB; the `…Design`
 /// ones pick their shell in the shared `DesignCoordinator`, which saves it like any other design
-/// choice. The `…Shell` cases show only a shell's own chrome around placeholder pages.
+/// choice.
 public enum TMDBPreviewCatalog: String, CaseIterable {
     case tabsNormal
     case tabsPage
@@ -20,18 +19,7 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
     case floatingBarDesign
     case sidebarTabBarDesign
     case sectionedSidebarDesign
-    case systemTabShell
-    case systemTabShellSidebar
-    case floatingTabShell
-    case pagedTabShell
-    case sectionedSidebarShell
     case feedTabsPage
-    case feedTabContainer
-    case feedTopSegmentsLayout
-    case feedSystemTabsLayout
-    case floatingTabBar
-    case pageDots
-    case splitDetailPlaceholder
     case photoSlidesRoute
     case settings
 
@@ -55,38 +43,6 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
             ShellPreview(design: .sidebarTabBar)
         case .sectionedSidebarDesign:
             ShellPreview(design: .sectionedSidebar)
-        default:
-            shell
-        }
-    }
-
-    @MainActor @ViewBuilder
-    private var shell: some View {
-        switch self {
-        case .systemTabShell, .systemTabShellSidebar:
-            SystemTabShell(coordinator: .preview, usesSidebarPlacement: self == .systemTabShellSidebar) {
-                ShellPagePreview(title: $0.title)
-            }
-        case .floatingTabShell:
-            FloatingTabShell(coordinator: .preview) { ShellPagePreview(title: $0.title) }
-        case .pagedTabShell:
-            PagedTabShell(coordinator: .preview) { ShellPagePreview(title: $0.title) }
-        case .sectionedSidebarShell:
-            SectionedSidebarShell(
-                coordinator: .preview,
-                page: { ShellPagePreview(title: $0.title) },
-                // Feed pages come without a stack: the shell owns it.
-                feedPage: { tab in List(1...20, id: \.self) { Text("\(tab.title) \($0)") }.navigationTitle(tab.title) }
-            )
-        default:
-            feedTabs
-        }
-    }
-
-    /// The feed tab level, served by `PreviewFeedAPIService` or placeholder text.
-    @MainActor @ViewBuilder
-    private var feedTabs: some View {
-        switch self {
         case .feedTabsPage:
             NavigationStack {
                 FeedTabsPage(
@@ -95,51 +51,6 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
                     tvShowDetailRouteBuilder: { $0.id }
                 )
             }
-        case .feedTabContainer, .feedTopSegmentsLayout, .feedSystemTabsLayout:
-            let initialTab: FeedKind = self == .feedTopSegmentsLayout ? .popular : .nowPlaying
-            StatefulPreview(initialTab) { selection in
-                StatefulPreview(initialTab) { visibleTab in
-                    switch self {
-                    case .feedTopSegmentsLayout:
-                        TopSegmentsFeedTabLayout(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
-                    case .feedSystemTabsLayout:
-                        SystemFeedTabLayout(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
-                    default:
-                        FeedTabContainer(tabs: FeedKind.allCases, selection: selection, visibleTab: visibleTab) { Text($0.title) }
-                    }
-                }
-            }
-        default:
-            widget
-        }
-    }
-
-    @MainActor @ViewBuilder
-    private var widget: some View {
-        switch self {
-        case .floatingTabBar:
-            StatefulPreview(TabRoute.movieFeed) { selection in
-                VStack {
-                    Spacer()
-                    FloatingTabBar(
-                        selection: selection,
-                        isHidden: .constant(false),
-                        items: Coordinator.preview.tabList.map {
-                            FloatingTabItem(
-                                tag: $0,
-                                icon: Image(systemName: $0.iconName),
-                                title: $0.title,
-                                accessibilityIdentifier: $0.customizationID
-                            )
-                        }
-                    )
-                }
-            }
-        case .pageDots:
-            StatefulPreview(1) { PageDots(currentPage: $0, numberOfPages: 5) }
-                .padding()
-        case .splitDetailPlaceholder:
-            FeedSplitDetailPlaceholder()
         case .photoSlidesRoute:
             // Photo slides resolve nothing from the container, so an empty one is enough.
             NavigationStack {
@@ -151,7 +62,7 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
                     container: Container()
                 )
             }
-        default:
+        case .settings:
             SettingsPageView()
         }
     }
