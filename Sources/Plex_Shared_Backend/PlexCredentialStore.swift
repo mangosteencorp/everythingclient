@@ -31,20 +31,28 @@ public protocol PlexCredentialStoring: Sendable {
 
 /// A generic-password Keychain item, readable after first unlock and never synced to other devices.
 public struct PlexKeychainCredentialStore: PlexCredentialStoring {
-    private let service: String
-    private let account: String
+    /// The namespace containing this session item, usually the app's bundle identifier.
+    public let service: String
+    /// The session item's name within its service.
+    public let account: String
+    /// The entitled Keychain access group, or nil to use the app's default group.
+    public let accessGroup: String?
 
     /// Creates a store for one Keychain item.
     /// - Parameters:
     ///   - service: Usually the app's bundle identifier.
     ///   - account: The item name within that service.
-    public init(service: String, account: String = "plex-session") {
+    ///   - accessGroup: An access group from the app's Keychain Sharing entitlement, if needed.
+    public init(service: String, account: String = "plex-session", accessGroup: String? = nil) {
         self.service = service
         self.account = account
+        self.accessGroup = accessGroup
     }
 
-    private var query: [String: Any] {
-        [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: account]
+    var query: [String: Any] {
+        var query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: account]
+        if let accessGroup { query[kSecAttrAccessGroup as String] = accessGroup }
+        return query
     }
 
     /// Reads and decodes the Keychain item.
