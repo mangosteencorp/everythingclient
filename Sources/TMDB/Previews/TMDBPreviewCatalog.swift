@@ -11,7 +11,10 @@ import TMDB_Shared_Backend
 ///
 /// The `tabs…` and `…Design` cases are the whole TMDB app, loading live from TMDB; the `…Design`
 /// ones pin their shell with `.designStyle(_:)`, so previewing one never rewrites the saved choice.
-public enum TMDBPreviewCatalog: String, CaseIterable {
+public enum TMDBPreviewCatalog: String, CaseIterable, Identifiable {
+    public var id: String {
+        return rawValue
+    }
     case tabsNormal
     case tabsPage
     case tabsEmbedded
