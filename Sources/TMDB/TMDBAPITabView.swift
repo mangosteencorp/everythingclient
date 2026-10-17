@@ -158,6 +158,7 @@ public struct TMDBAPITabView: View {
             detailRouteBuilder: Self.movieRoute(for:),
             tvShowDetailRouteBuilder: Self.tvShowRoute(for:)
         )
+        .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
     }
 
@@ -192,9 +193,7 @@ public struct TMDBAPITabView: View {
             detailRouteBuilder: { movie in Self.movieRoute(for: movie) },
             tvShowDetailRouteBuilder: { tvShow in Self.tvShowRoute(for: tvShow) }
         )
-        .toolbar {
-            DesignShuffleToolbarItem(placement: .topBarLeading)
-        }
+        .designShuffleToolbar()
     }
 
     /// The app's one search screen. It is a root tab of its own rather than a feed category,
@@ -205,6 +204,7 @@ public struct TMDBAPITabView: View {
             service: TMDBSearchService(requester: container.resolve(TMDBAPIService.self)!),
             routeBuilder: TMDBRoute.search(for:)
         )
+        .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
     }
 
@@ -255,6 +255,7 @@ public struct TMDBAPITabView: View {
             // A UIKit page laid out inside the safe area leaves its background short of the iPhone
             // Duo's rail and the home indicator. Its collection view insets its own content.
             .ignoresSafeArea()
+            .designShuffleToolbar()
             .withTMDBNavigationDestinations(container: container)
     }
 
@@ -267,11 +268,19 @@ public struct TMDBAPITabView: View {
         }
         // Same as Discover: the header and list keep to the safe area themselves.
         .ignoresSafeArea()
+        .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
     }
 
     @ViewBuilder
     private func buildSettingsPage() -> some View {
         SettingsPageView()
+    }
+}
+
+extension View {
+    /// On every root tab, so no shell can land you on a page without a way to shuffle again.
+    func designShuffleToolbar() -> some View {
+        toolbar { DesignShuffleToolbarItem(placement: .topBarLeading) }
     }
 }
