@@ -1,6 +1,6 @@
 import SwiftUI
 import TMDB_Shared_Backend
-
+import CoreFeatures
 #if DEBUG
 @available(iOS 16, *)
 public struct TMDBFeedDemoView: View {
@@ -15,7 +15,12 @@ public struct TMDBFeedDemoView: View {
                 apiService: TMDBAPIService(apiKey: debugTMDBAPIKey, urlCacheOptions: .disabled),
                 detailRouteBuilder: { _ in 1 },
                 tvShowDetailRouteBuilder: { _ in 1 }
-            )
+            ).toolbar {
+                ToolbarItem{
+                    DesignShuffleButton()
+                }
+                
+            }
         }
     }
 }
