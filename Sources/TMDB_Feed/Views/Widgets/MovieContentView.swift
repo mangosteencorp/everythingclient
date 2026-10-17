@@ -8,14 +8,7 @@ struct MovieFeedContent<Route: Hashable>: View {
     let detailRouteBuilder: (Movie) -> Route
 
     var body: some View {
-        let movies = viewModel.movies
-        let isLoading = viewModel.isLoading
-
-        FeedStateView(
-            phase: phase(movies: movies, isLoading: isLoading),
-            isRefreshing: isLoading,
-            retryAction: { viewModel.load() }
-        ) {
+        FeedStateView(state: viewModel.state, retryAction: { viewModel.load() }, content: { movies in
             FeedItemsView(
                 items: movies.map { $0.feedItem(route: detailRouteBuilder($0)) },
                 accessibilityIdentifier: "movies_list_items",
@@ -23,7 +16,7 @@ struct MovieFeedContent<Route: Hashable>: View {
                     viewModel.fetchMoreContentIfNeeded(currentMovieId: item.id)
                 }
             )
-        }
+        })
         .accessibilityIdentifier("movies_list_content")
         .refreshable {
             await viewModel.refresh()
@@ -31,16 +24,6 @@ struct MovieFeedContent<Route: Hashable>: View {
         .onAppear {
             viewModel.load()
         }
-    }
-
-    private func phase(movies: [Movie], isLoading: Bool) -> FeedLoadPhase {
-        if isLoading, movies.isEmpty {
-            return .loading
-        }
-        if let message = viewModel.errorMessage, movies.isEmpty {
-            return .error(message: message)
-        }
-        return movies.isEmpty ? .empty : .loaded
     }
 }
 

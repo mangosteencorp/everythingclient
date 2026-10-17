@@ -1,15 +1,14 @@
 import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 
 /// One TV feed; see `MovieFeedViewModel`.
 public class TVShowFeedViewModel: ObservableObject {
     public let feedType: TVShowFeedType
-    @Published private(set) var shows: [TVShow] = []
-    @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
+    @Published private(set) var state: FeedState<TVShow> = .idle
 
-    /// Last page fetched; `shows` holds every page up to it.
+    /// Last page fetched; `state` holds every page up to it.
     private var page = 1
     private var loadTask: Task<Void, Never>?
     private var loadMoreTask: Task<Void, Never>?
@@ -37,9 +36,8 @@ public class TVShowFeedViewModel: ObservableObject {
 
     /// Safe to call on every appearance; see `MovieFeedViewModel.load()`.
     func load() {
-        guard shows.isEmpty, loadTask == nil else { return }
-        isLoading = true
-        errorMessage = nil
+        guard state.items.isEmpty, loadTask == nil else { return }
+        state = .loading
         loadTask = Task { @MainActor [weak self] in
             await self?.fetchFirstPage()
             self?.loadTask = nil
@@ -54,11 +52,13 @@ public class TVShowFeedViewModel: ObservableObject {
     @MainActor
     private func fetchFirstPage() async {
         let result = await fetch(page: nil)
-        isLoading = false
 
         // Cancelled by the page going away: drop the response, so the next appearance loads
         // again instead of showing a stuck spinner.
-        guard !Task.isCancelled else { return }
+        guard !Task.isCancelled else {
+            if case .loading = state { state = .idle }
+            return
+        }
 
         switch result {
         case let .success(response):
@@ -70,18 +70,17 @@ public class TVShowFeedViewModel: ObservableObject {
             // A load-more still in flight would append its stale page onto the fresh page 1.
             loadMoreTask?.cancel()
             loadMoreTask = nil
-            shows = response.results
+            state = .loaded(response.results)
             page = 1
-            errorMessage = nil
         case let .failure(error):
-            if shows.isEmpty {
-                errorMessage = error.localizedDescription
+            if state.items.isEmpty {
+                state = .error(message: error.localizedDescription)
             }
         }
     }
 
     func fetchMoreContentIfNeeded(currentShowId: Int) {
-        guard !isLoading,
+        guard case let .loaded(shows) = state,
               currentShowId == shows.last?.id,
               loadMoreTask == nil else { return }
 
@@ -104,7 +103,7 @@ public class TVShowFeedViewModel: ObservableObject {
             loadMoreTask = nil
 
             guard case let .success(response) = result else { return }
-            shows = shows.appendingUnique(response.results)
+            state = .loaded(state.items.appendingUnique(response.results))
             page = nextPage
         }
     }

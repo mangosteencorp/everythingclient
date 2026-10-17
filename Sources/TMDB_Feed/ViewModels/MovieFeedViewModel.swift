@@ -1,16 +1,15 @@
 import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 
 /// One movie feed. A host showing several feeds gives each its own view model, so their
 /// lists, pages and in-flight requests never touch each other.
 public class MovieFeedViewModel: ObservableObject {
     public let feedType: MovieFeedType
-    @Published private(set) var movies: [Movie] = []
-    @Published private(set) var isLoading = false
-    @Published private(set) var errorMessage: String?
+    @Published private(set) var state: FeedState<Movie> = .idle
 
-    /// Last page fetched; `movies` holds every page up to it.
+    /// Last page fetched; `state` holds every page up to it.
     private var page = 1
     private var loadTask: Task<Void, Never>?
     private var loadMoreTask: Task<Void, Never>?
@@ -39,9 +38,8 @@ public class MovieFeedViewModel: ObservableObject {
     /// Safe to call on every appearance: a loaded feed stays as it is and an in-flight request
     /// is not sent twice. `refresh()` is the deliberate bypass for pull-to-refresh.
     func load() {
-        guard movies.isEmpty, loadTask == nil else { return }
-        isLoading = true
-        errorMessage = nil
+        guard state.items.isEmpty, loadTask == nil else { return }
+        state = .loading
         loadTask = Task { @MainActor [weak self] in
             await self?.fetchFirstPage()
             self?.loadTask = nil
@@ -56,11 +54,13 @@ public class MovieFeedViewModel: ObservableObject {
     @MainActor
     private func fetchFirstPage() async {
         let result = await fetch(page: nil)
-        isLoading = false
 
         // Cancelled by the page going away: drop the response, so the next appearance loads
         // again instead of showing a stuck spinner.
-        guard !Task.isCancelled else { return }
+        guard !Task.isCancelled else {
+            if case .loading = state { state = .idle }
+            return
+        }
 
         switch result {
         case let .success(response):
@@ -72,20 +72,19 @@ public class MovieFeedViewModel: ObservableObject {
             // A load-more still in flight would append its stale page onto the fresh page 1.
             loadMoreTask?.cancel()
             loadMoreTask = nil
-            movies = response.results
+            state = .loaded(response.results)
             page = 1
-            errorMessage = nil
         case let .failure(error):
             // URLSession cache may already have satisfied the request when enabled;
             // otherwise keep what this session already showed.
-            if movies.isEmpty {
-                errorMessage = error.localizedDescription
+            if state.items.isEmpty {
+                state = .error(message: error.localizedDescription)
             }
         }
     }
 
     func fetchMoreContentIfNeeded(currentMovieId: Int) {
-        guard !isLoading,
+        guard case let .loaded(movies) = state,
               currentMovieId == movies.last?.id,
               loadMoreTask == nil else { return }
 
@@ -108,7 +107,7 @@ public class MovieFeedViewModel: ObservableObject {
             loadMoreTask = nil
 
             guard case let .success(response) = result else { return }
-            movies = movies.appendingUnique(response.results)
+            state = .loaded(state.items.appendingUnique(response.results))
             page = nextPage
         }
     }

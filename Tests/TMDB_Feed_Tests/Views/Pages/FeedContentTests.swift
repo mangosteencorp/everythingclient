@@ -34,7 +34,7 @@ final class FeedContentTests: XCTestCase {
         ))
         let viewModel = MovieFeedViewModel(feedType: .nowPlaying, apiService: service)
         viewModel.load()
-        await waitUntil { !viewModel.movies.isEmpty }
+        await waitUntil { viewModel.state.kind == .loaded }
 
         let list = try movieContent(viewModel).inspect().find(ViewType.List.self)
         XCTAssertNoThrow(try list.find(FeedItemRow<Int>.self))
@@ -45,7 +45,7 @@ final class FeedContentTests: XCTestCase {
         let content = TVShowFeedContent(viewModel: viewModel, detailRouteBuilder: { _ in 1 })
 
         try content.body.inspect().callOnAppear()
-        XCTAssertTrue(viewModel.isLoading)
+        XCTAssertEqual(viewModel.state.kind, .loading)
     }
 
     func testFeedKindsExist() {

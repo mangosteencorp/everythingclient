@@ -9,14 +9,7 @@ struct TVShowFeedContent<Route: Hashable>: View {
     let detailRouteBuilder: (TVShow) -> Route
 
     var body: some View {
-        let shows = viewModel.shows
-        let isLoading = viewModel.isLoading
-
-        FeedStateView(
-            phase: phase(shows: shows, isLoading: isLoading),
-            isRefreshing: isLoading,
-            retryAction: { viewModel.load() }
-        ) {
+        FeedStateView(state: viewModel.state, retryAction: { viewModel.load() }, content: { shows in
             FeedItemsView(
                 items: shows.map { $0.feedItem(route: detailRouteBuilder($0)) },
                 accessibilityIdentifier: "tvshows_list_items",
@@ -24,7 +17,7 @@ struct TVShowFeedContent<Route: Hashable>: View {
                     viewModel.fetchMoreContentIfNeeded(currentShowId: item.id)
                 }
             )
-        }
+        })
         .accessibilityIdentifier("tvshows_list_content")
         .refreshable {
             await viewModel.refresh()
@@ -32,16 +25,6 @@ struct TVShowFeedContent<Route: Hashable>: View {
         .onAppear {
             viewModel.load()
         }
-    }
-
-    private func phase(shows: [TVShow], isLoading: Bool) -> FeedLoadPhase {
-        if isLoading, shows.isEmpty {
-            return .loading
-        }
-        if let message = viewModel.errorMessage, shows.isEmpty {
-            return .error(message: message)
-        }
-        return shows.isEmpty ? .empty : .loaded
     }
 }
 
