@@ -77,3 +77,14 @@ Use `any PlexLaunching` as the app's test boundary. For integration tests, injec
 PlexAccountProfileServing`, `PlexServerConnecting`, `PlexCredentialStoring`, or `PlexHTTPTransport` in the initializer.
 New sign-in, connection and resume operations supersede earlier work, which throws `CancellationError` before it can
 save credentials or publish a connection. The library presents no UI and starts no background polling tasks.
+
+## Running tests
+
+The shared `Launcher_Tests` scheme covers `PlexLauncher`, `Plex_Shared_Backend` and `SwiftfinLauncher`:
+
+```bash
+scheme=Launcher_Tests bash .github/scripts/build.sh
+```
+
+Run the scheme's tests in Xcode after building. These suites use injected services and Security operations; they do not
+require a Plex/Jellyfin account or Keychain entitlements on the package test runner.
