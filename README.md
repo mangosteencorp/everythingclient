@@ -215,7 +215,7 @@ Tracking:
 
 Media:
 - ✅ Apple Music / MusicKit on movie detail (`MovieOSTViewModel` + `MovieOSTSection`): request authorization, search for soundtrack albums, and deep-link into Apple Music.
-- ✅ Jellyfin via Swiftfin (`third_party/SwiftfinLaunchView`, launched from the Settings tab): embeds a Swiftfin client as a full-screen cover. Swiftfin is a local SwiftPM dependency (`quangDecember/Swiftfin`, `swiftpm` branch).
+- ✅ Jellyfin via Swiftfin (`SwiftfinLauncher/SwiftfinLaunchView`, launched from the Settings tab): embeds a Swiftfin client as a full-screen cover. Swiftfin is a SwiftPM dependency (`quangDecember/Swiftfin`, revision `6cf78d03`).
 - ✅ Photo carousel + full-screen slides (`PhotoListViewer`): horizontal backdrop strip on movie detail, tapping opens `PhotoSlidesPage`.
 - ✅ iPod-style CoverFlow (`Shared_UI_Support/Views/CoverFlow`, iOS 18+): used as an alternate filmography layout on the person page (toggle via the design-switch toolbar button).
 
@@ -322,7 +322,7 @@ UI framework → architecture → reactive layer:
         - 🌀 **RxSwift:**
             - **TMDB_Profile**
 
-Shared and supporting packages: **PhotoListViewer**, **TMDB_Shared_UI**, **CoreFeatures**, **Shared_UI_Support**, **TMDB_Shared_Backend**, **Pokedex_Shared_Backend**, **third_party**, **Integration_test**.
+Shared and supporting packages: **PhotoListViewer**, **TMDB_Shared_UI**, **CoreFeatures**, **Shared_UI_Support**, **TMDB_Shared_Backend**, **Pokedex_Shared_Backend**, **SwiftfinLauncher**, **Integration_test**.
 
 
 #### Module Architecture Layers
@@ -432,11 +432,22 @@ TMDB_Person/
 └── Resources/
 ```
 
-**third_party** (client wrapper · SwiftUI · none)
+**PlexLauncher** (session coordinator · Swift concurrency)
+
+An object-oriented wrapper over the thin **Plex_Shared_Backend** API client, with PIN sign-in, server selection,
+custom Keychain storage and saved-session resume. See [integration examples](Sources/PlexLauncher/README.md).
+
+**SwiftfinLauncher** (client wrapper · SwiftUI)
+
+Embeds Swiftfin, looks up Jellyfin movies and separates playback from opening a movie page. The pinned Swiftfin
+revision exposes native movie-page navigation and connected server/user details. See
+[SwiftfinLauncher](Sources/SwiftfinLauncher/README.md) for integration and test boundaries.
+
 ```
-third_party/
-└── Views/
-    └── SwiftfinLaunchView.swift               // Jellyfin client
+SwiftfinLauncher/
+├── Domain/                                   // Library lookup and session boundary
+├── Views/                                    // Swiftfin, playback, movie page and session status
+└── Resources/                                // Localized messages
 ```
 
 **PhotoListViewer** (view module · SwiftUI · none)

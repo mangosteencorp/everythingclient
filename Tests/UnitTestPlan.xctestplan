@@ -15,6 +15,20 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "SwiftfinLauncher_Tests",
+        "name" : "SwiftfinLauncher_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PlexLauncher_Tests",
+        "name" : "PlexLauncher_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "Plex_Shared_Backend_Tests",
         "name" : "Plex_Shared_Backend_Tests"
       }

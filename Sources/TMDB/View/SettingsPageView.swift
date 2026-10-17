@@ -1,5 +1,5 @@
+import SwiftfinLauncher
 import SwiftUI
-import third_party
 #if canImport(SampleKit)
 import SampleKit
 #endif
@@ -7,13 +7,17 @@ import SampleKit
 public struct SettingsPageView: View {
     @State private var showSwiftfin = false
     @State private var showSamples = false
-    public init() {}
+    @State private var connection: SwiftfinConnectionModel
+
+    public init(sessionService: any SwiftfinSessionServicing = SwiftfinSessionService()) {
+        _connection = State(initialValue: SwiftfinConnectionModel(service: sessionService))
+    }
 
     public var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Button("Launch Jellyfin by Swiftfin") {
+                    Button(L10n.settingsLaunchSwiftfin) {
                         showSwiftfin = true
                     }
                     .simultaneousGesture(
@@ -21,24 +25,29 @@ public struct SettingsPageView: View {
                             .onEnded { _ in showSamples = true }
                     )
                     .accessibilityIdentifier("settings.launchSwiftfin.button")
+                    SwiftfinConnectionStatusView(status: connection.status)
                 } header: {
-                    Text("Media Server")
+                    Text(L10n.settingsMediaServer)
                 }
                 .accessibilityIdentifier("settings.section.mediaServer")
 
                 Section {
-                    Text("More settings coming soon.")
+                    Text(L10n.settingsMoreComing)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Appearance")
+                    Text(L10n.settingsAppearance)
                 }
                 .accessibilityIdentifier("settings.section.appearance")
             }
-            .navigationTitle("Settings")
+            .navigationTitle(L10n.settingsTitle)
             .accessibilityIdentifier("settings.page")
         }
         .fullScreenCover(isPresented: $showSwiftfin) {
             SwiftfinLaunchView()
+        }
+        .task(id: showSwiftfin) {
+            guard !showSwiftfin else { return }
+            await connection.refresh()
         }
         #if canImport(SampleKit)
         .fullScreenCover(isPresented: $showSamples) {
@@ -52,7 +61,7 @@ public struct SettingsPageView: View {
                                 Image(systemName: "xmark")
                             }
                             .accessibilityIdentifier("settings.samples.close.button")
-                            .accessibilityLabel("Close")
+                            .accessibilityLabel(L10n.settingsClose)
                         }
                     }
             }

@@ -1,5 +1,4 @@
 {
-  "originHash" : "addf2c9fc058d379f49e3b8276e581ce41e7fc8b7f4a7770ac299f9c6523da3f",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -489,8 +488,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/quangDecember/Swiftfin",
       "state" : {
-        "branch" : "swiftpm-test-4",
-        "revision" : "0d8698b778681b75f1a305bda3b9211730ce975a"
+        "revision" : "6cf78d0398b6d352ed7214048b3bd246b31b4d21"
       }
     },
     {
