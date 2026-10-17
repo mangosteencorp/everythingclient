@@ -10,14 +10,17 @@ public class TVShowFeedViewModel: ObservableObject {
 
     private var airingTodayShows: [TVShow] = []
     private var onTheAirShows: [TVShow] = []
-    private var currentPage: Int = 1
+    /// Last page fetched per feed; see `MovieFeedViewModel.pages`.
+    private var pages: [TVShowFeedType: Int] = [:]
     private var loadingFeedTypes: Set<TVShowFeedType> = []
     private var feedErrors: [TVShowFeedType: String] = [:]
     private var loadTasks: [TVShowFeedType: Task<Void, Never>] = [:]
+    private var loadMoreTasks: [TVShowFeedType: Task<Void, Never>] = [:]
     private var searchTask: Task<Void, Never>?
 
     deinit {
         loadTasks.values.forEach { $0.cancel() }
+        loadMoreTasks.values.forEach { $0.cancel() }
         searchTask?.cancel()
     }
 
@@ -79,7 +82,6 @@ public class TVShowFeedViewModel: ObservableObject {
     /// `refresh(_:)` is the deliberate bypass for pull-to-refresh.
     func loadFeed(_ feedType: TVShowFeedType) {
         currentFeedType = feedType
-        currentPage = 1
         feedErrors[feedType] = nil
 
         let cached = memoryShows(for: feedType)
@@ -163,10 +165,12 @@ public class TVShowFeedViewModel: ObservableObject {
                 screenClass: "TVShowFeedPage",
                 contentType: "tvshow_list"
             ))
+            // A load-more still in flight would append its stale page onto the fresh page 1.
+            loadMoreTasks.removeValue(forKey: feedType)?.cancel()
             storeShows(response.results, for: feedType)
+            pages[feedType] = 1
             feedErrors[feedType] = nil
             if currentFeedType == feedType {
-                currentPage = 1
                 state = .loaded(response.results)
             }
         case let .failure(error):
@@ -225,41 +229,42 @@ public class TVShowFeedViewModel: ObservableObject {
     }
 
     func fetchMoreContentIfNeeded(currentShowId: Int) {
+        let feedType = currentFeedType
         guard case .loaded = state,
               currentShowId == state.shows.last?.id,
-              searchQuery.isEmpty else { return }
+              searchQuery.isEmpty,
+              loadMoreTasks[feedType] == nil else { return }
 
-        let feedType = currentFeedType
-        Task {
+        let page = pages[feedType, default: 1] + 1
+        loadMoreTasks[feedType] = Task { @MainActor [weak self] in
+            guard let self else { return }
             analyticsTracker?.trackEvent(
                 name: "load_more",
                 parameters: EventParameters(
                     method: "scroll",
                     success: true,
-                    additionalParameters: ["page": currentPage + 1]
+                    additionalParameters: ["page": page]
                 )
             )
 
             let result: Result<TVShowListResponse, Error>
             switch feedType {
             case .airingToday:
-                result = await apiService.fetchAiringTodayTVShows(page: currentPage + 1, additionalParams: additionalParams)
+                result = await apiService.fetchAiringTodayTVShows(page: page, additionalParams: additionalParams)
             case .onTheAir:
-                result = await apiService.fetchOnTheAirTVShows(page: currentPage + 1, additionalParams: additionalParams)
+                result = await apiService.fetchOnTheAirTVShows(page: page, additionalParams: additionalParams)
             }
 
-            await MainActor.run {
-                switch result {
-                case let .success(response):
-                    let combined = memoryShows(for: feedType) + response.results
-                    storeShows(combined, for: feedType)
-                    if currentFeedType == feedType {
-                        state = .loaded(combined)
-                        currentPage += 1
-                    }
-                case .failure:
-                    break
-                }
+            // Cancelled by a refresh, which already replaced the feed and owns the task slot.
+            guard !Task.isCancelled else { return }
+            loadMoreTasks[feedType] = nil
+
+            guard case let .success(response) = result else { return }
+            let combined = memoryShows(for: feedType).appendingUnique(response.results)
+            storeShows(combined, for: feedType)
+            pages[feedType] = page
+            if currentFeedType == feedType {
+                state = .loaded(combined)
             }
         }
     }

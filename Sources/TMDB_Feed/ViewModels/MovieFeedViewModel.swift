@@ -66,14 +66,18 @@ public class MovieFeedViewModel: ObservableObject {
     private var popularMovies: [Movie] = []
     private var topRatedMovies: [Movie] = []
     private var upcomingMovies: [Movie] = []
-    private var currentPage: Int = 1
+    /// Last page fetched per feed. Per feed so switching tabs never re-requests a page another
+    /// feed already advanced past, and kept across `loadFeed` because the cache keeps every page.
+    private var pages: [MovieFeedType: Int] = [:]
     private var loadingFeedTypes: Set<MovieFeedType> = []
     private var feedErrors: [MovieFeedType: String] = [:]
     private var loadTasks: [MovieFeedType: Task<Void, Never>] = [:]
+    private var loadMoreTasks: [MovieFeedType: Task<Void, Never>] = [:]
     private var searchTask: Task<Void, Never>?
 
     deinit {
         loadTasks.values.forEach { $0.cancel() }
+        loadMoreTasks.values.forEach { $0.cancel() }
         searchTask?.cancel()
     }
 
@@ -136,7 +140,6 @@ public class MovieFeedViewModel: ObservableObject {
     /// deliberate bypass for pull-to-refresh.
     func loadFeed(_ feedType: MovieFeedType) {
         currentFeedType = feedType
-        currentPage = 1
         feedErrors[feedType] = nil
 
         let cached = memoryMovies(for: feedType)
@@ -225,10 +228,12 @@ public class MovieFeedViewModel: ObservableObject {
                 screenClass: "MovieFeedPage",
                 contentType: "movie_list"
             ))
+            // A load-more still in flight would append its stale page onto the fresh page 1.
+            loadMoreTasks.removeValue(forKey: feedType)?.cancel()
             storeMovies(response.results, for: feedType)
+            pages[feedType] = 1
             feedErrors[feedType] = nil
             if currentFeedType == feedType {
-                currentPage = 1
                 state = .loaded(response.results)
             }
         case let .failure(error):
@@ -289,45 +294,46 @@ public class MovieFeedViewModel: ObservableObject {
     }
 
     func fetchMoreContentIfNeeded(currentMovieId: Int) {
+        let feedType = currentFeedType
         guard case .loaded = state,
               currentMovieId == state.movies.last?.id,
-              searchQuery.isEmpty else { return }
+              searchQuery.isEmpty,
+              loadMoreTasks[feedType] == nil else { return }
 
-        let feedType = currentFeedType
-        Task {
+        let page = pages[feedType, default: 1] + 1
+        loadMoreTasks[feedType] = Task { @MainActor [weak self] in
+            guard let self else { return }
             analyticsTracker?.trackEvent(
                 name: "load_more",
                 parameters: EventParameters(
                     method: "scroll",
                     success: true,
-                    additionalParameters: ["page": currentPage + 1]
+                    additionalParameters: ["page": page]
                 )
             )
 
             let result: Result<MovieListResponse, Error>
             switch feedType {
             case .nowPlaying:
-                result = await apiService.fetchNowPlayingMovies(page: currentPage + 1, additionalParams: additionalParams)
+                result = await apiService.fetchNowPlayingMovies(page: page, additionalParams: additionalParams)
             case .popular:
-                result = await apiService.fetchPopularMovies(page: currentPage + 1, additionalParams: additionalParams)
+                result = await apiService.fetchPopularMovies(page: page, additionalParams: additionalParams)
             case .topRated:
-                result = await apiService.fetchTopRatedMovies(page: currentPage + 1, additionalParams: additionalParams)
+                result = await apiService.fetchTopRatedMovies(page: page, additionalParams: additionalParams)
             case .upcoming:
-                result = await apiService.fetchUpcomingMovies(page: currentPage + 1, additionalParams: additionalParams)
+                result = await apiService.fetchUpcomingMovies(page: page, additionalParams: additionalParams)
             }
 
-            await MainActor.run {
-                switch result {
-                case let .success(response):
-                    let combined = memoryMovies(for: feedType) + response.results
-                    storeMovies(combined, for: feedType)
-                    if currentFeedType == feedType {
-                        state = .loaded(combined)
-                        currentPage += 1
-                    }
-                case .failure:
-                    break
-                }
+            // Cancelled by a refresh, which already replaced the feed and owns the task slot.
+            guard !Task.isCancelled else { return }
+            loadMoreTasks[feedType] = nil
+
+            guard case let .success(response) = result else { return }
+            let combined = memoryMovies(for: feedType).appendingUnique(response.results)
+            storeMovies(combined, for: feedType)
+            pages[feedType] = page
+            if currentFeedType == feedType {
+                state = .loaded(combined)
             }
         }
     }
