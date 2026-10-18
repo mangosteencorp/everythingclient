@@ -54,10 +54,15 @@ public struct FeedErrorContentView: View {
 
 #if DEBUG
 #Preview("Offline") {
-    TMDBSharedUIPreviewCatalog.feedErrorOffline.view
+    FeedErrorContentView(
+        message: "The Internet connection appears to be offline.",
+        allowsCancelSearch: true,
+        retryAction: {},
+        cancelAction: {}
+    )
 }
 
 #Preview("Server error") {
-    TMDBSharedUIPreviewCatalog.feedErrorServer.view
+    FeedErrorContentView(message: "Invalid API key", allowsCancelSearch: false, retryAction: {})
 }
 #endif

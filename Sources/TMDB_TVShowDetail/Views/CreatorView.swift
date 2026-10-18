@@ -40,9 +40,3 @@ struct CreatorView: View {
         return TMDBImageSize.logoLarge.buildImageUrl(path: profilePath)
     }
 }
-
-#if DEBUG
-#Preview {
-    TMDBTVShowDetailPreviewCatalog.creators.view
-}
-#endif

@@ -103,6 +103,12 @@ class PokemonCell: UICollectionViewCell {
 import SwiftUI
 
 #Preview(traits: .fixedLayout(width: 160, height: 180)) {
-    PokedexPokelistPreviewCatalog.cell.view
+    UIViewPreview {
+        let cell = PokemonCell(frame: CGRect(x: 0, y: 0, width: 160, height: 180))
+        // No sprite URL: the cell shows its offline fallback instead of downloading one.
+        cell.configure(with: PokemonEntity(id: 25, name: "pikachu", imageURL: ""))
+        return cell
+    }
+    .frame(width: 160, height: 180)
 }
 #endif

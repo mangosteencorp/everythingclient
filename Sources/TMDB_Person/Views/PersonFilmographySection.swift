@@ -31,6 +31,11 @@ struct PersonFilmographySection<Route: Hashable>: View {
 
 #if DEBUG
 #Preview {
-    TMDBPersonPreviewCatalog.filmographySection.view
+    NavigationStack {
+        ScrollView {
+            PersonFilmographySection(credits: PersonMovieCredits.example.featuredCredits, movieRouteBuilder: { $0 })
+                .padding()
+        }
+    }
 }
 #endif

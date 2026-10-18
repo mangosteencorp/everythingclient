@@ -53,9 +53,3 @@ struct SeasonCardView: View {
         return TMDBImageSize.posterSmall.buildImageUrl(path: posterPath)
     }
 }
-
-#if DEBUG
-#Preview {
-    TMDBTVShowDetailPreviewCatalog.seasonCard.view
-}
-#endif

@@ -249,14 +249,24 @@ extension SearchViewModel {
 }
 
 #Preview("Search — dark mode") {
-    TMDBSearchPreviewCatalog.darkMode.view
+    TMDBSearchDemoView()
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Search — field pinned under the title") {
-    TMDBSearchPreviewCatalog.fieldPinnedUnderTitle.view
+    TMDBSearchDemoView(scope: .movies)
+        .environment(\.searchPageFieldPlacement, .navigationBarDrawer(displayMode: .always))
 }
 
 #Preview("Search result rows — every kind") {
-    TMDBSearchPreviewCatalog.resultRowsEveryKind.view
+    List {
+        ForEach(SearchScope.allCases) { scope in
+            Section(scope.title) {
+                ForEach(StubSearchService.items(for: scope, query: "super", page: 1).prefix(2)) { item in
+                    SearchResultRow(item: item, showsKind: scope == .multi)
+                }
+            }
+        }
+    }
 }
 #endif

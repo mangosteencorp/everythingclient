@@ -236,6 +236,6 @@ struct SectionedTabViewPreview: View {
 }
 
 #Preview {
-    CoreFeaturesPreviewCatalog.sectionedTabView.view
+    SectionedTabViewPreview()
 }
 #endif

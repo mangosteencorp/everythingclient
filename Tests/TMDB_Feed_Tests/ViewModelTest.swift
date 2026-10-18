@@ -1,8 +1,8 @@
-import Combine
 import Foundation
+import Testing
 @testable import TMDB_Feed
 import TMDB_Shared_Backend
-import XCTest
+import TMDB_Shared_UI
 
 final class MockAPIService: APIServiceProtocol {
     var mockNowPlayingResult: Result<MovieListResponse, Error>?
@@ -12,9 +12,11 @@ final class MockAPIService: APIServiceProtocol {
     var mockOnTheAirResult: Result<TVShowListResponse, Error>?
     var mockTVSearchResult: Result<TVShowListResponse, Error>?
     var tvFetchDelayNanoseconds: UInt64 = 0
+    private(set) var nowPlayingCallCount = 0
 
     func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> {
-        mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
+        nowPlayingCallCount += 1
+        return mockNowPlayingResult ?? .failure(NSError(domain: "Test", code: -1))
     }
 
     func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error> {
@@ -52,8 +54,139 @@ final class MockAPIService: APIServiceProtocol {
     }
 }
 
-final class TVShowFeedViewModelTests: XCTestCase {
-    func testConcurrentFeedLoadsUseTheirRequestedFeedType() async {
+/// Polls until `condition` holds or a second passes; the view models load on their own tasks.
+@MainActor
+func waitUntil(_ condition: () -> Bool) async {
+    let deadline = Date().addingTimeInterval(1)
+    while !condition(), Date() < deadline {
+        try? await Task.sleep(nanoseconds: 20_000_000)
+    }
+}
+
+extension FeedState {
+    enum Kind { case idle, loading, error, loaded, refreshing }
+
+    /// The case without its payload, so tests can compare states of non-`Equatable` items.
+    var kind: Kind {
+        switch self {
+        case .idle: .idle
+        case .loading: .loading
+        case .error: .error
+        case .loaded: .loaded
+        case .refreshing: .refreshing
+        }
+    }
+
+    var errorMessage: String? {
+        guard case let .error(message) = self else { return nil }
+        return message
+    }
+}
+
+private func movies(_ results: [Movie], page: Int = 1) -> Result<MovieListResponse, Error> {
+    .success(MovieListResponse(dates: nil, page: page, results: results, totalPages: 2, totalResults: 2))
+}
+
+@MainActor
+struct MovieFeedViewModelTests {
+    let service = MockAPIService()
+    let viewModel: MovieFeedViewModel
+
+    init() {
+        viewModel = MovieFeedViewModel(feedType: .nowPlaying, apiService: service)
+    }
+
+    private func loadSampleApeMovie() async {
+        service.mockNowPlayingResult = movies([sampleApeMovie])
+        viewModel.load()
+        await waitUntil { viewModel.state.kind == .loaded }
+    }
+
+    @Test func loadGoesFromIdleThroughLoadingToLoaded() async {
+        service.mockNowPlayingResult = movies([sampleApeMovie])
+        #expect(viewModel.state.kind == .idle)
+
+        viewModel.load()
+        #expect(viewModel.state.kind == .loading, "marked loading before the request returns")
+
+        await waitUntil { viewModel.state.kind == .loaded }
+        #expect(viewModel.state.items.map(\.id) == [sampleApeMovie.id])
+    }
+
+    @Test func loadFailureShowsError() async {
+        let error = NSError(domain: "Test", code: -1, userInfo: [NSLocalizedDescriptionKey: "Test error"])
+        service.mockNowPlayingResult = .failure(error)
+
+        viewModel.load()
+        await waitUntil { viewModel.state.kind == .error }
+
+        #expect(viewModel.state.errorMessage == error.localizedDescription)
+        #expect(viewModel.state.items.isEmpty)
+    }
+
+    @Test func retryAfterErrorLoadsAgain() async {
+        viewModel.load()
+        await waitUntil { viewModel.state.kind == .error }
+
+        service.mockNowPlayingResult = movies([sampleApeMovie])
+        viewModel.load()
+        #expect(viewModel.state.kind == .loading)
+
+        await waitUntil { viewModel.state.kind == .loaded }
+        #expect(viewModel.state.items.map(\.id) == [sampleApeMovie.id])
+    }
+
+    @Test func loadSendsOneRequestAndLeavesALoadedFeedAlone() async {
+        service.mockNowPlayingResult = movies([sampleApeMovie])
+        viewModel.load()
+        viewModel.load()
+        await waitUntil { viewModel.state.kind == .loaded }
+
+        viewModel.load()
+        #expect(viewModel.state.kind == .loaded)
+        #expect(service.nowPlayingCallCount == 1)
+    }
+
+    @Test func refreshReplacesTheFeed() async {
+        await loadSampleApeMovie()
+
+        service.mockNowPlayingResult = movies([sampleEmptyMovie])
+        await viewModel.refresh()
+
+        #expect(viewModel.state.kind == .loaded)
+        #expect(viewModel.state.items.map(\.id) == [sampleEmptyMovie.id])
+    }
+
+    @Test func failedRefreshKeepsLoadedMovies() async {
+        await loadSampleApeMovie()
+
+        service.mockNowPlayingResult = .failure(NSError(domain: "Test", code: -2))
+        await viewModel.refresh()
+
+        #expect(viewModel.state.kind == .loaded)
+        #expect(viewModel.state.items.map(\.id) == [sampleApeMovie.id])
+    }
+
+    @Test func fetchMoreAppendsOnlyNewMovies() async {
+        await loadSampleApeMovie()
+
+        // TMDB rankings drift between requests, so page 2 can repeat page 1.
+        service.mockNowPlayingResult = movies([sampleApeMovie, sampleEmptyMovie], page: 2)
+        viewModel.fetchMoreContentIfNeeded(currentMovieId: sampleApeMovie.id)
+
+        await waitUntil { viewModel.state.items.count == 2 }
+        #expect(viewModel.state.items.map(\.id) == [sampleApeMovie.id, sampleEmptyMovie.id])
+    }
+
+    @Test func appendingUniqueSkipsRepeatedIDs() {
+        let combined = [sampleApeMovie].appendingUnique([sampleApeMovie, sampleEmptyMovie])
+        #expect(combined.map(\.id) == [sampleApeMovie.id, sampleEmptyMovie.id])
+    }
+}
+
+@MainActor
+struct TVShowFeedViewModelTests {
+    @Test func eachViewModelLoadsOnlyItsOwnFeed() async {
         let service = MockAPIService()
         service.tvFetchDelayNanoseconds = 80_000_000
         service.mockOnTheAirResult = .success(TVShowListResponse(
@@ -69,23 +202,25 @@ final class TVShowFeedViewModelTests: XCTestCase {
             totalResults: 1
         ))
 
-        let viewModel = TVShowFeedViewModel(apiService: service)
-        viewModel.loadFeed(.onTheAir)
-        viewModel.loadFeed(.airingToday)
+        let onTheAir = TVShowFeedViewModel(feedType: .onTheAir, apiService: service)
+        let airingToday = TVShowFeedViewModel(feedType: .airingToday, apiService: service)
+        onTheAir.load()
+        airingToday.load()
 
-        let deadline = Date().addingTimeInterval(2)
-        while Date() < deadline {
-            if viewModel.shows(for: .onTheAir).map(\.id) == [1],
-               viewModel.shows(for: .airingToday).map(\.id) == [2] {
-                break
-            }
-            try? await Task.sleep(nanoseconds: 40_000_000)
-        }
+        await waitUntil { onTheAir.state.kind == .loaded && airingToday.state.kind == .loaded }
 
-        XCTAssertEqual(viewModel.shows(for: .onTheAir).map(\.id), [1])
-        XCTAssertEqual(viewModel.shows(for: .airingToday).map(\.id), [2])
-        XCTAssertNil(viewModel.errorMessage(for: .onTheAir))
-        XCTAssertNil(viewModel.errorMessage(for: .airingToday))
+        #expect(onTheAir.state.items.map(\.id) == [1])
+        #expect(airingToday.state.items.map(\.id) == [2])
+    }
+
+    @Test func loadFailureShowsError() async {
+        let viewModel = TVShowFeedViewModel(feedType: .onTheAir, apiService: MockAPIService())
+
+        viewModel.load()
+        #expect(viewModel.state.kind == .loading)
+
+        await waitUntil { viewModel.state.kind == .error }
+        #expect(viewModel.state.items.isEmpty)
     }
 }
 
@@ -110,211 +245,4 @@ private func sampleTVShow(id: Int, name: String) -> TVShow {
     """
     // swiftlint:disable:next force_try
     return try! JSONDecoder().decode(TVShow.self, from: Data(json.utf8))
-}
-
-final class MovieFeedViewModelTests: XCTestCase {
-    var viewModel: MovieFeedViewModel!
-    var mockAPIService: MockAPIService!
-    var cancellables: Set<AnyCancellable>!
-
-    override func setUp() {
-        super.setUp()
-        mockAPIService = MockAPIService()
-        viewModel = MovieFeedViewModel(apiService: mockAPIService)
-        cancellables = Set<AnyCancellable>()
-    }
-
-    override func tearDown() {
-        viewModel = nil
-        mockAPIService = nil
-        cancellables = nil
-        super.tearDown()
-    }
-
-    func testFetchNowPlayingMoviesSuccess() async {
-        let expectedMovies = [sampleApeMovie]
-        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
-            dates: nil,
-            page: 1,
-            results: expectedMovies,
-            totalPages: 1,
-            totalResults: 1
-        ))
-
-        viewModel.fetchNowPlayingMovies()
-
-        let expectation = XCTestExpectation(description: "Fetch movies")
-        viewModel.$state
-            .dropFirst()
-            .sink { state in
-                if case .loaded(let movies) = state {
-                    XCTAssertEqual(movies.count, expectedMovies.count)
-                    XCTAssertEqual(movies.first?.id, expectedMovies.first?.id)
-                    expectation.fulfill()
-                }
-            }
-            .store(in: &cancellables)
-
-        await fulfillment(of: [expectation], timeout: 1.0)
-    }
-
-    func testFetchNowPlayingMoviesFailure() async {
-        let expectedError = NSError(domain: "Test", code: -1, userInfo: [NSLocalizedDescriptionKey: "Test error"])
-        mockAPIService.mockNowPlayingResult = .failure(expectedError)
-
-        viewModel.fetchNowPlayingMovies()
-
-        let expectation = XCTestExpectation(description: "Fetch movies error")
-        viewModel.$state
-            .dropFirst()
-            .sink { state in
-                if case .error(let errorMessage) = state {
-                    XCTAssertEqual(errorMessage, expectedError.localizedDescription)
-                    expectation.fulfill()
-                }
-            }
-            .store(in: &cancellables)
-
-        await fulfillment(of: [expectation], timeout: 1.0)
-    }
-
-    func testSearchMoviesSuccess() async {
-        let searchResults = [sampleEmptyMovie]
-        mockAPIService.mockSearchResult = .success(MovieListResponse(
-            dates: nil,
-            page: 1,
-            results: searchResults,
-            totalPages: 1,
-            totalResults: 1
-        ))
-
-        viewModel.searchQuery = "test"
-
-        let expectation = XCTestExpectation(description: "Search movies")
-        viewModel.$state
-            .dropFirst()
-            .sink { state in
-                if case .searchResults(let movies) = state {
-                    XCTAssertEqual(movies.count, searchResults.count)
-                    XCTAssertEqual(movies.first?.id, searchResults.first?.id)
-                    expectation.fulfill()
-                }
-            }
-            .store(in: &cancellables)
-
-        await fulfillment(of: [expectation], timeout: 1.0)
-    }
-
-    func testFetchMoreContent() async {
-        let initialMovies = [sampleApeMovie]
-        let additionalMovies = [sampleEmptyMovie]
-
-        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
-            dates: nil,
-            page: 1,
-            results: initialMovies,
-            totalPages: 2,
-            totalResults: 2
-        ))
-
-        viewModel.fetchNowPlayingMovies()
-
-        let initialLoadExpectation = XCTestExpectation(description: "Initial load")
-        viewModel.$state
-            .dropFirst()
-            .sink { state in
-                if case .loaded = state {
-                    initialLoadExpectation.fulfill()
-                }
-            }
-            .store(in: &cancellables)
-
-        await fulfillment(of: [initialLoadExpectation], timeout: 1.0)
-
-        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
-            dates: nil,
-            page: 2,
-            results: additionalMovies,
-            totalPages: 2,
-            totalResults: 2
-        ))
-
-        viewModel.fetchMoreContentIfNeeded(currentMovieId: initialMovies.last!.id)
-
-        let loadMoreExpectation = XCTestExpectation(description: "Load more")
-        viewModel.$state
-            .dropFirst()
-            .sink { state in
-                if case .loaded(let movies) = state {
-                    XCTAssertEqual(movies.count, initialMovies.count + additionalMovies.count)
-                    loadMoreExpectation.fulfill()
-                }
-            }
-            .store(in: &cancellables)
-
-        await fulfillment(of: [loadMoreExpectation], timeout: 1.0)
-    }
-
-    func testClearSearchRestoresInitialState() async {
-        let searchResults = [sampleEmptyMovie]
-        mockAPIService.mockSearchResult = .success(MovieListResponse(
-            dates: nil,
-            page: 1,
-            results: searchResults,
-            totalPages: 1,
-            totalResults: 1
-        ))
-
-        viewModel.searchQuery = "test"
-
-        let searchExpectation = XCTestExpectation(description: "Search complete")
-        viewModel.$state
-            .dropFirst()
-            .sink { state in
-                if case .searchResults = state {
-                    searchExpectation.fulfill()
-                }
-            }
-            .store(in: &cancellables)
-
-        await fulfillment(of: [searchExpectation], timeout: 1.0)
-
-        viewModel.clearSearchAndRetry()
-        XCTAssertEqual(viewModel.searchQuery, "")
-        if case .initial = viewModel.state {
-            XCTAssertTrue(true)
-        } else {
-            XCTFail("Expected initial after clear search")
-        }
-    }
-
-    func testInMemoryFallbackOnNetworkFailure() async {
-        mockAPIService.mockNowPlayingResult = .success(MovieListResponse(
-            dates: nil,
-            page: 1,
-            results: [sampleApeMovie],
-            totalPages: 1,
-            totalResults: 1
-        ))
-        viewModel.loadFeed(.popular)
-
-        let loaded = XCTestExpectation(description: "loaded")
-        viewModel.$state
-            .dropFirst()
-            .sink { state in
-                if case .loaded = state { loaded.fulfill() }
-            }
-            .store(in: &cancellables)
-        await fulfillment(of: [loaded], timeout: 1.0)
-
-        mockAPIService.mockNowPlayingResult = .failure(NSError(domain: "Test", code: -2))
-        await viewModel.refresh(.popular)
-
-        XCTAssertEqual(viewModel.movies(for: .popular).first?.id, sampleApeMovie.id)
-        if case .loaded(let movies) = viewModel.state {
-            XCTAssertEqual(movies.first?.id, sampleApeMovie.id)
-        } else {
-            XCTFail("Expected loaded from in-memory cache")
-        }
-    }
 }

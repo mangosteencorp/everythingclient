@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_UI
 
 /// The seven search scopes as a scrolling row of capsules.
 ///
@@ -71,10 +72,9 @@ private extension View {
 
 #if DEBUG
 #Preview("Scope bar") {
-    TMDBSearchPreviewCatalog.scopeBar.view
-}
-
-#Preview("Scope button") {
-    TMDBSearchPreviewCatalog.scopeButton.view
+    VStack(spacing: 24) {
+        StatefulPreview(SearchScope.movies) { SearchScopeBar(selection: $0) }
+        SearchScopeBar(selection: .constant(.keywords))
+    }
 }
 #endif

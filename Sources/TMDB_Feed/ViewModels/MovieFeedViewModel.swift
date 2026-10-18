@@ -1,223 +1,67 @@
-import Combine
 import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
+import TMDB_Shared_UI
 
-public enum MovieFeedType: String, CaseIterable, Identifiable {
-    case nowPlaying
-    case popular
-    case topRated
-    case upcoming
-
-    public var id: String { rawValue }
-
-    public var localizedTitle: String {
-        switch self {
-        case .nowPlaying:
-            return L10n.feedNowPlaying
-        case .popular:
-            return L10n.feedPopular
-        case .topRated:
-            return L10n.feedTopRated
-        case .upcoming:
-            return L10n.feedUpcoming
-        }
-    }
-}
-
-public enum TVShowFeedType: String, CaseIterable, Identifiable {
-    case airingToday
-    case onTheAir
-
-    public var id: String { rawValue }
-
-    public var localizedTitle: String {
-        switch self {
-        case .airingToday:
-            return L10n.feedAiringToday
-        case .onTheAir:
-            return L10n.feedOnTheAir
-        }
-    }
-}
-
-public enum ContentFeedType: String, CaseIterable, Identifiable {
-    case movies
-    case tvShows
-
-    public var id: String { rawValue }
-
-    public var localizedTitle: String {
-        switch self {
-        case .movies:
-            return L10n.feedSectionMovies
-        case .tvShows:
-            return L10n.feedSectionTv
-        }
-    }
-}
-
+/// One movie feed. A host showing several feeds gives each its own view model, so their
+/// lists, pages and in-flight requests never touch each other.
 public class MovieFeedViewModel: ObservableObject {
-    @Published var state: NowPlayingViewState = .initial
-    @Published var searchQuery = ""
-    @Published var currentFeedType: MovieFeedType = .nowPlaying
+    public let feedType: MovieFeedType
+    @Published private(set) var state: FeedState<Movie> = .idle
 
-    private var nowPlayingMovies: [Movie] = []
-    private var popularMovies: [Movie] = []
-    private var topRatedMovies: [Movie] = []
-    private var upcomingMovies: [Movie] = []
-    private var currentPage: Int = 1
-    private var loadingFeedTypes: Set<MovieFeedType> = []
-    private var feedErrors: [MovieFeedType: String] = [:]
-    private var loadTasks: [MovieFeedType: Task<Void, Never>] = [:]
-    private var searchTask: Task<Void, Never>?
+    /// Last page fetched; `state` holds every page up to it.
+    private var page = 1
+    private var loadTask: Task<Void, Never>?
+    private var loadMoreTask: Task<Void, Never>?
 
-    deinit {
-        loadTasks.values.forEach { $0.cancel() }
-        searchTask?.cancel()
-    }
-
-    var hasCachedMovies: Bool {
-        !nowPlayingMovies.isEmpty || !popularMovies.isEmpty || !topRatedMovies.isEmpty || !upcomingMovies.isEmpty
-    }
-
-    func movies(for feedType: MovieFeedType) -> [Movie] {
-        memoryMovies(for: feedType)
-    }
-
-    func isLoading(for feedType: MovieFeedType) -> Bool {
-        loadingFeedTypes.contains(feedType)
-    }
-
-    func errorMessage(for feedType: MovieFeedType) -> String? {
-        feedErrors[feedType]
-    }
-
-    private var cancellables = Set<AnyCancellable>()
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?
     let analyticsTracker: AnalyticsTracker?
 
+    deinit {
+        loadTask?.cancel()
+        loadMoreTask?.cancel()
+    }
+
     public init(
+        feedType: MovieFeedType,
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         analyticsTracker: AnalyticsTracker? = nil
     ) {
+        self.feedType = feedType
         self.apiService = apiService
         self.additionalParams = additionalParams
         self.analyticsTracker = analyticsTracker
-
-        $searchQuery
-            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
-            .sink { [weak self] query in
-                guard let self else { return }
-                if !query.isEmpty {
-                    self.searchMovies(query: query)
-                } else if case .error = self.state {
-                    // Keep error until cancel/retry.
-                } else {
-                    self.state = .initial
-                }
-            }
-            .store(in: &cancellables)
     }
 
-    func fetchNowPlayingMovies() {
-        loadFeed(.nowPlaying)
-    }
-
-    func switchFeedType(_ feedType: MovieFeedType) {
-        loadFeed(feedType)
-    }
-
-    /// Single entry point for the views: safe to call on every appearance and on every tab switch.
-    /// Already-cached feeds are served from memory and in-flight feeds are not requested twice, so
-    /// callers no longer need their own `isEmpty` / `isLoading` checks. `refresh(_:)` is the
-    /// deliberate bypass for pull-to-refresh.
-    func loadFeed(_ feedType: MovieFeedType) {
-        currentFeedType = feedType
-        currentPage = 1
-        feedErrors[feedType] = nil
-
-        let cached = memoryMovies(for: feedType)
-        if !cached.isEmpty {
-            state = .loaded(cached)
-            return
-        }
-
-        loadingFeedTypes.insert(feedType)
+    /// Safe to call on every appearance: a loaded feed stays as it is and an in-flight request
+    /// is not sent twice. `refresh()` is the deliberate bypass for pull-to-refresh.
+    func load() {
+        guard state.items.isEmpty, loadTask == nil else { return }
         state = .loading
-        objectWillChange.send()
-
-        guard loadTasks[feedType] == nil else { return }
-        loadTasks[feedType] = Task { @MainActor [weak self] in
-            await self?.fetchMoviesAsync(for: feedType, showLoadingIfEmpty: true)
-            self?.loadTasks[feedType] = nil
+        loadTask = Task { @MainActor [weak self] in
+            await self?.fetchFirstPage()
+            self?.loadTask = nil
         }
-    }
-
-    /// Stops feeds that are still loading. The preloads started by the feed page belong to no view,
-    /// so `.task` cancellation cannot reach them.
-    func cancelLoads() {
-        loadTasks.values.forEach { $0.cancel() }
-        loadTasks.removeAll()
     }
 
     @MainActor
     func refresh() async {
-        await fetchMoviesAsync(for: currentFeedType, showLoadingIfEmpty: false)
+        await fetchFirstPage()
     }
 
     @MainActor
-    func refresh(_ feedType: MovieFeedType) async {
-        currentFeedType = feedType
-        await fetchMoviesAsync(for: feedType, showLoadingIfEmpty: false)
-    }
+    private func fetchFirstPage() async {
+        let result = await fetch(page: nil)
 
-    @MainActor
-    private func fetchMoviesAsync(for feedType: MovieFeedType, showLoadingIfEmpty: Bool) async {
-        let cached = memoryMovies(for: feedType)
-        if showLoadingIfEmpty && cached.isEmpty {
-            loadingFeedTypes.insert(feedType)
-            feedErrors[feedType] = nil
-            if currentFeedType == feedType {
-                state = .loading
-            }
-            objectWillChange.send()
-        } else if !cached.isEmpty, currentFeedType == feedType, case .initial = state {
-            state = .loaded(cached)
-        }
-
-        let result: Result<MovieListResponse, Error>
-        switch feedType {
-        case .nowPlaying:
-            result = await apiService.fetchNowPlayingMovies(page: nil, additionalParams: additionalParams)
-        case .popular:
-            result = await apiService.fetchPopularMovies(page: nil, additionalParams: additionalParams)
-        case .topRated:
-            result = await apiService.fetchTopRatedMovies(page: nil, additionalParams: additionalParams)
-        case .upcoming:
-            result = await apiService.fetchUpcomingMovies(page: nil, additionalParams: additionalParams)
-        }
-
-        loadingFeedTypes.remove(feedType)
-
-        // Cancelled by a tab switch or by the page going away: drop the response and leave the feed
-        // back at `initial` so the next appearance loads it again instead of showing a stuck spinner.
+        // Cancelled by the page going away: drop the response, so the next appearance loads
+        // again instead of showing a stuck spinner.
         guard !Task.isCancelled else {
-            if currentFeedType == feedType, state.movies.isEmpty {
-                state = .initial
-            }
-            objectWillChange.send()
+            if case .loading = state { state = .idle }
             return
         }
 
-        apply(result, for: feedType, cached: cached)
-        objectWillChange.send()
-    }
-
-    @MainActor
-    private func apply(_ result: Result<MovieListResponse, Error>, for feedType: MovieFeedType, cached: [Movie]) {
         switch result {
         case let .success(response):
             analyticsTracker?.trackPageView(parameters: PageViewParameters(
@@ -225,128 +69,59 @@ public class MovieFeedViewModel: ObservableObject {
                 screenClass: "MovieFeedPage",
                 contentType: "movie_list"
             ))
-            storeMovies(response.results, for: feedType)
-            feedErrors[feedType] = nil
-            if currentFeedType == feedType {
-                currentPage = 1
-                state = .loaded(response.results)
-            }
+            // A load-more still in flight would append its stale page onto the fresh page 1.
+            loadMoreTask?.cancel()
+            loadMoreTask = nil
+            state = .loaded(response.results)
+            page = 1
         case let .failure(error):
             // URLSession cache may already have satisfied the request when enabled;
-            // otherwise fall back to in-memory list from this session.
-            if !cached.isEmpty {
-                if currentFeedType == feedType {
-                    state = .loaded(cached)
-                }
-            } else {
-                feedErrors[feedType] = error.localizedDescription
-                if currentFeedType == feedType {
-                    state = .error(error.localizedDescription)
-                }
+            // otherwise keep what this session already showed.
+            if state.items.isEmpty {
+                state = .error(message: error.localizedDescription)
             }
-        }
-    }
-
-    func loadCurrentFeedMovies() {
-        state = .loaded(memoryMovies(for: currentFeedType))
-    }
-
-    func clearSearchAndRetry() {
-        searchQuery = ""
-        state = .initial
-    }
-
-    func cancelSearch() {
-        clearSearchAndRetry()
-    }
-
-    func retrySearch() {
-        if !searchQuery.isEmpty {
-            searchMovies(query: searchQuery)
-        } else {
-            loadFeed(currentFeedType)
-        }
-    }
-
-    func searchMovies(query: String) {
-        state = .loading
-
-        // Started from a debounced Combine sink, which cannot cancel a Task on its own: fast typing
-        // would otherwise leave several searches racing to write the results.
-        searchTask?.cancel()
-        searchTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            let result = await apiService.searchMovies(query: query, page: nil)
-            guard !Task.isCancelled else { return }
-            switch result {
-            case let .success(response):
-                self.state = .searchResults(response.results)
-            case let .failure(error):
-                self.state = .error(error.localizedDescription)
-            }
-            self.searchTask = nil
         }
     }
 
     func fetchMoreContentIfNeeded(currentMovieId: Int) {
-        guard case .loaded = state,
-              currentMovieId == state.movies.last?.id,
-              searchQuery.isEmpty else { return }
+        guard case let .loaded(movies) = state,
+              currentMovieId == movies.last?.id,
+              loadMoreTask == nil else { return }
 
-        let feedType = currentFeedType
-        Task {
+        let nextPage = page + 1
+        loadMoreTask = Task { @MainActor [weak self] in
+            guard let self else { return }
             analyticsTracker?.trackEvent(
                 name: "load_more",
                 parameters: EventParameters(
                     method: "scroll",
                     success: true,
-                    additionalParameters: ["page": currentPage + 1]
+                    additionalParameters: ["page": nextPage]
                 )
             )
 
-            let result: Result<MovieListResponse, Error>
-            switch feedType {
-            case .nowPlaying:
-                result = await apiService.fetchNowPlayingMovies(page: currentPage + 1, additionalParams: additionalParams)
-            case .popular:
-                result = await apiService.fetchPopularMovies(page: currentPage + 1, additionalParams: additionalParams)
-            case .topRated:
-                result = await apiService.fetchTopRatedMovies(page: currentPage + 1, additionalParams: additionalParams)
-            case .upcoming:
-                result = await apiService.fetchUpcomingMovies(page: currentPage + 1, additionalParams: additionalParams)
-            }
+            let result = await fetch(page: nextPage)
 
-            await MainActor.run {
-                switch result {
-                case let .success(response):
-                    let combined = memoryMovies(for: feedType) + response.results
-                    storeMovies(combined, for: feedType)
-                    if currentFeedType == feedType {
-                        state = .loaded(combined)
-                        currentPage += 1
-                    }
-                case .failure:
-                    break
-                }
-            }
+            // Cancelled by a refresh, which already replaced the feed and owns the task slot.
+            guard !Task.isCancelled else { return }
+            loadMoreTask = nil
+
+            guard case let .success(response) = result else { return }
+            state = .loaded(state.items.appendingUnique(response.results))
+            page = nextPage
         }
     }
 
-    private func memoryMovies(for feedType: MovieFeedType) -> [Movie] {
+    private func fetch(page: Int?) async -> Result<MovieListResponse, Error> {
         switch feedType {
-        case .nowPlaying: return nowPlayingMovies
-        case .popular: return popularMovies
-        case .topRated: return topRatedMovies
-        case .upcoming: return upcomingMovies
-        }
-    }
-
-    private func storeMovies(_ movies: [Movie], for feedType: MovieFeedType) {
-        switch feedType {
-        case .nowPlaying: nowPlayingMovies = movies
-        case .popular: popularMovies = movies
-        case .topRated: topRatedMovies = movies
-        case .upcoming: upcomingMovies = movies
+        case .nowPlaying:
+            return await apiService.fetchNowPlayingMovies(page: page, additionalParams: additionalParams)
+        case .popular:
+            return await apiService.fetchPopularMovies(page: page, additionalParams: additionalParams)
+        case .topRated:
+            return await apiService.fetchTopRatedMovies(page: page, additionalParams: additionalParams)
+        case .upcoming:
+            return await apiService.fetchUpcomingMovies(page: page, additionalParams: additionalParams)
         }
     }
 }

@@ -3,20 +3,12 @@ import SwiftUI
 import TMDB_Shared_UI
 
 @available(iOS 16, *)
-struct MovieFeedTabContent<Route: Hashable>: View {
+struct MovieFeedContent<Route: Hashable>: View {
     @ObservedObject var viewModel: MovieFeedViewModel
-    let feedType: MovieFeedType
     let detailRouteBuilder: (Movie) -> Route
 
     var body: some View {
-        let movies = viewModel.movies(for: feedType)
-        let isLoading = viewModel.isLoading(for: feedType)
-
-        FeedStateView(
-            phase: phase(movies: movies, isLoading: isLoading),
-            isRefreshing: isLoading,
-            retryAction: { viewModel.loadFeed(feedType) }
-        ) {
+        FeedStateView(state: viewModel.state, retryAction: { viewModel.load() }, content: { movies in
             FeedItemsView(
                 items: movies.map { $0.feedItem(route: detailRouteBuilder($0)) },
                 accessibilityIdentifier: "movies_list_items",
@@ -24,24 +16,14 @@ struct MovieFeedTabContent<Route: Hashable>: View {
                     viewModel.fetchMoreContentIfNeeded(currentMovieId: item.id)
                 }
             )
-        }
+        })
         .accessibilityIdentifier("movies_list_content")
         .refreshable {
-            await viewModel.refresh(feedType)
+            await viewModel.refresh()
         }
         .onAppear {
-            viewModel.loadFeed(feedType)
+            viewModel.load()
         }
-    }
-
-    private func phase(movies: [Movie], isLoading: Bool) -> FeedLoadPhase {
-        if isLoading, movies.isEmpty {
-            return .loading
-        }
-        if let message = viewModel.errorMessage(for: feedType), movies.isEmpty {
-            return .error(message: message)
-        }
-        return movies.isEmpty ? .empty : .loaded
     }
 }
 

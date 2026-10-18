@@ -1,12 +1,18 @@
+import Observation
 import SwiftUI
 
 /// Single source of truth for which look each design slot is currently wearing.
 ///
-/// Every level of the UI reads the same object, so one mutation redraws the app shell, the
-/// inner feed tabs and the feed content inside a single SwiftUI transaction — which is what
-/// makes `shuffleAll()` change everything at once instead of level by level.
+/// Views find it through `EnvironmentValues.designCoordinator` (falling back to `.shared`), so
+/// every `@DesignStyle` under one host reads the same object and one mutation redraws the app
+/// shell, the inner feed tabs and the feed content inside a single SwiftUI transaction — which
+/// is what makes `shuffleAll()` change everything at once instead of level by level.
+///
+/// A host that wants its own storage (a separate `UserDefaults` suite, a test double) injects
+/// another instance with `.environment(\.designCoordinator, coordinator)`.
 @MainActor
-public final class DesignCoordinator: ObservableObject {
+@Observable
+public final class DesignCoordinator {
     /// A registered slot, flattened at registration time so the shuffle and the picker can
     /// work without knowing the concrete `DesignVariant` type.
     public struct Slot: Identifiable, Hashable {
@@ -25,11 +31,18 @@ public final class DesignCoordinator: ObservableObject {
 
     public static let shared = DesignCoordinator()
 
-    @Published private var selections: [String: String]
+    private var selections: [String: String]
 
-    /// Deliberately *not* `@Published`: registration happens lazily from `style(_:)`, which is
-    /// called during view body evaluation. Publishing here would mutate observed state mid-update.
-    public private(set) var slots: [Slot] = []
+    /// Every slot some view has read so far. Reading it tracks `selections`, so the picker
+    /// rebuilds (and picks up newly registered slots) whenever a look changes.
+    public var slots: [Slot] {
+        _ = selections
+        return registeredSlots
+    }
+
+    /// Deliberately *not* observed: registration happens lazily from `style(_:)`, which is
+    /// called during view body evaluation. Tracking it would mutate observed state mid-update.
+    @ObservationIgnored private var registeredSlots: [Slot] = []
 
     private let defaults: UserDefaults
     private let storageKey: String
@@ -71,7 +84,7 @@ public final class DesignCoordinator: ObservableObject {
 
     /// Type-erased setter used by the picker menu, which only has strings to work with.
     public func select(slotKey: String, rawValue: String) {
-        guard slots.contains(where: { $0.key == slotKey }) else { return }
+        guard registeredSlots.contains(where: { $0.key == slotKey }) else { return }
         apply([slotKey: rawValue])
     }
 
@@ -79,7 +92,7 @@ public final class DesignCoordinator: ObservableObject {
     /// option never land on their current value, so a tap always visibly changes something.
     public func shuffleAll() {
         var newSelections = selections
-        for slot in slots {
+        for slot in registeredSlots {
             let current = newSelections[slot.key] ?? slot.fallbackRawValue
             let candidates = slot.options.map(\.rawValue).filter { $0 != current }
             guard let pick = candidates.randomElement() else { continue }
@@ -96,9 +109,9 @@ public final class DesignCoordinator: ObservableObject {
 
     public func registerIfNeeded<V: DesignVariant>(_ type: V.Type) {
         let key = V.slotKey
-        guard !slots.contains(where: { $0.key == key }) else { return }
+        guard !registeredSlots.contains(where: { $0.key == key }) else { return }
 
-        slots.append(Slot(
+        registeredSlots.append(Slot(
             key: key,
             title: V.slotTitle,
             options: V.availableCases.map { Slot.Option(rawValue: $0.rawValue, displayName: $0.displayName) },

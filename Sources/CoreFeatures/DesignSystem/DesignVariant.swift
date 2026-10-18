@@ -6,6 +6,11 @@ import Foundation
 /// `CoreFeatures` never learns about the concrete cases. Adding a new look is one new case
 /// plus one new view — nothing in this file changes.
 ///
+/// Views read a slot with `@DesignStyle`, which resolves it through the environment: a host
+/// pins a slot for its subtree with `.designStyle(FeedTabDesign.topSegments)`, or swaps the
+/// whole store with `.environment(\.designCoordinator, …)`; otherwise `DesignCoordinator.shared`
+/// (and its shuffle) decides.
+///
 /// ```swift
 /// public enum FeedTabDesign: String, DesignVariant {
 ///     case systemTabs

@@ -72,6 +72,7 @@ private struct PersonFact: Identifiable {
 
 #if DEBUG
 #Preview {
-    TMDBPersonPreviewCatalog.factGrid.view
+    PersonFactGrid(person: .example)
+        .padding()
 }
 #endif

@@ -366,6 +366,6 @@ extension UIColor {
 import SwiftUI
 
 #Preview {
-    SharedUISupportPreviewCatalog.movieItemCell.view
+    UIViewPreview { MovieItemCell() }
 }
 #endif

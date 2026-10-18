@@ -4,42 +4,36 @@ import SwiftUI
 ///
 /// Tap shuffles. Long press opens a picker listing each registered slot and its available
 /// looks, which is how you get back to a specific combination for a screenshot or a bug report.
+/// Acts on the environment's `designCoordinator`, the same one the `@DesignStyle` views below
+/// it read.
 public struct DesignShuffleToolbarItem: ToolbarContent {
     private let placement: ToolbarItemPlacement
     private let accessibilityIdentifier: String
-    private let coordinator: DesignCoordinator
 
     public init(
         placement: ToolbarItemPlacement = .navigationBarTrailing,
-        accessibilityIdentifier: String = "design.shuffle.button",
-        coordinator: DesignCoordinator = .shared
+        accessibilityIdentifier: String = "design.shuffle.button"
     ) {
         self.placement = placement
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.coordinator = coordinator
     }
 
     public var body: some ToolbarContent {
         ToolbarItem(placement: placement) {
-            DesignShuffleButton(
-                accessibilityIdentifier: accessibilityIdentifier,
-                coordinator: coordinator
-            )
+            DesignShuffleButton(accessibilityIdentifier: accessibilityIdentifier)
         }
     }
 }
 
 public struct DesignShuffleButton: View {
-    @ObservedObject private var coordinator: DesignCoordinator
+    @Environment(\.designCoordinator) private var injectedCoordinator
     private let accessibilityIdentifier: String
 
-    public init(
-        accessibilityIdentifier: String = "design.shuffle.button",
-        coordinator: DesignCoordinator = .shared
-    ) {
+    public init(accessibilityIdentifier: String = "design.shuffle.button") {
         self.accessibilityIdentifier = accessibilityIdentifier
-        _coordinator = ObservedObject(wrappedValue: coordinator)
     }
+
+    private var coordinator: DesignCoordinator { injectedCoordinator ?? .shared }
 
     public var body: some View {
         Button {
@@ -79,6 +73,11 @@ public struct DesignShuffleButton: View {
 
 #if DEBUG
 #Preview {
-    CoreFeaturesPreviewCatalog.designShuffleButton.view
+    NavigationStack {
+        Text("Tap to shuffle, long press to pick")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) { DesignShuffleButton() }
+            }
+    }
 }
 #endif

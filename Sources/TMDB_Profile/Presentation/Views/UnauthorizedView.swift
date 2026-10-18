@@ -71,9 +71,10 @@ class UnauthorizedView: UIView {
 }
 
 #if DEBUG
+import Shared_UI_Support
 import SwiftUI
 
 #Preview {
-    TMDBProfilePreviewCatalog.unauthorizedView.view
+    UIViewPreview { UnauthorizedView() }
 }
 #endif

@@ -34,6 +34,8 @@ struct TVShowDetailsSection: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.detailsSection.view
+    TVShowDetailsSection(tvShow: .example)
+        .padding()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

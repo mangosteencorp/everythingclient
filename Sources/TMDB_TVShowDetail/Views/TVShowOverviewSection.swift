@@ -22,6 +22,8 @@ struct TVShowOverviewSection: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.overview.view
+    TVShowOverviewSection(overview: "Seven noble families fight for control of the mythical land of Westeros.")
+        .padding()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

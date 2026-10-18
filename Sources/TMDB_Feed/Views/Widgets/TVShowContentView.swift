@@ -4,20 +4,12 @@ import TMDB_Shared_Backend
 import TMDB_Shared_UI
 
 @available(iOS 16, *)
-struct TVShowFeedTabContent<Route: Hashable>: View {
+struct TVShowFeedContent<Route: Hashable>: View {
     @ObservedObject var viewModel: TVShowFeedViewModel
-    let feedType: TVShowFeedType
     let detailRouteBuilder: (TVShow) -> Route
 
     var body: some View {
-        let shows = viewModel.shows(for: feedType)
-        let isLoading = viewModel.isLoading(for: feedType)
-
-        FeedStateView(
-            phase: phase(shows: shows, isLoading: isLoading),
-            isRefreshing: isLoading,
-            retryAction: { viewModel.loadFeed(feedType) }
-        ) {
+        FeedStateView(state: viewModel.state, retryAction: { viewModel.load() }, content: { shows in
             FeedItemsView(
                 items: shows.map { $0.feedItem(route: detailRouteBuilder($0)) },
                 accessibilityIdentifier: "tvshows_list_items",
@@ -25,28 +17,29 @@ struct TVShowFeedTabContent<Route: Hashable>: View {
                     viewModel.fetchMoreContentIfNeeded(currentShowId: item.id)
                 }
             )
-        }
+        })
         .accessibilityIdentifier("tvshows_list_content")
         .refreshable {
-            await viewModel.refresh(feedType)
+            await viewModel.refresh()
         }
         .onAppear {
-            viewModel.loadFeed(feedType)
+            viewModel.load()
         }
-    }
-
-    private func phase(shows: [TVShow], isLoading: Bool) -> FeedLoadPhase {
-        if isLoading, shows.isEmpty {
-            return .loading
-        }
-        if let message = viewModel.errorMessage(for: feedType), shows.isEmpty {
-            return .error(message: message)
-        }
-        return shows.isEmpty ? .empty : .loaded
     }
 }
 
 extension TVShow {
+    func toMovieRowEntity() -> MovieRowEntity {
+        MovieRowEntity(
+            id: id,
+            posterPath: poster_path,
+            title: name,
+            voteAverage: Double(vote_average),
+            releaseDate: nil,
+            overview: overview
+        )
+    }
+
     func feedItem<Route: Hashable>(route: Route) -> FeedItem<Route> {
         FeedItem(
             id: id,

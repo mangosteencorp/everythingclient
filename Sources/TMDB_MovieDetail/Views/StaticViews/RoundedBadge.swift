@@ -47,6 +47,10 @@ public struct RoundedBadge: View {
 
 #if DEBUG
 #Preview {
-    TMDBMovieDetailPreviewCatalog.roundedBadges.view
+    VStack(spacing: 10) {
+        RoundedBadge(text: "Hello, World!", color: .red)
+        RoundedBadge(text: "Gradient Badge", color: .blue, useGradient: true)
+        RoundedBadge(text: "Another Badge", color: .green, useGradient: true)
+    }
 }
 #endif

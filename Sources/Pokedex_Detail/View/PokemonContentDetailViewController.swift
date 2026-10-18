@@ -276,6 +276,33 @@ class MoveCell: UICollectionViewCell {
 import SwiftUI
 
 #Preview {
-    PokedexDetailPreviewCatalog.designOne.view
+    UIViewControllerPreview {
+        DetailDesign1ViewController(pokemon: PokemonDetail(
+            id: 1,
+            name: "Caterpie",
+            imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif",
+            weight: 290,
+            speciesId: 1,
+            moves: [
+                PokemonDetail.Move(id: 1, moveId: 33, name: "Tackle"),
+                PokemonDetail.Move(id: 2, moveId: 81, name: "String Shot"),
+                PokemonDetail.Move(id: 3, moveId: 173, name: "Snore"),
+                PokemonDetail.Move(id: 4, moveId: 450, name: "Bug Bite"),
+                PokemonDetail.Move(id: 5, moveId: 527, name: "Electroweb"),
+            ],
+            abilities: [
+                PokemonDetail.Ability(abilityId: 19, name: "Shield Dust"),
+                PokemonDetail.Ability(abilityId: 50, name: "Run Away"),
+            ],
+            stats: [
+                PokemonDetail.Stat(statId: 1, baseStat: 45, effort: 1, name: "HP"),
+                PokemonDetail.Stat(statId: 2, baseStat: 30, effort: 0, name: "Attack"),
+                PokemonDetail.Stat(statId: 3, baseStat: 35, effort: 0, name: "Defense"),
+                PokemonDetail.Stat(statId: 4, baseStat: 20, effort: 0, name: "Sp. Atk"),
+                PokemonDetail.Stat(statId: 5, baseStat: 20, effort: 0, name: "Sp. Def"),
+                PokemonDetail.Stat(statId: 6, baseStat: 45, effort: 0, name: "Speed"),
+            ]
+        ))
+    }
 }
 #endif

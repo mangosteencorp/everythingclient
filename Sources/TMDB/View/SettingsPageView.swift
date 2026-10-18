@@ -35,6 +35,8 @@ public struct SettingsPageView: View {
                 .accessibilityIdentifier("settings.section.appearance")
             }
             .navigationTitle("Settings")
+            // Inside this page's own stack: added from `TMDBAPITabView` it lands on the outer one.
+            .designShuffleToolbar()
             .accessibilityIdentifier("settings.page")
         }
         .fullScreenCover(isPresented: $showSwiftfin) {

@@ -24,6 +24,10 @@ struct TVShowInfoView: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.info.view
+    ScrollView {
+        TVShowInfoView(tvShow: .example)
+            .padding()
+    }
+    .environmentObject(ThemeManager.shared)
 }
 #endif

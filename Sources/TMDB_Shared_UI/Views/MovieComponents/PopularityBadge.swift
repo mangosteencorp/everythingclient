@@ -58,6 +58,11 @@ public struct PopularityBadge: View {
 
 #if DEBUG
 #Preview {
-    TMDBSharedUIPreviewCatalog.popularityBadges.view
+    VStack {
+        PopularityBadge(score: 80)
+        PopularityBadge(score: 10)
+        PopularityBadge(score: 30)
+        PopularityBadge(score: 50)
+    }
 }
 #endif

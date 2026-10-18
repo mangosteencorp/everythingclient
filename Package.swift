@@ -172,6 +172,10 @@ let package = Package(
                 "Swinject",
             ] + sampleKitTargetDependency
         ),
+        .testTarget(
+            name: "TMDB_Tests",
+            dependencies: ["TMDB", "TMDB_Feed", "CoreFeatures"]
+        ),
         .target(
             name: "TMDB_Shared_Backend",
             dependencies: ["Swinject"],

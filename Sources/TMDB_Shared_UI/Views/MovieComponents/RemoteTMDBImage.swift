@@ -224,6 +224,7 @@ struct PlaceholderImage: View {
 
 #if DEBUG
 #Preview("No artwork") {
-    TMDBSharedUIPreviewCatalog.remoteImageNoArtwork.view
+    RemoteTMDBImage(posterPath: nil, imageSize: .posterMedium)
+        .frame(width: PosterSize.medium.width, height: PosterSize.medium.height)
 }
 #endif

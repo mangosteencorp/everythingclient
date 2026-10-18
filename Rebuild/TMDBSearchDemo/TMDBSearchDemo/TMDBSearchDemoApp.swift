@@ -1,17 +1,17 @@
-//
-//  TMDBSearchDemoApp.swift
-//  TMDBSearchDemo
-//
-//  Created by Quinn Haus on 2026-10-13.
-//
-
 import SwiftUI
+import TMDB_Search
 
 @main
 struct TMDBSearchDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                List(TMDBSearchPreviewCatalog.allCases, id: \.self) { preview in
+                    NavigationLink(preview.rawValue) {
+                        preview.view
+                    }
+                }
+            }
         }
     }
 }

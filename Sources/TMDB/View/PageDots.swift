@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_UI
 import UIKit
 
 /// The system page dots, standing alone. Tapping or scrubbing them changes the page, and
@@ -51,6 +52,7 @@ struct PageDots: UIViewRepresentable {
 
 #if DEBUG
 #Preview {
-    TMDBPreviewCatalog.pageDots.view
+    StatefulPreview(1) { PageDots(currentPage: $0, numberOfPages: 5) }
+        .padding()
 }
 #endif
