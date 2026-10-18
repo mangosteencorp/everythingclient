@@ -4,6 +4,9 @@
    <FileRef
       location = "group:Rebuild/TMDBTabsDemo/TMDBTabsDemo.xcodeproj">
    </FileRef>
+	<FileRef
+      location = "group:Rebuild/PlexBackendDemo/PlexBackendDemo.xcodeproj">
+   </FileRef>
    <FileRef
       location = "group:Rebuild/TMDBSearchDemo/TMDBSearchDemo.xcodeproj">
    </FileRef>
