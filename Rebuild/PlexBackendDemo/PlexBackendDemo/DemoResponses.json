@@ -1,0 +1,181 @@
+{
+  "/": {"MediaContainer": {"friendlyName": "Sample server", "machineIdentifier": "sample-server", "version": "1.41.0", "platform": "Demo", "transcoderVideo": true, "myPlex": true}},
+  "/identity": {"MediaContainer": {"machineIdentifier": "sample-server"}},
+  "/:/prefs": {"MediaContainer": {"Setting": [
+    {"id": "FriendlyName", "label": "Friendly name", "type": "text", "value": "Sample server"},
+    {"id": "LibraryVideoPlayedThreshold", "label": "Video played threshold", "type": "int", "value": 90}
+  ]}},
+  "/activities": {"MediaContainer": {"Activity": [
+    {"uuid": "a1", "type": "library.update.section", "title": "Scanning Movies", "subtitle": "Sample", "progress": 40, "cancellable": true}
+  ]}},
+  "/livetv/dvrs": {"MediaContainer": {"size": 0}},
+  "/library/sections": {"MediaContainer": {"Directory": [
+    {"key": "1", "title": "Movies", "type": "movie", "uuid": "movies"},
+    {"key": "2", "title": "TV Shows", "type": "show", "uuid": "shows"}
+  ]}},
+  "/library/sections/1/all": {"MediaContainer": {"offset": 0, "totalSize": 2, "Metadata": [
+    {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026, "duration": 600000, "viewOffset": 120000, "librarySectionID": 1},
+    {"ratingKey": "101", "title": "Second Feature", "type": "movie", "year": 2025, "duration": 5400000, "viewCount": 1, "librarySectionID": 1}
+  ]}},
+  "/library/sections/1/all?genre=1": {"MediaContainer": {"offset": 0, "totalSize": 1, "Metadata": [
+    {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026, "duration": 600000, "viewOffset": 120000}
+  ]}},
+  "/library/sections/1/all?unwatched=1": {"MediaContainer": {"offset": 0, "totalSize": 1, "Metadata": [
+    {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026, "duration": 600000, "viewOffset": 120000}
+  ]}},
+  "/library/sections/2/all": {"MediaContainer": {"offset": 0, "totalSize": 1, "Metadata": [
+    {"ratingKey": "200", "title": "The Sample Show", "type": "show", "year": 2024, "leafCount": 2, "viewedLeafCount": 1, "childCount": 1}
+  ]}},
+  "/library/shared/all": {"MediaContainer": {"offset": 0, "totalSize": 0}},
+  "/library/sections/1/sorts": {"MediaContainer": {"Directory": [
+    {"key": "titleSort", "title": "Title", "defaultDirection": "asc", "descKey": "titleSort:desc"},
+    {"key": "addedAt", "title": "Date added", "defaultDirection": "desc", "descKey": "addedAt:desc"},
+    {"key": "year", "title": "Year", "defaultDirection": "desc", "descKey": "year:desc"}
+  ]}},
+  "/library/sections/2/sorts": {"MediaContainer": {"Directory": [
+    {"key": "titleSort", "title": "Title", "defaultDirection": "asc", "descKey": "titleSort:desc"}
+  ]}},
+  "/library/sections/1/filters": {"MediaContainer": {"Directory": [
+    {"filter": "genre", "filterType": "string", "key": "/library/sections/1/genre", "title": "Genre", "type": "filter"},
+    {"filter": "unwatched", "filterType": "boolean", "key": "/library/sections/1/unwatched", "title": "Unwatched", "type": "filter"}
+  ]}},
+  "/library/sections/2/filters": {"MediaContainer": {"size": 0}},
+  "/library/sections/1/genre": {"MediaContainer": {"Directory": [
+    {"key": "1", "title": "Adventure"},
+    {"key": "2", "title": "Drama"}
+  ]}},
+  "/library/sections/1/firstCharacter": {"MediaContainer": {"Directory": [
+    {"key": "S", "title": "S", "size": 1},
+    {"key": "T", "title": "T", "size": 1}
+  ]}},
+  "/library/sections/1/folder": {"MediaContainer": {"Directory": [
+    {"key": "/library/sections/1/folder?parent=9", "title": "Feature films"}
+  ]}},
+  "/library/sections/1/folder?parent=9": {"MediaContainer": {"Metadata": [
+    {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026}
+  ]}},
+  "/library/sections/1/collections": {"MediaContainer": {"offset": 0, "totalSize": 1, "Metadata": [
+    {"ratingKey": "300", "title": "Sample Collection", "type": "collection", "subtype": "movie", "childCount": 2, "summary": "Every sample movie in one place."}
+  ]}},
+  "/library/sections/2/collections": {"MediaContainer": {"offset": 0, "totalSize": 0}},
+  "/library/collections/300/children": {"MediaContainer": {"offset": 0, "totalSize": 2, "Metadata": [
+    {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026},
+    {"ratingKey": "101", "title": "Second Feature", "type": "movie", "year": 2025, "viewCount": 1}
+  ]}},
+  "/library/metadata/100": {"MediaContainer": {"Metadata": [{
+    "ratingKey": "100", "key": "/library/metadata/100", "title": "The Sample Movie", "type": "movie", "year": 2026,
+    "tagline": "Every feature, no server required.", "summary": "Synthetic metadata for exploring the demo before signing in.",
+    "contentRating": "PG", "studio": "Sample Studio", "audienceRating": 8.4, "userRating": 8,
+    "duration": 600000, "viewOffset": 120000, "librarySectionID": 1, "librarySectionTitle": "Movies",
+    "Genre": [{"id": 1, "tag": "Adventure"}], "Director": [{"id": 501, "tag": "Ada Director"}],
+    "Role": [{"id": 500, "tag": "Sam Actor", "role": "Hero"}, {"id": 502, "tag": "Riley Actor", "role": "Sidekick"}],
+    "Marker": [{"type": "intro", "startTimeOffset": 5000, "endTimeOffset": 35000}, {"type": "credits", "startTimeOffset": 560000, "endTimeOffset": 600000}],
+    "Media": [
+      {"id": "v1", "container": "mp4", "videoResolution": "1080", "videoCodec": "h264", "audioCodec": "aac", "bitrate": 8000, "Part": [
+        {"id": "p1", "key": "/library/parts/p1/sample.mp4", "file": "/media/movies/The Sample Movie.mp4", "size": 1024000, "Stream": [
+          {"id": "s0", "streamType": 1, "codec": "h264", "displayTitle": "1080p (H.264)"},
+          {"id": "s2", "streamType": 2, "codec": "aac", "language": "English", "languageCode": "eng", "displayTitle": "English (AAC Stereo)", "selected": true},
+          {"id": "s3", "streamType": 2, "codec": "aac", "language": "French", "languageCode": "fra", "displayTitle": "Français (AAC Stereo)"},
+          {"id": "s1", "streamType": 3, "key": "/library/streams/s1", "codec": "srt", "language": "English", "languageCode": "eng", "displayTitle": "English (SRT External)"}
+        ]}
+      ]},
+      {"id": "v2", "container": "mkv", "videoResolution": "4k", "videoCodec": "hevc", "Part": [{"id": "p2", "key": "/library/parts/p2/sample.mkv", "size": 2048000}]}
+    ]
+  }]}},
+  "/library/metadata/101": {"MediaContainer": {"Metadata": [{
+    "ratingKey": "101", "title": "Second Feature", "type": "movie", "year": 2025, "duration": 5400000, "viewCount": 1,
+    "summary": "A watched sample movie.", "Media": [{"container": "mp4", "Part": [{"id": "p4", "key": "/library/parts/p4/second.mp4"}]}]
+  }]}},
+  "/library/metadata/100/extras": {"MediaContainer": {"Metadata": [
+    {"ratingKey": "110", "title": "Official Trailer", "type": "clip", "subtype": "trailer", "duration": 90000}
+  ]}},
+  "/library/metadata/200": {"MediaContainer": {"Metadata": [{
+    "ratingKey": "200", "title": "The Sample Show", "type": "show", "year": 2024, "leafCount": 2, "viewedLeafCount": 1, "childCount": 1,
+    "summary": "Browse seasons, then episodes. The next episode appears as On Deck.",
+    "OnDeck": {"Metadata": {"ratingKey": "203", "title": "The Second One", "type": "episode", "index": 2, "parentIndex": 1, "grandparentTitle": "The Sample Show", "duration": 1500000}}
+  }]}},
+  "/library/metadata/200/children": {"MediaContainer": {"totalSize": 1, "Metadata": [
+    {"ratingKey": "201", "title": "Season 1", "type": "season", "index": 1, "parentRatingKey": "200", "leafCount": 2, "viewedLeafCount": 1}
+  ]}},
+  "/library/metadata/200/grandchildren": {"MediaContainer": {"totalSize": 2, "Metadata": [
+    {"ratingKey": "202", "title": "Pilot", "type": "episode", "index": 1, "parentIndex": 1, "grandparentTitle": "The Sample Show", "viewCount": 1, "duration": 1500000},
+    {"ratingKey": "203", "title": "The Second One", "type": "episode", "index": 2, "parentIndex": 1, "grandparentTitle": "The Sample Show", "duration": 1500000}
+  ]}},
+  "/library/metadata/201": {"MediaContainer": {"Metadata": [
+    {"ratingKey": "201", "title": "Season 1", "type": "season", "index": 1, "parentTitle": "The Sample Show", "parentRatingKey": "200", "leafCount": 2, "viewedLeafCount": 1}
+  ]}},
+  "/library/metadata/201/children": {"MediaContainer": {"totalSize": 2, "Metadata": [
+    {"ratingKey": "202", "title": "Pilot", "type": "episode", "index": 1, "parentIndex": 1, "grandparentTitle": "The Sample Show", "viewCount": 1, "duration": 1500000},
+    {"ratingKey": "203", "title": "The Second One", "type": "episode", "index": 2, "parentIndex": 1, "grandparentTitle": "The Sample Show", "duration": 1500000}
+  ]}},
+  "/library/metadata/202": {"MediaContainer": {"Metadata": [{
+    "ratingKey": "202", "title": "Pilot", "type": "episode", "index": 1, "parentIndex": 1, "grandparentTitle": "The Sample Show",
+    "grandparentRatingKey": "200", "parentRatingKey": "201", "viewCount": 1, "duration": 1500000,
+    "Media": [{"container": "mp4", "Part": [{"id": "p3", "key": "/library/parts/p3/episode.mp4"}]}]
+  }]}},
+  "/library/metadata/203": {"MediaContainer": {"Metadata": [{
+    "ratingKey": "203", "title": "The Second One", "type": "episode", "index": 2, "parentIndex": 1, "grandparentTitle": "The Sample Show",
+    "grandparentRatingKey": "200", "parentRatingKey": "201", "duration": 1500000,
+    "Media": [{"container": "mp4", "Part": [{"id": "p5", "key": "/library/parts/p5/episode2.mp4"}]}]
+  }]}},
+  "/library/people/500/media": {"MediaContainer": {"Metadata": [
+    {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026}
+  ]}},
+  "/library/search": {"MediaContainer": {"SearchResult": [
+    {"score": 0.9, "Metadata": {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026}},
+    {"score": 0.7, "Metadata": {"ratingKey": "200", "title": "The Sample Show", "type": "show", "year": 2024}}
+  ]}},
+  "/library/recentlyAdded": {"MediaContainer": {"Metadata": [
+    {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026}
+  ]}},
+  "/hubs": {"MediaContainer": {"Hub": [
+    {"hubIdentifier": "home.movies.recent", "key": "/library/sections/1/all", "title": "Recently Added Movies", "type": "movie", "size": 2, "more": false, "Metadata": [
+      {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026},
+      {"ratingKey": "101", "title": "Second Feature", "type": "movie", "year": 2025, "viewCount": 1}
+    ]},
+    {"hubIdentifier": "home.television.recent", "key": "/library/metadata/200/grandchildren", "title": "Recently Added TV", "type": "episode", "size": 1, "more": true, "Metadata": [
+      {"ratingKey": "203", "title": "The Second One", "type": "episode", "index": 2, "parentIndex": 1, "grandparentTitle": "The Sample Show"}
+    ]}
+  ]}},
+  "/hubs?identifier=home.continue,home.ondeck": {"MediaContainer": {"Hub": [
+    {"hubIdentifier": "home.continue", "title": "Continue Watching", "type": "mixed", "Metadata": [
+      {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026, "duration": 600000, "viewOffset": 120000}
+    ]},
+    {"hubIdentifier": "home.ondeck", "title": "On Deck", "type": "episode", "Metadata": [
+      {"ratingKey": "203", "title": "The Second One", "type": "episode", "index": 2, "parentIndex": 1, "grandparentTitle": "The Sample Show", "grandparentRatingKey": "200", "duration": 1500000}
+    ]}
+  ]}},
+  "/hubs/sections/1": {"MediaContainer": {"Hub": [
+    {"hubIdentifier": "movie.recentlyadded.1", "key": "/library/sections/1/all", "title": "Recently Added", "type": "movie", "Metadata": [
+      {"ratingKey": "100", "title": "The Sample Movie", "type": "movie", "year": 2026}
+    ]}
+  ]}},
+  "/hubs/sections/2": {"MediaContainer": {"Hub": [
+    {"hubIdentifier": "tv.ondeck.2", "title": "On Deck", "type": "episode", "Metadata": [
+      {"ratingKey": "203", "title": "The Second One", "type": "episode", "index": 2, "parentIndex": 1, "grandparentTitle": "The Sample Show"}
+    ]}
+  ]}},
+  "/hubs/metadata/100/related": {"MediaContainer": {"Hub": [
+    {"hubIdentifier": "movie.similar", "title": "More Like This", "type": "movie", "Metadata": [
+      {"ratingKey": "101", "title": "Second Feature", "type": "movie", "year": 2025, "viewCount": 1}
+    ]},
+    {"hubIdentifier": "collections", "title": "Collections", "type": "collection", "Metadata": [
+      {"ratingKey": "300", "title": "Sample Collection", "type": "collection", "childCount": 2}
+    ]}
+  ]}},
+  "/playlists": {"MediaContainer": {"totalSize": 1, "Metadata": [
+    {"ratingKey": "400", "key": "/playlists/400/items", "title": "Weekend Watchlist", "type": "playlist", "playlistType": "video", "smart": false, "leafCount": 2, "duration": 2100000}
+  ]}},
+  "/playlists/400": {"MediaContainer": {"Metadata": [
+    {"ratingKey": "400", "title": "Weekend Watchlist", "type": "playlist", "playlistType": "video", "smart": false, "leafCount": 2}
+  ]}},
+  "/playlists/400/items": {"MediaContainer": {"totalSize": 2, "Metadata": [
+    {"ratingKey": "100", "playlistItemID": "9001", "title": "The Sample Movie", "type": "movie", "year": 2026},
+    {"ratingKey": "203", "playlistItemID": "9002", "title": "The Second One", "type": "episode", "grandparentTitle": "The Sample Show", "index": 2, "parentIndex": 1}
+  ]}},
+  "/playQueues": {"MediaContainer": {"playQueueID": 77, "playQueueVersion": 1, "playQueueSelectedItemID": "1", "playQueueTotalCount": 2, "playQueueShuffled": false, "Metadata": [
+    {"ratingKey": "202", "title": "Pilot", "type": "episode"},
+    {"ratingKey": "203", "title": "The Second One", "type": "episode"}
+  ]}},
+  "*": {"MediaContainer": {"size": 0}}
+}

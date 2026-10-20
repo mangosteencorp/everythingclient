@@ -10,7 +10,11 @@ import TMDB_Shared_UI
 ///
 /// The `items…` cases pick their layout in the shared `DesignCoordinator`, which saves it like
 /// any other design choice.
-public enum TMDBFeedPreviewCatalog: String, CaseIterable {
+public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
+    public var id: String {
+        rawValue
+    }
+
     case demo
     case listPage
     case listPageInNavigation

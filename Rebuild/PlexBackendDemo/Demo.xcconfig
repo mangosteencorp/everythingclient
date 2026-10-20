@@ -1,0 +1,4 @@
+// The demo reaches Plex accounts and user-selected LAN servers.
+CODE_SIGN_ENTITLEMENTS[sdk=macosx*] = PlexBackendDemo/PlexBackendDemo.entitlements
+INFOPLIST_KEY_NSLocalNetworkUsageDescription = Browse and download media from your selected Plex server on your local network.
+INFOPLIST_FILE = DemoInfo.plist
