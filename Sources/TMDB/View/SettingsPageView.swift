@@ -17,13 +17,15 @@ public struct SettingsPageView: View {
         NavigationStack {
             Form {
                 Section {
+                    ProjectorCoinView { showSamples = true }
+                        .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
+                }
+
+                Section {
                     Button(L10n.settingsLaunchSwiftfin) {
                         showSwiftfin = true
                     }
-                    .simultaneousGesture(
-                        LongPressGesture(minimumDuration: 0.5)
-                            .onEnded { _ in showSamples = true }
-                    )
                     .accessibilityIdentifier("settings.launchSwiftfin.button")
                     SwiftfinConnectionStatusView(status: connection.status)
                 } header: {

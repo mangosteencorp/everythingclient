@@ -20,6 +20,10 @@ public enum L10n {
   public static let settingsMediaServer = L10n.tr("Localizable", "settings_media_server", fallback: "Media Server")
   /// More settings coming soon.
   public static let settingsMoreComing = L10n.tr("Localizable", "settings_more_coming", fallback: "More settings coming soon.")
+  /// Open Samples
+  public static let settingsOpenSamples = L10n.tr("Localizable", "settings_open_samples", fallback: "Open Samples")
+  /// Movie projector coin
+  public static let settingsProjectorCoin = L10n.tr("Localizable", "settings_projector_coin", fallback: "Movie projector coin")
   /// Settings
   public static let settingsTitle = L10n.tr("Localizable", "settings_title", fallback: "Settings")
 }
