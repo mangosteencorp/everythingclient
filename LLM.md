@@ -1,7 +1,7 @@
 @.agents/feature-build-guide.md
 @.agents/git-commit.md
 Refer to me as Mr. Client.
-
+When starting session, show me what repo and what branch we're on.
 If I put numbering on every tasks, spawn an agent for each task. wait for each to report back before continue
 
 Every time you start a session, make sure to ask me before making any file change
