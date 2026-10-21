@@ -207,6 +207,7 @@ let package = Package(
                 "Swinject",
                 "TMDB_Shared_Backend",
                 "SwiftfinLauncher",
+                "PlexIntegration",
             ],
             resources: [
                 .process("Resources"),
@@ -217,7 +218,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_MovieDetail_Tests",
-            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "SwiftfinLauncher"]
+            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "SwiftfinLauncher", "PlexIntegration"]
         ),
         .testTarget(
             name: "TMDB_TVShowDetail_Tests",

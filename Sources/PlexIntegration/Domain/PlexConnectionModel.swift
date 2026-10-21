@@ -105,7 +105,7 @@ public final class PlexConnectionModel {
         .connected(PlexConnectionInfo(serverName: connection.name, accountName: connection.accountName))
     }
 
-    private static func message(for error: any Error) -> String {
+    nonisolated static func message(for error: any Error) -> String {
         switch error {
         case PlexAPIError.pinExpired: L10n.plexErrorPinExpired
         case PlexAPIError.noReachableServer: L10n.plexErrorNoReachableServer

@@ -41,3 +41,16 @@
 "jellyfin_resume_hint" = "Resume from %@.";
 "jellyfin_elapsed_format" = "%@ in";
 "jellyfin_remaining_format" = "%@ left";
+
+// MovieServerSection
+"server_section_title" = "Server";
+
+// MoviePlexSection
+"plex_section_title" = "On Plex";
+"plex_checking_library" = "Checking your Plex library...";
+"plex_watched" = "Watched";
+"plex_watched_progress_format" = "%d%% watched • %@";
+"plex_play" = "Play";
+"plex_resume_hint" = "Resume from %@.";
+"plex_elapsed_format" = "%@ in";
+"plex_remaining_format" = "%@ left";

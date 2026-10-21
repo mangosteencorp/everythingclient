@@ -66,6 +66,35 @@ final class TMDBMovieDetailDemoUITests: XCTestCase {
     }
 
     @MainActor
+    func testServerSectionShowsJellyfinAndPlexPlayOnly() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["serverSection"].tap()
+
+        let plexPlay = app.buttons["movieDetail.plex.play.button"]
+        XCTAssertTrue(plexPlay.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["movieDetail.server.section"].exists)
+        XCTAssertTrue(app.buttons["movieDetail.jellyfin.play.button"].exists)
+        XCTAssertTrue(app.buttons["movieDetail.jellyfin.open.button"].exists)
+        XCTAssertFalse(app.buttons["movieDetail.plex.open.button"].exists)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Server section with Jellyfin and Plex"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+
+        plexPlay.tap()
+        let close = app.buttons["plex.player.close.button"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["jellyfin.player.close.button"].exists)
+        let player = XCTAttachment(screenshot: app.screenshot())
+        player.name = "Plex player"
+        player.lifetime = .keepAlways
+        add(player)
+        close.tap()
+        XCTAssertTrue(plexPlay.waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

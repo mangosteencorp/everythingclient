@@ -20,6 +20,12 @@ public enum L10n {
   public static let plexErrorNoServerWithContent = L10n.tr("Localizable", "plex_error_no_server_with_content", fallback: "None of your Plex servers has a movie or TV library.")
   /// The sign-in code expired before it was approved.
   public static let plexErrorPinExpired = L10n.tr("Localizable", "plex_error_pin_expired", fallback: "The sign-in code expired before it was approved.")
+  /// Shown on a movie page or in the player when no Plex server is signed in.
+  public static let plexLibraryNotConnected = L10n.tr("Localizable", "plex_library_not_connected", fallback: "Sign in to Plex in Settings to watch from your server.")
+  /// This movie could not be played from Plex.
+  public static let plexPlaybackFailed = L10n.tr("Localizable", "plex_playback_failed", fallback: "This movie could not be played from Plex.")
+  /// Spoken label of the button that closes the Plex movie player.
+  public static let plexPlayerClose = L10n.tr("Localizable", "plex_player_close", fallback: "Close player")
   /// Settings section header for the Plex account.
   public static let plexSectionTitle = L10n.tr("Localizable", "plex_section_title", fallback: "Plex")
   /// Sign in with Plex

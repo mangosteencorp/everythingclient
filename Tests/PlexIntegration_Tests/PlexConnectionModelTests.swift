@@ -88,10 +88,10 @@ struct PlexConnectionModelTests {
     }
 }
 
-func connection(name: String = "Home Cinema") throws -> PlexConnection {
+func connection(name: String = "Home Cinema", transport: any PlexHTTPTransport = PlexURLSessionTransport()) throws -> PlexConnection {
     let identity = try PlexClientIdentity(identifier: "tests", product: "Tests", version: "1", platform: "iOS")
     let configuration = try PlexServerConfiguration(baseURL: #require(URL(string: "https://plex.example")), token: "token", identity: identity)
-    return PlexConnection(name: name, accountName: "Alex", libraries: [], api: PlexAPIService(configuration: configuration))
+    return PlexConnection(name: name, accountName: "Alex", libraries: [], api: PlexAPIService(configuration: configuration, transport: transport))
 }
 
 actor LaunchingFake: PlexLaunching {

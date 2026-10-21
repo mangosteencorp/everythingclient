@@ -1,4 +1,5 @@
 #if DEBUG
+import PlexIntegration
 import SwiftfinLauncher
 import SwiftUI
 import TMDB_Shared_Backend
@@ -27,6 +28,9 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
     case watchProvidersError
     case ostSection
     case jellyfinSection
+    case plexSection
+    case serverSection
+    case serverSectionPlexOnly
     case sectionRetry
 
     @MainActor @ViewBuilder
@@ -49,6 +53,24 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
             MovieCreditSection(movieId: exampleMovieCredits.id, creditsViewModel: Self.creditsViewModel, personRouteBuilder: { $0 })
         case .watchProviders, .watchProvidersLoading, .watchProvidersError:
             MovieWatchProvidersSection(movieId: exampleMovieDetail.id, watchProvidersViewModel: watchProvidersViewModel)
+        case .plexSection:
+            List {
+                Section {
+                    MoviePlexSection(plexViewModel: Self.plexViewModel(), movieTitle: "Dune", movieYear: 2021)
+                }
+            }
+        case .serverSection, .serverSectionPlexOnly:
+            // Plain, like the detail page, so the section header looks the same.
+            List {
+                MovieServerSection(
+                    movieTitle: "Dune",
+                    movieId: 438_631,
+                    movieYear: 2021,
+                    jellyfinViewModel: self == .serverSection ? Self.jellyfinViewModel() : Self.signedOutJellyfinViewModel,
+                    plexViewModel: Self.plexViewModel()
+                )
+            }
+            .listStyle(.plain)
         default:
             staticView
         }
@@ -127,6 +149,7 @@ private extension TMDBMovieDetailPreviewCatalog {
             watchProvidersViewModel: watchProvidersViewModel,
             ostViewModel: MovieOSTViewModel(),
             jellyfinViewModel: jellyfinViewModel(title: exampleMovieDetail.userTitle),
+            plexViewModel: plexViewModel(title: exampleMovieDetail.userTitle),
             discoverMovieByKeywordRouteBuilder: { _ in 1 },
             photoSlidesRouteBuilder: { _, index in index }
         )
@@ -170,6 +193,29 @@ private extension TMDBMovieDetailPreviewCatalog {
         return viewModel
     }
 
+    @MainActor
+    static var signedOutJellyfinViewModel: MovieJellyfinViewModel {
+        let viewModel = MovieJellyfinViewModel(service: PreviewJellyfinLibraryService(match: nil))
+        viewModel.state = .unavailable
+        return viewModel
+    }
+
+    /// A match built here has no server behind it, so its player shows why it cannot play.
+    @MainActor
+    static func plexViewModel(title: String = "Dune") -> MoviePlexViewModel {
+        let match = PlexMovieMatch(
+            id: "42",
+            title: title,
+            runtimeSeconds: 9315,
+            playedFraction: 0.6,
+            resumeSeconds: 5589,
+            isPlayed: false
+        )
+        let viewModel = MoviePlexViewModel(service: PreviewPlexLibraryService(match: match))
+        viewModel.state = .found(match)
+        return viewModel
+    }
+
     static var sampleKeywords: [Keyword] {
         [
             Keyword(id: 613, name: "new year's eve"),
@@ -199,10 +245,19 @@ private extension TMDBMovieDetailPreviewCatalog {
 }
 
 private struct PreviewJellyfinLibraryService: JellyfinLibraryServicing {
-    let match: JellyfinMovieMatch
+    let match: JellyfinMovieMatch?
     var isAvailable: Bool { true }
 
     func findMovie(title: String, tmdbID: Int) async throws -> JellyfinMovieMatch? {
+        match
+    }
+}
+
+private struct PreviewPlexLibraryService: PlexLibraryServicing {
+    let match: PlexMovieMatch
+    var isSignedIn: Bool { true }
+
+    func findMovie(title: String, year: Int?) async throws -> PlexMovieMatch? {
         match
     }
 }
