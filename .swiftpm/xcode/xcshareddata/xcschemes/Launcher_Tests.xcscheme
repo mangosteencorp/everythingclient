@@ -38,6 +38,16 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PlexIntegration_Tests"
+               BuildableName = "PlexIntegration_Tests"
+               BlueprintName = "PlexIntegration_Tests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "SwiftfinLauncher_Tests"
                BuildableName = "SwiftfinLauncher_Tests"
                BlueprintName = "SwiftfinLauncher_Tests"

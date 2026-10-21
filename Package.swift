@@ -121,6 +121,7 @@ let package = Package(
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
         .library(name: "Plex_Shared_Backend", targets: ["Plex_Shared_Backend"]),
         .library(name: "PlexLauncher", targets: ["PlexLauncher"]),
+        .library(name: "PlexIntegration", targets: ["PlexIntegration"]),
         .library(name: "TMDB_TVShowDetail", targets: ["TMDB_TVShowDetail"]),
         .library(name: "Integration_test", targets: ["Integration_test"]),
 
@@ -169,6 +170,7 @@ let package = Package(
                 "TMDB_Person",
                 "PhotoListViewer",
                 "SwiftfinLauncher",
+                "PlexIntegration",
                 "Pokedex",
                 "Swinject",
             ] + sampleKitTargetDependency,
@@ -328,6 +330,12 @@ let package = Package(
         .testTarget(name: "Plex_Shared_Backend_Tests", dependencies: ["Plex_Shared_Backend"]),
         .target(name: "PlexLauncher", dependencies: ["Plex_Shared_Backend"]),
         .testTarget(name: "PlexLauncher_Tests", dependencies: ["PlexLauncher"]),
+        .target(
+            name: "PlexIntegration",
+            dependencies: ["PlexLauncher", "Plex_Shared_Backend"],
+            resources: [.process("Resources")]
+        ),
+        .testTarget(name: "PlexIntegration_Tests", dependencies: ["PlexIntegration"]),
 
         // MARK: Pokedex
 
@@ -421,6 +429,7 @@ let package = Package(
                 "TMDB_Person",
                 "PhotoListViewer",
                 "SwiftfinLauncher",
+                "PlexIntegration",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",

@@ -1,6 +1,7 @@
 #if DEBUG
 import CoreFeatures
 import PhotoListViewer
+import PlexIntegration
 import SwiftUI
 import Swinject
 import TMDB_Shared_Backend
@@ -120,7 +121,7 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
             ProjectorCoinView {}
                 .padding()
         default:
-            SettingsPageView()
+            SettingsPageView(plexLauncher: PlexPreviewLauncher(.signedOut))
         }
     }
 }

@@ -1,0 +1,18 @@
+/* Settings section header for the Plex account. */
+"plex_section_title" = "Plex";
+/* Spoken while restoring the saved Plex session. */
+"plex_connection_loading" = "Loading Plex connection";
+"plex_sign_in" = "Sign in with Plex";
+/* Shown while the user approves the sign-in in the browser. */
+"plex_sign_in_waiting" = "Waiting for browser authorization…";
+/* Label for the code the user confirms on plex.tv. */
+"plex_sign_in_code" = "Sign-in code";
+"plex_sign_in_open" = "Open Plex sign-in";
+/* Stops waiting for browser authorization. */
+"plex_sign_in_cancel" = "Cancel";
+"plex_sign_out" = "Sign out";
+"plex_try_again" = "Try again";
+"plex_error_pin_expired" = "The sign-in code expired before it was approved.";
+"plex_error_no_reachable_server" = "None of your Plex servers could be reached.";
+"plex_error_no_server_with_content" = "None of your Plex servers has a movie or TV library.";
+"plex_error_generic" = "Could not connect to Plex.";

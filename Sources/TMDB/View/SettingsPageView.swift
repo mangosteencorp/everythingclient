@@ -1,3 +1,5 @@
+import PlexIntegration
+import PlexLauncher
 import SwiftfinLauncher
 import SwiftUI
 #if canImport(SampleKit)
@@ -8,9 +10,14 @@ public struct SettingsPageView: View {
     @State private var showSwiftfin = false
     @State private var showSamples = false
     @State private var connection: SwiftfinConnectionModel
+    @State private var plex: PlexConnectionModel
 
-    public init(sessionService: any SwiftfinSessionServicing = SwiftfinSessionService()) {
+    public init(
+        sessionService: any SwiftfinSessionServicing = SwiftfinSessionService(),
+        plexLauncher: any PlexLaunching = PlexAppSession.shared
+    ) {
         _connection = State(initialValue: SwiftfinConnectionModel(service: sessionService))
+        _plex = State(initialValue: PlexConnectionModel(launcher: plexLauncher))
     }
 
     public var body: some View {
@@ -33,6 +40,8 @@ public struct SettingsPageView: View {
                 }
                 .accessibilityIdentifier("settings.section.mediaServer")
 
+                PlexConnectionSection(model: plex)
+
                 Section {
                     Text(L10n.settingsMoreComing)
                         .foregroundStyle(.secondary)
@@ -51,6 +60,7 @@ public struct SettingsPageView: View {
             guard !showSwiftfin else { return }
             await connection.refresh()
         }
+        .task { await plex.refresh() }
         #if canImport(SampleKit)
         .fullScreenCover(isPresented: $showSamples) {
             NavigationStack {

@@ -8,6 +8,13 @@ strings:
           publicAccess: true
           enumName: L10n
         output: Sources/SwiftfinLauncher/generated/Strings.swift
+  - inputs: Sources/PlexIntegration/Resources/en.lproj/Localizable.strings
+    outputs:
+      - templateName: structured-swift5
+        params:
+          publicAccess: true
+          enumName: L10n
+        output: Sources/PlexIntegration/generated/Strings.swift
   - inputs: Sources/TMDB/Resources/en.lproj/Localizable.strings
     outputs:
       - templateName: structured-swift5
