@@ -152,7 +152,7 @@ What you'll find looking at this repo:
     <th>Home screen</th>
   </tr>
   <tr>
-    <td><img src="https://private-user-images.githubusercontent.com/43954417/521134031-17055c00-f65a-4c21-9ecb-587a12f89801.jpeg?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjQ2NTIzNTUsIm5iZiI6MTc2NDY1MjA1NSwicGF0aCI6Ii80Mzk1NDQxNy81MjExMzQwMzEtMTcwNTVjMDAtZjY1YS00YzIxLTllY2ItNTg3YTEyZjg5ODAxLmpwZWc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUxMjAyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MTIwMlQwNTA3MzVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1kNjA2OWE4MDU0YzFjZjk4MTZjMjA0NzdjNWMxMzQ1MmIwMzE0ZTY1OWRiOGUwMzFmYzYzY2M0NDMzMTNkZTIyJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.MZjc3BKfWu7bHnf5U3bqiMKNSU99bs3BAptjZpdcp1Q"></td>
+    <td><img src="https://github.com/user-attachments/assets/5de2b139-429a-467c-880b-f640be326858"></td>
     <td style="padding: 80px 120px;"><img src=".screenshots/discover-page.gif" style="transform: rotate(90deg);"></td>
   </tr>
   <tr>
