@@ -54,7 +54,6 @@ Movie detail soundtrack search needs Apple Music access (`NSAppleMusicUsageDescr
       - [TMDB Navigation Matrix](#tmdb-navigation-matrix)
     - [Feature based Modularization:](#feature-based-modularization)
       - [Module Architecture Overview](#module-architecture-overview)
-      - [Module Architecture Layers](#module-architecture-layers)
 
 
 # Overview 
@@ -299,179 +298,20 @@ Swinject are used for dependency injection.
 
 #### Module Architecture Overview
 
-UI framework → architecture → reactive layer:
+| UI Framework | Architecture | Reactive / State Layer | Implemented In (Modules & Key Files) |
+| :--- | :--- | :--- | :--- |
+| 🍏 **SwiftUI** | 🧩 **MVVM** | 🔗 **Combine** | [**TMDB_Feed**](Sources/TMDB_Feed) — [`MovieFeedViewModel.swift`](Sources/TMDB_Feed/ViewModels/MovieFeedViewModel.swift), [`TVShowFeedViewModel.swift`](Sources/TMDB_Feed/ViewModels/TVShowFeedViewModel.swift), [`Views/Pages/`](Sources/TMDB_Feed/Views/Pages)<br>[**TMDB_Search**](Sources/TMDB_Search) — [`SearchViewModel.swift`](Sources/TMDB_Search/ViewModels/SearchViewModel.swift), [`SearchPage.swift`](Sources/TMDB_Search/Views/Pages/SearchPage.swift), [`TMDBSearchService.swift`](Sources/TMDB_Search/Backend/TMDBSearchService.swift)<br>[**TMDB_MovieDetail**](Sources/TMDB_MovieDetail) — [`MovieDetailViewModel.swift`](Sources/TMDB_MovieDetail/ViewModels/MovieDetailViewModel.swift), [`MovieOSTViewModel.swift`](Sources/TMDB_MovieDetail/ViewModels/MovieOSTViewModel.swift), [`MovieJellyfinViewModel.swift`](Sources/TMDB_MovieDetail/ViewModels/MovieJellyfinViewModel.swift), [`MovieDetailPage.swift`](Sources/TMDB_MovieDetail/Views/Pages/MovieDetailPage.swift)<br>[**TMDB_Person**](Sources/TMDB_Person) — [`PersonDetailViewModel.swift`](Sources/TMDB_Person/ViewModels/PersonDetailViewModel.swift), [`PersonDetailPage.swift`](Sources/TMDB_Person/Views/PersonDetailPage.swift), [`PersonFilmographyCarouselSection.swift`](Sources/TMDB_Person/Views/PersonFilmographyCarouselSection.swift) |
+| | | 👁️ **`@Observable`** | [**TMDB_TVShowDetail**](Sources/TMDB_TVShowDetail) — [`SimilarTVViewModel.swift`](Sources/TMDB_TVShowDetail/Views/Similar/SimilarTVViewModel.swift), [`SimilarTVSection.swift`](Sources/TMDB_TVShowDetail/Views/Similar/SimilarTVSection.swift) |
+| | 🗄️ **MV / Data Store** | `@State` / 🔗 **Combine** | [**TMDB_TVShowDetail**](Sources/TMDB_TVShowDetail) — [`TVShowWatchProvidersSection.swift`](Sources/TMDB_TVShowDetail/Views/TVShowWatchProvidersSection.swift) (MV with `@State` + `.task`), [`TVShowDetailView.swift`](Sources/TMDB_TVShowDetail/Views/TVShowDetailView.swift) (inline `Store`) |
+| 📱 **UIKit** | 🏛️ **Clean Architecture** | 🔗 **Combine** | [**TMDB_Discover**](Sources/TMDB_Discover) — [`DiscoverAssembly.swift`](Sources/TMDB_Discover/app/DiscoverAssembly.swift), [`data/`](Sources/TMDB_Discover/data), [`domain/`](Sources/TMDB_Discover/domain), [`HomeDiscoverViewController.swift`](Sources/TMDB_Discover/presentation/pages/HomeDiscoverViewController.swift), [`TVShowListViewController.swift`](Sources/TMDB_Discover/presentation/pages/TVShowListViewController.swift), [`presentation/view_models/`](Sources/TMDB_Discover/presentation/view_models) |
+| | | 🌀 **RxSwift** + 🔗 **Combine** (auth) | [**TMDB_Profile**](Sources/TMDB_Profile) — [`ProfileAssembly.swift`](Sources/TMDB_Profile/DI/ProfileAssembly.swift), [`Data/`](Sources/TMDB_Profile/Data), [`Domain/`](Sources/TMDB_Profile/Domain), [`ProfileViewController.swift`](Sources/TMDB_Profile/Presentation/controllers/ProfileViewController.swift), [`ProfileViewModel.swift`](Sources/TMDB_Profile/Presentation/ViewModels/ProfileViewModel.swift) |
+| | ⚡ **VIPER** | `async/await` | [**Pokedex_Pokelist**](Sources/Pokedex_Pokelist) — [`PokelistProtocols.swift`](Sources/Pokedex_Pokelist/Protocols/PokelistProtocols.swift), [`PokelistViewController.swift`](Sources/Pokedex_Pokelist/View/PokelistViewController.swift), [`PokelistPresenter.swift`](Sources/Pokedex_Pokelist/Presenter/PokelistPresenter.swift), [`PokelistInteractor.swift`](Sources/Pokedex_Pokelist/Interactor/PokelistInteractor.swift), [`PokemonEntity.swift`](Sources/Pokedex_Pokelist/Entities/PokemonEntity.swift) |
+| | 🧩 **MVVM** | 🌀 **RxSwift** | [**Pokedex_Detail**](Sources/Pokedex_Detail) — [`PokemonDetailViewController.swift`](Sources/Pokedex_Detail/View/PokemonDetailViewController.swift), [`PokemonContentDetailViewController.swift`](Sources/Pokedex_Detail/View/PokemonContentDetailViewController.swift), [`PokemonDetailViewModel.swift`](Sources/Pokedex_Detail/ViewModel/PokemonDetailViewModel.swift) |
 
-- 🍏 **SwiftUI:**
-    - 🧩 **MVVM:**
-        - 🔗 **Combine:**
-            - **TMDB_Feed**
-            - **TMDB_MovieDetail**
-    - 🗄️ **Data Store** (👁️ `@Observable`):
-        - **TMDB_TVShowDetail**
-        - **TMDB_Person**
-    - 🧭 **Coordinator:** with 🔗 **Combine:**: **TMDB**, **everythingclient**
-- 🍏 **SwiftUI** + 📱 **UIKit:**
-    - 🏛️ **Clean Architecture:**
-        - **TMDB_Discover**
-- 📱 **UIKit:**
-    - ⚡ **VIPER:**
-        - **Pokedex & Pokedex_Pokelist**
-    - 🧩 **MVVM:**
-        - 🌀 **RxSwift:**
-            - **Pokedex_Detail**
-    - 🏛️ **Clean Architecture:**
-        - 🌀 **RxSwift:**
-            - **TMDB_Profile**
+Coordinator & routing modules:
+- 🧭 **TMDB** (SwiftUI + 🔗 Combine `NavigationStack`): [**TMDB**](Sources/TMDB) — [`Coordinator.swift`](Sources/TMDB/Coordinator/Coordinator.swift), [`TMDBRoute.swift`](Sources/TMDB/Coordinator/Route/TMDBRoute.swift), [`TMDBNavigationDestinations.swift`](Sources/TMDB/Navigation/TMDBNavigationDestinations.swift), [`Design/Shells/`](Sources/TMDB/Design/Shells)
+- 🧭 **everythingclient** (SwiftUI + 🔗 Combine app shell): [**everythingclient**](Sources/everythingclient) — [`AppRootContentView.swift`](Sources/everythingclient/AppRootContentView.swift), [`TabManager.swift`](Sources/everythingclient/TabManager.swift)
+- 🧭 **Pokedex** (SwiftUI + UIKit `UINavigationController` router): [**Pokedex**](Sources/Pokedex) — [`PokedexView.swift`](Sources/Pokedex/PokedexView.swift), [`PokelistRouter.swift`](Sources/Pokedex/Router/PokelistRouter.swift)
 
-Shared and supporting packages: **PhotoListViewer**, **TMDB_Shared_UI**, **CoreFeatures**, **Shared_UI_Support**, **TMDB_Shared_Backend**, **Pokedex_Shared_Backend**, **third_party**, **Integration_test**.
-
-
-#### Module Architecture Layers
-
-Folder structure for each module. Headings list **architecture**, then **UI** (SwiftUI / UIKit), then **state** (Combine / RxSwift / `ObservableObject`).
-
-**Pokedex** (Coordinator · SwiftUI + UIKit · Combine)
-```
-Pokedex/
-├── PokedexView.swift
-└── Router/
-    └── PokelistRouter.swift
-```
-
-**Pokedex_Detail** (MVVM · UIKit · RxSwift)
-```
-Pokedex_Detail/
-├── View/
-│   ├── PokemonDetailViewController.swift
-│   ├── PokemonContentDetailViewController.swift
-│   └── LoadingViewController.swift
-└── ViewModel/
-    └── PokemonDetailViewModel.swift
-```
-
-**Pokedex_Pokelist** (VIPER · UIKit · async/await)
-```
-Pokedex_Pokelist/
-├── Entities/
-│   └── PokemonEntity.swift
-├── Interactor/
-│   └── PokelistInteractor.swift
-├── Presenter/
-│   └── PokelistPresenter.swift
-├── View/
-│   ├── PokelistViewController.swift
-│   └── PokemonCell.swift
-└── Protocols/
-    └── PokelistProtocols.swift
-```
-
-**TMDB_Discover** (Clean Architecture · SwiftUI + UIKit · Combine / ObservableObject)
-```
-TMDB_Discover/
-├── app/ (DI)
-│   └── DiscoverAssembly.swift
-├── data/
-│   ├── datasource/
-│   └── repositories/
-├── domain/
-│   ├── entities/
-│   ├── repositories/
-│   └── usecase/
-└── presentation/
-    ├── pages/
-    ├── view_models/
-    └── widgets/
-```
-
-**TMDB_Feed** (MVVM · SwiftUI · Combine / ObservableObject)
-```
-TMDB_Feed/
-├── Backend/
-│   └── APIServiceProtocol.swift
-├── Model/
-│   ├── MovieModel.swift
-│   └── MovieListResponse.swift
-├── ViewModels/
-│   ├── MovieFeedViewModel.swift
-│   └── TVShowFeedViewModel.swift
-└── Views/
-    ├── Pages/
-    └── Widgets/
-```
-
-**TMDB_MovieDetail** (MVVM · SwiftUI · Combine / ObservableObject)
-```
-TMDB_MovieDetail/
-├── Domain/
-│   └── MovieOSTSearchQueryBuilder.swift
-├── Model/
-│   ├── Movie.swift
-│   ├── People.swift
-│   └── Genre.swift
-├── ViewModels/
-│   ├── MovieDetailViewModel.swift
-│   ├── MovieCastingViewModel.swift
-│   ├── MovieWatchProvidersViewModel.swift
-│   └── MovieOSTViewModel.swift   // MusicKit soundtrack search
-└── Views/
-    ├── Pages/
-    ├── Sections/                 // includes MovieOSTSection
-    └── StaticViews/
-```
-
-**TMDB_Person** (Data Store · SwiftUI · ObservableObject)
-```
-TMDB_Person/
-├── Views/
-│   ├── PersonDetailPage.swift
-│   ├── PersonDetailContent.swift
-│   ├── PersonDetailHeaderView.swift
-│   ├── PersonFactGrid.swift
-│   ├── PersonBiographySection.swift
-│   ├── PersonFilmographySection.swift
-│   └── PersonFilmographyCarouselSection.swift  // CoverFlow, iOS 18+
-└── Resources/
-```
-
-**third_party** (client wrapper · SwiftUI · none)
-```
-third_party/
-└── Views/
-    └── SwiftfinLaunchView.swift               // Jellyfin client
-```
-
-**PhotoListViewer** (view module · SwiftUI · none)
-```
-PhotoListViewer/
-└── Views/
-    ├── PhotoCarouselView.swift
-    └── PhotoSlidesPage.swift
-```
-
-**TMDB_Profile** (Clean Architecture · UIKit · RxSwift, Combine for auth)
-```
-TMDB_Profile/
-├── DI/
-│   └── ProfileAssembly.swift
-├── Data/
-│   └── Repositories/
-├── Domain/
-│   ├── Entities/
-│   ├── Repositories/
-│   └── UseCases/
-└── Presentation/
-    ├── controllers/
-    ├── ViewModels/
-    └── Views/
-```
-
-**TMDB_TVShowDetail** (Data Store · SwiftUI · ObservableObject)
-```
-TMDB_TVShowDetail/
-├── Views/
-│   ├── TVShowDetailView.swift
-│   ├── TVShowDetailContentView.swift
-│   └── (Component views)
-└── Resources/
-```
+Shared and supporting packages: [**PhotoListViewer**](Sources/PhotoListViewer) ([`PhotoCarouselView.swift`](Sources/PhotoListViewer/Views/PhotoCarouselView.swift), [`PhotoSlidesPage.swift`](Sources/PhotoListViewer/Views/PhotoSlidesPage.swift)), [**TMDB_Shared_UI**](Sources/TMDB_Shared_UI), [**CoreFeatures**](Sources/CoreFeatures) ([`ThemeManager.swift`](Sources/CoreFeatures/ThemeManager.swift), [`DesignCoordinator.swift`](Sources/CoreFeatures/DesignSystem/DesignCoordinator.swift), [`TMDBPersistentController.swift`](Sources/CoreFeatures/Persistence/TMDBPersistentController.swift)), [**Shared_UI_Support**](Sources/Shared_UI_Support) ([`CoverFlow/`](Sources/Shared_UI_Support/Views/CoverFlow)), [**TMDB_Shared_Backend**](Sources/TMDB_Shared_Backend) ([`TMDBAPIService.swift`](Sources/TMDB_Shared_Backend/Service/TMDBAPIService.swift), [`TMDBEndpoint.swift`](Sources/TMDB_Shared_Backend/TMDBEndpoint.swift)), [**Pokedex_Shared_Backend**](Sources/Pokedex_Shared_Backend) ([`PokemonService.swift`](Sources/Pokedex_Shared_Backend/PokemonService.swift)), [**Plex_Shared_Backend**](Sources/Plex_Shared_Backend) ([`PlexAPIService.swift`](Sources/Plex_Shared_Backend/PlexAPIService.swift), [`README.md`](Sources/Plex_Shared_Backend/README.md)), [**third_party**](Sources/third_party) ([`SwiftfinLaunchView.swift`](Sources/third_party/Views/SwiftfinLaunchView.swift), [`JellyfinMoviePlayerView.swift`](Sources/third_party/Views/JellyfinMoviePlayerView.swift)), [**Integration_test**](Sources/Integration_test) ([`PreviewCatalog.swift`](Sources/Integration_test/PreviewCatalog.swift)).
 
