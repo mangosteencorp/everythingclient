@@ -278,12 +278,16 @@ The TMDB section uses a Coordinator pattern with NavigationStack for routing bet
 | **TV Show List** | TV Show Detail (`TMDBRoute.tvShowDetail`) | ✅ | Tap TV show in filtered list |
 | **Movie List** | Movie Detail (`TMDBRoute.movieDetail`) | ✅ | Tap movie in filtered list |
 
-**Missing Navigation Routes**
-- 🔴 Person/Cast Detail from TV show detail (movie detail and Discover already route to `TMDBRoute.personDetail`)
-- 🔴 Season Detail page (separate from TV show detail)
-- 🔴 Episode Detail page
-- 🔴 Reviews/Comments page
-- 🔴 Similar Movies/TV Shows (currently might be handled via movieList/tvShowList)
+**Missing Navigation & Unimplemented Screens**
+- **Missing Navigation Wiring** *(destination route exists, not connected yet)*
+  - 🔴 **TV Show Detail → Person / Cast Detail (`TMDBRoute.personDetail`):** Movie Detail and Discover already route to `TMDBRoute.personDetail`; `TVShowDetailView` has no person route wired yet
+  - 🚧 **TV Show Detail → Similar TV Shows (`TMDBRoute.tvShowDetail`):** `SimilarTVSection` loads similar shows and supports bookmarking, but tapping a poster does not push `TMDBRoute.tvShowDetail` yet
+- **Backend Ready, UI & Route Not Implemented** *(endpoint exists in `TMDBEndpoint`)*
+  - 🔴 **Similar / Recommended Movies:** `.similar(movie:)` and `.recommended(movie:)` endpoints exist, no UI section or route (could also route via `movieList`)
+  - 🔴 **Reviews / Comments page:** `.review(movie:)` endpoint and `MovieReviewsResponse` exist, no screen or `TMDBRoute`
+- **Not Implemented** *(no endpoint, screen, or `TMDBRoute`)*
+  - 🔴 **Season Detail page:** rendered inline inside `TVShowDetailView` (`SeasonCardView`), no standalone page
+  - 🔴 **Episode Detail page:** no endpoint, screen, or route
 
 ### Feature based Modularization:
 
