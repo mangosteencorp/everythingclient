@@ -1,24 +1,23 @@
-@testable import CoreFeatures
-import Testing
-import Foundation
 import CoreData
+@testable import CoreFeatures
+import Foundation
+import Testing
+@MainActor // viewContext belongs to the main queue
 struct TVBookmarkEntityTest {
     let container: NSPersistentContainer
     init() async throws {
         let controller = try await TMDBPersistentController()
         container = controller.container
-        let description = NSPersistentStoreDescription()
-        description.type = NSInMemoryStoreType
-        description.shouldAddStoreAsynchronously = false
-        
-        container.persistentStoreDescriptions = [description]
+        // The controller has already loaded the on-disk store; swap it for an in-memory one so each test starts empty
+        let coordinator = container.persistentStoreCoordinator
+        try coordinator.persistentStores.forEach(coordinator.remove)
+        _ = try coordinator.addPersistentStore(type: .inMemory, at: URL(fileURLWithPath: "/dev/null"))
     }
 
     @Test func `test insert & fetch bookmark`() async throws {
-        let model = container.managedObjectModel
-        let entity = model.entitiesByName["TVBookmarkEntity"]
-        print(entity?.managedObjectClassName as Any)   // today: GlenMovies_CoreFeatures.TVBookmarkEntity
-        print(NSStringFromClass(TVBookmarkEntity.self)) // CoreFeatures.TVBookmarkEntity
+        let entity = try #require(container.managedObjectModel.entitiesByName["TVBookmarkEntity"])
+        // Fail here instead of crashing in TVBookmarkEntity(context:) when the model's class name drifts
+        try #require(entity.managedObjectClassName == NSStringFromClass(TVBookmarkEntity.self))
         let tvID = Int32.random(in: 1...Int32.max)
         let created = Date()
         let writerContext = container.viewContext
@@ -29,9 +28,8 @@ struct TVBookmarkEntityTest {
         let reader = container.viewContext
         let request = TVBookmarkEntity.fetchRequest()
         let savedEntities = try reader.fetch(request)
-        #expect(savedEntities.count == 1)
+        try #require(savedEntities.count == 1)
         #expect(savedEntities[0].tv_id == tvID)
         #expect(savedEntities[0].created == created)
     }
-
 }

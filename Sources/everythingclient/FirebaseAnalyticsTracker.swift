@@ -79,4 +79,7 @@ public class FirebaseAnalyticsTracker: AnalyticsTracker {
 
         Analytics.logEvent(name, parameters: params)
     }
+
+    public func trackError(err: any Error) {
+    }
 }

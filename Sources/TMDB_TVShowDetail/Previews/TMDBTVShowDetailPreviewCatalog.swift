@@ -6,7 +6,11 @@ import TMDB_Shared_Backend
 /// Every TV show detail preview as a view of its own, so Xcode's canvas, the integration launcher
 /// and the screenshot run all render the same thing. Everything but `demo` answers from
 /// `PreviewTMDBAPIRequester`; `demo` is the live Game of Thrones page.
-public enum TMDBTVShowDetailPreviewCatalog: String, CaseIterable {
+public enum TMDBTVShowDetailPreviewCatalog: String, CaseIterable, Identifiable {
+    public var id: String {
+        return rawValue
+    }
+
     case demo
     case detailPage
     case detailContent
