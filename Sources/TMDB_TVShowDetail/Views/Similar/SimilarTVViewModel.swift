@@ -24,8 +24,8 @@ final class SimilarTVViewModel {
          persistentController: TMDBPersistentController? = nil) {
         self.apiService = apiService
         self.tvShowId = tvShowId
-        if let p = persistentController {
-            self.persistentController = p
+        if let psc = persistentController {
+            self.persistentController = psc
         } else {
             self.persistentController = TMDBPersistentController()
         }
@@ -54,7 +54,7 @@ final class SimilarTVViewModel {
                     title: show.name,
                     isFavorite: favList == nil ? nil : favouriteIds.contains(show.id),
                     showId: show.id,
-                    bookmarked: bookmarkedTVEntities.firstIndex{ $0.tv_id == show.id } != nil
+                    bookmarked: bookmarkedTVEntities.firstIndex{ $0.tvId == show.id } != nil
                 )
             }
             state = .success(items)
@@ -72,15 +72,17 @@ final class SimilarTVViewModel {
     func toggleFavorite(at index: Int) async {
         guard case .success(let shows) = state, shows.count > index else { return }
         await loadBookmarkTVItems()
-        let existingBookmark = bookmarkedTVEntities.first{ $0.tv_id == shows[index].id }
-        if let b = existingBookmark {
-            persistentContext.delete(b)
+        let existingBookmark = bookmarkedTVEntities.first{ $0.tvId == shows[index].id }
+        if let ebm = existingBookmark {
+            persistentContext.delete(ebm)
         } else {
             let newBookmark = TVBookmarkEntity(context: persistentContext)
-            newBookmark.tv_id = Int32(shows[index].id)
+            newBookmark.tvId = Int32(shows[index].id)
             newBookmark.created = Date()
         }
         await saveAndFetch()
+        let updated = shows.map{show in SimilarTVShowEntity(tmdbImagePath: show.tmdbImagePath, title: show.title, isFavorite: show.isFavorite, showId: show.showId, bookmarked: bookmarkedTVEntities.firstIndex{$0.tvId == show.showId } != nil) }
+        state = .success(updated)
     }
 
     private func saveAndFetch() async {

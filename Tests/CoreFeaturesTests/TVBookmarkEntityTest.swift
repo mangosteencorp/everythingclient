@@ -22,14 +22,14 @@ struct TVBookmarkEntityTest {
         let created = Date()
         let writerContext = container.viewContext
         let newBookmark = TVBookmarkEntity(context: writerContext)
-        newBookmark.tv_id = tvID
+        newBookmark.tvId = tvID
         newBookmark.created = created
         try writerContext.save()
         let reader = container.viewContext
         let request = TVBookmarkEntity.fetchRequest()
         let savedEntities = try reader.fetch(request)
         try #require(savedEntities.count == 1)
-        #expect(savedEntities[0].tv_id == tvID)
+        #expect(savedEntities[0].tvId == tvID)
         #expect(savedEntities[0].created == created)
     }
 }
