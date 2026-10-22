@@ -258,28 +258,25 @@ The TMDB section uses a Coordinator pattern with NavigationStack for routing bet
 
 **Navigation Destinations**
 
-| From Screen | To Screen | Route Type | Status | Notes |
-|------------|-----------|------------|--------|-------|
-| **Movie Feed** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap on movie in feed |
-| **Movie Feed** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap on TV show in feed |
-| **Movie Feed** | Movie List (Filtered) | `TMDBRoute.movieList` | ✅ | Apply filters/search |
-| **Marketplace/Discover** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap on trending movie |
-| **Marketplace/Discover** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap on trending TV show |
-| **Marketplace/Discover** | Person Detail | `TMDBRoute.personDetail` | ✅ | Tap cast chip or trending person |
-| **Marketplace/Discover** | TV Show List | `TMDBRoute.tvShowList` | ✅ | Tap genre/on-the-air |
-| **Profile** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap favorite/watchlist movie |
-| **Profile** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap favorite/watchlist TV show |
-| **Movie Detail** | Movie List (by Keyword) | `TMDBRoute.movieList(.keyword)` | ✅ | Tap keyword tag |
-| **Movie Detail** | Person Detail | `TMDBRoute.personDetail` | ✅ | Tap cast/crew member |
-| **Movie Detail** | Photo Slides | `TMDBRoute.photoSlides` | ✅ | Tap backdrop in photo carousel |
-| **Person Detail** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap a filmography credit |
-| **TV Show Detail** | Season Detail | 🔴 | Not implemented | Internal to TVShowDetail |
-| **TV Show Detail** | Cast Detail | 🔴 | Not implemented | No person route from TV detail yet |
-| **TV Show List** | TV Show Detail | `TMDBRoute.tvShowDetail` | ✅ | Tap TV show in filtered list |
-| **Movie List** | Movie Detail | `TMDBRoute.movieDetail` | ✅ | Tap movie in filtered list |
-
-**Navigation Parameters**
-
+| From Screen | To Screen (Route) | Status | Notes |
+|------------|-------------------|--------|-------|
+| **Movie Feed** | Movie Detail (`TMDBRoute.movieDetail`) | ✅ | Tap on movie in feed |
+| | TV Show Detail (`TMDBRoute.tvShowDetail`) | ✅ | Tap on TV show in feed |
+| | Movie List — Filtered (`TMDBRoute.movieList`) | ✅ | Apply filters/search |
+| **Marketplace/Discover** | Movie Detail (`TMDBRoute.movieDetail`) | ✅ | Tap on trending movie |
+| | TV Show Detail (`TMDBRoute.tvShowDetail`) | ✅ | Tap on trending TV show |
+| | Person Detail (`TMDBRoute.personDetail`) | ✅ | Tap cast chip or trending person |
+| | TV Show List (`TMDBRoute.tvShowList`) | ✅ | Tap genre/on-the-air |
+| **Profile** | Movie Detail (`TMDBRoute.movieDetail`) | ✅ | Tap favorite/watchlist movie |
+| | TV Show Detail (`TMDBRoute.tvShowDetail`) | ✅ | Tap favorite/watchlist TV show |
+| **Movie Detail** | Movie List — by Keyword (`TMDBRoute.movieList(.keyword)`) | ✅ | Tap keyword tag |
+| | Person Detail (`TMDBRoute.personDetail`) | ✅ | Tap cast/crew member |
+| | Photo Slides (`TMDBRoute.photoSlides`) | ✅ | Tap backdrop in photo carousel |
+| **Person Detail** | Movie Detail (`TMDBRoute.movieDetail`) | ✅ | Tap a filmography credit |
+| **TV Show Detail** | Season Detail | 🔴 | Not implemented (internal to TVShowDetail) |
+| | Cast Detail | 🔴 | Not implemented (no person route from TV detail yet) |
+| **TV Show List** | TV Show Detail (`TMDBRoute.tvShowDetail`) | ✅ | Tap TV show in filtered list |
+| **Movie List** | Movie Detail (`TMDBRoute.movieDetail`) | ✅ | Tap movie in filtered list |
 
 **Missing Navigation Routes**
 - 🔴 Person/Cast Detail from TV show detail (movie detail and Discover already route to `TMDBRoute.personDetail`)
