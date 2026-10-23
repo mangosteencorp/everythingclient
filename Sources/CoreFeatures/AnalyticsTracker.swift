@@ -101,4 +101,6 @@ public protocol AnalyticsTracker {
 
     /// Tracks a custom event with structured parameters
     func trackEvent(name: String, parameters: EventParameters?)
+
+    func trackError(err: Error)
 }

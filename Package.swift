@@ -378,9 +378,13 @@ let package = Package(
             resources: [.process("Resources")]
         ),
         .target(
-            name: "CoreFeatures"
+            name: "CoreFeatures",
+            resources: [.process("Model.xcdatamodeld")]
         ),
-
+        .testTarget(
+            name: "CoreFeaturesTests",
+            dependencies: ["CoreFeatures"]
+        ),
         .target(
             name: "PhotoListViewer",
             dependencies: [

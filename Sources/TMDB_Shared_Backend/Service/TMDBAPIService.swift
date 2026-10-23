@@ -10,7 +10,7 @@ public enum HTTPMethod: String {
     }
 }
 
-public struct TMDBAPIService {
+public struct TMDBAPIService: Sendable {
     static let baseURL = "https://api.themoviedb.org/3"
     let apiKey: String
     let decoder = JSONDecoder()

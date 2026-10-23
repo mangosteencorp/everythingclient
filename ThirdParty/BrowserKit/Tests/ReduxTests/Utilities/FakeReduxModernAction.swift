@@ -3,9 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import Common
-import XCTest
-
 @testable import Redux
+import XCTest
 
 enum FakeReduxModernAction: ModernAction, Equatable {
     // User action
