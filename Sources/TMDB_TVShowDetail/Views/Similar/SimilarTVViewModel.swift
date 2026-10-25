@@ -1,3 +1,5 @@
+import CoreData
+import CoreFeatures
 import SwiftUI
 import TMDB_Shared_Backend
 import TMDB_Shared_UI
@@ -8,9 +10,25 @@ final class SimilarTVViewModel {
     private(set) var state: LoadState<[SimilarTVShowEntity]> = .initial
     let apiService: any TMDBAPIRequesting
     let tvShowId: Int
-    init(apiService: any TMDBAPIRequesting, tvShowId: Int) {
+    var persistentController: TMDBPersistentController
+    var bookmarkedTVEntities: [TVBookmarkEntity] = []
+
+    var persistentContext: NSManagedObjectContext {
+        get {
+            persistentController.container.viewContext
+        }
+    }
+
+    init(apiService: any TMDBAPIRequesting,
+         tvShowId: Int,
+         persistentController: TMDBPersistentController? = nil) {
         self.apiService = apiService
         self.tvShowId = tvShowId
+        if let psc = persistentController {
+            self.persistentController = psc
+        } else {
+            self.persistentController = TMDBPersistentController()
+        }
     }
 
     func load() async {
@@ -29,12 +47,14 @@ final class SimilarTVViewModel {
         switch similarListResult {
         case let .success(similarList):
             let favouriteIds = Set(favList?.results.map(\.id) ?? [])
+            await loadBookmarkTVItems()
             let items = similarList.results.map { show in
                 SimilarTVShowEntity(
                     tmdbImagePath: show.poster_path ?? show.backdrop_path ?? "",
                     title: show.name,
                     isFavorite: favList == nil ? nil : favouriteIds.contains(show.id),
-                    showId: show.id
+                    showId: show.id,
+                    bookmarked: bookmarkedTVEntities.firstIndex{ $0.tvId == show.id } != nil
                 )
             }
             state = .success(items)
@@ -50,9 +70,36 @@ final class SimilarTVViewModel {
     }
 
     func toggleFavorite(at index: Int) async {
+        guard case .success(let shows) = state, shows.count > index else { return }
+        await loadBookmarkTVItems()
+        let existingBookmark = bookmarkedTVEntities.first{ $0.tvId == shows[index].id }
+        if let ebm = existingBookmark {
+            persistentContext.delete(ebm)
+        } else {
+            let newBookmark = TVBookmarkEntity(context: persistentContext)
+            newBookmark.tvId = Int32(shows[index].id)
+            newBookmark.created = Date()
+        }
+        await saveAndFetch()
+        let updated = shows.map{show in SimilarTVShowEntity(tmdbImagePath: show.tmdbImagePath, title: show.title, isFavorite: show.isFavorite, showId: show.showId, bookmarked: bookmarkedTVEntities.firstIndex{$0.tvId == show.showId } != nil) }
+        state = .success(updated)
     }
 
-    func loadBookmarkTVItems() {
+    private func saveAndFetch() async {
+        do {
+            try persistentContext.save()
+        } catch {
+            assertionFailure(error.localizedDescription)
+        }
+        await loadBookmarkTVItems()
+    }
+
+    func loadBookmarkTVItems() async {
+        do {
+            bookmarkedTVEntities = try persistentContext.fetch(TVBookmarkEntity.fetchRequest())
+        } catch let err {
+            assertionFailure(err.localizedDescription)
+        }
     }
 }
 
@@ -63,8 +110,9 @@ struct SimilarTVShowEntity: Identifiable {
     let title: String
     let isFavorite: Bool?
     let showId: Int
+    let bookmarked: Bool
     static let placeholders: [SimilarTVShowEntity] = (0..<7).map { .placeholder(id: -$0) }
     static func placeholder(id: Int) -> SimilarTVShowEntity {
-        return .init(tmdbImagePath: "", title: "Loading...", isFavorite: nil, showId: id)
+        return .init(tmdbImagePath: "", title: "Loading...", isFavorite: nil, showId: id, bookmarked: false)
     }
 }
