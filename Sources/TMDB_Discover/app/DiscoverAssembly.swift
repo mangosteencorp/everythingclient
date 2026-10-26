@@ -27,15 +27,6 @@ public class DiscoverAssembly: Assembly {
             MovieRepositoryImpl(apiService: resolver.resolve(APIServiceProtocol.self)!)
         }.inObjectScope(.container)
 
-        // Register Use Cases
-        container.register(FetchNowPlayingMoviesUseCase.self) { resolver in
-            FetchNowPlayingMoviesUseCase(movieRepository: resolver.resolve(DiscoverRepository.self)!)
-        }
-
-        container.register(FetchUpcomingMoviesUseCase.self) { resolver in
-            FetchUpcomingMoviesUseCase(movieRepository: resolver.resolve(DiscoverRepository.self)!)
-        }
-
         // Register Discover Use Cases
         container.register(FetchGenresUseCase.self) { resolver in
             DefaultFetchGenresUseCase(repository: resolver.resolve(DiscoverRepository.self)!)
@@ -66,37 +57,6 @@ public class DiscoverAssembly: Assembly {
 
         container.register(FetchDiscoverMoviesUseCase.self) { resolver in
             DefaultFetchDiscoverMoviesUseCase(movieRepository: resolver.resolve(DiscoverRepository.self)!)
-        }
-
-        // Register ViewModels
-        container.register(TVFeedViewModel.self, name: "nowPlaying") { resolver in
-            TVFeedViewModel(
-                fetchMoviesUseCase: resolver.resolve(FetchNowPlayingMoviesUseCase.self)!,
-                fetchFavoriteTVShowsUseCase: resolver.resolve(FetchFavoriteTVShowsUseCase.self),
-                toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
-                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
-                authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)
-            )
-        }
-
-        container.register(TVFeedViewModel.self, name: "upcoming") { resolver in
-            TVFeedViewModel(
-                fetchMoviesUseCase: resolver.resolve(FetchUpcomingMoviesUseCase.self)!,
-                fetchFavoriteTVShowsUseCase: resolver.resolve(FetchFavoriteTVShowsUseCase.self),
-                toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
-                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
-                authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)
-            )
-        }
-
-        container.register(TVFeedViewModel.self, name: "discover") { resolver in
-            TVFeedViewModel(
-                fetchDiscoverMoviesUseCase: resolver.resolve(FetchDiscoverMoviesUseCase.self)!,
-                fetchFavoriteTVShowsUseCase: resolver.resolve(FetchFavoriteTVShowsUseCase.self),
-                toggleTVShowFavoriteUseCase: resolver.resolve(ToggleTVShowFavoriteUseCase.self),
-                analyticsTracker: resolver.resolve(AnalyticsTracker.self),
-                authViewModel: resolver.resolve((any AuthenticationViewModelProtocol).self)
-            )
         }
 
         // Allow resolving discover VM with initial discover parameters

@@ -21,14 +21,6 @@ class MockMovieRepository: DiscoverRepository {
     var discoverMoviesResult: Result<[Movie], Error>?
     var discoverTVResult: Result<[Movie], Error>?
 
-    func fetchNowPlayingMovies() async -> Result<[Movie], Error> {
-        return result
-    }
-
-    func fetchUpcomingMovies() async -> Result<[Movie], Error> {
-        return result
-    }
-
     func fetchGenres() async -> Result<[Genre], Error> {
         return genresResult ?? .failure(MockError.noResponse)
     }

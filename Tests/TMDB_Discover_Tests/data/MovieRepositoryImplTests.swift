@@ -15,7 +15,14 @@ class MovieRepositoryImplTests: XCTestCase {
     func testFetchMoviesSuccess() async {
         // Setup mock API to return success...
         mockAPIService.discoverMoviesResult = .success(MockData.movieListResultModel)
-        let result = await repository.fetchNowPlayingMovies()
+        let result = await repository.discoverMovies(
+            keywords: nil,
+            cast: nil,
+            genres: nil,
+            watchProviders: nil,
+            watchRegion: nil,
+            page: nil
+        )
         if case let .success(movies) = result {
             XCTAssert(!movies.isEmpty, "Movies should not be empty on success")
             XCTAssertEqual(movies.count, 2, "Movies should not be empty on success")
@@ -27,7 +34,14 @@ class MovieRepositoryImplTests: XCTestCase {
     func testFetchMoviesFailure() async {
         // Setup mock API to return failure...
         mockAPIService.discoverMoviesResult = .failure(MockError.noResponse)
-        let result = await repository.fetchUpcomingMovies()
+        let result = await repository.discoverMovies(
+            keywords: nil,
+            cast: nil,
+            genres: nil,
+            watchProviders: nil,
+            watchRegion: nil,
+            page: nil
+        )
         if case let .success(movies) = result {
             XCTFail("Expected failure movie fetch but got \(movies)")
         } else {

@@ -20,7 +20,8 @@ class MovieAssemblyTests: XCTestCase {
         XCTAssertNotNil(container.resolve(DiscoverRepository.self))
 
         // Test Use Cases registration
-        XCTAssertNotNil(container.resolve(FetchNowPlayingMoviesUseCase.self))
-        XCTAssertNotNil(container.resolve(FetchUpcomingMoviesUseCase.self))
+        XCTAssertNotNil(container.resolve(FetchDiscoverMoviesUseCase.self))
+        XCTAssertNotNil(container.resolve(FetchGenresUseCase.self))
+        XCTAssertNotNil(container.resolve(FetchTVGenresUseCase.self))
     }
 }

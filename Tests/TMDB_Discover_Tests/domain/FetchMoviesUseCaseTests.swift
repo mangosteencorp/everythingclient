@@ -4,13 +4,13 @@ import XCTest
 // MARK: - FetchMoviesUseCaseTests
 
 class FetchMoviesUseCaseTests: XCTestCase {
-    var useCase: FetchNowPlayingMoviesUseCase!
+    var useCase: DefaultFetchDiscoverMoviesUseCase!
     var mockRepository: MockMovieRepository!
 
     override func setUp() {
         super.setUp()
         mockRepository = MockMovieRepository()
-        useCase = FetchNowPlayingMoviesUseCase(movieRepository: mockRepository)
+        useCase = DefaultFetchDiscoverMoviesUseCase(movieRepository: mockRepository)
     }
 
     override func tearDown() {
@@ -33,7 +33,7 @@ class FetchMoviesUseCaseTests: XCTestCase {
         mockRepository.result = .success(expectedMovies)
 
         // When
-        let result = await useCase.execute()
+        let result = await useCase.execute(params: DiscoverMoviesParams())
 
         // Then
         switch result {
@@ -50,7 +50,7 @@ class FetchMoviesUseCaseTests: XCTestCase {
         mockRepository.result = .failure(expectedError)
 
         // When
-        let result = await useCase.execute()
+        let result = await useCase.execute(params: DiscoverMoviesParams())
 
         // Then
         switch result {

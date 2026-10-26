@@ -29,7 +29,6 @@ public enum TMDBDiscoverPreviewCatalog: String, CaseIterable {
         case .homeRepresentable:
             HomeDiscoverViewControllerRepresentable(
                 viewModel: .preview(),
-                onItemTapped: {},
                 onGenreTapped: { _ in },
                 onTVGenreTapped: { _ in },
                 onCastTapped: { _ in },
@@ -49,7 +48,11 @@ public enum TMDBDiscoverPreviewCatalog: String, CaseIterable {
             TVShowListContent(movies: Movie.exampleMovies, mediaType: .movie, detailRouteBuilder: { _, _ in 0 })
         case .listPageContent:
             NavigationStack {
-                TVShowListPageContent(viewModel: .preview(), type: .airingToday, detailRouteBuilder: { id, _ in id })
+                TVShowListPageContent(
+                    viewModel: .preview(),
+                    type: .discoverWithGenre(Genre(id: 28, name: "Action")),
+                    detailRouteBuilder: { id, _ in id }
+                )
             }
         }
     }

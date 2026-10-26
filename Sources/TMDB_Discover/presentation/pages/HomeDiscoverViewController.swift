@@ -516,7 +516,6 @@ public class HomeDiscoverViewController: UIViewController, UICollectionViewDataS
     private var cancellables = Set<AnyCancellable>()
 
     // Navigation closure
-    public var onItemTapped: (() -> Void)?
     public var onGenreTapped: ((Genre) -> Void)?
     public var onTVGenreTapped: ((Genre) -> Void)?
     public var onCastTapped: ((PopularPerson) -> Void)?

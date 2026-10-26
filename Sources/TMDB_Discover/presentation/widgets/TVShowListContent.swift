@@ -26,10 +26,8 @@ struct TVShowListPageContent<Route: Hashable>: View {
         switch type {
         case .discoverWithTVGenre:
             return .tv
-        case .discoverWithGenre, .discoverWithCast, .discover:
+        case .discoverWithGenre:
             return .movie
-        case .airingToday, .onTheAir:
-            return .tv
         }
     }
 

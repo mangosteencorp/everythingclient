@@ -5,7 +5,6 @@ import TMDB_Shared_Backend
 public struct HomeDiscoverView<Route: Hashable>: View {
     @StateObject var viewModel: HomeDiscoverViewModel
     let detailRouteBuilder: (Int) -> Route
-    let onItemTapped: () -> Void
     let onGenreTapped: (Genre) -> Void
     let onTVGenreTapped: (Genre) -> Void
     let onCastTapped: (PopularPerson) -> Void
@@ -15,7 +14,6 @@ public struct HomeDiscoverView<Route: Hashable>: View {
         container: Container,
         apiKey: String,
         detailRouteBuilder: @escaping (Int) -> Route,
-        onItemTapped: @escaping () -> Void = {},
         onGenreTapped: @escaping (Genre) -> Void = { _ in },
         onTVGenreTapped: @escaping (Genre) -> Void = { _ in },
         onCastTapped: @escaping (PopularPerson) -> Void = { _ in },
@@ -24,7 +22,6 @@ public struct HomeDiscoverView<Route: Hashable>: View {
         let movieAssembly = DiscoverAssembly(apiKey: apiKey)
         movieAssembly.assemble(container: container)
         self.detailRouteBuilder = detailRouteBuilder
-        self.onItemTapped = onItemTapped
         self.onGenreTapped = onGenreTapped
         self.onTVGenreTapped = onTVGenreTapped
         self.onCastTapped = onCastTapped
@@ -42,7 +39,6 @@ public struct HomeDiscoverView<Route: Hashable>: View {
     public var body: some View {
         HomeDiscoverViewControllerRepresentable(
             viewModel: viewModel,
-            onItemTapped: onItemTapped,
             onGenreTapped: onGenreTapped,
             onTVGenreTapped: onTVGenreTapped,
             onCastTapped: onCastTapped,
@@ -54,7 +50,6 @@ public struct HomeDiscoverView<Route: Hashable>: View {
 @available(iOS 16, *)
 struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
     let viewModel: HomeDiscoverViewModel
-    let onItemTapped: () -> Void
     let onGenreTapped: (Genre) -> Void
     let onTVGenreTapped: (Genre) -> Void
     let onCastTapped: (PopularPerson) -> Void
@@ -62,7 +57,6 @@ struct HomeDiscoverViewControllerRepresentable: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> HomeDiscoverViewController {
         let viewController = HomeDiscoverViewController(viewModel: viewModel)
-        viewController.onItemTapped = onItemTapped
         viewController.onGenreTapped = onGenreTapped
         viewController.onTVGenreTapped = onTVGenreTapped
         viewController.onCastTapped = onCastTapped

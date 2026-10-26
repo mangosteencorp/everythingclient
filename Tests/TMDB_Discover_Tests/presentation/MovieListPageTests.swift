@@ -19,14 +19,26 @@ class MovieListPageTests: XCTestCase {
     func testMovieListPageInitialization() {
         // Given
         let apiKey = "test_api_key"
+        let movieGenre = Genre(id: 28, name: "Action")
+        let tvGenre = Genre(id: 10765, name: "Sci-Fi")
 
         // When
-        let nowPlayingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .airingToday, detailRouteBuilder: { _, _ in 1 })
-        let upcomingPage = DiscoverListPage(container: container, apiKey: apiKey, type: .onTheAir, detailRouteBuilder: { _, _ in 1 })
+        let movieGenrePage = DiscoverListPage(
+            container: container,
+            apiKey: apiKey,
+            type: .discoverWithGenre(movieGenre),
+            detailRouteBuilder: { _, _ in 1 }
+        )
+        let tvGenrePage = DiscoverListPage(
+            container: container,
+            apiKey: apiKey,
+            type: .discoverWithTVGenre(tvGenre),
+            detailRouteBuilder: { _, _ in 1 }
+        )
 
         // Then
-        XCTAssertNotNil(nowPlayingPage)
-        XCTAssertNotNil(upcomingPage)
+        XCTAssertNotNil(movieGenrePage)
+        XCTAssertNotNil(tvGenrePage)
     }
 
     // Helper function to find a view with specific ID in the view hierarchy

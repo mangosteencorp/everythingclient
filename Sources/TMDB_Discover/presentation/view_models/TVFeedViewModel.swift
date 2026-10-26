@@ -167,12 +167,4 @@ class TVFeedViewModel: ObservableObject {
 
         await authViewModel.signIn()
     }
-
-    private func hasDiscoverParams(_ params: DiscoverMoviesParams) -> Bool {
-        return params.keywords != nil || params.cast != nil || params.genres != nil || params.watchProviders != nil
-    }
-
-    func setDiscoverParams(_ params: DiscoverMoviesParams) {
-        discoverParams = params
-    }
 }

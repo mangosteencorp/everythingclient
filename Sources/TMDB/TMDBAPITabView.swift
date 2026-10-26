@@ -215,8 +215,6 @@ public struct TMDBAPITabView: View {
             apiKey: tmdbKey
         ) { movieId in
             TMDBRoute.movieDetail(MovieRouteModel(id: movieId))
-        } onItemTapped: {
-            coordinator.navigate(to: .tvShowList(.onTheAir), in: .marketplace)
         } onGenreTapped: { genre in
             // Navigate to discover movies filtered by movie genre (using movie genre IDs)
             coordinator.navigate(to: .tvShowList(.discoverWithGenre(genre)), in: .marketplace)

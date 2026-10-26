@@ -3,12 +3,9 @@ import XCTest
 
 class MovieListTypeTests: XCTestCase {
     func testMovieListTypeTitles() {
-        XCTAssertEqual(TVShowFeedType.airingToday.title, "Airing Today")
-        XCTAssertEqual(TVShowFeedType.onTheAir.title, "On the air")
-    }
-
-    func testMovieListTypeIcons() {
-        XCTAssertEqual(TVShowFeedType.airingToday.iconName, "play.circle")
-        XCTAssertEqual(TVShowFeedType.onTheAir.iconName, "calendar")
+        let movieGenre = Genre(id: 28, name: "Action")
+        let tvGenre = Genre(id: 10765, name: "Sci-Fi")
+        XCTAssertEqual(TVShowFeedType.discoverWithGenre(movieGenre).title, "Action Movies")
+        XCTAssertEqual(TVShowFeedType.discoverWithTVGenre(tvGenre).title, "Sci-Fi TV Shows")
     }
 }

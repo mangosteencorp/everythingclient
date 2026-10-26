@@ -1,7 +1,5 @@
 // Repository Interface
 protocol DiscoverRepository {
-    func fetchNowPlayingMovies() async -> Result<[Movie], Error>
-    func fetchUpcomingMovies() async -> Result<[Movie], Error>
     func fetchGenres() async -> Result<[Genre], Error>
     func fetchTVGenres() async -> Result<[Genre], Error>
     func fetchPopularPeople() async -> Result<[PopularPerson], Error>

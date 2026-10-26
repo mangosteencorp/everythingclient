@@ -20,7 +20,7 @@ public struct TMDBDiscoverDemoView: View {
                     DiscoverListPage(
                         container: container,
                         apiKey: debugTMDBAPIKey,
-                        type: .airingToday,
+                        type: .discoverWithGenre(Genre(id: 28, name: "Action")),
                         detailRouteBuilder: { _, _ in 1 })
                     .tag(0)
                     .tabItem {

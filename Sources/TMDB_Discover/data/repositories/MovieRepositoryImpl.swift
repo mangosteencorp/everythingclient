@@ -33,16 +33,6 @@ class MovieRepositoryImpl: DiscoverRepository {
         self.apiService = apiService
     }
 
-    func fetchNowPlayingMovies() async -> Result<[Movie], Error> {
-        // Use discover API instead of specific endpoints
-        return await discoverMovies(keywords: nil, cast: nil, genres: nil, watchProviders: nil, watchRegion: nil, page: nil)
-    }
-
-    func fetchUpcomingMovies() async -> Result<[Movie], Error> {
-        // Use discover API instead of specific endpoints
-        return await discoverMovies(keywords: nil, cast: nil, genres: nil, watchProviders: nil, watchRegion: nil, page: nil)
-    }
-
     func fetchGenres() async -> Result<[Genre], Error> {
         let result = await apiService.fetchGenres()
         switch result {

@@ -1,41 +1,15 @@
 import Foundation
+
 public enum TVShowFeedType: Hashable, Codable {
-    case airingToday
-    case onTheAir
-    case discover
-    case discoverWithGenre(Genre)  // For movie genres
-    case discoverWithTVGenre(Genre)  // For TV genres
-    case discoverWithCast(PopularPerson)
+    case discoverWithGenre(Genre) // For movie genres
+    case discoverWithTVGenre(Genre) // For TV genres
 
     var title: String {
         switch self {
-        case .airingToday:
-            return "Airing Today"
-        case .onTheAir:
-            return "On the air"
-        case .discover:
-            return "Discover Movies"
-        case .discoverWithGenre(let genre):
+        case let .discoverWithGenre(genre):
             return "\(genre.name) Movies"
-        case .discoverWithTVGenre(let genre):
+        case let .discoverWithTVGenre(genre):
             return "\(genre.name) TV Shows"
-        case .discoverWithCast(let person):
-            return "\(person.name) Movies"
-        }
-    }
-
-    var iconName: String {
-        switch self {
-        case .airingToday:
-            return "play.circle"
-        case .onTheAir:
-            return "calendar"
-        case .discover:
-            return "magnifyingglass"
-        case .discoverWithGenre, .discoverWithTVGenre:
-            return "tag"
-        case .discoverWithCast:
-            return "person"
         }
     }
 }
