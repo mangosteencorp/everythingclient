@@ -206,6 +206,9 @@ let package = Package(
                 "Swinject",
                 "TMDB_Shared_Backend",
                 "third_party",
+                "RSS_Shared_Backend",
+                "Podcast_Player",
+                "Podcast_Shared_UI",
             ],
             resources: [
                 .process("Resources"),
@@ -216,7 +219,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_MovieDetail_Tests",
-            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party"]
+            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party", "RSS_Shared_Backend", "Podcast_Player"]
         ),
         .testTarget(
             name: "TMDB_TVShowDetail_Tests",
