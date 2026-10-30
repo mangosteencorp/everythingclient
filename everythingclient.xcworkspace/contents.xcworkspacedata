@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:PlexBackendDemo/PlexBackendDemo.xcodeproj">
+      location = "group:Rebuild/PlexBackendDemo/PlexBackendDemo.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Rebuild/TMDBSearchDemo/TMDBSearchDemo.xcodeproj">
