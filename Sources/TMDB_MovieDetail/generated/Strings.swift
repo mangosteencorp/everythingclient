@@ -18,6 +18,36 @@ public enum L10n {
   public static func errorFormat(_ p1: Any) -> String {
     return L10n.tr("Localizable", "error_format", String(describing: p1), fallback: "Error: %@")
   }
+  /// Checking your Jellyfin library...
+  public static let jellyfinCheckingLibrary = L10n.tr("Localizable", "jellyfin_checking_library", fallback: "Checking your Jellyfin library...")
+  /// %@ in
+  public static func jellyfinElapsedFormat(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "jellyfin_elapsed_format", String(describing: p1), fallback: "%@ in")
+  }
+  /// Open
+  public static let jellyfinOpen = L10n.tr("Localizable", "jellyfin_open", fallback: "Open")
+  /// Open this movie's page in Swiftfin without starting playback.
+  public static let jellyfinOpenHint = L10n.tr("Localizable", "jellyfin_open_hint", fallback: "Open this movie's page in Swiftfin without starting playback.")
+  /// Opening movie pages in Swiftfin is unavailable in this build.
+  public static let jellyfinOpenUnavailable = L10n.tr("Localizable", "jellyfin_open_unavailable", fallback: "Opening movie pages in Swiftfin is unavailable in this build.")
+  /// Play
+  public static let jellyfinPlay = L10n.tr("Localizable", "jellyfin_play", fallback: "Play")
+  /// %@ left
+  public static func jellyfinRemainingFormat(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "jellyfin_remaining_format", String(describing: p1), fallback: "%@ left")
+  }
+  /// Resume from %@.
+  public static func jellyfinResumeHint(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "jellyfin_resume_hint", String(describing: p1), fallback: "Resume from %@.")
+  }
+  /// On Jellyfin
+  public static let jellyfinSectionTitle = L10n.tr("Localizable", "jellyfin_section_title", fallback: "On Jellyfin")
+  /// Watched
+  public static let jellyfinWatched = L10n.tr("Localizable", "jellyfin_watched", fallback: "Watched")
+  /// %d%% watched • %@
+  public static func jellyfinWatchedProgressFormat(_ p1: Int, _ p2: Any) -> String {
+    return L10n.tr("Localizable", "jellyfin_watched_progress_format", p1, String(describing: p2), fallback: "%d%% watched • %@")
+  }
   /// Keywords
   public static let keywordsTitle = L10n.tr("Localizable", "keywords_title", fallback: "Keywords")
   /// Locations
@@ -30,6 +60,30 @@ public enum L10n {
   public static let overviewTitle = L10n.tr("Localizable", "overview_title", fallback: "Overview:")
   /// Photos
   public static let photosSectionTitle = L10n.tr("Localizable", "photos_section_title", fallback: "Photos")
+  /// Checking your Plex library...
+  public static let plexCheckingLibrary = L10n.tr("Localizable", "plex_checking_library", fallback: "Checking your Plex library...")
+  /// %@ in
+  public static func plexElapsedFormat(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "plex_elapsed_format", String(describing: p1), fallback: "%@ in")
+  }
+  /// Play
+  public static let plexPlay = L10n.tr("Localizable", "plex_play", fallback: "Play")
+  /// %@ left
+  public static func plexRemainingFormat(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "plex_remaining_format", String(describing: p1), fallback: "%@ left")
+  }
+  /// Resume from %@.
+  public static func plexResumeHint(_ p1: Any) -> String {
+    return L10n.tr("Localizable", "plex_resume_hint", String(describing: p1), fallback: "Resume from %@.")
+  }
+  /// On Plex
+  public static let plexSectionTitle = L10n.tr("Localizable", "plex_section_title", fallback: "On Plex")
+  /// Watched
+  public static let plexWatched = L10n.tr("Localizable", "plex_watched", fallback: "Watched")
+  /// %d%% watched • %@
+  public static func plexWatchedProgressFormat(_ p1: Int, _ p2: Any) -> String {
+    return L10n.tr("Localizable", "plex_watched_progress_format", p1, String(describing: p2), fallback: "%d%% watched • %@")
+  }
   /// %@ ratings
   public static func ratingsFormat(_ p1: Any) -> String {
     return L10n.tr("Localizable", "ratings_format", String(describing: p1), fallback: "%@ ratings")
@@ -44,6 +98,8 @@ public enum L10n {
   public static let seeAll = L10n.tr("Localizable", "see_all", fallback: "See all")
   /// •
   public static let separator = L10n.tr("Localizable", "separator", fallback: "•")
+  /// Server
+  public static let serverSectionTitle = L10n.tr("Localizable", "server_section_title", fallback: "Server")
 }
 // swiftlint:enable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:enable nesting type_body_length type_name vertical_whitespace_opening_braces

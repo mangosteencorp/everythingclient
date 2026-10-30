@@ -35,7 +35,7 @@ let sampleKitTargetDependency: [Target.Dependency] =
 // MARK: - Swiftfin
 
 //
-// quangDecember/Swiftfin@swiftpm-test-4 is Swiftfin's main branch built as a package. It sets
+// The pinned Swiftfin fork includes the iOS client and host APIs as a package. It sets
 // this package's iOS minimum: five of its dependencies (SwiftVLC, MPVUI, MediaAccessibilityKit,
 // CollectionHStack, CollectionVGrid) require iOS 18, and SwiftPM won't link a product whose
 // minimum is above the consumer's.
@@ -44,10 +44,10 @@ let sampleKitTargetDependency: [Target.Dependency] =
 // call sites guard their usage with `#if canImport(SwiftfinLib)`.
 //
 // jellyfin-sdk-swift is already in the graph as a Swiftfin dependency; naming it here only makes
-// it importable by `third_party`, which needs `BaseItemDto` to read the library hit Swiftfin
+// it importable by `SwiftfinLauncher`, which needs `BaseItemDto` to read the library hit Swiftfin
 // returns. The version must stay pinned to whatever Swiftfin pins or resolution fails.
 let swiftfinPackageDependency: [Package.Dependency] = [
-    .package(url: "https://github.com/quangDecember/Swiftfin", branch: "swiftpm-test-4"),
+    .package(url: "https://github.com/quangDecember/Swiftfin", revision: "6cf78d0398b6d352ed7214048b3bd246b31b4d21"),
     .package(url: "https://github.com/jellyfin/jellyfin-sdk-swift.git", exact: "3.1.0"),
 ]
 
@@ -111,8 +111,8 @@ let package = Package(
             targets: ["TMDB_Person"]
         ),
         .library(
-            name: "third_party",
-            targets: ["third_party"]
+            name: "SwiftfinLauncher",
+            targets: ["SwiftfinLauncher"]
         ),
         .library(name: "Pokedex", targets: ["Pokedex"]),
         // for building purpose
@@ -120,6 +120,8 @@ let package = Package(
         .library(name: "Pokedex_Detail", targets: ["Pokedex_Detail"]),
         .library(name: "Pokedex_Shared_Backend", targets: ["Pokedex_Shared_Backend"]),
         .library(name: "Plex_Shared_Backend", targets: ["Plex_Shared_Backend"]),
+        .library(name: "PlexLauncher", targets: ["PlexLauncher"]),
+        .library(name: "PlexIntegration", targets: ["PlexIntegration"]),
         .library(name: "TMDB_TVShowDetail", targets: ["TMDB_TVShowDetail"]),
         .library(name: "Integration_test", targets: ["Integration_test"]),
 
@@ -167,10 +169,12 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
-                "third_party",
+                "SwiftfinLauncher",
+                "PlexIntegration",
                 "Pokedex",
                 "Swinject",
-            ] + sampleKitTargetDependency
+            ] + sampleKitTargetDependency,
+            resources: [.process("Resources")]
         ),
         .target(
             name: "TMDB_Shared_Backend",
@@ -202,7 +206,8 @@ let package = Package(
                 "PhotoListViewer",
                 "Swinject",
                 "TMDB_Shared_Backend",
-                "third_party",
+                "SwiftfinLauncher",
+                "PlexIntegration",
             ],
             resources: [
                 .process("Resources"),
@@ -213,7 +218,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_MovieDetail_Tests",
-            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party"]
+            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "SwiftfinLauncher", "PlexIntegration"]
         ),
         .testTarget(
             name: "TMDB_TVShowDetail_Tests",
@@ -324,6 +329,14 @@ let package = Package(
 
         .target(name: "Plex_Shared_Backend"),
         .testTarget(name: "Plex_Shared_Backend_Tests", dependencies: ["Plex_Shared_Backend"]),
+        .target(name: "PlexLauncher", dependencies: ["Plex_Shared_Backend"]),
+        .testTarget(name: "PlexLauncher_Tests", dependencies: ["PlexLauncher"]),
+        .target(
+            name: "PlexIntegration",
+            dependencies: ["PlexLauncher", "Plex_Shared_Backend"],
+            resources: [.process("Resources")]
+        ),
+        .testTarget(name: "PlexIntegration_Tests", dependencies: ["PlexIntegration"]),
 
         // MARK: Pokedex
 
@@ -389,12 +402,16 @@ let package = Package(
             ]
         ),
 
-        // MARK: Third Party
+        // MARK: Swiftfin
 
         .target(
-            name: "third_party",
-            dependencies: swiftfinTargetDependency
+            name: "SwiftfinLauncher",
+            dependencies: swiftfinTargetDependency,
+            exclude: ["README.md", "Upstream"],
+            resources: [.process("Resources")],
+            swiftSettings: [.define("SWIFTFIN_LAUNCHER_BRIDGE")]
         ),
+        .testTarget(name: "SwiftfinLauncher_Tests", dependencies: ["SwiftfinLauncher"]),
 
         // MARK: Integration Tests
 
@@ -412,7 +429,8 @@ let package = Package(
                 "TMDB_TVShowDetail",
                 "TMDB_Person",
                 "PhotoListViewer",
-                "third_party",
+                "SwiftfinLauncher",
+                "PlexIntegration",
                 "Pokedex_Pokelist",
                 "Pokedex_Detail",
                 "Pokedex_Shared_Backend",

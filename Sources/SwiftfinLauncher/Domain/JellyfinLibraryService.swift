@@ -47,7 +47,7 @@ public enum JellyfinLibraryError: Error, LocalizedError, Equatable {
 
     public var errorDescription: String? {
         switch self {
-        case .notConnected: "No Jellyfin server is connected."
+        case .notConnected: L10n.swiftfinConnectionNotConnected
         }
     }
 }

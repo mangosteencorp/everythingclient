@@ -30,7 +30,7 @@ public struct SwiftfinLaunchView: View {
                     .foregroundStyle(.secondary)
                     .padding(16)
             }
-            .accessibilityLabel("Close Swiftfin")
+            .accessibilityLabel(L10n.swiftfinClose)
             .accessibilityIdentifier("swiftfin.close.button")
         }
         .onAppear { SwiftfinWindowAppearanceGuard.swiftfinWillAppear() }
@@ -45,7 +45,7 @@ public struct SwiftfinLaunchView: View {
         VStack(spacing: 8) {
             Image(systemName: "play.tv")
                 .font(.system(size: 44, weight: .light))
-            Text("Swiftfin is unavailable in this build.")
+            Text(L10n.swiftfinUnavailable)
                 .font(.headline)
         }
         .foregroundStyle(.secondary)

@@ -13,6 +13,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
     @StateObject var watchProvidersViewModel: MovieWatchProvidersViewModel
     @StateObject var ostViewModel: MovieOSTViewModel
     @StateObject var jellyfinViewModel: MovieJellyfinViewModel
+    @StateObject var plexViewModel: MoviePlexViewModel
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
     let personRouteBuilder: ((Int) -> Route)?
@@ -34,6 +35,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
             watchProvidersViewModel: MovieWatchProvidersViewModel(apiService: apiService),
             ostViewModel: MovieOSTViewModel(),
             jellyfinViewModel: MovieJellyfinViewModel(),
+            plexViewModel: MoviePlexViewModel(),
             discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder,
             personRouteBuilder: personRouteBuilder,
             photoSlidesRouteBuilder: photoSlidesRouteBuilder,
@@ -65,6 +67,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
          watchProvidersViewModel: MovieWatchProvidersViewModel,
          ostViewModel: MovieOSTViewModel,
          jellyfinViewModel: MovieJellyfinViewModel,
+         plexViewModel: MoviePlexViewModel,
          discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
          personRouteBuilder: ((Int) -> Route)? = nil,
          photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
@@ -76,6 +79,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         _watchProvidersViewModel = StateObject(wrappedValue: watchProvidersViewModel)
         _ostViewModel = StateObject(wrappedValue: ostViewModel)
         _jellyfinViewModel = StateObject(wrappedValue: jellyfinViewModel)
+        _plexViewModel = StateObject(wrappedValue: plexViewModel)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
         self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
@@ -94,16 +98,6 @@ public struct MovieDetailPage<Route: Hashable>: View {
                         SectionRetryView(message: errorMessage) {
                             await movieDetailViewModel.reload(movieId: movie.id)
                         }
-                    }
-                }
-                // Right under the cover, so a movie the user already owns is one tap from playing.
-                if jellyfinViewModel.isVisible {
-                    Section {
-                        MovieJellyfinSection(
-                            movieTitle: displayedMovie.userTitle,
-                            movieId: movie.id,
-                            jellyfinViewModel: jellyfinViewModel
-                        )
                     }
                 }
                 Section {
@@ -145,6 +139,13 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 Section {
                     MovieWatchProvidersSection(movieId: movie.id, watchProvidersViewModel: watchProvidersViewModel)
                 }
+                MovieServerSection(
+                    movieTitle: displayedMovie.userTitle,
+                    movieId: movie.id,
+                    movieYear: displayedYear,
+                    jellyfinViewModel: jellyfinViewModel,
+                    plexViewModel: plexViewModel
+                )
             }
             .listStyle(PlainListStyle())
             .navigationBarTitle(Text(displayedMovie.userTitle), displayMode: .large)
@@ -162,15 +163,24 @@ public struct MovieDetailPage<Route: Hashable>: View {
         .task(id: displayedMovie.userTitle) {
             await ostViewModel.load(for: displayedMovie.userTitle)
         }
-        // Same story as the OST search: the Jellyfin library is searched by title, so the lookup
-        // waits for the placeholder title to resolve into the real one.
-        .task(id: displayedMovie.userTitle) {
-            await jellyfinViewModel.load(title: displayedMovie.userTitle, tmdbID: movie.id)
+        // A new appearance may follow a server or user change in Settings. Revalidate against
+        // the current session even when the title is unchanged; the task also restarts when the
+        // placeholder resolves into the real title.
+        .task(id: MovieJellyfinQuery(title: displayedMovie.userTitle, tmdbID: movie.id)) {
+            await jellyfinViewModel.reload(title: displayedMovie.userTitle, tmdbID: movie.id)
+        }
+        .task(id: MoviePlexQuery(title: displayedMovie.userTitle, year: displayedYear)) {
+            await plexViewModel.reload(title: displayedMovie.userTitle, year: displayedYear)
         }
     }
 
     var displayedMovie: Movie {
         movieDetailViewModel.state.value ?? movie
+    }
+
+    /// Plex search hits carry no TMDB id, so the year is what tells a remake apart.
+    var displayedYear: Int? {
+        displayedMovie.releaseDate.flatMap { Int($0.prefix(4)) }
     }
 
     private func extractLocations(from overview: String) -> [String]? {

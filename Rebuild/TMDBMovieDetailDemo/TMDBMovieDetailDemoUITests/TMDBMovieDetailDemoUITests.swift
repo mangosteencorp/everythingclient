@@ -34,6 +34,67 @@ final class TMDBMovieDetailDemoUITests: XCTestCase {
     }
 
     @MainActor
+    func testJellyfinPlayAndOpenActions() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["jellyfinSection"].tap()
+
+        let play = app.buttons["movieDetail.jellyfin.play.button"]
+        let open = app.buttons["movieDetail.jellyfin.open.button"]
+        XCTAssertTrue(play.waitForExistence(timeout: 5))
+        XCTAssertTrue(open.exists)
+        XCTAssertEqual(play.frame.midY, open.frame.midY, accuracy: 2)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Jellyfin Play and Open actions"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+
+        if open.isEnabled {
+            open.tap()
+            let closeDetails = app.buttons["jellyfin.details.close.button"]
+            XCTAssertTrue(closeDetails.waitForExistence(timeout: 5))
+            XCTAssertFalse(app.buttons["jellyfin.player.close.button"].exists)
+            closeDetails.tap()
+        } else {
+            XCTAssertTrue(app.staticTexts["Opening movie pages in Swiftfin is unavailable in this build."].exists)
+        }
+
+        XCTAssertTrue(play.waitForExistence(timeout: 5))
+        play.tap()
+        XCTAssertTrue(app.buttons["jellyfin.player.close.button"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["jellyfin.details.close.button"].exists)
+    }
+
+    @MainActor
+    func testServerSectionShowsJellyfinAndPlexPlayOnly() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["serverSection"].tap()
+
+        let plexPlay = app.buttons["movieDetail.plex.play.button"]
+        XCTAssertTrue(plexPlay.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["movieDetail.server.section"].exists)
+        XCTAssertTrue(app.buttons["movieDetail.jellyfin.play.button"].exists)
+        XCTAssertTrue(app.buttons["movieDetail.jellyfin.open.button"].exists)
+        XCTAssertFalse(app.buttons["movieDetail.plex.open.button"].exists)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Server section with Jellyfin and Plex"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+
+        plexPlay.tap()
+        let close = app.buttons["plex.player.close.button"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["jellyfin.player.close.button"].exists)
+        let player = XCTAttachment(screenshot: app.screenshot())
+        player.name = "Plex player"
+        player.lifetime = .keepAlways
+        add(player)
+        close.tap()
+        XCTAssertTrue(plexPlay.waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {

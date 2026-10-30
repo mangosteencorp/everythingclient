@@ -1,5 +1,7 @@
+import PlexIntegration
+import PlexLauncher
+import SwiftfinLauncher
 import SwiftUI
-import third_party
 #if canImport(SampleKit)
 import SampleKit
 #endif
@@ -7,39 +9,58 @@ import SampleKit
 public struct SettingsPageView: View {
     @State private var showSwiftfin = false
     @State private var showSamples = false
-    public init() {}
+    @State private var connection: SwiftfinConnectionModel
+    @State private var plex: PlexConnectionModel
+
+    public init(
+        sessionService: any SwiftfinSessionServicing = SwiftfinSessionService(),
+        plexLauncher: any PlexLaunching = PlexAppSession.shared
+    ) {
+        _connection = State(initialValue: SwiftfinConnectionModel(service: sessionService))
+        _plex = State(initialValue: PlexConnectionModel(launcher: plexLauncher))
+    }
 
     public var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Button("Launch Jellyfin by Swiftfin") {
+                    ProjectorCoinView { showSamples = true }
+                        .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
+                }
+
+                Section {
+                    Button(L10n.settingsLaunchSwiftfin) {
                         showSwiftfin = true
                     }
-                    .simultaneousGesture(
-                        LongPressGesture(minimumDuration: 0.5)
-                            .onEnded { _ in showSamples = true }
-                    )
                     .accessibilityIdentifier("settings.launchSwiftfin.button")
+                    SwiftfinConnectionStatusView(status: connection.status)
                 } header: {
-                    Text("Media Server")
+                    Text(L10n.settingsMediaServer)
                 }
                 .accessibilityIdentifier("settings.section.mediaServer")
 
+                PlexConnectionSection(model: plex)
+
                 Section {
-                    Text("More settings coming soon.")
+                    Text(L10n.settingsMoreComing)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Appearance")
+                    Text(L10n.settingsAppearance)
                 }
                 .accessibilityIdentifier("settings.section.appearance")
             }
-            .navigationTitle("Settings")
+            .navigationTitle(L10n.settingsTitle)
             .accessibilityIdentifier("settings.page")
         }
         .fullScreenCover(isPresented: $showSwiftfin) {
             SwiftfinLaunchView()
         }
+        .task(id: showSwiftfin) {
+            guard !showSwiftfin else { return }
+            await connection.refresh()
+        }
+        .task { await plex.refresh() }
         #if canImport(SampleKit)
         .fullScreenCover(isPresented: $showSamples) {
             NavigationStack {
@@ -52,7 +73,7 @@ public struct SettingsPageView: View {
                                 Image(systemName: "xmark")
                             }
                             .accessibilityIdentifier("settings.samples.close.button")
-                            .accessibilityLabel("Close")
+                            .accessibilityLabel(L10n.settingsClose)
                         }
                     }
             }

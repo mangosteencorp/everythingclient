@@ -1,6 +1,7 @@
 #if DEBUG
 import CoreFeatures
 import PhotoListViewer
+import PlexIntegration
 import SwiftUI
 import Swinject
 import TMDB_Shared_Backend
@@ -29,6 +30,7 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
     case splitDetailPlaceholder
     case photoSlidesRoute
     case settings
+    case projectorCoin
 
     @MainActor @ViewBuilder
     public var view: some View {
@@ -115,8 +117,11 @@ public enum TMDBPreviewCatalog: String, CaseIterable {
                     container: Container()
                 )
             }
+        case .projectorCoin:
+            ProjectorCoinView {}
+                .padding()
         default:
-            SettingsPageView()
+            SettingsPageView(plexLauncher: PlexPreviewLauncher(.signedOut))
         }
     }
 }

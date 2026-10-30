@@ -31,7 +31,8 @@ while authToken == nil {
 //    connectBest tries every server and keeps the best one with movies or shows; connect(to:identity:) takes one server.
 guard let accountToken = authToken else { return }
 let servers = try await account.servers(accountToken: accountToken)
-let connection = try await PlexServerConnector().connectBest(among: servers, identity: identity).connection
+let selected = try await PlexServerConnector().connectBest(among: servers, identity: identity)
+let connection = selected.connection
 
 // 3. Browse with the server-scoped configuration.
 let api = PlexAPIService(configuration: connection.configuration)
@@ -43,6 +44,58 @@ guard let movie = page.metadata.first else { return }
 let plan = try await api.downloadPlan(ratingKey: movie.ratingKey)
 let requests = plan.parts.flatMap { [$0.request] + $0.subtitles.map(\.request) }
 ```
+
+## Save and resume without signing in again
+
+Choose the Keychain namespace (`service`) and item name (`account`) in the consuming app. Reuse the same values on
+relaunch; changing them selects a different saved session. `accessGroup` is optional and requires a matching Keychain
+Sharing entitlement. Omit it for the app's default group. You can also supply your own `PlexCredentialStoring`.
+
+```swift
+let credentials = PlexKeychainCredentialStore(
+    service: "com.example.MyApp",
+    account: "plex-personal" // for example, use a separate item for a work profile
+)
+
+// After step 2, keep both tokens: account discovery and server requests use different credentials.
+let profile = try await account.user(accountToken: accountToken)
+try credentials.save(PlexStoredSession(
+    accountToken: accountToken,
+    accountName: profile.title,
+    server: connection.configuration.credential(name: selected.server.name)
+))
+```
+
+On the next launch, replace PIN sign-in and discovery (steps 1–2) with the saved server. Keep the same persisted
+`PlexClientIdentity.identifier`; the credential store does not generate or save this identifier for you.
+
+```swift
+guard let saved = credentials.load(), let server = saved.server else {
+    // No saved server: present PIN sign-in, or let the user configure a manual connection.
+    return
+}
+let configuration = try server.configuration(identity: identity)
+let api = PlexAPIService(configuration: configuration)
+
+// Read the live identity before using a saved address that could now point at another server.
+let info = try await api.serverInfo()
+guard server.machineIdentifier == nil || info.machineIdentifier == server.machineIdentifier else {
+    throw PlexAPIError.noReachableServer
+}
+let libraries = try await api.libraries()
+// Continue with step 3 using api and libraries; no browser or PIN is needed.
+```
+
+If the saved address or server token is stale, use `saved.accountToken` with `account.servers(accountToken:)`, find the
+resource whose `clientIdentifier` equals `server.machineIdentifier`, and call
+`PlexServerConnector().connect(to:identity:allowHTTP:)` with that resource. Save its new configuration after it connects.
+Do not silently switch to a different server. A manually configured server without an account token must be updated by
+the caller. Preserve saved credentials on connection failures; require account sign-in again only when the account
+credential is rejected or the user explicitly signs out. `api.machineIdentifier()` may return the cached identifier;
+`serverInfo()` performs the live check shown above.
+
+For an object that manages sign-in, connection and this resume flow, use the separate
+[`PlexLauncher`](../PlexLauncher/README.md) library. This module stays a thin layer over the Plex HTTP APIs.
 
 Rules that matter:
 

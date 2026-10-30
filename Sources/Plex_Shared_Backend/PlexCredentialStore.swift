@@ -31,28 +31,42 @@ public protocol PlexCredentialStoring: Sendable {
 
 /// A generic-password Keychain item, readable after first unlock and never synced to other devices.
 public struct PlexKeychainCredentialStore: PlexCredentialStoring {
-    private let service: String
-    private let account: String
+    /// The namespace containing this session item, usually the app's bundle identifier.
+    public let service: String
+    /// The session item's name within its service.
+    public let account: String
+    /// The entitled Keychain access group, or nil to use the app's default group.
+    public let accessGroup: String?
+    private let keychain: any PlexKeychainAccessing
 
     /// Creates a store for one Keychain item.
     /// - Parameters:
     ///   - service: Usually the app's bundle identifier.
     ///   - account: The item name within that service.
-    public init(service: String, account: String = "plex-session") {
+    ///   - accessGroup: An access group from the app's Keychain Sharing entitlement, if needed.
+    public init(service: String, account: String = "plex-session", accessGroup: String? = nil) {
+        self.init(service: service, account: account, accessGroup: accessGroup, keychain: PlexSecurityKeychain())
+    }
+
+    init(service: String, account: String = "plex-session", accessGroup: String? = nil, keychain: any PlexKeychainAccessing) {
         self.service = service
         self.account = account
+        self.accessGroup = accessGroup
+        self.keychain = keychain
     }
 
     private var query: [String: Any] {
-        [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: account]
+        var query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: account]
+        if let accessGroup { query[kSecAttrAccessGroup as String] = accessGroup }
+        return query
     }
 
     /// Reads and decodes the Keychain item.
     public func load() -> PlexStoredSession? {
-        var result: AnyObject?
         var search = query
         search[kSecReturnData as String] = true
-        guard SecItemCopyMatching(search as CFDictionary, &result) == errSecSuccess, let data = result as? Data else { return nil }
+        let (status, result) = keychain.data(matching: search)
+        guard status == errSecSuccess, let data = result else { return nil }
         return try? JSONDecoder().decode(PlexStoredSession.self, from: data)
     }
 
@@ -64,13 +78,36 @@ public struct PlexKeychainCredentialStore: PlexCredentialStoring {
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
         ]
-        var status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        var status = keychain.update(matching: query, attributes: attributes)
         if status == errSecItemNotFound {
-            status = SecItemAdd(query.merging(attributes) { $1 } as CFDictionary, nil)
+            status = keychain.add(query.merging(attributes) { $1 })
         }
         guard status == errSecSuccess else { throw PlexAPIError.invalidConfiguration }
     }
 
     /// Deletes the Keychain item.
-    public func clear() { SecItemDelete(query as CFDictionary) }
+    public func clear() { keychain.delete(matching: query) }
+}
+
+protocol PlexKeychainAccessing: Sendable {
+    func data(matching query: [String: Any]) -> (OSStatus, Data?)
+    func update(matching query: [String: Any], attributes: [String: Any]) -> OSStatus
+    func add(_ attributes: [String: Any]) -> OSStatus
+    func delete(matching query: [String: Any])
+}
+
+struct PlexSecurityKeychain: PlexKeychainAccessing {
+    func data(matching query: [String: Any]) -> (OSStatus, Data?) {
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        return (status, result as? Data)
+    }
+
+    func update(matching query: [String: Any], attributes: [String: Any]) -> OSStatus {
+        SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+    }
+
+    func add(_ attributes: [String: Any]) -> OSStatus { SecItemAdd(attributes as CFDictionary, nil) }
+
+    func delete(matching query: [String: Any]) { SecItemDelete(query as CFDictionary) }
 }
