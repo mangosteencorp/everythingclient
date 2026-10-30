@@ -37,6 +37,13 @@ strings:
           publicAccess: true
           enumName: L10n
         output: Sources/TMDB_TVShowDetail/generated/Strings.swift
+  - inputs: Sources/Podcast_Shared_UI/Resources/en.lproj/Localizable.strings
+    outputs:
+      - templateName: structured-swift5
+        params:
+          publicAccess: true
+          enumName: L10n
+        output: Sources/Podcast_Shared_UI/generated/Strings.swift
 
 fonts:
   - inputs: Sources/Shared_UI_Support/Resources/pixelmix.ttf
