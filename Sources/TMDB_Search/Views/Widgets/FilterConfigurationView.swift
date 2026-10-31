@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import TMDB_Shared_UI
 
 /// The sheet a chip opens: a toggle for adult content, a wheel of values for everything else.
 @available(iOS 16.0, *)
@@ -86,30 +87,42 @@ struct FilterValuePicker: View {
 
 #if DEBUG
 #Preview("Include adult") {
-    TMDBSearchPreviewCatalog.filterIncludeAdult.view
+    FilterSheetPreview(filterType: .includeAdult, filters: SearchFilters(includeAdult: true))
 }
 
 #Preview("Language — French") {
-    TMDBSearchPreviewCatalog.filterLanguage.view
+    FilterSheetPreview(filterType: .language, filters: SearchFilters(language: "fr"))
 }
 
 #Preview("Region — none") {
-    TMDBSearchPreviewCatalog.filterRegion.view
+    FilterSheetPreview(filterType: .region, filters: SearchFilters())
 }
 
 #Preview("Release year — 2024") {
-    TMDBSearchPreviewCatalog.filterReleaseYear.view
+    FilterSheetPreview(filterType: .primaryReleaseYear, filters: SearchFilters(primaryReleaseYear: "2024"))
 }
 
 #Preview("First air year — none") {
-    TMDBSearchPreviewCatalog.filterFirstAirYear.view
+    FilterSheetPreview(filterType: .firstAirDateYear, filters: SearchFilters())
 }
 
 #Preview("Year — 1984") {
-    TMDBSearchPreviewCatalog.filterYear.view
+    FilterSheetPreview(filterType: .year, filters: SearchFilters(year: "1984"))
 }
 
 #Preview("Value wheel") {
-    TMDBSearchPreviewCatalog.filterValueWheel.view
+    StatefulPreview(String?.some("JP")) { FilterValuePicker(filterType: .region, selection: $0) }
+}
+
+/// Presents the filter sheet over a blank page, the way the search page does.
+private struct FilterSheetPreview: View {
+    let filterType: FilterType
+    @State var filters: SearchFilters
+
+    var body: some View {
+        Color.clear.sheet(isPresented: .constant(true)) {
+            FilterConfigurationView(filters: $filters, filterType: filterType)
+        }
+    }
 }
 #endif

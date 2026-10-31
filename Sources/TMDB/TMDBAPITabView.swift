@@ -39,7 +39,6 @@ public struct TMDBAPITabView: View {
     private let navigationInterceptor: TMDBNavigationInterceptor?
 
     @DesignStyle private var shellDesign: AppShellDesign
-    @DesignStyle private var navigationDesign: AppNavigationDesign
     @State private var didApplySeed = false
 
     public init(tmdbKey: String,
@@ -75,7 +74,7 @@ public struct TMDBAPITabView: View {
             switch shellDesign {
             case .bottomTabBar:
                 SystemTabShell(coordinator: coordinator, usesSidebarPlacement: false, page: page(for:))
-            case .sidebarTabBar:
+            case .sidebarTabBar, .splitView:
                 SystemTabShell(coordinator: coordinator, usesSidebarPlacement: true, page: page(for:))
             case .floatingTabBar:
                 FloatingTabShell(coordinator: coordinator, page: page(for:))
@@ -117,14 +116,14 @@ public struct TMDBAPITabView: View {
     @ViewBuilder
     private func page(for tab: TabRoute) -> some View {
         switch tab {
-        case .movieFeed:
+        case .movieFeed where shellDesign == .splitView:
             buildMovieFeedPage()
-                .withAppNavigationDesign(
-                    navigationDesign,
-                    coordinator: coordinator,
-                    tabRoute: .movieFeed,
-                    container: container
-                )
+                .withFeedSplitView(container: container)
+        case .movieFeed:
+            NavigationStack(path: coordinator.path(for: .movieFeed)) {
+                buildMovieFeedPage()
+                    .withTMDBNavigationDestinations(container: container)
+            }
         case .marketplace:
             NavigationStack(path: coordinator.path(for: .marketplace)) {
                 buildMarketplacePage()
@@ -150,14 +149,15 @@ public struct TMDBAPITabView: View {
 
     /// One feed category without a `NavigationStack`, so a shell can either wrap it or push it.
     @ViewBuilder
-    private func feedPage(for tab: FeedTab) -> some View {
-        FeedDestinationPage(
-            tab: tab,
+    private func feedPage(for kind: FeedKind) -> some View {
+        FeedPage(
+            kind: kind,
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker,
             detailRouteBuilder: Self.movieRoute(for:),
             tvShowDetailRouteBuilder: Self.tvShowRoute(for:)
         )
+        .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
     }
 
@@ -186,15 +186,13 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildMovieFeedPage() -> some View {
-        MovieFeedListPage(
+        FeedTabsPage(
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker,
             detailRouteBuilder: { movie in Self.movieRoute(for: movie) },
             tvShowDetailRouteBuilder: { tvShow in Self.tvShowRoute(for: tvShow) }
         )
-        .toolbar {
-            DesignShuffleToolbarItem(placement: .topBarLeading)
-        }
+        .designShuffleToolbar()
     }
 
     /// The app's one search screen. It is a root tab of its own rather than a feed category,
@@ -205,6 +203,7 @@ public struct TMDBAPITabView: View {
             service: TMDBSearchService(requester: container.resolve(TMDBAPIService.self)!),
             routeBuilder: TMDBRoute.search(for:)
         )
+        .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
     }
 
@@ -255,6 +254,7 @@ public struct TMDBAPITabView: View {
             // A UIKit page laid out inside the safe area leaves its background short of the iPhone
             // Duo's rail and the home indicator. Its collection view insets its own content.
             .ignoresSafeArea()
+            .designShuffleToolbar()
             .withTMDBNavigationDestinations(container: container)
     }
 
@@ -267,11 +267,19 @@ public struct TMDBAPITabView: View {
         }
         // Same as Discover: the header and list keep to the safe area themselves.
         .ignoresSafeArea()
+        .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
     }
 
     @ViewBuilder
     private func buildSettingsPage() -> some View {
         SettingsPageView()
+    }
+}
+
+extension View {
+    /// On every root tab, so no shell can land you on a page without a way to shuffle again.
+    func designShuffleToolbar() -> some View {
+        toolbar { DesignShuffleToolbarItem(placement: .topBarLeading) }
     }
 }

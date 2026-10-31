@@ -21,6 +21,7 @@ struct LoadingStateView: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.loadingState.view
+    LoadingStateView()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

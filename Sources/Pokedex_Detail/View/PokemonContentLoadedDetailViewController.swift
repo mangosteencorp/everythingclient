@@ -284,6 +284,30 @@ class DetailDesign2ViewController: UIViewController {
 import SwiftUI
 
 #Preview {
-    PokedexDetailPreviewCatalog.designTwo.view
+    UIViewControllerPreview {
+        PokedexDetailPreviewCatalog.pushed(DetailDesign2ViewController(pokemon: PokemonDetail(
+            id: 10,
+            name: "Caterpie",
+            imageURL: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/10.gif",
+            weight: 29,
+            speciesId: 10,
+            moves: [
+                .init(id: 1, moveId: 1, name: "Tackle"),
+                .init(id: 2, moveId: 2, name: "String Shot"),
+                .init(id: 3, moveId: 3, name: "Bug Bite"),
+                .init(id: 4, moveId: 4, name: "Electroweb"),
+            ],
+            abilities: [
+                .init(abilityId: 1, name: "Shield Dust"),
+                .init(abilityId: 2, name: "Run Away"),
+            ],
+            stats: [
+                .init(statId: 1, baseStat: 45, effort: 1, name: "hp"),
+                .init(statId: 2, baseStat: 30, effort: 0, name: "attack"),
+                .init(statId: 3, baseStat: 35, effort: 0, name: "defense"),
+                .init(statId: 6, baseStat: 45, effort: 0, name: "speed"),
+            ]
+        )))
+    }
 }
 #endif

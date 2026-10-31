@@ -37,13 +37,13 @@ public struct PaletteCard<Content: View>: View {
         .foregroundStyle(loader.palette.foreground)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         .animation(.easeOut(duration: 0.25), value: loader.palette)
-        .task(id: imageURL) { await loader.load(imageURL) }
     }
 
     @ViewBuilder
     private var poster: some View {
         if let imageURL {
             KFImage(imageURL)
+                .onSuccess { loader.load($0.image, for: imageURL) }
                 .resizable()
                 .fade(duration: 0.25)
                 .aspectRatio(aspectRatio, contentMode: .fill)
@@ -60,6 +60,15 @@ public struct PaletteCard<Content: View>: View {
 
 #if DEBUG
 #Preview {
-    SharedUISupportPreviewCatalog.paletteCard.view
+    PaletteCard(imageURL: nil) {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Dune: Part Two")
+                .font(.subheadline.weight(.semibold))
+            Text("8.2")
+                .font(.caption)
+        }
+    }
+    .frame(width: 180)
+    .padding()
 }
 #endif

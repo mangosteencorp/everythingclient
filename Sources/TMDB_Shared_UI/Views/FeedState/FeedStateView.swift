@@ -2,41 +2,52 @@ import CoreFeatures
 import Shared_UI_Support
 import SwiftUI
 
-/// What a list-backed page has to show right now. Each call site maps its own view-model state
-/// onto this, so the mapping stays visible while the rendering is shared.
-public enum FeedLoadPhase: Equatable {
+/// Everything a list-backed page can be showing, as one value: a view model publishes it and
+/// `FeedStateView` renders it, so "loading with an error" or "content without content" cannot
+/// be written down.
+public enum FeedState<Item> {
+    /// Nothing requested yet; the first load is about to start.
+    case idle
+    /// First load in flight, nothing on screen yet.
     case loading
+    /// Nothing to show but this message.
     case error(message: String)
-    case empty
-    case loaded
+    /// The list; empty means the request succeeded with no results.
+    case loaded([Item])
+    /// The list, with a spinner over it while a replacement loads.
+    case refreshing([Item])
+
+    /// What is on screen; empty unless loaded or refreshing.
+    public var items: [Item] {
+        switch self {
+        case let .loaded(items), let .refreshing(items): items
+        case .idle, .loading, .error: []
+        }
+    }
 }
 
 /// The loading / error / empty / content ladder every feed and the search page repeat.
 @available(iOS 16, *)
-public struct FeedStateView<Content: View>: View {
-    let phase: FeedLoadPhase
-    /// Spinner over already-visible content while the next page loads.
-    var isRefreshing: Bool = false
+public struct FeedStateView<Item, Content: View>: View {
+    let state: FeedState<Item>
     var allowsCancel: Bool = false
     /// Copy for the empty state; `nil` keeps the generic "No Results Found" wording.
     var emptyConfiguration: NoResultViewConfiguration?
     let retryAction: () -> Void
     var cancelAction: (() -> Void)?
-    @ViewBuilder let content: () -> Content
+    @ViewBuilder let content: ([Item]) -> Content
 
     @DesignStyle private var emptyStateDesign: FeedEmptyStateDesign
 
     public init(
-        phase: FeedLoadPhase,
-        isRefreshing: Bool = false,
+        state: FeedState<Item>,
         allowsCancel: Bool = false,
         emptyConfiguration: NoResultViewConfiguration? = nil,
         retryAction: @escaping () -> Void,
         cancelAction: (() -> Void)? = nil,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: @escaping ([Item]) -> Content
     ) {
-        self.phase = phase
-        self.isRefreshing = isRefreshing
+        self.state = state
         self.allowsCancel = allowsCancel
         self.emptyConfiguration = emptyConfiguration
         self.retryAction = retryAction
@@ -45,8 +56,8 @@ public struct FeedStateView<Content: View>: View {
     }
 
     public var body: some View {
-        switch phase {
-        case .loading:
+        switch state {
+        case .idle, .loading:
             ProgressView(L10n.playingLoading)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case let .error(message):
@@ -56,7 +67,7 @@ public struct FeedStateView<Content: View>: View {
                 retryAction: retryAction,
                 cancelAction: cancelAction
             )
-        case .empty:
+        case let .loaded(items) where items.isEmpty:
             CommonNoResultView(
                 configuration: emptyConfiguration ?? NoResultViewConfiguration(
                     primaryButtonAction: retryAction,
@@ -64,10 +75,12 @@ public struct FeedStateView<Content: View>: View {
                 ),
                 useFancyDesign: $emptyStateDesign.isFancy
             )
-        case .loaded:
-            content()
+        // One branch for both, so starting or finishing a refresh keeps the list's identity
+        // (and scroll position) instead of rebuilding it.
+        case .loaded, .refreshing:
+            content(state.items)
                 .overlay {
-                    if isRefreshing {
+                    if case .refreshing = state {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(Color.black.opacity(0.05))
@@ -112,22 +125,30 @@ public extension Binding where Value == FeedEmptyStateDesign {
 
 #if DEBUG
 #Preview("Loading") {
-    TMDBSharedUIPreviewCatalog.feedLoading.view
+    FeedStateView(state: FeedState<Int>.loading, retryAction: {}, content: { _ in EmptyView() })
 }
 
 #Preview("Error") {
-    TMDBSharedUIPreviewCatalog.feedError.view
+    FeedStateView(state: FeedState<Int>.error(message: "Invalid API key"), retryAction: {}, content: { _ in EmptyView() })
 }
 
 #Preview("Empty") {
-    TMDBSharedUIPreviewCatalog.feedEmpty.view
+    FeedStateView(state: FeedState<Int>.loaded([]), retryAction: {}, content: { _ in EmptyView() })
+        .designStyle(FeedEmptyStateDesign.fancy)
 }
 
-#Preview("Loaded, refreshing") {
-    TMDBSharedUIPreviewCatalog.feedLoadedRefreshing.view
+#Preview("Empty — plain") {
+    FeedStateView(state: FeedState<Int>.loaded([]), retryAction: {}, content: { _ in EmptyView() })
+        .designStyle(FeedEmptyStateDesign.plain)
+}
+
+#Preview("Refreshing") {
+    FeedStateView(state: .refreshing(Array(1...5)), retryAction: {}, content: { items in
+        List(items, id: \.self) { Text("Movie \($0)") }
+    })
 }
 
 #Preview("Placeholder") {
-    TMDBSharedUIPreviewCatalog.feedPlaceholder.view
+    FeedPlaceholderView(systemImage: "magnifyingglass", title: "Search for a movie")
 }
 #endif

@@ -45,6 +45,8 @@ struct TVShowSeasonsView: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.seasons.view
+    TVShowSeasonsView(tvShow: .example)
+        .padding()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

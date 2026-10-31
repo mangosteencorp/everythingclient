@@ -39,10 +39,24 @@ struct PersonDetailContent<Route: Hashable>: View {
 
 #if DEBUG
 #Preview("Carousel filmography") {
-    TMDBPersonPreviewCatalog.contentCarousel.view
+    NavigationStack {
+        PersonDetailContent(
+            person: .example,
+            credits: PersonMovieCredits.example.featuredCredits,
+            useCarouselFilmography: true,
+            movieRouteBuilder: { $0 }
+        )
+    }
 }
 
 #Preview("List filmography") {
-    TMDBPersonPreviewCatalog.contentList.view
+    NavigationStack {
+        PersonDetailContent(
+            person: .example,
+            credits: PersonMovieCredits.example.featuredCredits,
+            useCarouselFilmography: false,
+            movieRouteBuilder: { $0 }
+        )
+    }
 }
 #endif

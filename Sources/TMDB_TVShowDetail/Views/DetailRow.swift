@@ -13,9 +13,3 @@ struct DetailRow: View {
             .foregroundColor(themeManager.currentTheme.labelColor)
     }
 }
-
-#if DEBUG
-#Preview {
-    TMDBTVShowDetailPreviewCatalog.detailRow.view
-}
-#endif

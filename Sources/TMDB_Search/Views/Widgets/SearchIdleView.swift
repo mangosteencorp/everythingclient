@@ -160,22 +160,26 @@ struct SearchPosterCard: View {
 
 #if DEBUG
 #Preview("Idle — recents and trending") {
-    TMDBSearchPreviewCatalog.idleView.view
+    NavigationStack {
+        SearchIdleView(
+            recents: SearchViewModel.previewRecents,
+            trending: StubSearchService.items(for: .multi, query: "trending", page: 1, count: 8),
+            routeBuilder: { _ in 1 },
+            onSelectRecent: { _ in },
+            onRemoveRecent: { _ in },
+            onClearRecents: {}
+        )
+    }
 }
 
 #Preview("Idle — nothing yet") {
-    TMDBSearchPreviewCatalog.idleViewEmpty.view
-}
-
-#Preview("Recent search row") {
-    TMDBSearchPreviewCatalog.recentSearchRow.view
-}
-
-#Preview("Section header") {
-    TMDBSearchPreviewCatalog.sectionHeader.view
-}
-
-#Preview("Poster cards") {
-    TMDBSearchPreviewCatalog.posterCards.view
+    SearchIdleView<Int>(
+        recents: [],
+        trending: [],
+        routeBuilder: { _ in nil },
+        onSelectRecent: { _ in },
+        onRemoveRecent: { _ in },
+        onClearRecents: {}
+    )
 }
 #endif

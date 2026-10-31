@@ -85,9 +85,10 @@ class ErrorView: UIView {
 }
 
 #if DEBUG
+import Shared_UI_Support
 import SwiftUI
 
 #Preview {
-    TMDBProfilePreviewCatalog.errorView.view
+    UIViewPreview { ErrorView() }
 }
 #endif
