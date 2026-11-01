@@ -62,7 +62,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
             PokedexView()
                 .navigationTitle("Pokédex")
         case let .movieList(params):
-            MovieFeedListPage(
+            FeedTabsPage(
                 apiService: container.resolve(TMDBAPIService.self)!,
                 additionalParams: params,
                 analyticsTracker: analyticsTracker,

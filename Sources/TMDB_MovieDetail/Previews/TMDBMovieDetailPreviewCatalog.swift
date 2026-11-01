@@ -15,15 +15,7 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
 
     case demo
     case detailPage
-    case coverRow
-    case coverRowWithOverview
     case creditSection
-    case crosslinePeople
-    case crosslinePeopleRedacted
-    case peopleSeeAllList
-    case keywords
-    case locations
-    case roundedBadges
     case watchProviders
     case watchProvidersLoading
     case watchProvidersError
@@ -41,15 +33,6 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
             TMDBMovieDetailDemoView()
         case .detailPage:
             NavigationStack { Self.loadedPage }
-        case .coverRow:
-            Section {
-                MovieCoverRow(movie: exampleMovieDetail)
-            }
-        case .coverRowWithOverview:
-            Section {
-                MovieCoverRow(movie: exampleMovieDetail)
-                MovieOverview(movie: exampleMovieDetail)
-            }
         case .creditSection:
             MovieCreditSection(movieId: exampleMovieCredits.id, creditsViewModel: Self.creditsViewModel, personRouteBuilder: { $0 })
         case .watchProviders, .watchProvidersLoading, .watchProvidersError:
@@ -95,10 +78,6 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
                 Section {
                     MovieJellyfinSection(movieTitle: "Dune", movieId: 438_631, jellyfinViewModel: Self.jellyfinViewModel)
                 }
-            }
-        default:
-            List {
-                SectionRetryView(message: "The Internet connection appears to be offline.") {}
             }
         }
     }

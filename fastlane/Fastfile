@@ -1,17 +1,85 @@
 default_platform(:ios)
 
-# Resolving the Swiftfin/Firebase package graph makes `xcodebuild -showBuildSettings` far slower than fastlane's 3s default.
-ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] ||= "180"
-ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] ||= "1"
+REPO = File.expand_path("..", FastlaneCore::FastlaneFolder.path)
+
+# Demo scheme => the UI test class that takes its screenshots with `captureScreen(named:)`.
+SCREENSHOT_TESTS = {
+  "TMDBFeedDemo" => "TMDBFeedDemoUITests/TMDBFeedDemoScreenshotTests",
+  "TMDBSearchDemo" => "TMDBSearchDemoUITests/TMDBSearchDemoScreenshotTests",
+  "TMDBMovieDetailDemo" => "TMDBMovieDetailDemoUITests/TMDBMovieDetailDemoScreenshotTests",
+}.freeze
+
+# Simulator names change with every Xcode, so take the newest App Store-sized ones installed.
+SCREENSHOT_DEVICES = [/\AiPhone \d+ Pro Max\z/, /\AiPad Pro 13-inch/].freeze
 
 platform :ios do
-  desc "Capture App Store screenshots of every demo into fastlane/screenshots"
+  desc "Capture every demo on an iPhone and an iPad into fastlane/screenshots/<sha>_<UTC time>/<demo>/<screenshot>/<device>.png"
   lane :screenshots do
-    # Simulator names change with every Xcode, so take the newest App Store-sized ones installed.
-    available = JSON.parse(sh("xcrun simctl list devices available -j", log: false))["devices"].values.flatten.map { |d| d["name"] }.uniq
-    devices = [/^iPhone \d+ Pro Max$/, /^iPad Pro 13-inch/].map { |pattern| available.grep(pattern).max_by { |name| name.scan(/\d+/).map(&:to_i) } }.compact
-    UI.user_error!("No App Store-sized simulators found in: #{available.join(', ')}") if devices.empty?
+    run = ENV["SCREENSHOTS_RUN"] || "#{sh('git', 'rev-parse', '--short', 'HEAD', log: false).strip}_#{Time.now.utc.strftime('%Y-%m-%d_%H-%M-%S')}"
+    devices = screenshot_devices
+    UI.message("Capturing #{run} on #{devices.map { |device| device['name'] }.join(', ')}")
 
-    capture_screenshots(devices: devices)
+    devices.each do |device|
+      sh("xcrun", "simctl", "bootstatus", device["udid"], "-b", log: false)
+      sh("xcrun", "simctl", "status_bar", device["udid"], "override", "--time", "9:41", "--dataNetwork", "wifi",
+         "--wifiMode", "active", "--wifiBars", "3", "--cellularMode", "active", "--cellularBars", "4",
+         "--batteryState", "charged", "--batteryLevel", "100")
+    end
+
+    # Every demo runs even if one fails, so a single broken demo still leaves the others' screenshots.
+    failed = SCREENSHOT_TESTS.reject do |scheme, test|
+      result_bundle = File.join(REPO, "fastlane/test_output", run, "#{scheme}.xcresult")
+      passed = run_screenshot_tests(scheme, test, devices, result_bundle)
+      file_screenshots(result_bundle, File.join(REPO, "fastlane/screenshots", run, scheme)) if File.exist?(result_bundle)
+      passed
+    end.keys
+
+    UI.user_error!("Screenshot tests failed for #{failed.join(', ')}") unless failed.empty?
+    UI.success("Screenshots in fastlane/screenshots/#{run}")
+  ensure
+    devices&.each { |device| sh("xcrun", "simctl", "status_bar", device["udid"], "clear", log: false) }
+  end
+end
+
+# The newest iPhone and iPad matching SCREENSHOT_DEVICES, from the newest iOS runtime that has one.
+def screenshot_devices
+  runtimes = JSON.parse(sh("xcrun", "simctl", "list", "devices", "available", "-j", log: false))["devices"]
+    .select { |runtime, _| runtime.include?("SimRuntime.iOS") }
+    .sort_by { |runtime, _| runtime.scan(/\d+/).map(&:to_i) }
+    .reverse
+  SCREENSHOT_DEVICES.map do |pattern|
+    runtimes.lazy
+            .map { |_, devices| devices.select { |device| device["name"] =~ pattern }.max_by { |device| device["name"].scan(/\d+/).map(&:to_i) } }
+            .find(&:itself) or UI.user_error!("No simulator matching #{pattern.inspect}")
+  end
+end
+
+def run_screenshot_tests(scheme, test, devices, result_bundle)
+  sh("xcodebuild", "test",
+     "-workspace", File.join(REPO, "everythingclient.xcworkspace"),
+     "-scheme", scheme,
+     *devices.flat_map { |device| ["-destination", "platform=iOS Simulator,id=#{device['udid']}"] },
+     "-only-testing:#{test}",
+     # The schemes mark UI tests parallelizable; cloned simulators would report clone names as devices.
+     "-parallel-testing-enabled", "NO",
+     "-testLanguage", "en", "-testRegion", "US",
+     "-resultBundlePath", result_bundle,
+     "-derivedDataPath", File.join(REPO, ".DerivedData/screenshots"),
+     "-skipMacroValidation", "-skipPackagePluginValidation",
+     "-quiet")
+  true
+rescue FastlaneCore::Interface::FastlaneShellError
+  false
+end
+
+# Exports the result bundle's `NN_name` attachments as `<demo_dir>/NN_name/<device>.png`.
+def file_screenshots(result_bundle, demo_dir)
+  Dir.mktmpdir do |export|
+    sh("xcrun", "xcresulttool", "export", "attachments", "--path", result_bundle, "--output-path", export, log: false)
+    JSON.parse(File.read(File.join(export, "manifest.json"))).flat_map { |test| test["attachments"] }.each do |attachment|
+      name = attachment["suggestedHumanReadableName"][/\A\d\d_[a-z0-9_]+?(?=_\d+_\h{8}-)/] or next
+      FileUtils.mkdir_p(File.join(demo_dir, name))
+      FileUtils.cp(File.join(export, attachment["exportedFileName"]), File.join(demo_dir, name, "#{attachment['deviceName']}.png"))
+    end
   end
 end

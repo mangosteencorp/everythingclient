@@ -1,4 +1,5 @@
 import SwiftUI
+import TMDB_Shared_UI
 
 /// One filter as a capsule: its name, and its value once set.
 ///
@@ -168,18 +169,29 @@ public struct FilterChipsView: View {
 
 #if DEBUG
 #Preview("Chip — every filter, off and on") {
-    TMDBSearchPreviewCatalog.chipEveryFilter.view
-}
-
-#Preview("Chip row — none active") {
-    TMDBSearchPreviewCatalog.chipRowNoneActive.view
+    // Every filter set, so each chip shows its "on" look.
+    let everyFilter = SearchFilters(
+        includeAdult: true,
+        language: "fr",
+        primaryReleaseYear: "2021",
+        firstAirDateYear: "2019",
+        region: "JP",
+        year: "1984"
+    )
+    VStack(alignment: .leading, spacing: 12) {
+        ForEach(FilterType.allCases) { filterType in
+            HStack {
+                FilterChip(filterType: filterType, onTap: {}, onRemove: {})
+                FilterChip(filterType: filterType, value: everyFilter.displayValue(for: filterType), onTap: {}, onRemove: {})
+            }
+        }
+    }
+    .padding()
 }
 
 #Preview("Chip row — some active") {
-    TMDBSearchPreviewCatalog.chipRowSomeActive.view
-}
-
-#Preview("Chip row — each scope") {
-    TMDBSearchPreviewCatalog.chipRowEachScope.view
+    StatefulPreview(SearchFilters(language: "en-US", primaryReleaseYear: "2024")) { filters in
+        FilterChipsView(filters: filters, types: SearchScope.movies.supportedFilters) { _ in }
+    }
 }
 #endif

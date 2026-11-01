@@ -100,11 +100,7 @@ public struct SearchPage<Route: Hashable>: View {
 
     private var results: some View {
         FeedStateView(
-            phase: phase,
-            // A scope switch keeps the previous rows and dims them rather than tearing the list
-            // down for a spinner and building a new one — that teardown is what made switching
-            // scopes after a search jump around.
-            isRefreshing: viewModel.isReloading,
+            state: state,
             allowsCancel: true,
             emptyConfiguration: NoResultViewConfiguration(
                 primaryButtonAction: { viewModel.retry() },
@@ -116,9 +112,9 @@ public struct SearchPage<Route: Hashable>: View {
             ),
             retryAction: { viewModel.retry() },
             cancelAction: { viewModel.clear() },
-            content: {
+            content: { items in
                 SearchResultsList(
-                    items: viewModel.items,
+                    items: items,
                     showsKind: viewModel.scope == .multi,
                     canLoadMore: viewModel.canLoadMore,
                     resultsGeneration: viewModel.resultsGeneration,
@@ -129,17 +125,18 @@ public struct SearchPage<Route: Hashable>: View {
         )
     }
 
-    private var phase: FeedLoadPhase {
+    private var state: FeedState<SearchResultItem> {
         // A query typed but still inside the debounce has not searched yet; it is about to.
         if viewModel.isLoadingFirstPage || !viewModel.hasSearched {
             return .loading
         }
-        // `isReloading` deliberately does not appear here: it renders as an overlay on the
-        // results that are already up, not as a different phase.
         if let message = viewModel.errorMessage {
             return .error(message: message)
         }
-        return viewModel.items.isEmpty ? .empty : .loaded
+        // A scope switch keeps the previous rows and dims them rather than tearing the list
+        // down for a spinner and building a new one — that teardown is what made switching
+        // scopes after a search jump around.
+        return viewModel.isReloading ? .refreshing(viewModel.items) : .loaded(viewModel.items)
     }
 }
 
@@ -207,6 +204,15 @@ public extension EnvironmentValues {
 
 #if DEBUG
 #Preview("Results list — more pages waiting") {
-    TMDBSearchPreviewCatalog.resultsListMorePages.view
+    NavigationStack {
+        SearchResultsList(
+            items: StubSearchService.items(for: .multi, query: "super", page: 1, count: 4),
+            showsKind: true,
+            canLoadMore: true,
+            resultsGeneration: 0,
+            routeBuilder: { _ in 1 },
+            onRowAppear: { _ in }
+        )
+    }
 }
 #endif

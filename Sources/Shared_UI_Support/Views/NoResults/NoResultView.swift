@@ -119,6 +119,6 @@ struct NoResultView: View {
 
 #if DEBUG
 #Preview {
-    SharedUISupportPreviewCatalog.noResult.view
+    NoResultView()
 }
 #endif

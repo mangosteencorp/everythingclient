@@ -25,22 +25,28 @@ public final class StubTMDBAPIRequester: TMDBAPIRequesting, @unchecked Sendable 
         }
     }
 
+    /// View models fire requests concurrently (`async let`), so every access to the mutable state
+    /// below goes through this lock — that is what makes the `@unchecked Sendable` honest.
+    private let lock = NSLock()
     private var responses: [String: Result<Any, Error>] = [:]
-    public private(set) var requestedPaths: [String] = []
+    private var _requestedPaths: [String] = []
+    private var _requestedEndpoints: [TMDBEndpoint] = []
+
+    public var requestedPaths: [String] { lock.withLock { _requestedPaths } }
     /// The endpoints themselves, for assertions about the query parameters a caller built and
     /// not just the path it hit.
-    public private(set) var requestedEndpoints: [TMDBEndpoint] = []
+    public var requestedEndpoints: [TMDBEndpoint] { lock.withLock { _requestedEndpoints } }
 
     public init() {}
 
     // MARK: - Seeding
 
     public func stub<T>(_ endpoint: TMDBEndpoint, with value: T) {
-        responses[endpoint.path()] = .success(value)
+        lock.withLock { responses[endpoint.path()] = .success(value) }
     }
 
     public func stub(_ endpoint: TMDBEndpoint, failingWith error: Error) {
-        responses[endpoint.path()] = .failure(error)
+        lock.withLock { responses[endpoint.path()] = .failure(error) }
     }
 
     /// Convenience for the common "the request failed with this message" case.
@@ -52,10 +58,13 @@ public final class StubTMDBAPIRequester: TMDBAPIRequesting, @unchecked Sendable 
 
     public func request<T: Decodable>(_ endpoint: TMDBEndpoint) async throws -> T {
         let path = endpoint.path()
-        requestedPaths.append(path)
-        requestedEndpoints.append(endpoint)
+        let response = lock.withLock {
+            _requestedPaths.append(path)
+            _requestedEndpoints.append(endpoint)
+            return responses[path]
+        }
 
-        guard let response = responses[path] else { throw StubError.notFound(path: path) }
+        guard let response else { throw StubError.notFound(path: path) }
         let value = try response.get()
         guard let typed = value as? T else {
             throw StubError.typeMismatch(path: path, expected: String(describing: T.self))

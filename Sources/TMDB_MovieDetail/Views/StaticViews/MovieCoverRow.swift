@@ -109,10 +109,11 @@ struct MovieInfoRow: View {
 
 #if DEBUG
 #Preview {
-    TMDBMovieDetailPreviewCatalog.coverRow.view
-}
-
-#Preview {
-    TMDBMovieDetailPreviewCatalog.coverRowWithOverview.view
+    List {
+        Section {
+            MovieCoverRow(movie: exampleMovieDetail)
+            MovieOverview(movie: exampleMovieDetail)
+        }
+    }
 }
 #endif

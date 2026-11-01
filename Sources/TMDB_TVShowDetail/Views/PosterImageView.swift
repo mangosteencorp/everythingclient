@@ -27,6 +27,6 @@ struct PosterImageView: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.posterImage.view
+    PosterImageView(posterPath: TVShowDetailModel.example.posterPath)
 }
 #endif

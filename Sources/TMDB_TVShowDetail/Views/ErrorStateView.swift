@@ -36,6 +36,7 @@ struct ErrorStateView: View {
 
 #if DEBUG
 #Preview {
-    TMDBTVShowDetailPreviewCatalog.errorState.view
+    ErrorStateView(message: "The Internet connection appears to be offline.", retryAction: {})
+        .environmentObject(ThemeManager.shared)
 }
 #endif

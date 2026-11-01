@@ -3,18 +3,23 @@ import TMDB_Shared_Backend
 
 #if DEBUG
 /// Serves every feed from sample data, so feed previews render offline and the same on every run.
-struct PreviewFeedAPIService: APIServiceProtocol {
+/// Public so hosts that group feeds (the TMDB app's tabs and sidebar) preview with it too.
+public struct PreviewFeedAPIService: APIServiceProtocol {
     /// When set, every request fails with it — the error state.
     var failure: Error?
 
-    func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
-    func fetchPopularMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
-    func fetchTopRatedMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
-    func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
-    func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error> { movies(page: page) }
-    func fetchAiringTodayTVShows(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<TVShowListResponse, Error> { shows(page: page) }
-    func fetchOnTheAirTVShows(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<TVShowListResponse, Error> { shows(page: page) }
-    func searchTVShows(query: String, page: Int?) async -> Result<TVShowListResponse, Error> { shows(page: page) }
+    public init(failure: Error? = nil) {
+        self.failure = failure
+    }
+
+    public func fetchNowPlayingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
+    public func fetchPopularMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
+    public func fetchTopRatedMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
+    public func fetchUpcomingMovies(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<MovieListResponse, Error> { movies(page: page) }
+    public func searchMovies(query: String, page: Int?) async -> Result<MovieListResponse, Error> { movies(page: page) }
+    public func fetchAiringTodayTVShows(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<TVShowListResponse, Error> { shows(page: page) }
+    public func fetchOnTheAirTVShows(page: Int?, additionalParams: AdditionalMovieListParams?) async -> Result<TVShowListResponse, Error> { shows(page: page) }
+    public func searchTVShows(query: String, page: Int?) async -> Result<TVShowListResponse, Error> { shows(page: page) }
 
     // A single page: the feeds ask for the next one without checking `totalPages`, and repeating
     // the first would list every title twice.

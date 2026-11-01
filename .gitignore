@@ -16,6 +16,7 @@ Rebuild/Rebuild/Build.xcconfig
 fastlane/screenshots
 fastlane/report.xml
 fastlane/test_output
+fastlane/README.md
 vendor/bundle
 
 # Local-only TMDB key for DEBUG previews (copy PreviewSecrets.swift.template)

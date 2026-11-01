@@ -39,6 +39,7 @@ struct PersonDetailHeaderView: View {
 
 #if DEBUG
 #Preview {
-    TMDBPersonPreviewCatalog.header.view
+    PersonDetailHeaderView(person: .example)
+        .padding()
 }
 #endif

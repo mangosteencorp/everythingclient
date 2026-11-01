@@ -32,6 +32,6 @@ struct PersonErrorStateView: View {
 
 #if DEBUG
 #Preview {
-    TMDBPersonPreviewCatalog.errorState.view
+    PersonErrorStateView(message: "The Internet connection appears to be offline.", retry: {})
 }
 #endif

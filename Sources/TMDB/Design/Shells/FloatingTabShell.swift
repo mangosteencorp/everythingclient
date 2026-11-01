@@ -42,6 +42,6 @@ struct FloatingTabShell<Page: View>: View {
 
 #if DEBUG
 #Preview {
-    TMDBPreviewCatalog.floatingTabShell.view
+    FloatingTabShell(coordinator: .preview) { ShellPagePreview(title: $0.title) }
 }
 #endif

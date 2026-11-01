@@ -92,6 +92,7 @@ struct PersonScoreTimelineSection: View {
 
 #if DEBUG
 #Preview {
-    TMDBPersonPreviewCatalog.scoreTimeline.view
+    PersonScoreTimelineSection(credits: PersonMovieCredits.example.featuredCredits)
+        .padding()
 }
 #endif

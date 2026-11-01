@@ -43,10 +43,12 @@ public struct TMDBSignInButton: View {
 
 #if DEBUG
 #Preview("Signed out") {
-    TMDBSharedBackendPreviewCatalog.signInButtonSignedOut.view
+    TMDBSignInButton(viewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: false)))
+        .padding()
 }
 
 #Preview("Signed in") {
-    TMDBSharedBackendPreviewCatalog.signInButtonSignedIn.view
+    TMDBSignInButton(viewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: true)))
+        .padding()
 }
 #endif
