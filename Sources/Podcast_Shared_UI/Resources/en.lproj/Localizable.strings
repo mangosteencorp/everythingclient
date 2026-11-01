@@ -1,0 +1,16 @@
+// PodcastEpisodeRow
+"episode_details_separator" = " · ";
+
+// PodcastPlayButton
+"play" = "Play";
+"pause" = "Pause";
+"loading" = "Loading";
+
+// PodcastPlayerControls
+"playback_progress" = "Playback progress";
+"remaining_time_format" = "-%@";
+"skip_back_format" = "Skip back %d seconds";
+"skip_forward_format" = "Skip forward %d seconds";
+
+// PodcastEpisodeCard
+"playback_failed" = "Couldn't play this episode.";

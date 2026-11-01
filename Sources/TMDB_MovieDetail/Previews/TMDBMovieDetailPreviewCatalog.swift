@@ -1,4 +1,6 @@
 #if DEBUG
+import Podcast_Player
+import RSS_Shared_Backend
 import SwiftUI
 import third_party
 import TMDB_Shared_Backend
@@ -19,6 +21,10 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
     case watchProvidersError
     case ostSection
     case jellyfinSection
+    case podcastReview
+    case podcastReviewLoading
+    case podcastReviewError
+    case sectionRetry
 
     @MainActor @ViewBuilder
     public var view: some View {
@@ -31,6 +37,38 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
             MovieCreditSection(movieId: exampleMovieCredits.id, creditsViewModel: Self.creditsViewModel, personRouteBuilder: { $0 })
         case .watchProviders, .watchProvidersLoading, .watchProvidersError:
             MovieWatchProvidersSection(movieId: exampleMovieDetail.id, watchProvidersViewModel: watchProvidersViewModel)
+        case .podcastReview, .podcastReviewLoading, .podcastReviewError:
+            List {
+                Section {
+                    MoviePodcastReviewSection(podcastReviewViewModel: podcastReviewViewModel)
+                }
+            }
+        default:
+            staticView
+        }
+    }
+
+    @MainActor @ViewBuilder
+    private var staticView: some View {
+        switch self {
+        case .crosslinePeople:
+            MovieCrosslinePeopleRow(title: "Cast", peoples: examplePeoples, personRouteBuilder: { $0 })
+        case .crosslinePeopleRedacted:
+            RedactedMovieCrosslinePeopleRow()
+        case .peopleSeeAllList:
+            NavigationStack {
+                List(examplePeoples) { people in PeopleListItem(people: people, personRouteBuilder: { $0 }) }
+            }
+        case .keywords:
+            MovieKeywords(keywords: Self.sampleKeywords, discoverMovieByKeywordRouteBuilder: { _ in 1 })
+        case .locations:
+            MovieLocations(locations: ["Los Angeles", "New York", "London", "Paris", "Tokyo", "Peru", "Amazon Rainforest"])
+        case .roundedBadges:
+            VStack(spacing: 10) {
+                RoundedBadge(text: "Hello, World!", color: .red)
+                RoundedBadge(text: "Gradient Badge", color: .blue, useGradient: true)
+                RoundedBadge(text: "Another Badge", color: .green, useGradient: true)
+            }
         case .ostSection:
             List {
                 MovieOSTSection(ostViewModel: Self.ostViewModel)
@@ -54,6 +92,15 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
         }
         return viewModel
     }
+
+    @MainActor
+    private var podcastReviewViewModel: MoviePodcastReviewViewModel {
+        switch self {
+        case .podcastReviewLoading: Self.podcastReviewViewModel(.loading)
+        case .podcastReviewError: Self.podcastReviewViewModel(.error("The Internet connection appears to be offline."))
+        default: Self.podcastReviewViewModel(.found(Self.sampleReview))
+        }
+    }
 }
 
 private extension TMDBMovieDetailPreviewCatalog {
@@ -75,6 +122,7 @@ private extension TMDBMovieDetailPreviewCatalog {
             watchProvidersViewModel: watchProvidersViewModel,
             ostViewModel: MovieOSTViewModel(),
             jellyfinViewModel: MovieJellyfinViewModel(),
+            podcastReviewViewModel: podcastReviewViewModel(.found(sampleReview)),
             discoverMovieByKeywordRouteBuilder: { _ in 1 },
             photoSlidesRouteBuilder: { _, index in index }
         )
@@ -117,6 +165,70 @@ private extension TMDBMovieDetailPreviewCatalog {
             )
         )
         return viewModel
+    }
+
+    /// A review section in `state`, its silent player paused two minutes into the sample review.
+    @MainActor
+    static func podcastReviewViewModel(_ state: MoviePodcastReviewState) -> MoviePodcastReviewViewModel {
+        let viewModel = MoviePodcastReviewViewModel(
+            feedProvider: PreviewRSSFeedProvider(),
+            player: .preview(.paused, episode: sampleReview, elapsed: 125)
+        )
+        viewModel.state = state
+        return viewModel
+    }
+
+    /// IGN's feed as previews see it: one review, of the sample movie, so the page finds it without downloading.
+    static let sampleReviewFeed = RSSFeed(
+        title: "IGN Movie Reviews",
+        items: [
+            RSSItem(
+                guid: "preview-paddington-in-peru",
+                title: "Paddington in Peru Review",
+                summary: "IGN's review of Paddington in Peru.",
+                publishedAt: Date(timeIntervalSince1970: 1_731_024_000),
+                duration: 512,
+                enclosure: RSSEnclosure(url: URL(fileURLWithPath: "/dev/null"))
+            ),
+        ]
+    )
+
+    static var sampleReview: PodcastEpisode {
+        sampleReviewFeed.episodes[0]
+    }
+
+    static var sampleKeywords: [Keyword] {
+        [
+            Keyword(id: 613, name: "new year's eve"),
+            Keyword(id: 592, name: "capitalism"),
+            Keyword(id: 2449, name: "black market"),
+            Keyword(id: 1284, name: "identity"),
+            Keyword(id: 10123, name: "dark comedy"),
+            Keyword(id: 8201, name: "satire"),
+            Keyword(id: 4995, name: "aging"),
+            Keyword(id: 6562, name: "celebrity"),
+            Keyword(id: 11322, name: "female protagonist"),
+            Keyword(id: 12670, name: "los angeles, california"),
+            Keyword(id: 163_405, name: "aerobics"),
+            Keyword(id: 170_383, name: "disfigurement"),
+            Keyword(id: 187_056, name: "woman director"),
+            Keyword(id: 214_664, name: "beauty standards"),
+            Keyword(id: 224_636, name: "horror comedy"),
+            Keyword(id: 228_429, name: "insecure woman"),
+            Keyword(id: 245_415, name: "toxic masculinity"),
+            Keyword(id: 251_961, name: "drug"),
+            Keyword(id: 283_085, name: "body horror"),
+            Keyword(id: 295_902, name: "actress"),
+            Keyword(id: 325_778, name: "bold"),
+            Keyword(id: 325_801, name: "distressing"),
+        ]
+    }
+}
+
+/// Answers every request with the sample feed, so previews never reach IGN.
+private struct PreviewRSSFeedProvider: RSSFeedProviding {
+    func feed(at _: URL) async throws -> RSSFeed {
+        TMDBMovieDetailPreviewCatalog.sampleReviewFeed
     }
 }
 #endif

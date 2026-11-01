@@ -17,6 +17,9 @@
       location = "group:Rebuild/TMDBMovieDetailDemo/TMDBMovieDetailDemo.xcodeproj">
    </FileRef>
    <FileRef
+      location = "group:Rebuild/PodcastDemo/PodcastDemo.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:Tests/UnitTestPlan.xctestplan">
    </FileRef>
    <FileRef
