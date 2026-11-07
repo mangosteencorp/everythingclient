@@ -30,11 +30,11 @@ public final class MoviePodcastReviewViewModel: ObservableObject {
     /// - Parameters:
     ///   - feedProvider: Downloads the feed; the shared service caches it, so every movie page reuses one download.
     ///   - feedURL: The review show's RSS feed.
-    ///   - player: Plays the review; inject one with a silent engine in tests and previews.
+    ///   - player: Plays the review, also from the Lock Screen and Control Center; inject one with a silent engine in tests and previews.
     public init(
         feedProvider: any RSSFeedProviding = RSSFeedService.shared,
         feedURL: URL = PodcastFeed.ignMovieReviews,
-        player: PodcastPlayer = PodcastPlayer()
+        player: PodcastPlayer = PodcastPlayer(nowPlaying: MPPodcastNowPlaying())
     ) {
         self.feedProvider = feedProvider
         self.feedURL = feedURL
