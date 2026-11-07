@@ -103,6 +103,7 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
                 contentVC.coordinator = coordinator
                 addChild(contentVC)
                 contentVC.view.frame = view.bounds
+                contentVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 view.addSubview(contentVC.view)
                 contentVC.didMove(toParent: self)
                 contentViewController = contentVC
@@ -114,10 +115,6 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
                 self?.viewModel.fetchProfile()
             }
         }
-    }
-
-    func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController) {
-        viewModel.signOut()
     }
 
     func profileContentViewControllerDidRefresh(_ viewController: ProfileContentViewController) {

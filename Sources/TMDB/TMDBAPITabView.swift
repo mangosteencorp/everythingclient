@@ -260,13 +260,11 @@ public struct TMDBAPITabView: View {
 
     @ViewBuilder
     private func buildProfilePage() -> some View {
-        ProfilePageVCView(container: container) { movieId in
+        ProfilePage(container: container) { movieId in
             coordinator.navigate(to: .movieDetail(MovieRouteModel(id: movieId)), in: .profile)
         } onNavigateToTVShow: { tvShowId in
             coordinator.navigate(to: .tvShowDetail(tvShowId), in: .profile)
         }
-        // Same as Discover: the header and list keep to the safe area themselves.
-        .ignoresSafeArea()
         .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
     }

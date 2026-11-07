@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "profile.sign_out" : {
+      "comment" : "Navigation bar button that signs out of TMDB.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        }
+      }
+    },
+    "profile.title" : {
+      "comment" : "Navigation title of the profile page while nobody is signed in.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile"
+          }
+        }
+      }
+    },
+    "profile.username_format" : {
+      "comment" : "Navigation title for a TMDB account without a name. %@ is the account's username.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@%@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

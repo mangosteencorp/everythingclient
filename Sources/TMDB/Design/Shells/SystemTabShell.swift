@@ -21,11 +21,21 @@ struct SystemTabShell<Page: View>: View {
         }
         .searchTabActivatesSearch()
         .withDefaultSidebarTabBarPlacement(enabled: usesSidebarPlacement)
+        .minimizesTabBarOnScrollDown()
     }
 }
 
 @available(iOS 16, *)
 private extension View {
+    @ViewBuilder
+    func minimizesTabBarOnScrollDown() -> some View {
+        if #available(iOS 26, *) {
+            tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            self
+        }
+    }
+
     @ViewBuilder
     func withDefaultSidebarTabBarPlacement(enabled: Bool) -> some View {
         #if compiler(>=6.4)

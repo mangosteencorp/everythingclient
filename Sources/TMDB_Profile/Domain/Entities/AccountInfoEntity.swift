@@ -1,6 +1,6 @@
 import Foundation
 
-struct AccountInfoEntity {
+struct AccountInfoEntity: Equatable {
     let id: Int
     let name: String
     let username: String

@@ -61,8 +61,6 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
     private var dataSource: UICollectionViewDiffableDataSource<Section<T>, T>?
     private var refreshControl: UIRefreshControl?
     private var refreshHandler: (() -> Void)?
-    /// Called on every scroll with the distance scrolled past the top edge (negative while pulling down).
-    var onScroll: ((CGFloat) -> Void)?
 
     // MARK: Initialization
 
@@ -84,6 +82,14 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
         setupCollectionView()
         setupDataSource()
         reloadData()
+    }
+
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
+        // The navigation bar only follows the scroll view of the controller it shows: SwiftUI's hosting
+        // controller here, which can't see into a representable. Without this the large title never collapses.
+        sequence(first: self as UIViewController, next: \.parent).first { $0.parent is UINavigationController }?
+            .setContentScrollView(collectionView)
     }
 
     // MARK: Public Methods
@@ -234,10 +240,6 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
     }
 
     // MARK: - UICollectionViewDelegate
-
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        onScroll?(scrollView.contentOffset.y + scrollView.adjustedContentInset.top)
-    }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let section = sections[indexPath.section]

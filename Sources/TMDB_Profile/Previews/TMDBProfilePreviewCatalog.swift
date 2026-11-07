@@ -12,14 +12,20 @@ public enum TMDBProfilePreviewCatalog: String, CaseIterable {
     case page
     case signedIn
     case signedOut
+    /// The page as the profile tab shows it, in a `NavigationStack`: the account is in the navigation bar.
+    case signedInPage
 
     @MainActor @ViewBuilder
     public var view: some View {
         switch self {
         case .page:
-            ProfilePageVCView(container: Self.signedOutContainer, onNavigateToMovie: { _ in }, onNavigateToTVShow: { _ in })
+            NavigationStack {
+                ProfilePage(container: Self.signedOutContainer, onNavigateToMovie: { _ in }, onNavigateToTVShow: { _ in })
+            }
         case .signedIn, .signedOut:
             UIViewControllerPreview { Self.profileController(isAuthenticated: self == .signedIn) }
+        case .signedInPage:
+            NavigationStack { ProfilePage(makeViewModel: { Self.viewModel() }) }
         }
     }
 
@@ -38,16 +44,22 @@ public enum TMDBProfilePreviewCatalog: String, CaseIterable {
     }
 
     @MainActor
-    private static func profileController(isAuthenticated: Bool) -> UINavigationController {
-        let viewModel = ProfileViewModel(
-            getProfileUseCase: PreviewGetProfileUseCase(),
+    static func viewModel(isAuthenticated: Bool = true, profile: ProfileEntity = sampleProfileEntity) -> ProfileViewModel {
+        ProfileViewModel(
+            getProfileUseCase: PreviewGetProfileUseCase(profile: profile),
             authViewModel: AuthenticationViewModel(authService: PreviewAuthenticationService(isAuthenticated: isAuthenticated))
         )
-        return UINavigationController(rootViewController: ProfileViewController(viewModel: viewModel))
+    }
+
+    @MainActor
+    private static func profileController(isAuthenticated: Bool) -> UINavigationController {
+        UINavigationController(rootViewController: ProfileViewController(viewModel: viewModel(isAuthenticated: isAuthenticated)))
     }
 }
 
 private struct PreviewGetProfileUseCase: GetProfileUseCaseProtocol {
-    func execute() -> Single<ProfileEntity> { .just(sampleProfileEntity) }
+    let profile: ProfileEntity
+
+    func execute() -> Single<ProfileEntity> { .just(profile) }
 }
 #endif
