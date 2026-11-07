@@ -50,10 +50,11 @@ public final class AVPodcastAudioEngine: PodcastAudioEngine {
         player.replaceCurrentItem(with: item)
     }
 
-    /// Switches the audio session to spoken-word playback, then plays.
+    /// Switches the audio session to spoken-word playback and activates it, which the system's media controls need, then plays.
     public func play() {
         #if os(iOS)
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
+        try? AVAudioSession.sharedInstance().setActive(true)
         #endif
         player.play()
     }
