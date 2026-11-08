@@ -35,6 +35,31 @@ final class TMDBFeedDemoUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(checked.count, 3, "Too few cards were fully on screen to judge")
     }
 
+    /// The row designs tile into columns on a regular-width screen (iPad) and stay a one-column
+    /// list on a compact one (iPhone). Offline: `pageMovies` is served from preview data.
+    @MainActor
+    func testRowDesignsTileIntoColumnsOnlyAtRegularWidth() throws {
+        for design in ["list", "compactRows"] {
+            let app = XCUIApplication()
+            app.launchArguments += ["-design_coordinator_selections", "{ FeedContentDesign = \(design); }"]
+            app.launch()
+            app.buttons["pageMovies"].tap()
+
+            // The first two preview movies: Dune: Part Two, then Inside Out 2.
+            let first = app.descendants(matching: .any)["movielist1.movierow693134"].firstMatch
+            let second = app.descendants(matching: .any)["movielist1.movierow1022789"].firstMatch
+            XCTAssertTrue(first.waitForExistence(timeout: 10), "\(design): the feed never loaded")
+            XCTAssertTrue(second.exists, "\(design): the second movie is missing")
+
+            if app.windows.firstMatch.horizontalSizeClass == .regular {
+                XCTAssertEqual(first.frame.minY, second.frame.minY, accuracy: 1, "\(design): tiles are not side by side")
+                XCTAssertLessThan(first.frame.maxX, second.frame.minX, "\(design): tiles overlap")
+            } else {
+                XCTAssertGreaterThanOrEqual(second.frame.minY, first.frame.maxY - 1, "\(design): rows are not stacked")
+            }
+        }
+    }
+
     /// Polls, because the poster arrives from the network and fades in.
     @MainActor
     private func waitForPoster(in card: XCUIElement, timeout: TimeInterval = 15) -> Bool {
