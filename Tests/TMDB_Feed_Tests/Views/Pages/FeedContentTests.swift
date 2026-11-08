@@ -16,7 +16,7 @@ final class FeedContentTests: XCTestCase {
     }
 
     private func movieContent(_ viewModel: MovieFeedViewModel) -> MovieFeedContent<Int> {
-        MovieFeedContent(viewModel: viewModel, detailRouteBuilder: { _ in 1 })
+        MovieFeedContent(viewModel: viewModel, detailRouteBuilder: { _, _ in 1 })
     }
 
     func testLoadingStateShowsProgress() throws {

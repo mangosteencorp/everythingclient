@@ -10,7 +10,7 @@ struct FeedTabsPage<Route: Hashable>: View {
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?
     private let analyticsTracker: AnalyticsTracker?
-    private let detailRouteBuilder: (TMDB_Feed.Movie) -> Route
+    private let detailRouteBuilder: (TMDB_Feed.Movie, ArraySlice<TMDB_Feed.Movie>) -> Route
     private let tvShowDetailRouteBuilder: (TVShow) -> Route
 
     @State private var selectedTab: FeedKind = .nowPlaying
@@ -20,7 +20,7 @@ struct FeedTabsPage<Route: Hashable>: View {
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         analyticsTracker: AnalyticsTracker? = nil,
-        detailRouteBuilder: @escaping (TMDB_Feed.Movie) -> Route,
+        detailRouteBuilder: @escaping (TMDB_Feed.Movie, ArraySlice<TMDB_Feed.Movie>) -> Route,
         tvShowDetailRouteBuilder: @escaping (TVShow) -> Route
     ) {
         self.apiService = apiService

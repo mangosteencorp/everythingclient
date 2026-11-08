@@ -26,9 +26,10 @@ public struct TMDBNavigationDestinations: ViewModifier {
     @ViewBuilder
     func destinationView(_ route: TMDBRoute) -> some View {
         switch route {
-        case let .movieDetail(movie):
-            MovieDetailPage(
-                movieRoute: movie.toMovieDetailModel(),
+        case let .movieDetail(movie, window):
+            MovieDetailPager(
+                movies: (window.isEmpty ? [movie] : window).map { $0.toMovieDetailModel() },
+                selectedMovieId: movie.id,
                 apiService: container.resolve(TMDBAPIService.self)!,
                 discoverMovieByKeywordRouteBuilder: {keywordId in
                     TMDBRoute.movieList(.keyword(keywordId))
@@ -67,7 +68,7 @@ public struct TMDBNavigationDestinations: ViewModifier {
                 apiService: container.resolve(TMDBAPIService.self)!,
                 additionalParams: params,
                 analyticsTracker: analyticsTracker,
-                detailRouteBuilder: { movie in TMDBRoute.movieDetail(MovieRouteModel(id: movie.id)) },
+                detailRouteBuilder: TMDBRoute.movie(_:in:),
                 tvShowDetailRouteBuilder: { tvShow in TMDBRoute.tvShowDetail(tvShow.id) }
             )
         case let .tvShowList(type):

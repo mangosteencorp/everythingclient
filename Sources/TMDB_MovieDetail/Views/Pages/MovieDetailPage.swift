@@ -147,7 +147,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 }
             }
             .listStyle(PlainListStyle())
-            .navigationBarTitle(Text(displayedMovie.userTitle), displayMode: .large)
+            .modifier(MovieDetailPageTitle(title: displayedMovie.userTitle))
         }
         // Separate tasks so the two requests run concurrently instead of being serialised.
         // SwiftUI cancels them when the page goes away, and each view model only loads once.

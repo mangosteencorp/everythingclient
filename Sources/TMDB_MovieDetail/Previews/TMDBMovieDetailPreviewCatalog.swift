@@ -21,6 +21,8 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
     case jellyfinSection
     /// A Pokémon movie, so the page shows its "Open Pokédex" link.
     case pokedexLink
+    /// Three loaded movies to swipe between, opened on the middle one.
+    case pager
 
     @MainActor @ViewBuilder
     public var view: some View {
@@ -31,6 +33,14 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
             NavigationStack { Self.loadedPage(movie: exampleMovieDetail) }
         case .pokedexLink:
             NavigationStack { Self.loadedPage(movie: Self.pokemonMovie) }
+        case .pager:
+            NavigationStack {
+                MovieDetailPager(
+                    movies: [exampleMovieDetail, sampleApeMovie, Self.pokemonMovie],
+                    selectedMovieId: sampleApeMovie.id,
+                    page: Self.loadedPage(movie:)
+                )
+            }
         case .creditSection:
             MovieCreditSection(movieId: exampleMovieCredits.id, creditsViewModel: Self.creditsViewModel, personRouteBuilder: { $0 })
         case .watchProviders, .watchProvidersLoading, .watchProvidersError:

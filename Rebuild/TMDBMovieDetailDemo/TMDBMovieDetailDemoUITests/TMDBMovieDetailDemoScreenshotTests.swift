@@ -23,6 +23,24 @@ final class TMDBMovieDetailDemoScreenshotTests: XCTestCase {
         app.collectionViews.firstMatch.swipeUp()
         captureScreen(named: "02_movie_detail_scrolled")
     }
+
+    /// The `pager` catalog case: three sample movies, opened on the middle one, then swiped to
+    /// the next. The title has to follow the page on screen.
+    @MainActor
+    func testMovieDetailPager() {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["pager"].tap()
+
+        let pager = app.descendants(matching: .any)["movieDetail.pager"].firstMatch
+        XCTAssertTrue(pager.waitForExistence(timeout: 20), "The pager never opened")
+        XCTAssertTrue(app.navigationBars["Kingdom of the Planet of the Apes"].waitForExistence(timeout: 5))
+        captureScreen(named: "03_movie_detail_pager")
+
+        pager.swipeLeft()
+        XCTAssertTrue(app.navigationBars["Pokémon Detective Pikachu"].waitForExistence(timeout: 5), "Swiping did not move to the next movie")
+        captureScreen(named: "04_movie_detail_pager_swiped")
+    }
 }
 
 extension XCTestCase {
