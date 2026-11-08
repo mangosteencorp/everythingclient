@@ -13,6 +13,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
     @StateObject var watchProvidersViewModel: MovieWatchProvidersViewModel
     @StateObject var ostViewModel: MovieOSTViewModel
     @StateObject var jellyfinViewModel: MovieJellyfinViewModel
+    @StateObject var podcastReviewViewModel: MoviePodcastReviewViewModel
     let apiService: TMDBAPIService
     let discoverMovieByKeywordRouteBuilder: (Int) -> Route
     let personRouteBuilder: ((Int) -> Route)?
@@ -34,6 +35,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
             watchProvidersViewModel: MovieWatchProvidersViewModel(apiService: apiService),
             ostViewModel: MovieOSTViewModel(),
             jellyfinViewModel: MovieJellyfinViewModel(),
+            podcastReviewViewModel: MoviePodcastReviewViewModel(),
             discoverMovieByKeywordRouteBuilder: discoverMovieByKeywordRouteBuilder,
             personRouteBuilder: personRouteBuilder,
             photoSlidesRouteBuilder: photoSlidesRouteBuilder,
@@ -65,6 +67,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
          watchProvidersViewModel: MovieWatchProvidersViewModel,
          ostViewModel: MovieOSTViewModel,
          jellyfinViewModel: MovieJellyfinViewModel,
+         podcastReviewViewModel: MoviePodcastReviewViewModel,
          discoverMovieByKeywordRouteBuilder: @escaping (Int) -> Route,
          personRouteBuilder: ((Int) -> Route)? = nil,
          photoSlidesRouteBuilder: (([String], Int) -> Route)? = nil,
@@ -76,6 +79,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
         _watchProvidersViewModel = StateObject(wrappedValue: watchProvidersViewModel)
         _ostViewModel = StateObject(wrappedValue: ostViewModel)
         _jellyfinViewModel = StateObject(wrappedValue: jellyfinViewModel)
+        _podcastReviewViewModel = StateObject(wrappedValue: podcastReviewViewModel)
         self.discoverMovieByKeywordRouteBuilder = discoverMovieByKeywordRouteBuilder
         self.personRouteBuilder = personRouteBuilder
         self.photoSlidesRouteBuilder = photoSlidesRouteBuilder
@@ -145,6 +149,11 @@ public struct MovieDetailPage<Route: Hashable>: View {
                 Section {
                     MovieWatchProvidersSection(movieId: movie.id, watchProvidersViewModel: watchProvidersViewModel)
                 }
+                if podcastReviewViewModel.isVisible {
+                    Section {
+                        MoviePodcastReviewSection(podcastReviewViewModel: podcastReviewViewModel)
+                    }
+                }
             }
             .listStyle(PlainListStyle())
             .navigationBarTitle(Text(displayedMovie.userTitle), displayMode: .large)
@@ -166,6 +175,15 @@ public struct MovieDetailPage<Route: Hashable>: View {
         // waits for the placeholder title to resolve into the real one.
         .task(id: displayedMovie.userTitle) {
             await jellyfinViewModel.load(title: displayedMovie.userTitle, tmdbID: movie.id)
+        }
+        // IGN titles its episodes in English, which is TMDB's `title` (the detail request asks for no other
+        // language); `userTitle` is the original-language one.
+        .task(id: displayedMovie.title) {
+            await podcastReviewViewModel.load(title: displayedMovie.title, releaseDate: displayedMovie.releaseDateFormatted)
+        }
+        // Leaving the page, or pushing another one on top, shouldn't leave the review talking in the background.
+        .onDisappear {
+            podcastReviewViewModel.player.pause()
         }
     }
 

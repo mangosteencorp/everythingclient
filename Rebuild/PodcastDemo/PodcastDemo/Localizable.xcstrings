@@ -1,0 +1,102 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "componentsTitle" : {
+      "comment" : "Title of the tab listing every podcast UI preview.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Components"
+          }
+        }
+      }
+    },
+    "episodesHeader" : {
+      "comment" : "Header above the list of podcast episodes.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Episodes"
+          }
+        }
+      }
+    },
+    "loadFailedTitle" : {
+      "comment" : "Shown when the podcast feed could not be downloaded.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't Load Reviews"
+          }
+        }
+      }
+    },
+    "loadingReviews" : {
+      "comment" : "Shown while the podcast feed downloads.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading reviews…"
+          }
+        }
+      }
+    },
+    "matchedReviewHeader" : {
+      "comment" : "Header above the review of the movie typed in the search field.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review of This Movie"
+          }
+        }
+      }
+    },
+    "retry" : {
+      "comment" : "Button that downloads the podcast feed again after a failure.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        }
+      }
+    },
+    "reviewsTitle" : {
+      "comment" : "Title of the screen and tab listing IGN's movie review podcast.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IGN Movie Reviews"
+          }
+        }
+      }
+    },
+    "searchPrompt" : {
+      "comment" : "Placeholder of the search field, which filters episodes by movie title.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Movie title"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

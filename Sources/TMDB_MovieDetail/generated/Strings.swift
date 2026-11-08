@@ -30,6 +30,10 @@ public enum L10n {
   public static let overviewTitle = L10n.tr("Localizable", "overview_title", fallback: "Overview:")
   /// Photos
   public static let photosSectionTitle = L10n.tr("Localizable", "photos_section_title", fallback: "Photos")
+  /// Looking for IGN's review...
+  public static let podcastReviewLoading = L10n.tr("Localizable", "podcast_review_loading", fallback: "Looking for IGN's review...")
+  /// IGN Review
+  public static let podcastReviewSectionTitle = L10n.tr("Localizable", "podcast_review_section_title", fallback: "IGN Review")
   /// %@ ratings
   public static func ratingsFormat(_ p1: Any) -> String {
     return L10n.tr("Localizable", "ratings_format", String(describing: p1), fallback: "%@ ratings")

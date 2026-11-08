@@ -74,6 +74,27 @@
         "identifier" : "TMDB_Profile_Tests",
         "name" : "TMDB_Profile_Tests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "RSS_Shared_Backend_Tests",
+        "name" : "RSS_Shared_Backend_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "Podcast_Player_Tests",
+        "name" : "Podcast_Player_Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "Podcast_Shared_UI_Tests",
+        "name" : "Podcast_Shared_UI_Tests"
+      }
     }
   ],
   "version" : 1

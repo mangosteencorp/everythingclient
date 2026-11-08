@@ -122,6 +122,9 @@ let package = Package(
         .library(name: "Plex_Shared_Backend", targets: ["Plex_Shared_Backend"]),
         .library(name: "TMDB_TVShowDetail", targets: ["TMDB_TVShowDetail"]),
         .library(name: "Integration_test", targets: ["Integration_test"]),
+        .library(name: "RSS_Shared_Backend", targets: ["RSS_Shared_Backend"]),
+        .library(name: "Podcast_Player", targets: ["Podcast_Player"]),
+        .library(name: "Podcast_Shared_UI", targets: ["Podcast_Shared_UI"]),
 
     ],
     dependencies: [
@@ -207,6 +210,9 @@ let package = Package(
                 "Swinject",
                 "TMDB_Shared_Backend",
                 "third_party",
+                "RSS_Shared_Backend",
+                "Podcast_Player",
+                "Podcast_Shared_UI",
             ],
             resources: [
                 .process("Resources"),
@@ -217,7 +223,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TMDB_MovieDetail_Tests",
-            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party"]
+            dependencies: ["TMDB_MovieDetail", "Tests_Shared_Helpers", "third_party", "RSS_Shared_Backend", "Podcast_Player"]
         ),
         .testTarget(
             name: "TMDB_TVShowDetail_Tests",
@@ -328,6 +334,23 @@ let package = Package(
 
         .target(name: "Plex_Shared_Backend"),
         .testTarget(name: "Plex_Shared_Backend_Tests", dependencies: ["Plex_Shared_Backend"]),
+
+        // MARK: Podcast
+
+        .target(name: "RSS_Shared_Backend"),
+        .testTarget(
+            name: "RSS_Shared_Backend_Tests",
+            dependencies: ["RSS_Shared_Backend"],
+            resources: [.process("Resources")]
+        ),
+        .target(name: "Podcast_Player", dependencies: ["RSS_Shared_Backend"]),
+        .testTarget(name: "Podcast_Player_Tests", dependencies: ["Podcast_Player", "RSS_Shared_Backend"]),
+        .target(
+            name: "Podcast_Shared_UI",
+            dependencies: ["Podcast_Player", "RSS_Shared_Backend"],
+            resources: [.process("Resources")]
+        ),
+        .testTarget(name: "Podcast_Shared_UI_Tests", dependencies: ["Podcast_Shared_UI", "Podcast_Player", "RSS_Shared_Backend"]),
 
         // MARK: Pokedex
 

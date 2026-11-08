@@ -28,3 +28,7 @@
 
 // Ratings
 "ratings_format" = "%@ ratings";
+
+// MoviePodcastReviewSection
+"podcast_review_section_title" = "IGN Review";
+"podcast_review_loading" = "Looking for IGN's review...";
