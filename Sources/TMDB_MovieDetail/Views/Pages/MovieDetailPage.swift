@@ -133,7 +133,7 @@ public struct MovieDetailPage<Route: Hashable>: View {
                     }
                     if let pokedexRouteBuilder, PokemonMovieMatcher.shouldShowPokedexButton(for: displayedMovie) {
                         NavigationLink(value: pokedexRouteBuilder()) {
-                            Label("Open Pokédex", systemImage: "sparkles")
+                            Label(L10n.pokedexOpen, systemImage: "sparkles")
                         }
                     }
                     MovieCreditSection(
@@ -182,5 +182,9 @@ public struct MovieDetailPage<Route: Hashable>: View {
 #if DEBUG
 #Preview {
     TMDBMovieDetailPreviewCatalog.detailPage.view
+}
+
+#Preview("Pokédex link") {
+    TMDBMovieDetailPreviewCatalog.pokedexLink.view
 }
 #endif

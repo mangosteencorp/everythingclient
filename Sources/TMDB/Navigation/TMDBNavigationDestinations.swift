@@ -60,7 +60,8 @@ public struct TMDBNavigationDestinations: ViewModifier {
             PhotoSlidesPage(imagePaths: model.imagePaths, initialIndex: model.initialIndex)
         case .pokedex:
             PokedexView()
-                .navigationTitle("Pokédex")
+                // The Pokédex link lives on the movie page, so its strings do too.
+                .navigationTitle(TMDB_MovieDetail.L10n.pokedexTitle)
         case let .movieList(params):
             FeedTabsPage(
                 apiService: container.resolve(TMDBAPIService.self)!,
