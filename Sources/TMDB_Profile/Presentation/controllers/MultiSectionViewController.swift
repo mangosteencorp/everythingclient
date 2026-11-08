@@ -86,10 +86,8 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
 
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
-        // The navigation bar only follows the scroll view of the controller it shows: SwiftUI's hosting
-        // controller here, which can't see into a representable. Without this the large title never collapses.
-        sequence(first: self as UIViewController, next: \.parent).first { $0.parent is UINavigationController }?
-            .setContentScrollView(collectionView)
+        // Without this the large title never collapses: the bar can't find this list on its own.
+        navigationBarHost?.setContentScrollView(collectionView)
     }
 
     // MARK: Public Methods

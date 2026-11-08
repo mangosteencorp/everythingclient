@@ -1,7 +1,8 @@
 import SwiftUI
+import Swinject
+import TMDB_Shared_Backend
 import UIKit
 
-/// The UIKit profile page; `ProfilePage` puts it under the navigation bar.
 public struct ProfilePageVCView: UIViewControllerRepresentable {
     public class Coordinator: NSObject {
         var onNavigateToMovie: (Int) -> Void
@@ -21,12 +22,26 @@ public struct ProfilePageVCView: UIViewControllerRepresentable {
         }
     }
 
-    let viewModel: ProfileViewModel
+    private let container: Container
     var onNavigateToMovie: (Int) -> Void
     var onNavigateToTVShow: (Int) -> Void
 
+    public init(
+        container: Container,
+
+        onNavigateToMovie: @escaping (Int) -> Void,
+        onNavigateToTVShow: @escaping (Int) -> Void
+    ) {
+        self.container = container
+        self.onNavigateToMovie = onNavigateToMovie
+        self.onNavigateToTVShow = onNavigateToTVShow
+        TMDB_Profile.configure(container)
+    }
+
     public func makeUIViewController(context: Context) -> ProfileViewController {
-        let viewController = ProfileViewController(viewModel: viewModel)
+        guard let viewController = container.resolve(ProfileViewController.self) else {
+            fatalError("Failed to resolve ProfileViewController")
+        }
         viewController.setCoordinator(makeCoordinator())
         return viewController
     }

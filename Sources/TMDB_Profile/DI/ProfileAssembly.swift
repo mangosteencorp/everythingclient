@@ -29,6 +29,11 @@ public class ProfileAssembly: Assembly {
         .inObjectScope(.container) // Singleton scope to maintain state
 
         // Register View Controllers
+        container.register(ProfileViewController.self) { resolver in
+            let viewModel = resolver.resolve(ProfileViewModel.self)!
+            return ProfileViewController(viewModel: viewModel)
+        }
+
         container.register(ProfileContentViewController.self) { (_, profile: ProfileEntity) in
             ProfileContentViewController(profile: profile)
         }
