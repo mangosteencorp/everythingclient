@@ -1,4 +1,5 @@
 import Foundation
+import TMDB_Feed
 import TMDB_MovieDetail
 
 public struct MovieRouteModel: Hashable {
@@ -48,6 +49,22 @@ public struct MovieRouteModel: Hashable {
             releaseDate: nil,
             popularity: nil,
             originalTitle: nil
+        )
+    }
+
+    /// Everything the feed row already knows, so the detail page has a title before it loads.
+    init(_ movie: TMDB_Feed.Movie) {
+        self.init(
+            id: movie.id,
+            title: movie.title,
+            overview: movie.overview,
+            posterPath: movie.posterPath,
+            backdropPath: movie.backdropPath,
+            voteAverage: movie.voteAverage ?? 0.0,
+            voteCount: movie.voteCount ?? 0,
+            releaseDate: movie.releaseDate,
+            popularity: movie.popularity,
+            originalTitle: movie.originalTitle
         )
     }
 

@@ -28,3 +28,7 @@
 
 // Ratings
 "ratings_format" = "%@ ratings";
+
+// Pokédex
+"pokedex_open" = "Open Pokédex";
+"pokedex_title" = "Pokédex";

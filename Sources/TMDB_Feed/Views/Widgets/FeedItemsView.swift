@@ -25,8 +25,28 @@ struct FeedItemsView<Route: Hashable>: View {
 
     @DesignStyle private var design: FeedContentDesign
     @Environment(\.feedNavigationMode) private var navigationMode
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
+        // Wide feeds (iPad, regular width) lay their tiles out in as many columns as fit. A split
+        // view's sidebar column is compact, so it keeps its selectable list.
+        if horizontalSizeClass == .regular, let minimumTileWidth = design.regularWidthTileMinimum {
+            FeedTileGrid(items: items, minimumTileWidth: minimumTileWidth, onItemAppear: onItemAppear) { item in
+                if design == .paletteCards {
+                    FeedPaletteCell(item: item)
+                } else {
+                    FeedTile(item: item, style: design)
+                }
+            }
+            .accessibilityIdentifier(accessibilityIdentifier)
+        } else {
+            singleLayoutBody
+        }
+    }
+
+    /// Every design at compact width, and the poster grid, which fills any width as it is.
+    @ViewBuilder
+    private var singleLayoutBody: some View {
         switch design {
         case .list:
             feedList(style: .list)
@@ -75,7 +95,7 @@ struct FeedItemsView<Route: Hashable>: View {
     }
 
     private static var gridColumns: [GridItem] {
-        [GridItem(.adaptive(minimum: PosterSize.grid.width), spacing: 12)]
+        [GridItem(.adaptive(minimum: PosterSize.grid.width), spacing: 12, alignment: .top)]
     }
 }
 
@@ -98,8 +118,9 @@ struct FeedItemRow<Route: Hashable>: View {
     }
 }
 
+/// Shared by the compact row and its regular-width tile.
 @available(iOS 16, *)
-private struct FeedCompactRowContent: View {
+struct FeedCompactRowContent: View {
     let entity: MovieRowEntity
 
     var body: some View {
@@ -199,6 +220,22 @@ private struct FeedPaletteCell<Route: Hashable>: View {
     FeedItemsPreview(design: .paletteCards)
 }
 
+#Preview("List, regular width", traits: .landscapeLeft) {
+    FeedItemsPreview(design: .list, sizeClass: .regular)
+}
+
+#Preview("Compact rows, regular width", traits: .landscapeLeft) {
+    FeedItemsPreview(design: .compactRows, sizeClass: .regular)
+}
+
+#Preview("Grid, regular width", traits: .landscapeLeft) {
+    FeedItemsPreview(design: .grid, sizeClass: .regular)
+}
+
+#Preview("Palette cards, regular width", traits: .landscapeLeft) {
+    FeedItemsPreview(design: .paletteCards, sizeClass: .regular)
+}
+
 #Preview("Rows") {
     NavigationStack {
         List {
@@ -212,6 +249,9 @@ private struct FeedPaletteCell<Route: Hashable>: View {
 /// only reachable through their layout.
 private struct FeedItemsPreview: View {
     let design: FeedContentDesign
+    /// `.regular` stands in for an iPad-width feed on any canvas device; `nil` keeps the canvas's.
+    var sizeClass: UserInterfaceSizeClass?
+    @Environment(\.horizontalSizeClass) private var canvasSizeClass
 
     var body: some View {
         NavigationStack {
@@ -222,6 +262,7 @@ private struct FeedItemsPreview: View {
             )
         }
         .designStyle(design)
+        .environment(\.horizontalSizeClass, sizeClass ?? canvasSizeClass)
     }
 }
 #endif

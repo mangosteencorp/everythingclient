@@ -154,28 +154,11 @@ public struct TMDBAPITabView: View {
             kind: kind,
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker,
-            detailRouteBuilder: Self.movieRoute(for:),
+            detailRouteBuilder: TMDBRoute.movie(_:in:),
             tvShowDetailRouteBuilder: Self.tvShowRoute(for:)
         )
         .designShuffleToolbar()
         .withTMDBNavigationDestinations(container: container)
-    }
-
-    /// Shared by the feed page and every feed row, so a poster leads to the same route
-    /// whichever shell is on screen.
-    private static func movieRoute(for movie: TMDB_Feed.Movie) -> TMDBRoute {
-        TMDBRoute.movieDetail(MovieRouteModel(
-            id: movie.id,
-            title: movie.title,
-            overview: movie.overview,
-            posterPath: movie.posterPath,
-            backdropPath: movie.backdropPath,
-            voteAverage: movie.voteAverage ?? 0.0,
-            voteCount: movie.voteCount ?? 0,
-            releaseDate: movie.releaseDate,
-            popularity: movie.popularity,
-            originalTitle: movie.originalTitle
-        ))
     }
 
     private static func tvShowRoute(for tvShow: TVShow) -> TMDBRoute {
@@ -189,7 +172,7 @@ public struct TMDBAPITabView: View {
         FeedTabsPage(
             apiService: container.resolve(TMDBAPIService.self)!,
             analyticsTracker: analyticsTracker,
-            detailRouteBuilder: { movie in Self.movieRoute(for: movie) },
+            detailRouteBuilder: TMDBRoute.movie(_:in:),
             tvShowDetailRouteBuilder: { tvShow in Self.tvShowRoute(for: tvShow) }
         )
         .designShuffleToolbar()

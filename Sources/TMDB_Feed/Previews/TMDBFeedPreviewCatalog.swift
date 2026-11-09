@@ -28,7 +28,7 @@ public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
                 FeedPage(
                     kind: self == .pageMovies ? .nowPlaying : .airingToday,
                     apiService: PreviewFeedAPIService(),
-                    detailRouteBuilder: { $0.id },
+                    detailRouteBuilder: { movie, _ in movie.id },
                     tvShowDetailRouteBuilder: { $0.id }
                 )
             }
@@ -36,7 +36,7 @@ public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
             NavigationStack {
                 MovieFeedContent(
                     viewModel: MovieFeedViewModel(feedType: .popular, apiService: PreviewFeedAPIService()),
-                    detailRouteBuilder: { $0.id }
+                    detailRouteBuilder: { movie, _ in movie.id }
                 )
             }
         case .movieContentOffline:
@@ -45,7 +45,7 @@ public enum TMDBFeedPreviewCatalog: String, CaseIterable, Identifiable {
                     feedType: .popular,
                     apiService: PreviewFeedAPIService(failure: URLError(.notConnectedToInternet))
                 ),
-                detailRouteBuilder: { $0.id }
+                detailRouteBuilder: { movie, _ in movie.id }
             )
         case .tvShowContent:
             NavigationStack {
