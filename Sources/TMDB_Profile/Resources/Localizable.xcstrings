@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "profile.sign_out" : {
-      "comment" : "Navigation bar button that signs out of TMDB.",
+      "comment" : "Profile header button, under the account's name, that signs out of TMDB.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -14,7 +14,7 @@
       }
     },
     "profile.title" : {
-      "comment" : "Navigation title of the profile page while nobody is signed in.",
+      "comment" : "Navigation title of the profile page until the signed-in account's name replaces it.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -26,7 +26,7 @@
       }
     },
     "profile.username_format" : {
-      "comment" : "Navigation title for a TMDB account without a name. %@ is the account's username.",
+      "comment" : "The account's handle, under its name in the profile header (and the navigation title when it has no name). %@ is the username.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
