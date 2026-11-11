@@ -89,9 +89,9 @@ public struct MovieDetailPage<Route: Hashable>: View {
                     MovieCoverRow(movie: displayedMovie)
                         .frame(height: 250)
                 }
-                if let errorMessage = movieDetailViewModel.state.errorMessage {
+                if movieDetailViewModel.state.errorMessage != nil {
                     Section {
-                        SectionRetryView(message: errorMessage) {
+                        SectionRetryView(message: L10n.detailLoadFailed) {
                             await movieDetailViewModel.reload(movieId: movie.id)
                         }
                     }

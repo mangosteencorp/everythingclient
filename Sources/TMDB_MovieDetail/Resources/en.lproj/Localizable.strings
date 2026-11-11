@@ -23,7 +23,11 @@
 "separator" = "•";
 
 // Error messages
-"error_format" = "Error: %@";
+"cast_load_failed" = "Couldn't load cast & crew";
+"detail_load_failed" = "Couldn't load movie details";
+"jellyfin_load_failed" = "Couldn't check your Jellyfin library";
+"soundtrack_load_failed" = "Couldn't load the soundtrack";
+"watch_providers_load_failed" = "Couldn't load where to watch";
 "retry_button_title" = "Try Again";
 
 // Ratings
