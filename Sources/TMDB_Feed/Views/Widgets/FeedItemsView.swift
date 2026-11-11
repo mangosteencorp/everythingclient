@@ -157,7 +157,7 @@ private struct FeedGridCell<Route: Hashable>: View {
 
                 Text(item.entity.title)
                     .font(.caption)
-                    .lineLimit(2)
+                    .lineLimit(2, reservesSpace: true)
                     .frame(width: PosterSize.grid.width, alignment: .leading)
             }
         }
