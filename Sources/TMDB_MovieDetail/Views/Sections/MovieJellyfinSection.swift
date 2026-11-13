@@ -34,8 +34,8 @@ public struct MovieJellyfinSection: View {
                         JellyfinMoviePlayerView(match: match)
                     }
 
-            case .error(let message):
-                SectionRetryView(message: message) {
+            case .error:
+                SectionRetryView(message: L10n.jellyfinLoadFailed) {
                     await jellyfinViewModel.reload(title: movieTitle, tmdbID: movieId)
                 }
 

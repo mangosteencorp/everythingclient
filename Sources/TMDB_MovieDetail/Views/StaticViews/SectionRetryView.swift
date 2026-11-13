@@ -10,7 +10,7 @@ struct SectionRetryView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(message)
                 .font(.subheadline)
-                .foregroundColor(.red)
+                .foregroundStyle(.secondary)
             Button(L10n.retryButtonTitle) {
                 Task { await retryAction() }
             }
@@ -24,7 +24,7 @@ struct SectionRetryView: View {
 #if DEBUG
 #Preview {
     List {
-        SectionRetryView(message: "The Internet connection appears to be offline.") {}
+        SectionRetryView(message: L10n.castLoadFailed) {}
     }
 }
 #endif
