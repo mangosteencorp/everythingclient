@@ -66,10 +66,10 @@ public struct MovieOSTSection: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal)
 
-            case .error(let message):
-                Text("Could not load soundtrack: \(message)")
+            case .error:
+                Text(L10n.soundtrackLoadFailed)
                     .font(.subheadline)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.secondary)
                     .padding(.horizontal)
             }
         }

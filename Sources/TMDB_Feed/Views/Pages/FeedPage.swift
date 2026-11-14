@@ -10,15 +10,17 @@ public struct FeedPage<Route: Hashable>: View {
     private let apiService: APIServiceProtocol
     private let additionalParams: AdditionalMovieListParams?
     private let analyticsTracker: AnalyticsTracker?
-    private let detailRouteBuilder: (Movie) -> Route
+    private let detailRouteBuilder: (Movie, ArraySlice<Movie>) -> Route
     private let tvShowDetailRouteBuilder: (TVShow) -> Route
 
+    /// - Parameter detailRouteBuilder: Called with a movie and the feed rows around it (that
+    ///   movie included), so its detail page can swipe to the neighbouring movies.
     public init(
         kind: FeedKind,
         apiService: APIServiceProtocol,
         additionalParams: AdditionalMovieListParams? = nil,
         analyticsTracker: AnalyticsTracker? = nil,
-        detailRouteBuilder: @escaping (Movie) -> Route,
+        detailRouteBuilder: @escaping (Movie, ArraySlice<Movie>) -> Route,
         tvShowDetailRouteBuilder: @escaping (TVShow) -> Route
     ) {
         self.kind = kind
@@ -69,9 +71,9 @@ public struct FeedPage<Route: Hashable>: View {
 @available(iOS 16, *)
 private struct MovieFeedOwner<Route: Hashable>: View {
     @StateObject private var viewModel: MovieFeedViewModel
-    let detailRouteBuilder: (Movie) -> Route
+    let detailRouteBuilder: (Movie, ArraySlice<Movie>) -> Route
 
-    init(viewModel: @autoclosure @escaping () -> MovieFeedViewModel, detailRouteBuilder: @escaping (Movie) -> Route) {
+    init(viewModel: @autoclosure @escaping () -> MovieFeedViewModel, detailRouteBuilder: @escaping (Movie, ArraySlice<Movie>) -> Route) {
         _viewModel = StateObject(wrappedValue: viewModel())
         self.detailRouteBuilder = detailRouteBuilder
     }

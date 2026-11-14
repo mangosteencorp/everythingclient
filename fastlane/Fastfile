@@ -62,6 +62,8 @@ def run_screenshot_tests(scheme, test, devices, result_bundle)
      "-only-testing:#{test}",
      # The schemes mark UI tests parallelizable; cloned simulators would report clone names as devices.
      "-parallel-testing-enabled", "NO",
+     # On CI the first test on the iPad times out now and then (a different demo each run); give it a second go.
+     "-retry-tests-on-failure", "-test-iterations", "2",
      "-testLanguage", "en", "-testRegion", "US",
      "-resultBundlePath", result_bundle,
      "-derivedDataPath", File.join(REPO, ".DerivedData/screenshots"),

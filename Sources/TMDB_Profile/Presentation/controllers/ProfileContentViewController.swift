@@ -23,23 +23,31 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
     private let scrollView = UIScrollView()
     private let contentView = UIView()
 
-    private static let avatarMaxSize: CGFloat = 80
-    private static let avatarMinSize: CGFloat = 36
-    /// Scroll distance over which the avatar goes from full size to collapsed.
-    private static let avatarCollapseDistance: CGFloat = 80
+    private static let avatarMaxSize: CGFloat = 120
+    private static let avatarMinSize: CGFloat = 32
+    private static let headerTopPadding: CGFloat = 24
     private static let animalSymbols = [
         "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "bird.fill",
         "fish.fill", "ant.fill", "ladybug.fill", "lizard.fill", "pawprint.fill",
     ]
 
+    /// The list's content offset: the header's top edge sits at minus this, in this view's coordinates.
+    private var contentOffsetY: CGFloat?
+
+    /// Holds the big avatar's place in the header; the avatar itself is drawn once, above the list.
+    private let avatarPlaceholder: UIView = {
+        let view = UIView()
+        view.widthAnchor.constraint(equalToConstant: ProfileContentViewController.avatarMaxSize).isActive = true
+        view.heightAnchor.constraint(equalToConstant: ProfileContentViewController.avatarMaxSize).isActive = true
+        return view
+    }()
+
+    /// Moves from the header into the navigation bar's trailing edge as the list scrolls.
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = ProfileContentViewController.avatarMaxSize / 2
         imageView.clipsToBounds = true
         imageView.backgroundColor = .systemGray6
-        imageView.layer.borderWidth = 3
-        imageView.layer.borderColor = UIColor.systemBackground.cgColor
         return imageView
     }()
 
@@ -52,11 +60,9 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         return imageView
     }()
 
-    private lazy var avatarSize = avatarImageView.widthAnchor.constraint(equalToConstant: Self.avatarMaxSize)
-
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 22, weight: .bold)
+        label.font = .systemFont(ofSize: 28, weight: .bold)
         return label
     }()
 
@@ -69,13 +75,36 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
 
     private lazy var signOutButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Sign Out", for: .normal)
+        button.setTitle(String(localized: .profileSignOut), for: .normal)
         button.setTitleColor(.systemRed, for: .normal)
         button.addTarget(self, action: #selector(signOutTapped), for: .touchUpInside)
-        // Long names truncate instead of squeezing or stretching the button.
-        button.setContentHuggingPriority(.required, for: .horizontal)
-        button.setContentCompressionResistancePriority(.required, for: .horizontal)
         return button
+    }()
+
+    /// The navigation bar's title: the name fades in there as the avatar docks.
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .headline)
+        label.alpha = 0
+        return label
+    }()
+
+    /// Holds `titleLabel` in the bar: the bar resets its title view's own alpha, so the fade has to happen inside.
+    private lazy var titleView: UIView = {
+        let container = UIView()
+        container.addSubview(titleLabel)
+        return container
+    }()
+
+    /// Big avatar, name over @username, Sign Out; it scrolls with the list, so the list never resizes.
+    private lazy var headerView: UIView = {
+        let stack = UIStackView(arrangedSubviews: [avatarPlaceholder, nameLabel, usernameLabel, signOutButton])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 8
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.directionalLayoutMargins = NSDirectionalEdgeInsets(top: Self.headerTopPadding, leading: 16, bottom: 8, trailing: 16)
+        return stack
     }()
 
     private var currentProfile: ProfileEntity
@@ -93,59 +122,40 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupViews()
-        configureWithProfile()
-    }
-
-    private func setupViews() {
         view.backgroundColor = .systemBackground
-
-        // Header row: avatar | name over @username | Sign Out. Its height follows the avatar (never below the text).
-        let nameStack = UIStackView(arrangedSubviews: [nameLabel, usernameLabel])
-        nameStack.axis = .vertical
-        nameStack.spacing = 2
-        let headerStack = UIStackView(arrangedSubviews: [avatarImageView, nameStack, signOutButton])
-        headerStack.spacing = 12
-        headerStack.alignment = .center
-        headerStack.translatesAutoresizingMaskIntoConstraints = false
-
-        // Add a background view for the header
-        let headerBackground = UIView()
-        headerBackground.backgroundColor = .secondarySystemBackground
-        headerBackground.translatesAutoresizingMaskIntoConstraints = false
-
-        view.addSubview(headerBackground)
-        view.addSubview(headerStack)
-
+        setupSections()
         avatarImageView.addSubview(animalImageView)
-
         NSLayoutConstraint.activate([
-            avatarSize,
-            avatarImageView.heightAnchor.constraint(equalTo: avatarImageView.widthAnchor),
-
             animalImageView.centerXAnchor.constraint(equalTo: avatarImageView.centerXAnchor),
             animalImageView.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
             animalImageView.widthAnchor.constraint(equalTo: avatarImageView.widthAnchor, multiplier: 0.55),
             animalImageView.heightAnchor.constraint(equalTo: avatarImageView.heightAnchor, multiplier: 0.55),
-
-            headerBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            headerBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            headerBackground.bottomAnchor.constraint(equalTo: headerStack.bottomAnchor, constant: 20),
-
-            headerStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            headerStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            headerStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
         ])
-
-        // Setup sections
-        setupSections(below: headerBackground)
+        // Above the list, so it stays sharp under the bar's scroll edge effect.
+        view.addSubview(avatarImageView)
+        configureWithProfile(profile)
     }
 
-    private func configureWithProfile() {
-        nameLabel.text = profile.accountInfo.name
-        usernameLabel.text = "@\(profile.accountInfo.username)"
-        configureAvatar(with: profile.accountInfo)
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
+        navigationBarHost?.navigationItem.titleView = titleView
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        layoutAvatar()
+    }
+
+    private func configureWithProfile(_ profile: ProfileEntity) {
+        let accountInfo = profile.accountInfo
+        let username = String(localized: .profileUsernameFormat(accountInfo.username))
+        nameLabel.text = accountInfo.name
+        nameLabel.isHidden = accountInfo.name.isEmpty
+        usernameLabel.text = username
+        titleLabel.text = accountInfo.name.isEmpty ? username : accountInfo.name
+        titleLabel.sizeToFit()
+        titleView.frame = titleLabel.bounds
+        configureAvatar(with: accountInfo)
     }
 
     /// Account avatar, or an animal symbol (stable per account, so it doesn't change on refresh) when there is none.
@@ -155,110 +165,50 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         guard let avatarURL else {
             avatarImageView.kf.cancelDownloadTask()
             avatarImageView.image = nil
-            let symbols = Self.animalSymbols
-            animalImageView.image = UIImage(systemName: symbols[abs(accountInfo.id) % symbols.count])
+            animalImageView.image = UIImage(systemName: Self.animalSymbols[abs(accountInfo.id) % Self.animalSymbols.count])
             return
         }
         avatarImageView.kf.setImage(with: avatarURL)
     }
 
-    /// Shrinks the avatar as the list scrolls up; reverses when scrolling back.
-    /// The header row shrinks with it, and the list (pinned below the header) takes the freed space.
-    private func collapseAvatar(forScrollOffset offset: CGFloat) {
-        let collapse = min(max(offset / Self.avatarCollapseDistance, 0), 1)
-        let size = Self.avatarMaxSize - (Self.avatarMaxSize - Self.avatarMinSize) * collapse
-        avatarSize.constant = size
-        avatarImageView.layer.cornerRadius = size / 2
+    /// Where the docked avatar sits: the navigation bar's trailing edge, as a trailing bar item would.
+    private var dockedSlot: CGRect? {
+        guard let bar = navigationController?.navigationBar, bar.window != nil else { return nil }
+        let frame = view.convert(bar.bounds, from: bar)
+        let size = Self.avatarMinSize
+        return CGRect(x: frame.maxX - bar.directionalLayoutMargins.trailing - size, y: frame.midY - size / 2, width: size, height: size)
     }
 
-    private func setupSections(below header: UIView) {
-        var sections: [Section<ProfileCollectionItem>] = []
-        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
-        // Add watchlist section (featured)
-        if let watchlist = profile.watchlistTVShows {
-            let watchlistItems = watchlist.map { show in
-                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
-                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
-                return ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: imageUrl,
-                    name: show.name,
-                    tagline: "TV Show",
-                    subheading: "First aired: \(show.firstAirDate)"
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.watchlistTV.rawValue,
-                type: .featured,
-                title: "Watchlist",
-                subtitle: "Shows you want to watch",
-                items: watchlistItems
-            ))
+    /// Y follows the header until the avatar reaches the bar, then sticks; X eases in, so it rises first and then
+    /// sweeps right. The bar title fades in over the last 30%.
+    private func layoutAvatar() {
+        // From the scroll offset, not the placeholder's frame: the header may not be laid out yet, or recycled.
+        let restMidY = view.safeAreaInsets.top + Self.headerTopPadding + Self.avatarMaxSize / 2
+        let bigMidY = contentOffsetY.map { Self.headerTopPadding + Self.avatarMaxSize / 2 - $0 } ?? restMidY
+        var progress: CGFloat = 0
+        var center = CGPoint(x: view.bounds.midX, y: bigMidY)
+        if let slot = dockedSlot, restMidY > slot.midY {
+            progress = min(max((restMidY - bigMidY) / (restMidY - slot.midY), 0), 1)
+            center = CGPoint(x: center.x + (slot.midX - center.x) * progress * progress, y: max(bigMidY, slot.midY))
         }
+        let size = Self.avatarMaxSize - (Self.avatarMaxSize - Self.avatarMinSize) * progress
+        avatarImageView.bounds.size = CGSize(width: size, height: size)
+        avatarImageView.center = center
+        avatarImageView.layer.cornerRadius = size / 2
+        titleLabel.alpha = min(max((progress - 0.7) / 0.3, 0), 1)
+    }
 
-        // Add favorite TV shows section (mediumTable)
-        if let favoriteTVShows = profile.favoriteTVShows {
-            let tvShowItems = favoriteTVShows.map { show in
-                ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: show.name,
-                    tagline: String(format: "%.1f★", show.voteAverage),
-                    subheading: show.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteTV.rawValue,
-                type: .mediumTable,
-                title: "Favorite TV Shows",
-                subtitle: "Your top picks",
-                items: tvShowItems
-            ))
+    private func setupSections() {
+        let multiSectionVC = MultiSectionViewController(sections: makeSections(for: profile), headerView: headerView, delegate: self)
+        multiSectionVC.onScroll = { [weak self] offset in
+            self?.contentOffsetY = offset
+            self?.layoutAvatar()
         }
-
-        // Add favorite movies section (mediumTable)
-        if let favoriteMovies = profile.favoriteMovies {
-            let movieItems = favoriteMovies.map { movie in
-                ProfileCollectionItem(
-                    id: movie.id,
-                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: movie.title,
-                    tagline: String(format: "%.1f★", movie.voteAverage),
-                    subheading: movie.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteMovie.rawValue,
-                type: .mediumTable,
-                title: "Favorite Movies",
-                subtitle: "Your movie collection",
-                items: movieItems
-            ))
-        }
-
-        let multiSectionVC = MultiSectionViewController(sections: sections, delegate: self)
         addChild(multiSectionVC)
 
-        let containerView = UIView()
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(containerView)
-
-        multiSectionVC.onScroll = { [weak self] offset in self?.collapseAvatar(forScrollOffset: offset) }
-
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: header.bottomAnchor),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
-
-        multiSectionVC.view.frame = containerView.bounds
-        containerView.addSubview(multiSectionVC.view)
+        // Fills the page, under the bars: the list insets its own content for them, and they track its scrolling.
+        multiSectionVC.view.frame = view.bounds
+        view.addSubview(multiSectionVC.view)
         multiSectionVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         multiSectionVC.didMove(toParent: self)
 
@@ -278,86 +228,9 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
 
     func updateProfile(_ newProfile: ProfileEntity) {
         currentProfile = newProfile
-        nameLabel.text = newProfile.accountInfo.name
-        usernameLabel.text = "@\(newProfile.accountInfo.username)"
-        configureAvatar(with: newProfile.accountInfo)
-
-        updateSections(with: newProfile)
+        configureWithProfile(newProfile)
+        multiSectionViewController?.updateSections(makeSections(for: newProfile))
         multiSectionViewController?.endRefreshing()
-    }
-
-    private func updateSections(with profile: ProfileEntity) {
-        var sections: [Section<ProfileCollectionItem>] = []
-        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
-
-        // Add watchlist section (featured)
-        if let watchlist = profile.watchlistTVShows {
-            let watchlistItems = watchlist.map { show in
-                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
-                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
-                return ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: imageUrl,
-                    name: show.name,
-                    tagline: "TV Show",
-                    subheading: "First aired: \(show.firstAirDate)"
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.watchlistTV.rawValue,
-                type: .featured,
-                title: "Watchlist",
-                subtitle: "Shows you want to watch",
-                items: watchlistItems
-            ))
-        }
-
-        // Add favorite TV shows section (mediumTable)
-        if let favoriteTVShows = profile.favoriteTVShows {
-            let tvShowItems = favoriteTVShows.map { show in
-                ProfileCollectionItem(
-                    id: show.id,
-                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: show.name,
-                    tagline: String(format: "%.1f★", show.voteAverage),
-                    subheading: show.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteTV.rawValue,
-                type: .mediumTable,
-                title: "Favorite TV Shows",
-                subtitle: "Your top picks",
-                items: tvShowItems
-            ))
-        }
-
-        // Add favorite movies section (mediumTable)
-        if let favoriteMovies = profile.favoriteMovies {
-            let movieItems = favoriteMovies.map { movie in
-                ProfileCollectionItem(
-                    id: movie.id,
-                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
-                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
-                    name: movie.title,
-                    tagline: String(format: "%.1f★", movie.voteAverage),
-                    subheading: movie.overview
-                )
-            }
-
-            sections.append(Section(
-                id: ProfileContentSection.favoriteMovie.rawValue,
-                type: .mediumTable,
-                title: "Favorite Movies",
-                subtitle: "Your movie collection",
-                items: movieItems
-            ))
-        }
-
-        multiSectionViewController?.updateSections(sections)
     }
 
     @objc private func signOutTapped() {
@@ -385,6 +258,83 @@ class ProfileContentViewController: UIViewController, MultiSectionViewController
         default:
             break
         }
+    }
+}
+
+private extension ProfileContentViewController {
+    /// The watchlist (featured), then favourite TV shows and movies (medium tables), for the account's lists it has.
+    func makeSections(for profile: ProfileEntity) -> [Section<ProfileCollectionItem>] {
+        var sections: [Section<ProfileCollectionItem>] = []
+        let placeholderImageUrl = URL(string: "https://placehold.co/400")!
+
+        // Add watchlist section (featured)
+        if let watchlist = profile.watchlistTVShows {
+            let watchlistItems = watchlist.map { show in
+                let imageUrl = show.posterPath != nil ? TMDBImageSize.posterLarge
+                    .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl
+                return ProfileCollectionItem(
+                    id: show.id,
+                    imageURL: imageUrl,
+                    name: show.name,
+                    tagline: "TV Show",
+                    subheading: "First aired: \(show.firstAirDate)"
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.watchlistTV.rawValue,
+                type: .featured,
+                title: "Watchlist",
+                subtitle: "Shows you want to watch",
+                items: watchlistItems
+            ))
+        }
+
+        // Add favorite TV shows section (mediumTable)
+        if let favoriteTVShows = profile.favoriteTVShows {
+            let tvShowItems = favoriteTVShows.map { show in
+                ProfileCollectionItem(
+                    id: show.id,
+                    imageURL: show.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: show.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
+                    name: show.name,
+                    tagline: String(format: "%.1f★", show.voteAverage),
+                    subheading: show.overview
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.favoriteTV.rawValue,
+                type: .mediumTable,
+                title: "Favorite TV Shows",
+                subtitle: "Your top picks",
+                items: tvShowItems
+            ))
+        }
+
+        // Add favorite movies section (mediumTable)
+        if let favoriteMovies = profile.favoriteMovies {
+            let movieItems = favoriteMovies.map { movie in
+                ProfileCollectionItem(
+                    id: movie.id,
+                    imageURL: movie.posterPath != nil ? TMDBImageSize.posterSmall
+                        .buildImageUrl(path: movie.posterPath!) ?? placeholderImageUrl : placeholderImageUrl,
+                    name: movie.title,
+                    tagline: String(format: "%.1f★", movie.voteAverage),
+                    subheading: movie.overview
+                )
+            }
+
+            sections.append(Section(
+                id: ProfileContentSection.favoriteMovie.rawValue,
+                type: .mediumTable,
+                title: "Favorite Movies",
+                subtitle: "Your movie collection",
+                items: movieItems
+            ))
+        }
+
+        return sections
     }
 }
 

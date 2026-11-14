@@ -50,7 +50,7 @@ final class MovieFeedSnapshotTests: XCTestCase {
         vm.load()
         await waitUntil { vm.state.kind == .loaded }
 
-        let view = MovieFeedContent(viewModel: vm, detailRouteBuilder: { _ in 1 })
+        let view = MovieFeedContent(viewModel: vm, detailRouteBuilder: { _, _ in 1 })
 
         let list = try view.inspect().find(ViewType.List.self)
         XCTAssertNoThrow(try list.find(FeedItemRow<Int>.self))

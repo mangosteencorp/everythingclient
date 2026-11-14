@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "profile.sign_out" : {
+      "comment" : "Profile header button, under the account's name, that signs out of TMDB.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        }
+      }
+    },
+    "profile.title" : {
+      "comment" : "Navigation title of the profile page until the signed-in account's name replaces it.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile"
+          }
+        }
+      }
+    },
+    "profile.username_format" : {
+      "comment" : "The account's handle, under its name in the profile header (and the navigation title when it has no name). %@ is the username.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@%@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

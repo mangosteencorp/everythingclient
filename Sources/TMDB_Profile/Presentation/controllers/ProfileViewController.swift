@@ -33,9 +33,13 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
         bindViewModel()
     }
 
+    override public func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
+        updateNavigationBar()
+    }
+
     private func setupViews() {
         view.backgroundColor = .systemBackground
-        title = "Profile"
 
         // Add loading indicator
         loadingView.translatesAutoresizingMaskIntoConstraints = false
@@ -86,6 +90,8 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
         errorView.isHidden = true
         loadingView.stopAnimating()
 
+        updateNavigationBar()
+
         // Update UI based on state
         switch state {
         case .unauthorized:
@@ -103,6 +109,7 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
                 contentVC.coordinator = coordinator
                 addChild(contentVC)
                 contentVC.view.frame = view.bounds
+                contentVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 view.addSubview(contentVC.view)
                 contentVC.didMove(toParent: self)
                 contentViewController = contentVC
@@ -116,6 +123,15 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
         }
     }
 
+    /// A small "Profile" title; once the profile shows, its content swaps in the account's name (`titleView`),
+    /// which fades in as its avatar docks in the bar.
+    private func updateNavigationBar() {
+        guard let navigationItem = navigationBarHost?.navigationItem else { return }
+        navigationItem.largeTitleDisplayMode = .never
+        navigationItem.title = String(localized: .profileTitle)
+        if contentViewController == nil { navigationItem.titleView = nil }
+    }
+
     func profileContentViewControllerDidTapSignOut(_ viewController: ProfileContentViewController) {
         viewModel.signOut()
     }
@@ -127,6 +143,14 @@ public class ProfileViewController: UIViewController, ProfileContentViewControll
     // Add setter for coordinator
     func setCoordinator(_ coordinator: ProfilePageVCView.Coordinator) {
         self.coordinator = coordinator
+    }
+}
+
+extension UIViewController {
+    /// The controller the navigation bar takes its items and scroll view from. In a SwiftUI `NavigationStack`
+    /// that is SwiftUI's hosting controller, which can't see into this page's representable.
+    var navigationBarHost: UIViewController? {
+        sequence(first: self, next: \.parent).first { $0.parent is UINavigationController }
     }
 }
 

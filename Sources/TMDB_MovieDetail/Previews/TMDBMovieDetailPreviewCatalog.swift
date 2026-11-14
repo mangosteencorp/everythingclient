@@ -19,6 +19,10 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
     case watchProvidersError
     case ostSection
     case jellyfinSection
+    /// A Pokémon movie, so the page shows its "Open Pokédex" link.
+    case pokedexLink
+    /// Three loaded movies to swipe between, opened on the middle one.
+    case pager
 
     @MainActor @ViewBuilder
     public var view: some View {
@@ -26,7 +30,17 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
         case .demo:
             TMDBMovieDetailDemoView()
         case .detailPage:
-            NavigationStack { Self.loadedPage }
+            NavigationStack { Self.loadedPage(movie: exampleMovieDetail) }
+        case .pokedexLink:
+            NavigationStack { Self.loadedPage(movie: Self.pokemonMovie) }
+        case .pager:
+            NavigationStack {
+                MovieDetailPager(
+                    movies: [exampleMovieDetail, sampleApeMovie, Self.pokemonMovie],
+                    selectedMovieId: sampleApeMovie.id,
+                    page: Self.loadedPage(movie:)
+                )
+            }
         case .creditSection:
             MovieCreditSection(movieId: exampleMovieCredits.id, creditsViewModel: Self.creditsViewModel, personRouteBuilder: { $0 })
         case .watchProviders, .watchProvidersLoading, .watchProvidersError:
@@ -59,15 +73,15 @@ public enum TMDBMovieDetailPreviewCatalog: String, CaseIterable, Identifiable {
 private extension TMDBMovieDetailPreviewCatalog {
     /// The page with every section already loaded, so it never asks TMDB for anything.
     @MainActor
-    static var loadedPage: some View {
+    static func loadedPage(movie: Movie) -> some View {
         let apiService = PreviewTMDBAPIRequester()
         let movieDetailViewModel = MovieDetailViewModel(apiService: apiService)
-        movieDetailViewModel.state = .success(exampleMovieDetail)
+        movieDetailViewModel.state = .success(movie)
         let watchProvidersViewModel = MovieWatchProvidersViewModel(apiService: apiService)
         watchProvidersViewModel.state = .success(.example)
 
         return MovieDetailPage(
-            movie: exampleMovieDetail,
+            movie: movie,
             // Only used to build view models, and every one is passed in.
             apiService: TMDBAPIService(apiKey: ""),
             movieDetailViewModel: movieDetailViewModel,
@@ -76,7 +90,29 @@ private extension TMDBMovieDetailPreviewCatalog {
             ostViewModel: MovieOSTViewModel(),
             jellyfinViewModel: MovieJellyfinViewModel(),
             discoverMovieByKeywordRouteBuilder: { _ in 1 },
-            photoSlidesRouteBuilder: { _, index in index }
+            photoSlidesRouteBuilder: { _, index in index },
+            pokedexRouteBuilder: { 2 }
+        )
+    }
+
+    /// Matched by `PokemonMovieMatcher` through both its title and the "pocket monsters" keyword.
+    static var pokemonMovie: Movie {
+        Movie(
+            id: 447_404,
+            originalTitle: "Pokémon Detective Pikachu",
+            title: "Pokémon Detective Pikachu",
+            overview: "In a world where people collect pocket-size monsters to do battle, a boy teams up with a talking Pikachu to find his missing father.",
+            posterPath: "/uhWvnFgg3BNlcUz0Re1HfQqIcCD.jpg",
+            backdropPath: nil,
+            popularity: 40.2,
+            voteAverage: 6.9,
+            voteCount: 5800,
+            releaseDate: "2019-05-03",
+            genres: [Genre(id: 28, name: "Action"), Genre(id: 10751, name: "Family")],
+            runtime: 104,
+            status: "Released",
+            video: false,
+            keywords: Movie.Keywords(keywords: [Keyword(id: 11_551, name: "pocket monsters")])
         )
     }
 

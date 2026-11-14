@@ -42,8 +42,8 @@ public struct MovieWatchProvidersSection: View {
                     }
                 }
 
-            case .error(let error):
-                SectionRetryView(message: "Error loading watch providers: \(error)") {
+            case .error:
+                SectionRetryView(message: L10n.watchProvidersLoadFailed) {
                     await watchProvidersViewModel.reload(movieId: movieId)
                 }
                 .padding(.horizontal)

@@ -2,13 +2,21 @@ import TMDB_Discover
 import TMDB_Feed
 import TMDB_Search
 public enum TMDBRoute: Route {
-    case movieDetail(MovieRouteModel)
+    /// `window` is what the detail page can swipe through: the feed rows around `movie`, that
+    /// movie included. Empty for a movie reached on its own (search, people, keywords).
+    case movieDetail(MovieRouteModel, window: [MovieRouteModel] = [])
     case tvShowDetail(Int)
     case personDetail(Int)
     case photoSlides(PhotoSlidesRouteModel)
     case pokedex
     case movieList(AdditionalMovieListParams)
     case tvShowList(TMDB_Discover.TVShowFeedType)
+
+    /// A feed movie's detail, swipeable through the feed rows around it. Shared by every feed
+    /// in every shell, so a poster always leads to the same route.
+    public static func movie(_ movie: TMDB_Feed.Movie, in window: ArraySlice<TMDB_Feed.Movie>) -> TMDBRoute {
+        .movieDetail(MovieRouteModel(movie), window: window.map(MovieRouteModel.init))
+    }
 
     /// Where a search result leads.
     ///
@@ -25,7 +33,8 @@ public enum TMDBRoute: Route {
 
     public func hash(into hasher: inout Hasher) {
         switch self {
-        case let .movieDetail(movie):
+        // Only the tapped movie: the same title from another feed position is the same route.
+        case let .movieDetail(movie, _):
             hasher.combine(movie.id)
         case let .tvShowDetail(id):
             hasher.combine(id)
@@ -45,7 +54,7 @@ public enum TMDBRoute: Route {
 
     public static func == (lhs: TMDBRoute, rhs: TMDBRoute) -> Bool {
         switch (lhs, rhs) {
-        case let (.movieDetail(lMovie), .movieDetail(rMovie)):
+        case let (.movieDetail(lMovie, _), .movieDetail(rMovie, _)):
             return lMovie.id == rMovie.id
         case let (.tvShowDetail(lId), .tvShowDetail(rId)):
             return lId == rId

@@ -15,6 +15,7 @@ public enum TMDBPreviewCatalog: String, CaseIterable, Identifiable {
     public var id: String {
         return rawValue
     }
+
     case tabsNormal
     case tabsPage
     case tabsEmbedded
@@ -52,7 +53,7 @@ public enum TMDBPreviewCatalog: String, CaseIterable, Identifiable {
             NavigationStack {
                 FeedTabsPage(
                     apiService: PreviewFeedAPIService(),
-                    detailRouteBuilder: { $0.id },
+                    detailRouteBuilder: { movie, _ in movie.id },
                     tvShowDetailRouteBuilder: { $0.id }
                 )
             }

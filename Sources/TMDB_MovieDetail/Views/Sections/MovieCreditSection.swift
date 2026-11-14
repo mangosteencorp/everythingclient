@@ -37,8 +37,8 @@ struct MovieCreditSection<Route: Hashable>: View {
                     peoples: credits.crew,
                     personRouteBuilder: personRouteBuilder
                 )
-            case let .error(errorMessage):
-                SectionRetryView(message: L10n.errorFormat(errorMessage)) {
+            case .error:
+                SectionRetryView(message: L10n.castLoadFailed) {
                     await creditsViewModel.reload(movieId: movieId)
                 }
             }

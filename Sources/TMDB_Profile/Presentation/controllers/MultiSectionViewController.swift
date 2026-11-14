@@ -52,6 +52,9 @@ protocol SelfConfiguringCell {
 
 // MARK: - View Controller
 
+/// Supplementary kind of the list-wide header (generic classes can't hold static stored properties).
+private let listHeaderKind = "list-header"
+
 class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollectionViewDelegate {
     // MARK: Properties
 
@@ -61,13 +64,16 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
     private var dataSource: UICollectionViewDiffableDataSource<Section<T>, T>?
     private var refreshControl: UIRefreshControl?
     private var refreshHandler: (() -> Void)?
-    /// Called on every scroll with the distance scrolled past the top edge (negative while pulling down).
+    /// Scrolls with the list, above the first section.
+    private let headerView: UIView?
+    /// Called on every scroll with the list's vertical content offset.
     var onScroll: ((CGFloat) -> Void)?
 
     // MARK: Initialization
 
-    init(sections: [Section<T>], delegate: MultiSectionViewControllerDelegate? = nil) {
+    init(sections: [Section<T>], headerView: UIView? = nil, delegate: MultiSectionViewControllerDelegate? = nil) {
         self.sections = sections
+        self.headerView = headerView
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
@@ -84,6 +90,12 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
         setupCollectionView()
         setupDataSource()
         reloadData()
+    }
+
+    override func viewIsAppearing(_ animated: Bool) {
+        super.viewIsAppearing(animated)
+        // Without this the bars can't find this list on its own: no scroll edge effect, no tab bar minimizing.
+        navigationBarHost?.setContentScrollView(collectionView)
     }
 
     // MARK: Public Methods
@@ -177,6 +189,11 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: SectionHeaderView.reuseIdentifier
         )
+        collectionView.register(
+            UICollectionReusableView.self,
+            forSupplementaryViewOfKind: listHeaderKind,
+            withReuseIdentifier: listHeaderKind
+        )
     }
 
     private func configure<C: SelfConfiguringCell>(
@@ -209,6 +226,9 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
         }
 
         dataSource?.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
+            if kind == listHeaderKind, let headerView = self?.headerView {
+                return Self.listHeader(holding: headerView, in: collectionView, at: indexPath)
+            }
             guard let self = self,
                   kind == UICollectionView.elementKindSectionHeader,
                   let header = collectionView.dequeueReusableSupplementaryView(
@@ -236,7 +256,7 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
     // MARK: - UICollectionViewDelegate
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        onScroll?(scrollView.contentOffset.y + scrollView.adjustedContentInset.top)
+        onScroll?(scrollView.contentOffset.y)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -260,6 +280,7 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
 
         let config = UICollectionViewCompositionalLayoutConfiguration()
         config.interSectionSpacing = 20
+        config.boundarySupplementaryItems = headerView == nil ? [] : [Self.listHeaderItem]
         layout.configuration = config
         return layout
     }
@@ -338,6 +359,36 @@ class MultiSectionViewController<T: CollectionItem>: UIViewController, UICollect
         layoutSection.boundarySupplementaryItems = [header]
 
         return layoutSection
+    }
+}
+
+private extension MultiSectionViewController {
+    /// The list-wide header's slot, above the first section; it sizes itself to `headerView`.
+    static var listHeaderItem: NSCollectionLayoutBoundarySupplementaryItem {
+        NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(240)),
+            elementKind: listHeaderKind,
+            alignment: .top
+        )
+    }
+
+    /// The list-wide header's reusable view, with `headerView` pinned inside (moved over if the view was recycled).
+    static func listHeader(holding headerView: UIView, in collectionView: UICollectionView, at indexPath: IndexPath) -> UICollectionReusableView {
+        let container = collectionView.dequeueReusableSupplementaryView(
+            ofKind: listHeaderKind,
+            withReuseIdentifier: listHeaderKind,
+            for: indexPath
+        )
+        guard headerView.superview !== container else { return container }
+        container.addSubview(headerView)
+        headerView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            headerView.topAnchor.constraint(equalTo: container.topAnchor),
+            headerView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            headerView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            headerView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+        ])
+        return container
     }
 }
 
